@@ -1,6 +1,4 @@
-import { DeployButton } from "@/components/deploy-button";
-import { EnvVarWarning } from "@/components/env-var-warning";
-import { AuthButton } from "@/components/auth-button";
+
 import { Hero1 } from "@/components/hero-2";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { ConnectSupabaseSteps } from "@/components/tutorial/connect-supabase-steps";

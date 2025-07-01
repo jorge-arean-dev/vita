@@ -157,7 +157,7 @@ export default function StylesPage() {
     <div className="container py-10">
       <h1 className="text-4xl font-bold mb-6">Style Guide</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Explore and customize the application's colors, typography, and other visual styles.
+        Explore and customize the application&apos;s colors, typography, and other visual styles.
       </p>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">

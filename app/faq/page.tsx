@@ -71,7 +71,7 @@ export default function FAQ() {
             <AccordionContent>
               The Review stage offers LinkedIn Profile Analysis (using candidate LinkedIn URLs) and PDF Resume Analysis 
               for uploaded resumes. Both provide structured, AI-driven insights. You can save candidates for future 
-              steps, and they'll be linked to the current job.
+              steps, and they&apos;ll be linked to the current job.
             </AccordionContent>
           </AccordionItem>
 
@@ -105,8 +105,8 @@ export default function FAQ() {
           <AccordionItem value="job-creation">
             <AccordionTrigger className="font-sans">How do I create a new job in Vita?</AccordionTrigger>
             <AccordionContent>
-              Click the job creation button to open a dialog where you'll enter the Job Name, Company, and Initial Notes. 
-              After clicking "Create Job", the job page opens with a stage navigator at the top showing all six stages. 
+              Click the job creation button to open a dialog where you&apos;ll enter the Job Name, Company, and Initial Notes. 
+              After clicking &quot;Create Job&quot;, the job page opens with a stage navigator at the top showing all six stages. 
               You can move freely between stages as needed.
             </AccordionContent>
           </AccordionItem>
@@ -126,7 +126,7 @@ export default function FAQ() {
             <AccordionContent>
               Throughout Vita, AI-generated outputs come with copy icons that allow you to easily copy content 
               for external use. This includes job descriptions, Boolean search queries, profile summaries, 
-              email templates, and client communications - making it simple to use Vita's outputs in your 
+              email templates, and client communications - making it simple to use Vita&apos;s outputs in your 
               preferred external tools.
             </AccordionContent>
           </AccordionItem>
