@@ -120,15 +120,22 @@ function ChartTooltipContent({
   labelKey,
 }: {
   active?: boolean
-  payload?: Array<any>
+  payload?: Array<{
+    dataKey?: string
+    name?: string
+    value?: number | string
+    payload?: Record<string, unknown>
+    color?: string
+    fill?: string
+  }>
   className?: string
   indicator?: "line" | "dot" | "dashed"
   hideLabel?: boolean
   hideIndicator?: boolean
   label?: React.ReactNode
-  labelFormatter?: (label: any, payload: any[]) => React.ReactNode
+  labelFormatter?: (label: React.ReactNode, payload: Array<Record<string, unknown>>) => React.ReactNode
   labelClassName?: string
-  formatter?: (value: any, name: string, item: any, index: number, payload: any) => React.ReactNode
+  formatter?: (value: number | string, name: string, item: Record<string, unknown>, index: number, payload: Record<string, unknown>) => React.ReactNode
   color?: string
   nameKey?: string
   labelKey?: string
@@ -151,7 +158,7 @@ function ChartTooltipContent({
     if (labelFormatter) {
       return (
         <div className={cn("font-medium", labelClassName)}>
-          {labelFormatter(value, payload)}
+          {labelFormatter(value, payload as Array<Record<string, unknown>>)}
         </div>
       )
     }
@@ -189,7 +196,7 @@ function ChartTooltipContent({
         {payload.map((item, index) => {
           const key = `${nameKey || item.name || item.dataKey || "value"}`
           const itemConfig = getPayloadConfigFromPayload(config, item, key)
-          const indicatorColor = color || item.payload.fill || item.color
+          const indicatorColor = color || item.payload?.fill || item.color
 
           return (
             <div
@@ -200,7 +207,7 @@ function ChartTooltipContent({
               )}
             >
               {formatter && item?.value !== undefined && item.name ? (
-                formatter(item.value, item.name, item, index, item.payload)
+                formatter(item.value, item.name, item, index, item.payload || {} as Record<string, unknown>)
               ) : (
                 <>
                   {itemConfig?.icon ? (
@@ -264,7 +271,12 @@ function ChartLegendContent({
   verticalAlign = "bottom",
   nameKey,
 }: React.ComponentProps<"div"> & {
-    payload?: Array<any>
+    payload?: Array<{
+      value?: string
+      dataKey?: string
+      color?: string
+      payload?: Record<string, unknown>
+    }>
     verticalAlign?: "top" | "middle" | "bottom"
     hideIcon?: boolean
     nameKey?: string
@@ -315,10 +327,10 @@ function ChartLegendContent({
 // Helper to extract item config from a payload.
 function getPayloadConfigFromPayload(
   config: ChartConfig,
-  payload: any,
+  payload: Record<string, unknown> | undefined,
   key: string
 ) {
-  if (typeof payload !== "object" || payload === null) {
+  if (!payload || typeof payload !== "object" || payload === null) {
     return undefined
   }
 
@@ -326,7 +338,7 @@ function getPayloadConfigFromPayload(
     "payload" in payload &&
     typeof payload.payload === "object" &&
     payload.payload !== null
-      ? payload.payload
+      ? payload.payload as Record<string, unknown>
       : undefined
 
   let configLabelKey: string = key
@@ -339,11 +351,9 @@ function getPayloadConfigFromPayload(
   } else if (
     payloadPayload &&
     key in payloadPayload &&
-    typeof payloadPayload[key as keyof typeof payloadPayload] === "string"
+    typeof payloadPayload[key] === "string"
   ) {
-    configLabelKey = payloadPayload[
-      key as keyof typeof payloadPayload
-    ] as string
+    configLabelKey = payloadPayload[key] as string
   }
 
   return configLabelKey in config
