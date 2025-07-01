@@ -50,10 +50,9 @@ export function TypographySettings({ fontSizes, setFontSizes }: TypographySettin
                   step={1}
                   value={[size]}
                   onValueChange={(value) => {
-                    setFontSizes(prev => ({
-                      ...prev,
-                      [name]: value[0]
-                    }))
+                    // Create a new font sizes object with the updated value
+                    const newFontSizes = { ...fontSizes, [name]: value[0] }
+                    setFontSizes(newFontSizes)
                   }}
                 />
               </div>
