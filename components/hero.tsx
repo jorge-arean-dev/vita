@@ -4,10 +4,10 @@ export function Hero() {
   return (
     <div className="flex flex-col gap-8 items-center py-16 px-4 text-center">
       <div className="space-y-4 max-w-3xl mx-auto">
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight font-sans">
           .vita <span className="text-primary"></span>
         </h1>
-        <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
+        <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto font-mono">
           Streamline recruitment duties with your Virtual Interface for Talent Acquisition
         </p>
       </div>
