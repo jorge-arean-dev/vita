@@ -16,6 +16,7 @@ export function MobileNav({ publicOnly = false }: MobileNavProps) {
     { href: "/faq", label: "FAQ", public: true },
     { href: "/pricing", label: "Pricing", public: false },
     { href: "/contact", label: "Contact", public: false },
+    { href: "/settings", label: "Settings", public: false, authOnly: true },
   ]
   
   // Filter links based on publicOnly prop

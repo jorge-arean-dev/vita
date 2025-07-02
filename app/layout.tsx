@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { FontProvider } from "@/components/ui/font-provider";
+import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -31,6 +32,7 @@ export default function RootLayout({
         >
           <FontProvider>
             {children}
+            <Toaster />
           </FontProvider>
         </ThemeProvider>
       </body>
