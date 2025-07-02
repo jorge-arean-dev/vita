@@ -6,7 +6,7 @@
 /**
  * Log an error with context in production environments
  */
-export function logError(context: string, error: any) {
+export function logError(context: string, error: unknown) {
   // Only log detailed errors in production
   if (process.env.NODE_ENV === 'production') {
     console.error(`[${context}] Error:`, error);
@@ -16,7 +16,7 @@ export function logError(context: string, error: any) {
 /**
  * Log information with context in production environments
  */
-export function logInfo(context: string, message: string, data?: any) {
+export function logInfo(context: string, message: string, data?: Record<string, unknown>) {
   // Only log in production
   if (process.env.NODE_ENV === 'production') {
     console.log(`[${context}] ${message}`, data || '');
@@ -26,7 +26,7 @@ export function logInfo(context: string, message: string, data?: any) {
 /**
  * Log warnings with context in production environments
  */
-export function logWarning(context: string, message: string, data?: any) {
+export function logWarning(context: string, message: string, data?: Record<string, unknown>) {
   // Only log in production
   if (process.env.NODE_ENV === 'production') {
     console.warn(`[${context}] ${message}`, data || '');

@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -43,12 +42,73 @@ export function UserAvatarDropdown({ user, profile: initialProfile }: UserAvatar
       logInfo('Storage', 'Storage state on mount', storageState);
     }
   }, []);
+  // Function to get avatar URL from storage with caching
+  const getAvatarUrl = useCallback(async (avatarPath: string) => {
+    try {
+      logInfo('Avatar', `Fetching avatar for user ${user.id}`);
+      monitorAvatarLoading('fetch', user.id);
+
+      // Generate a signed URL that expires in 60 minutes
+      const { data, error } = await supabase
+        .storage
+        .from('avatars')
+        .createSignedUrl(avatarPath, 3600);
+
+      if (data?.signedUrl && !error) {
+        // Cache the signed URL
+        const cacheKey = `${cacheKeyPrefix}${avatarPath}`;
+        try {
+          sessionStorage.setItem(cacheKey, data.signedUrl);
+          monitorAvatarLoading('cache_hit', user.id);
+        } catch (error) {
+          // Handle errors with sessionStorage
+          logError('Avatar', error);
+          monitorAvatarLoading('error', user.id);
+        }
+
+        setAvatarUrl(data.signedUrl);
+      } else {
+        setAvatarUrl(null);
+        logInfo('Avatar', `Failed to get signed URL for ${avatarPath}`);
+      }
+    } catch (error) {
+      setAvatarUrl(null);
+      logError('Avatar', error);
+      monitorAvatarLoading('error', user.id);
+    }
+  }, [cacheKeyPrefix, supabase, user.id]);
+
+  // Clear previous user's avatar cache
+  const clearPreviousUserCache = useCallback(() => {
+    try {
+      // Find and remove all avatar cache entries for previous users
+      const keysToRemove: string[] = [];
+      
+      // Identify avatar cache entries for previous users
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i);
+        if (key && key.startsWith('avatar_') && !key.startsWith(cacheKeyPrefix)) {
+          keysToRemove.push(key);
+        }
+      }
+      
+      // Remove the identified entries
+      if (keysToRemove.length > 0) {
+        logInfo('Avatar', `Clearing ${keysToRemove.length} stale avatar cache entries`);
+        keysToRemove.forEach(key => sessionStorage.removeItem(key));
+      }
+    } catch (error) {
+      // Handle errors with sessionStorage
+      logError('Avatar', error);
+    }
+  }, [cacheKeyPrefix]);
+
   // Set up a real-time subscription to profile changes
   useEffect(() => {
     if (!user?.id) return;
     
     // Clear previous avatar cache when user changes
-    clearPreviousUserCache(user.id);
+    clearPreviousUserCache();
     
     // Set up a real-time subscription to the profiles table
     const channel = supabase
@@ -76,31 +136,9 @@ export function UserAvatarDropdown({ user, profile: initialProfile }: UserAvatar
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user?.id, supabase, cacheKeyPrefix]);
-  
-  // Clear previous user's avatar cache
-  function clearPreviousUserCache(currentUserId: string) {
-    try {
-      // Find and remove all avatar cache entries for previous users
-      const keysToRemove: string[] = [];
-      
-      for (let i = 0; i < sessionStorage.length; i++) {
-        const key = sessionStorage.key(i);
-        if (key && key.startsWith('avatar_') && !key.startsWith(cacheKeyPrefix)) {
-          keysToRemove.push(key);
-        }
-      }
-      
-      // Remove the keys in a separate loop to avoid issues with changing storage during iteration
-      keysToRemove.forEach(key => {
-        sessionStorage.removeItem(key);
-        logInfo('Avatar', `Cleared cache for key: ${key}`);
-      });
-    } catch (error) {
-      // Handle errors with sessionStorage (e.g., in Safari private mode)
-      logError('Avatar', error);
-    }
-  }
+  }, [user?.id, supabase, cacheKeyPrefix, clearPreviousUserCache, getAvatarUrl]);
+
+
 
   // Generate a signed URL for the avatar with caching
   useEffect(() => {
@@ -108,10 +146,10 @@ export function UserAvatarDropdown({ user, profile: initialProfile }: UserAvatar
       setAvatarUrl(null);
       return;
     }
-    
+
     // Use user-specific cache key to prevent stale data
     const cacheKey = `${cacheKeyPrefix}${initialProfile.avatar_url}`;
-    
+
     // Check for cached URL first
     try {
       const cachedUrl = sessionStorage.getItem(cacheKey);
@@ -128,49 +166,10 @@ export function UserAvatarDropdown({ user, profile: initialProfile }: UserAvatar
       logError('Avatar', error);
       monitorAvatarLoading('error', user.id);
     }
-    
+
     // If no cached URL, generate a new one
     getAvatarUrl(initialProfile.avatar_url);
-  }, [initialProfile?.avatar_url, cacheKeyPrefix, user.id]);
-  
-  // Function to get avatar URL from storage with caching
-  async function getAvatarUrl(avatarPath: string) {
-    try {
-      logInfo('Avatar', `Fetching avatar for user ${user.id}`);
-      monitorAvatarLoading('fetch', user.id);
-      
-      // Generate a signed URL that expires in 1 hour (3600 seconds)
-      const { data, error } = await supabase
-        .storage
-        .from('avatars')
-        .createSignedUrl(avatarPath, 3600);
-      
-      if (data?.signedUrl && !error) {
-        // Use user-specific cache key
-        const cacheKey = `${cacheKeyPrefix}${avatarPath}`;
-        
-        try {
-          // Cache the URL in sessionStorage with user-specific key
-          sessionStorage.setItem(cacheKey, data.signedUrl);
-          logInfo('Avatar', `Cached avatar for user ${user.id}`);
-        } catch (storageError) {
-          // Handle errors with sessionStorage
-          logError('Avatar', storageError);
-          monitorAvatarLoading('error', user.id);
-        }
-        
-        setAvatarUrl(data.signedUrl);
-      } else if (error) {
-        logError('Avatar', error);
-        monitorAvatarLoading('error', user.id);
-        setAvatarUrl(null);
-      }
-    } catch (error) {
-      logError('Avatar', error);
-      monitorAvatarLoading('error', user.id);
-      setAvatarUrl(null);
-    }
-  }
+  }, [initialProfile?.avatar_url, cacheKeyPrefix, user.id, getAvatarUrl]);
 
   const handleLogout = async () => {
     try {

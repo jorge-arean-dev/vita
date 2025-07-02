@@ -32,7 +32,7 @@ export async function updateSession(request: NextRequest) {
           // Log cookies in production for debugging
           if (isProduction && isVercel) {
             const cookieNames = allCookies.map(c => c.name);
-            logInfo('Middleware', 'Cookies found', cookieNames);
+            logInfo('Middleware', 'Cookies found', { cookies: cookieNames });
             
             // Check for critical auth cookies
             const hasAuthCookie = cookieNames.some(name => 

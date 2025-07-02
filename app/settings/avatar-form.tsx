@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect } from "react";
 import { uploadAvatar } from "@/app/actions/profile";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
