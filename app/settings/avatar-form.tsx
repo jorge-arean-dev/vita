@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
 import { uploadAvatar } from "@/app/actions/profile";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -49,7 +48,7 @@ export default function AvatarForm({ profile }: AvatarFormProps) {
     }
     
     getAvatarUrl();
-  }, [profile?.avatar_url]);
+  }, [profile?.avatar_url, supabase.storage]);
   
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -90,7 +89,7 @@ export default function AvatarForm({ profile }: AvatarFormProps) {
         // Clear the preview after successful upload
         setPreviewUrl(null);
       }
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Something went wrong. Please try again.",

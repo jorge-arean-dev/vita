@@ -37,7 +37,7 @@ export default function ProfileForm({ profile, email }: ProfileFormProps) {
           description: "Your profile has been updated.",
         });
       }
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Something went wrong. Please try again.",
@@ -58,7 +58,7 @@ export default function ProfileForm({ profile, email }: ProfileFormProps) {
           defaultValue={profile?.first_name || ""}
           placeholder="Enter your first name"
         />
-        <p className="text-sm text-muted-foreground mt-1">This is how we'll address you in the application.</p>
+        <p className="text-sm text-muted-foreground mt-1">This is how we&apos;ll address you in the application.</p>
       </div>
       
       <div className="space-y-2">
