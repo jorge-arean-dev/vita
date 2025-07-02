@@ -1,13 +1,22 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { hasEnvVars } from "../utils";
+import { logInfo, logError, logAuth, logWarning } from "../logging";
 
 export async function updateSession(request: NextRequest) {
+  // Track if we're in production for Vercel-specific debugging
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isVercel = process.env.VERCEL === '1';
+  
+  if (isProduction && isVercel) {
+    logInfo('Middleware', `Processing ${request.method} ${request.nextUrl.pathname}`);
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   });
 
-  // If the env vars are not set, skip middleware check. You can remove this once you setup the project.
+  // If the env vars are not set, skip middleware check
   if (!hasEnvVars) {
     return supabaseResponse;
   }
@@ -18,18 +27,46 @@ export async function updateSession(request: NextRequest) {
     {
       cookies: {
         getAll() {
-          return request.cookies.getAll();
+          const allCookies = request.cookies.getAll();
+          
+          // Log cookies in production for debugging
+          if (isProduction && isVercel) {
+            const cookieNames = allCookies.map(c => c.name);
+            logInfo('Middleware', 'Cookies found', cookieNames);
+            
+            // Check for critical auth cookies
+            const hasAuthCookie = cookieNames.some(name => 
+              name.includes('supabase') || name.includes('sb-'));
+            
+            if (!hasAuthCookie) {
+              logWarning('Middleware', 'No Supabase auth cookies found');
+            }
+          }
+          
+          return allCookies;
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value),
+          // Apply cookies to the request first
+          cookiesToSet.forEach(({ name, value }) => 
+            request.cookies.set(name, value)
           );
+          
+          // Create a fresh response with the updated request
           supabaseResponse = NextResponse.next({
             request,
           });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options),
-          );
+          
+          // Apply cookies to the response with their full options
+          cookiesToSet.forEach(({ name, value, options }) => {
+            if (isProduction && isVercel) {
+              logInfo('Middleware', `Setting cookie: ${name}`, { 
+                hasOptions: !!options,
+                path: options?.path,
+                sameSite: options?.sameSite
+              });
+            }
+            supabaseResponse.cookies.set(name, value, options);
+          });
         },
       },
     },
@@ -41,9 +78,23 @@ export async function updateSession(request: NextRequest) {
 
   // IMPORTANT: DO NOT REMOVE auth.getUser()
 
+  // Get the current user
   const {
     data: { user },
+    error: userError
   } = await supabase.auth.getUser();
+  
+  // Log auth status in production
+  if (isProduction && isVercel) {
+    if (userError) {
+      logError('Middleware', userError);
+      logAuth('Session verification', undefined, false);
+    } else if (user) {
+      logAuth('Session verification', user.id, true);
+    } else {
+      logInfo('Middleware', 'No authenticated user');
+    }
+  }
 
   // Define public routes that don't require authentication
   const publicRoutes = ["/", "/about", "/faq"];
@@ -60,6 +111,11 @@ export async function updateSession(request: NextRequest) {
     // no user, redirect to the login page for protected routes
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
+    
+    if (isProduction && isVercel) {
+      logInfo('Middleware', `Redirecting unauthenticated user from ${request.nextUrl.pathname} to ${url.pathname}`);
+    }
+    
     return NextResponse.redirect(url);
   }
 

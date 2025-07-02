@@ -70,7 +70,11 @@ export default async function SiteHeader() {
         {/* User Actions */}
         <div className="hidden md:flex items-center space-x-4">
           {user ? (
-            <UserAvatarDropdown user={user} profile={profile} />
+            <UserAvatarDropdown 
+              key={`user-${user.id}`} // Add key to force remount when user changes
+              user={user} 
+              profile={profile} 
+            />
           ) : (
             <div className="flex gap-2">
               <Button asChild size="sm" variant="outline">
