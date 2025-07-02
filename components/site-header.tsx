@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button"
 import { LogoutButton } from "@/components/logout-button"
 import { NavLinks } from "./nav-links"
 import { MobileNav } from "./mobile-nav"
+import { UserNavLinks } from "./user-nav-links"
+import { UserAvatarDropdown } from "./user-avatar-dropdown"
 
 export default async function SiteHeader() {
   const supabase = await createClient();
@@ -12,6 +14,27 @@ export default async function SiteHeader() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  
+  // Get user profile data if user is authenticated
+  let profile = null;
+  if (user) {
+    try {
+      // Use the same query approach as in settings page
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+        
+      if (error) {
+        console.error("Error fetching profile:", error);
+      }
+      
+      profile = data;
+    } catch (error) {
+      console.error("Exception fetching profile:", error);
+    }
+  }
   
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -26,7 +49,7 @@ export default async function SiteHeader() {
 
         {/* Navigation Links - Center */}
         <nav className="hidden md:flex items-center space-x-8">
-          <NavLinks publicOnly={!!user} />
+          {user ? <UserNavLinks /> : <NavLinks publicOnly={false} />}
         </nav>
 
         {/* Mobile Navigation Button */}
@@ -47,12 +70,7 @@ export default async function SiteHeader() {
         {/* User Actions */}
         <div className="hidden md:flex items-center space-x-4">
           {user ? (
-            <>
-              <div className="flex items-center gap-4">
-                <span className="text-sm">Hey, {user.email}</span>
-                <LogoutButton />
-              </div>
-            </>
+            <UserAvatarDropdown user={user} profile={profile} />
           ) : (
             <div className="flex gap-2">
               <Button asChild size="sm" variant="outline">
@@ -71,9 +89,11 @@ export default async function SiteHeader() {
         <nav className="flex flex-col space-y-1 p-4">
           {user ? (
             <>
-              <MobileNav publicOnly={true} />
-              <div className="pt-2 flex flex-col space-y-2">
-                <div className="text-sm">Hey, {user.email}</div>
+              <Link href="/jobs" className="py-2 text-sm font-medium">Jobs</Link>
+              <Link href="/candidates" className="py-2 text-sm font-medium">Candidates</Link>
+              <Link href="/companies" className="py-2 text-sm font-medium">Companies</Link>
+              <div className="pt-4 flex justify-between items-center">
+                <Link href="/settings" className="text-sm font-medium">Settings</Link>
                 <LogoutButton />
               </div>
             </>

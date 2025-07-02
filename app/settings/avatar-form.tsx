@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { uploadAvatar } from "@/app/actions/profile";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -25,25 +25,34 @@ export default function AvatarForm({ profile }: AvatarFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const supabase = createClient();
   
-  // Generate a signed URL for the avatar if it exists
+  // Generate a signed URL for the avatar if it exists, with caching
   useEffect(() => {
     async function getAvatarUrl() {
-      if (profile?.avatar_url) {
-        try {
-          // Generate a signed URL that expires in 1 hour (3600 seconds)
-          const { data, error } = await supabase
-            .storage
-            .from('avatars')
-            .createSignedUrl(profile.avatar_url, 3600);
-          
-          if (data?.signedUrl && !error) {
-            setAvatarUrl(data.signedUrl);
-          } else if (error) {
-            console.error('Error getting signed URL:', error);
-          }
-        } catch (error) {
-          console.error('Error in getAvatarUrl:', error);
+      if (!profile?.avatar_url) return;
+      
+      // Check for cached URL first
+      const cachedUrl = sessionStorage.getItem(`avatar_${profile.avatar_url}`);
+      if (cachedUrl) {
+        setAvatarUrl(cachedUrl);
+        return;
+      }
+      
+      try {
+        // Generate a signed URL that expires in 1 hour (3600 seconds)
+        const { data, error } = await supabase
+          .storage
+          .from('avatars')
+          .createSignedUrl(profile.avatar_url, 3600);
+        
+        if (data?.signedUrl && !error) {
+          // Cache the URL in sessionStorage
+          sessionStorage.setItem(`avatar_${profile.avatar_url}`, data.signedUrl);
+          setAvatarUrl(data.signedUrl);
+        } else if (error) {
+          console.error('Error getting signed URL:', error);
         }
+      } catch (error) {
+        console.error('Error in getAvatarUrl:', error);
       }
     }
     
