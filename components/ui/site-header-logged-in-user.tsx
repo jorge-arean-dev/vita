@@ -22,6 +22,17 @@ export default function Header({ avatarUrl, firstName }: HeaderProps) {
     async function getAvatarUrl() {
       if (avatarUrl) {
         try {
+          // Create a unique cache key using firstName as an identifier
+          // This ensures different users don't share cached avatars
+          const cacheKey = `avatar_${firstName}_${avatarUrl}`;
+          
+          // Check for cached URL first
+          const cachedUrl = sessionStorage.getItem(cacheKey);
+          if (cachedUrl) {
+            setSignedAvatarUrl(cachedUrl);
+            return;
+          }
+          
           // Generate a signed URL that expires in 1 hour (3600 seconds)
           const { data, error } = await supabase
             .storage
@@ -29,6 +40,8 @@ export default function Header({ avatarUrl, firstName }: HeaderProps) {
             .createSignedUrl(avatarUrl, 3600);
           
           if (data?.signedUrl && !error) {
+            // Cache the URL with the user-specific key
+            sessionStorage.setItem(cacheKey, data.signedUrl);
             setSignedAvatarUrl(data.signedUrl);
           } else if (error) {
             console.error('Error getting signed URL:', error);
@@ -40,10 +53,18 @@ export default function Header({ avatarUrl, firstName }: HeaderProps) {
     }
     
     getAvatarUrl();
-  }, [avatarUrl, supabase.storage]);
+  }, [avatarUrl, firstName, supabase.storage]);
 
   const logout = async () => {
     const supabase = createClient()
+    
+    // Clear all avatar-related items from sessionStorage on logout
+    Object.keys(sessionStorage).forEach(key => {
+      if (key.startsWith('avatar_')) {
+        sessionStorage.removeItem(key);
+      }
+    });
+    
     await supabase.auth.signOut()
     router.push("/")
   }
