@@ -1,0 +1,88 @@
+"use client"
+
+import { useState } from "react"
+import Link from "next/link"
+import { cn } from "@/lib/utils"
+import { Briefcase, Building2, ChevronLeft, ChevronRight, Users, Settings } from "lucide-react"
+
+export default function Sidebar() {
+  const [collapsed, setCollapsed] = useState(false)
+
+  const toggleSidebar = () => {
+    setCollapsed(!collapsed)
+  }
+
+  return (
+    <div
+      className={cn(
+        "flex flex-col h-screen bg-background border-r transition-all duration-300 ease-in-out",
+        collapsed ? "w-16" : "w-56",
+      )}
+    >
+      <div className="p-4 flex justify-end">
+        <button
+          onClick={toggleSidebar}
+          className="p-2 rounded-full hover:bg-accent text-muted-foreground hover:text-foreground"
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+        </button>
+      </div>
+
+      <nav className="flex-1 px-2 py-4 space-y-2">
+        <Link
+          href="/protected/jobs"
+          className={cn(
+            "flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors",
+            "hover:bg-accent hover:text-accent-foreground",
+            collapsed ? "justify-center" : "justify-start",
+            // Active state - replace this condition with actual route checking
+            true ? "bg-primary text-primary-foreground" : "text-muted-foreground",
+          )}
+        >
+          <Briefcase className={cn("h-5 w-5", collapsed ? "mx-0" : "mr-3")} />
+          {!collapsed && <span>Jobs</span>}
+        </Link>
+
+        <Link
+          href="/protected/candidates"
+          className={cn(
+            "flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors",
+            "hover:bg-accent hover:text-accent-foreground",
+            collapsed ? "justify-center" : "justify-start",
+            false ? "bg-primary text-primary-foreground" : "text-muted-foreground",
+          )}
+        >
+          <Users className={cn("h-5 w-5", collapsed ? "mx-0" : "mr-3")} />
+          {!collapsed && <span>Candidates</span>}
+        </Link>
+
+        <Link
+          href="/protected/companies"
+          className={cn(
+            "flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors",
+            "hover:bg-accent hover:text-accent-foreground",
+            collapsed ? "justify-center" : "justify-start",
+            false ? "bg-primary text-primary-foreground" : "text-muted-foreground",
+          )}
+        >
+          <Building2 className={cn("h-5 w-5", collapsed ? "mx-0" : "mr-3")} />
+          {!collapsed && <span>Companies</span>}
+        </Link>
+
+        <Link
+          href="/protected/settings"
+          className={cn(
+            "flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors",
+            "hover:bg-accent hover:text-accent-foreground",
+            collapsed ? "justify-center" : "justify-start",
+            false ? "bg-primary text-primary-foreground" : "text-muted-foreground",
+          )}
+        >
+          <Settings className={cn("h-5 w-5", collapsed ? "mx-0" : "mr-3")} />
+          {!collapsed && <span>Settings</span>}
+        </Link>
+      </nav>
+    </div>
+  )
+}
