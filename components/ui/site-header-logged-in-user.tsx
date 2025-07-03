@@ -23,8 +23,16 @@ export default function Header({ avatarUrl, firstName, userId }: HeaderProps) {
     // Clear all user-specific cache items on logout
     clearAllAvatarCaches();
     
+    // Clear all localStorage and sessionStorage
+    if (typeof window !== 'undefined') {
+      sessionStorage.clear();
+      localStorage.clear();
+    }
+    
     await supabase.auth.signOut()
-    router.push("/")
+    
+    // Force a hard navigation to clear any cached state
+    window.location.href = "/";
   }
 
   // Get first letter of first name for avatar fallback

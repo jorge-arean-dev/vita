@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { unstable_noStore as noStore } from 'next/cache';
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,6 +13,9 @@ export const metadata: Metadata = {
 };
 
 export default async function SettingsPage() {
+  // Disable caching to ensure fresh user data on each request
+  noStore();
+  
   const supabase = await createClient();
   
   // Get current user

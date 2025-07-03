@@ -1,7 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { unstable_noStore as noStore } from 'next/cache';
 
 export default async function JobsPage() {
+  // Disable caching to ensure fresh user data on each request
+  noStore();
+  
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 

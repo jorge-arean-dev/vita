@@ -119,6 +119,23 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Add cache control headers for user-specific content
+  if (user && !isPublicRoute) {
+    supabaseResponse.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, private');
+    supabaseResponse.headers.set('Pragma', 'no-cache');
+    supabaseResponse.headers.set('Expires', '0');
+    supabaseResponse.headers.set('Vary', 'Cookie, Authorization');
+    
+    // Add user-specific header for cache segmentation
+    supabaseResponse.headers.set('X-User-ID', user.id);
+    // Add timestamp to prevent any caching
+    supabaseResponse.headers.set('X-Timestamp', Date.now().toString());
+    
+    if (isProduction && isVercel) {
+      logInfo('Middleware', `Added no-cache headers for user ${user.id}`);
+    }
+  }
+
   // IMPORTANT: You *must* return the supabaseResponse object as it is.
   // If you're creating a new response object with NextResponse.next() make sure to:
   // 1. Pass the request in it, like so:
