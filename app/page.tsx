@@ -1,12 +1,22 @@
 
+import { createClient } from "@/lib/supabase/server";
 import HeroSection from "@/components/ui/hero-3";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { ConnectSupabaseSteps } from "@/components/tutorial/connect-supabase-steps";
 import { SignUpUserSteps } from "@/components/tutorial/sign-up-user-steps";
 import { hasEnvVars } from "@/lib/utils";
 import Header from "@/components/site-header";
+import { redirect } from "next/navigation";
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  // If user is logged in, redirect to protected dashboard
+  if (user) {
+    redirect("/protected");
+  }
+  
   return (
     <main className="min-h-screen flex flex-col items-center">
       <div className="flex-1 w-full flex flex-col gap-8 items-center">
