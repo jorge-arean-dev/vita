@@ -1,18 +1,19 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { uploadAvatar } from "@/app/actions/profile";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/components/ui/use-toast";
 import { Upload, X } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { useAvatar } from "@/hooks/use-avatar";
 
 interface AvatarFormProps {
   profile: {
     avatar_url: string | null;
     first_name: string | null;
+    user_id: string;
     // Add other profile fields as needed
   } | null;
 }
@@ -21,43 +22,12 @@ export default function AvatarForm({ profile }: AvatarFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const supabase = createClient();
   
-  // Generate a signed URL for the avatar if it exists, with caching
-  useEffect(() => {
-    async function getAvatarUrl() {
-      if (!profile?.avatar_url) return;
-      
-      // Check for cached URL first
-      const cachedUrl = sessionStorage.getItem(`avatar_${profile.avatar_url}`);
-      if (cachedUrl) {
-        setAvatarUrl(cachedUrl);
-        return;
-      }
-      
-      try {
-        // Generate a signed URL that expires in 1 hour (3600 seconds)
-        const { data, error } = await supabase
-          .storage
-          .from('avatars')
-          .createSignedUrl(profile.avatar_url, 3600);
-        
-        if (data?.signedUrl && !error) {
-          // Cache the URL in sessionStorage
-          sessionStorage.setItem(`avatar_${profile.avatar_url}`, data.signedUrl);
-          setAvatarUrl(data.signedUrl);
-        } else if (error) {
-          console.error('Error getting signed URL:', error);
-        }
-      } catch (error) {
-        console.error('Error in getAvatarUrl:', error);
-      }
-    }
-    
-    getAvatarUrl();
-  }, [profile?.avatar_url, supabase.storage]);
+  const { signedAvatarUrl: avatarUrl, clearAvatarCache } = useAvatar({ 
+    avatarUrl: profile?.avatar_url, 
+    userId: profile?.user_id 
+  });
   
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -97,6 +67,10 @@ export default function AvatarForm({ profile }: AvatarFormProps) {
         });
         // Clear the preview after successful upload
         setPreviewUrl(null);
+        // Clear avatar cache to force reload of new avatar
+        if (profile?.user_id) {
+          clearAvatarCache(profile.user_id);
+        }
       }
     } catch {
       toast({

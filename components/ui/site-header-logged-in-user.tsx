@@ -5,65 +5,23 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { useState, useEffect } from "react"
+import { useAvatar } from "@/hooks/use-avatar"
 
 interface HeaderProps {
   avatarUrl?: string | null
   firstName?: string | null
+  userId?: string | null
 }
 
-export default function Header({ avatarUrl, firstName }: HeaderProps) {
+export default function Header({ avatarUrl, firstName, userId }: HeaderProps) {
   const router = useRouter()
-  const supabase = createClient()
-  const [signedAvatarUrl, setSignedAvatarUrl] = useState<string | null>(null)
-  
-  // Generate a signed URL for the avatar if it exists
-  useEffect(() => {
-    async function getAvatarUrl() {
-      if (avatarUrl) {
-        try {
-          // Create a unique cache key using firstName as an identifier
-          // This ensures different users don't share cached avatars
-          const cacheKey = `avatar_${firstName}_${avatarUrl}`;
-          
-          // Check for cached URL first
-          const cachedUrl = sessionStorage.getItem(cacheKey);
-          if (cachedUrl) {
-            setSignedAvatarUrl(cachedUrl);
-            return;
-          }
-          
-          // Generate a signed URL that expires in 1 hour (3600 seconds)
-          const { data, error } = await supabase
-            .storage
-            .from('avatars')
-            .createSignedUrl(avatarUrl, 3600);
-          
-          if (data?.signedUrl && !error) {
-            // Cache the URL with the user-specific key
-            sessionStorage.setItem(cacheKey, data.signedUrl);
-            setSignedAvatarUrl(data.signedUrl);
-          } else if (error) {
-            console.error('Error getting signed URL:', error);
-          }
-        } catch (error) {
-          console.error('Error in getAvatarUrl:', error);
-        }
-      }
-    }
-    
-    getAvatarUrl();
-  }, [avatarUrl, firstName, supabase.storage]);
+  const { signedAvatarUrl, clearAllAvatarCaches } = useAvatar({ avatarUrl, userId })
 
   const logout = async () => {
     const supabase = createClient()
     
-    // Clear all avatar-related items from sessionStorage on logout
-    Object.keys(sessionStorage).forEach(key => {
-      if (key.startsWith('avatar_')) {
-        sessionStorage.removeItem(key);
-      }
-    });
+    // Clear all user-specific cache items on logout
+    clearAllAvatarCaches();
     
     await supabase.auth.signOut()
     router.push("/")
