@@ -169,7 +169,7 @@ export function UserAvatarDropdown({ user, profile: initialProfile }: UserAvatar
       <DropdownMenuContent align="end">
         <DropdownMenuItem asChild>
           <Link 
-            href="/settings" 
+            href="/protected/settings" 
             className="flex items-center"
             // Use replace instead of push to avoid navigation history issues
             // This helps prevent back button problems with authentication
@@ -177,8 +177,8 @@ export function UserAvatarDropdown({ user, profile: initialProfile }: UserAvatar
             onClick={() => {
               // Always monitor settings navigation in production
               if (process.env.NODE_ENV === 'production') {
-                monitorNavigation(pathname || 'unknown', '/settings', { sampleRate: 1.0 });
-                logInfo('Navigation', `Navigating from ${pathname} to /settings`);
+                monitorNavigation(pathname || 'unknown', '/protected/settings', { sampleRate: 1.0 });
+                logInfo('Navigation', `Navigating from ${pathname} to /protected/settings`);
               }
             }}
           >
