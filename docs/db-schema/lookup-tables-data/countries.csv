@@ -1,0 +1,248 @@
+iso_code,display_name,region,region_parent,primary_timezone,is_active
+US,United States,north-america,americas,America/New_York,TRUE
+CA,Canada,north-america,americas,America/Toronto,TRUE
+MX,Mexico,north-america,americas,America/Mexico_City,TRUE
+BZ,Belize,central-america,americas,America/Belize,TRUE
+CR,Costa Rica,central-america,americas,America/Costa_Rica,TRUE
+SV,El Salvador,central-america,americas,America/El_Salvador,TRUE
+GT,Guatemala,central-america,americas,America/Guatemala,TRUE
+HN,Honduras,central-america,americas,America/Tegucigalpa,TRUE
+NI,Nicaragua,central-america,americas,America/Managua,TRUE
+PA,Panama,central-america,americas,America/Panama,TRUE
+AG,Antigua and Barbuda,central-america,americas,America/Antigua,TRUE
+BS,Bahamas,north-america,americas,America/Nassau,TRUE
+BB,Barbados,north-america,americas,America/Barbados,TRUE
+CU,Cuba,north-america,americas,America/Havana,TRUE
+DM,Dominica,north-america,americas,America/Dominica,TRUE
+DO,Dominican Republic,north-america,americas,America/Santo_Domingo,TRUE
+GD,Grenada,north-america,americas,America/Grenada,TRUE
+HT,Haiti,north-america,americas,America/Port-au-Prince,TRUE
+JM,Jamaica,north-america,americas,America/Jamaica,TRUE
+KN,Saint Kitts and Nevis,north-america,americas,America/St_Kitts,TRUE
+LC,Saint Lucia,north-america,americas,America/St_Lucia,TRUE
+VC,Saint Vincent and the Grenadines,north-america,americas,America/St_Vincent,TRUE
+TT,Trinidad and Tobago,north-america,americas,America/Port_of_Spain,TRUE
+AR,Argentina,south-america,americas,America/Argentina/Buenos_Aires,TRUE
+BO,Bolivia,south-america,americas,America/La_Paz,TRUE
+BR,Brazil,south-america,americas,America/Sao_Paulo,TRUE
+CL,Chile,south-america,americas,America/Santiago,TRUE
+CO,Colombia,south-america,americas,America/Bogota,TRUE
+EC,Ecuador,south-america,americas,America/Guayaquil,TRUE
+GY,Guyana,south-america,americas,America/Guyana,TRUE
+PY,Paraguay,south-america,americas,America/Asuncion,TRUE
+PE,Peru,south-america,americas,America/Lima,TRUE
+SR,Suriname,south-america,americas,America/Paramaribo,TRUE
+UY,Uruguay,south-america,americas,America/Montevideo,TRUE
+VE,Venezuela,south-america,americas,America/Caracas,TRUE
+AD,Andorra,west-europe,europe,Europe/Andorra,TRUE
+AT,Austria,west-europe,europe,Europe/Vienna,TRUE
+BE,Belgium,west-europe,europe,Europe/Brussels,TRUE
+DK,Denmark,west-europe,europe,Europe/Copenhagen,TRUE
+FI,Finland,west-europe,europe,Europe/Helsinki,TRUE
+FR,France,west-europe,europe,Europe/Paris,TRUE
+DE,Germany,west-europe,europe,Europe/Berlin,TRUE
+GR,Greece,west-europe,europe,Europe/Athens,TRUE
+IS,Iceland,west-europe,europe,Atlantic/Reykjavik,TRUE
+IE,Ireland,west-europe,europe,Europe/Dublin,TRUE
+IT,Italy,west-europe,europe,Europe/Rome,TRUE
+LI,Liechtenstein,west-europe,europe,Europe/Vaduz,TRUE
+LU,Luxembourg,west-europe,europe,Europe/Luxembourg,TRUE
+MT,Malta,west-europe,europe,Europe/Malta,TRUE
+MC,Monaco,west-europe,europe,Europe/Monaco,TRUE
+NL,Netherlands,west-europe,europe,Europe/Amsterdam,TRUE
+NO,Norway,west-europe,europe,Europe/Oslo,TRUE
+PT,Portugal,west-europe,europe,Europe/Lisbon,TRUE
+SM,San Marino,west-europe,europe,Europe/San_Marino,TRUE
+ES,Spain,west-europe,europe,Europe/Madrid,TRUE
+SE,Sweden,west-europe,europe,Europe/Stockholm,TRUE
+CH,Switzerland,west-europe,europe,Europe/Zurich,TRUE
+GB,United Kingdom,west-europe,europe,Europe/London,TRUE
+VA,Vatican City,west-europe,europe,Europe/Vatican,TRUE
+AL,Albania,east-europe,europe,Europe/Tirane,TRUE
+BA,Bosnia and Herzegovina,east-europe,europe,Europe/Sarajevo,TRUE
+BG,Bulgaria,east-europe,europe,Europe/Sofia,TRUE
+HR,Croatia,east-europe,europe,Europe/Zagreb,TRUE
+CZ,Czech Republic,east-europe,europe,Europe/Prague,TRUE
+EE,Estonia,east-europe,europe,Europe/Tallinn,TRUE
+HU,Hungary,east-europe,europe,Europe/Budapest,TRUE
+LV,Latvia,east-europe,europe,Europe/Riga,TRUE
+LT,Lithuania,east-europe,europe,Europe/Vilnius,TRUE
+MK,North Macedonia,east-europe,europe,Europe/Skopje,TRUE
+MD,Moldova,east-europe,europe,Europe/Chisinau,TRUE
+ME,Montenegro,east-europe,europe,Europe/Podgorica,TRUE
+PL,Poland,east-europe,europe,Europe/Warsaw,TRUE
+RO,Romania,east-europe,europe,Europe/Bucharest,TRUE
+RS,Serbia,east-europe,europe,Europe/Belgrade,TRUE
+SK,Slovakia,east-europe,europe,Europe/Bratislava,TRUE
+SI,Slovenia,east-europe,europe,Europe/Ljubljana,TRUE
+UA,Ukraine,east-europe,europe,Europe/Kiev,TRUE
+BY,Belarus,east-europe,europe,Europe/Minsk,TRUE
+RU,Russia,east-europe,europe,Europe/Moscow,TRUE
+TR,Turkey,east-europe,europe,Europe/Istanbul,TRUE
+CN,China,,asia,Asia/Shanghai,TRUE
+JP,Japan,,asia,Asia/Tokyo,TRUE
+KR,South Korea,,asia,Asia/Seoul,TRUE
+MY,Malaysia,,asia,Asia/Kuala_Lumpur,TRUE
+SG,Singapore,,asia,Asia/Singapore,TRUE
+TW,Taiwan,,asia,Asia/Taipei,TRUE
+TH,Thailand,,asia,Asia/Bangkok,TRUE
+VN,Vietnam,,asia,Asia/Ho_Chi_Minh,TRUE
+PH,Philippines,,asia,Asia/Manila,TRUE
+ID,Indonesia,,asia,Asia/Jakarta,TRUE
+HK,Hong Kong,,asia,Asia/Hong_Kong,TRUE
+AF,Afghanistan,,asia,Asia/Kabul,TRUE
+BD,Bangladesh,,asia,Asia/Dhaka,TRUE
+BT,Bhutan,,asia,Asia/Thimphu,TRUE
+IN,India,,asia,Asia/Kolkata,TRUE
+MV,Maldives,,asia,Indian/Maldives,TRUE
+NP,Nepal,,asia,Asia/Kathmandu,TRUE
+PK,Pakistan,,asia,Asia/Karachi,TRUE
+LK,Sri Lanka,,asia,Asia/Colombo,TRUE
+BH,Bahrain,,asia,Asia/Bahrain,TRUE
+IR,Iran,,asia,Asia/Tehran,TRUE
+IQ,Iraq,,asia,Asia/Baghdad,TRUE
+IL,Israel,,asia,Asia/Jerusalem,TRUE
+JO,Jordan,,asia,Asia/Amman,TRUE
+KW,Kuwait,,asia,Asia/Kuwait,TRUE
+LB,Lebanon,,asia,Asia/Beirut,TRUE
+OM,Oman,,asia,Asia/Muscat,TRUE
+QA,Qatar,,asia,Asia/Qatar,TRUE
+SA,Saudi Arabia,,asia,Asia/Riyadh,TRUE
+SY,Syria,,asia,Asia/Damascus,TRUE
+AE,United Arab Emirates,,asia,Asia/Dubai,TRUE
+YE,Yemen,,asia,Asia/Aden,TRUE
+DZ,Algeria,,africa,Africa/Algiers,TRUE
+AO,Angola,,africa,Africa/Luanda,TRUE
+BJ,Benin,,africa,Africa/Porto-Novo,TRUE
+BW,Botswana,,africa,Africa/Gaborone,TRUE
+BF,Burkina Faso,,africa,Africa/Ouagadougou,TRUE
+BI,Burundi,,africa,Africa/Bujumbura,TRUE
+CM,Cameroon,,africa,Africa/Douala,TRUE
+CV,Cape Verde,,africa,Atlantic/Cape_Verde,TRUE
+CF,Central African Republic,,africa,Africa/Bangui,TRUE
+TD,Chad,,africa,Africa/Ndjamena,TRUE
+KM,Comoros,,africa,Indian/Comoro,TRUE
+CG,Congo,,africa,Africa/Brazzaville,TRUE
+CD,Democratic Republic of the Congo,,africa,Africa/Kinshasa,TRUE
+DJ,Djibouti,,africa,Africa/Djibouti,TRUE
+EG,Egypt,,africa,Africa/Cairo,TRUE
+GQ,Equatorial Guinea,,africa,Africa/Malabo,TRUE
+ER,Eritrea,,africa,Africa/Asmara,TRUE
+ET,Ethiopia,,africa,Africa/Addis_Ababa,TRUE
+GA,Gabon,,africa,Africa/Libreville,TRUE
+GM,Gambia,,africa,Africa/Banjul,TRUE
+GH,Ghana,,africa,Africa/Accra,TRUE
+GN,Guinea,,africa,Africa/Conakry,TRUE
+GW,Guinea-Bissau,,africa,Africa/Bissau,TRUE
+CI,Ivory Coast,,africa,Africa/Abidjan,TRUE
+KE,Kenya,,africa,Africa/Nairobi,TRUE
+LS,Lesotho,,africa,Africa/Maseru,TRUE
+LR,Liberia,,africa,Africa/Monrovia,TRUE
+LY,Libya,,africa,Africa/Tripoli,TRUE
+MG,Madagascar,,africa,Indian/Antananarivo,TRUE
+MW,Malawi,,africa,Africa/Blantyre,TRUE
+ML,Mali,,africa,Africa/Bamako,TRUE
+MR,Mauritania,,africa,Africa/Nouakchott,TRUE
+MU,Mauritius,,africa,Indian/Mauritius,TRUE
+MA,Morocco,,africa,Africa/Casablanca,TRUE
+MZ,Mozambique,,africa,Africa/Maputo,TRUE
+NA,Namibia,,africa,Africa/Windhoek,TRUE
+NE,Niger,,africa,Africa/Niamey,TRUE
+NG,Nigeria,,africa,Africa/Lagos,TRUE
+RW,Rwanda,,africa,Africa/Kigali,TRUE
+ST,Sao Tome and Principe,,africa,Africa/Sao_Tome,TRUE
+SN,Senegal,,africa,Africa/Dakar,TRUE
+SC,Seychelles,,africa,Indian/Mahe,TRUE
+SL,Sierra Leone,,africa,Africa/Freetown,TRUE
+SO,Somalia,,africa,Africa/Mogadishu,TRUE
+ZA,South Africa,,africa,Africa/Johannesburg,TRUE
+SS,South Sudan,,africa,Africa/Juba,TRUE
+SD,Sudan,,africa,Africa/Khartoum,TRUE
+SZ,Eswatini,,africa,Africa/Mbabane,TRUE
+TZ,Tanzania,,africa,Africa/Dar_es_Salaam,TRUE
+TG,Togo,,africa,Africa/Lome,TRUE
+TN,Tunisia,,africa,Africa/Tunis,TRUE
+UG,Uganda,,africa,Africa/Kampala,TRUE
+ZM,Zambia,,africa,Africa/Lusaka,TRUE
+ZW,Zimbabwe,,africa,Africa/Harare,TRUE
+AU,Australia,,oceania,Australia/Sydney,TRUE
+FJ,Fiji,,oceania,Pacific/Fiji,TRUE
+KI,Kiribati,,oceania,Pacific/Tarawa,TRUE
+MH,Marshall Islands,,oceania,Pacific/Majuro,TRUE
+FM,Micronesia,,oceania,Pacific/Pohnpei,TRUE
+NR,Nauru,,oceania,Pacific/Nauru,TRUE
+NZ,New Zealand,,oceania,Pacific/Auckland,TRUE
+PW,Palau,,oceania,Pacific/Palau,TRUE
+PG,Papua New Guinea,,oceania,Pacific/Port_Moresby,TRUE
+WS,Samoa,,oceania,Pacific/Apia,TRUE
+SB,Solomon Islands,,oceania,Pacific/Guadalcanal,TRUE
+TO,Tonga,,oceania,Pacific/Tongatapu,TRUE
+TV,Tuvalu,,oceania,Pacific/Funafuti,TRUE
+VU,Vanuatu,,oceania,Pacific/Efate,TRUE
+AI,Anguilla,,,,TRUE
+AM,Armenia,,,,TRUE
+AQ,Antarctica,,,,TRUE
+AS,American Samoa,,,,TRUE
+AW,Aruba,,,,TRUE
+AX,Åland Islands,,,,TRUE
+AZ,Azerbaijan,,,,TRUE
+BL,Saint Barthélemy,,,,TRUE
+BM,Bermuda,,,,TRUE
+BN,Brunei,,,,TRUE
+BQ,Caribbean Netherlands,,,,TRUE
+CC,Cocos Islands,,,,TRUE
+CK,Cook Islands,,,,TRUE
+CW,Curaçao,,,,TRUE
+CX,Christmas Island,,,,TRUE
+CY,Cyprus,,,,TRUE
+EH,Western Sahara,,,,TRUE
+FK,Falkland Islands,,,,TRUE
+FO,Faroe Islands,,,,TRUE
+GE,Georgia,,,,TRUE
+GF,French Guiana,,,,TRUE
+GG,Guernsey,,,,TRUE
+GI,Gibraltar,,,,TRUE
+GL,Greenland,,,,TRUE
+GP,Guadeloupe,,,,TRUE
+GS,South Georgia and the South Sandwich Islands,,,,TRUE
+GU,Guam,,,,TRUE
+IM,Isle of Man,,,,TRUE
+IO,British Indian Ocean Territory,,,,TRUE
+JE,Jersey,,,,TRUE
+KG,Kyrgyzstan,,,,TRUE
+KH,Cambodia,,,,TRUE
+KP,North Korea,,,,TRUE
+KY,Cayman Islands,,,,TRUE
+KZ,Kazakhstan,,,,TRUE
+LA,Laos,,,,TRUE
+MF,Saint Martin,,,,TRUE
+MM,Myanmar,,,,TRUE
+MN,Mongolia,,,,TRUE
+MO,Macao,,,,TRUE
+MP,Northern Mariana Islands,,,,TRUE
+MQ,Martinique,,,,TRUE
+MS,Montserrat,,,,TRUE
+NC,New Caledonia,,,,TRUE
+NF,Norfolk Island,,,,TRUE
+NU,Niue,,,,TRUE
+PF,French Polynesia,,,,TRUE
+PM,Saint Pierre and Miquelon,,,,TRUE
+PN,Pitcairn,,,,TRUE
+PR,Puerto Rico,,,,TRUE
+PS,Palestine,,,,TRUE
+RE,Réunion,,,,TRUE
+SH,"Saint Helena, Ascension and Tristan da Cunha",,,,TRUE
+SJ,Svalbard and Jan Mayen,,,,TRUE
+SX,Sint Maarten,,,,TRUE
+TC,Turks and Caicos Islands,,,,TRUE
+TF,French Southern Territories,,,,TRUE
+TJ,Tajikistan,,,,TRUE
+TK,Tokelau,,,,TRUE
+TL,Timor-Leste,,,,TRUE
+TM,Turkmenistan,,,,TRUE
+UM,United States Minor Outlying Islands,,,,TRUE
+UZ,Uzbekistan,,,,TRUE
+VG,Virgin Islands (UK),,,,TRUE
+VI,Virgin Islands (US),,,,TRUE
+WF,Wallis and Futuna,,,,TRUE
+YT,Mayotte,,,,TRUE

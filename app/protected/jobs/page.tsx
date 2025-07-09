@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { unstable_noStore as noStore } from 'next/cache';
+import { getJobs } from "@/app/actions/jobs";
+import JobsTable from "@/components/jobs-table";
 
 export default async function JobsPage() {
   // Disable caching to ensure fresh user data on each request
@@ -13,19 +15,12 @@ export default async function JobsPage() {
     redirect("/auth/login");
   }
 
-  return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-medium">Jobs</h3>
-        <p className="text-sm text-muted-foreground">
-          Manage and browse job listings.
-        </p>
-      </div>
-      <div className="rounded-md bg-secondary p-8 text-center">
-        <p className="text-muted-foreground">
-          Job listings will be displayed here. This section is under development.
-        </p>
-      </div>
-    </div>
-  );
+  let jobs;
+  try {
+    jobs = await getJobs();
+  } catch (error) {
+    jobs = [];
+  }
+
+  return <JobsTable jobs={jobs} />;
 }

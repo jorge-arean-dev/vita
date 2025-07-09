@@ -1,0 +1,12 @@
+display_name,name,is_parent,is_active
+North America,north-america,FALSE,TRUE
+South America,south-america,FALSE,TRUE
+Central America,central-america,FALSE,TRUE
+West Europe,west-europe,FALSE,TRUE
+East Europe,east-europe,FALSE,TRUE
+Africa,africa,TRUE,TRUE
+Middle East,middle-east,FALSE,FALSE
+Oceania,oceania,TRUE,TRUE
+Americas,americas,TRUE,TRUE
+Asia,asia,TRUE,TRUE
+Europe,europe,TRUE,TRUE
