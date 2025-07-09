@@ -1,0 +1,1524 @@
+{
+  "tables": [
+    {
+      "table": "jobs",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "description": "Primary key",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "description": "Foreign key to profiles table - profiles.user_id",
+          "is_foreign_key": true,
+          "has_explicit_allowed_values": true,
+          "references": {
+            "table": "profiles",
+            "column": "user_id"
+          },
+          "allowed_values_source": {
+            "type": "table",
+            "table": "profiles",
+            "column": "user_id"
+          }
+        },
+        {
+          "name": "company_id",
+          "type": "uuid",
+          "description": "Foreign key to companies table - companies.id",
+          "is_foreign_key": true,
+          "has_explicit_allowed_values": true,
+          "references": {
+            "table": "companies",
+            "column": "id"
+          },
+          "allowed_values_source": {
+            "type": "table",
+            "table": "companies",
+            "column": "id"
+          }
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "description": "Job title",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "initial_notes",
+          "type": "text",
+          "description": "Initial notes",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "rate",
+          "type": "numeric",
+          "description": "Pay rate offered for the role. This value admits up to 2 decimal digits. E.g.: 60.51",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "pay_freq",
+          "type": "text",
+          "description": "Frequency of payments",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": true,
+          "allowed_values_source": {
+            "type": "table",
+            "table": "job_pay_frequencies",
+            "column": "name"
+          }
+        },
+        {
+          "name": "duration",
+          "type": "text",
+          "description": "Expected duration of the job",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": true,
+          "allowed_values_source": {
+            "type": "table",
+            "table": "job_durations",
+            "column": "name"
+          }
+        },
+        {
+          "name": "commitment",
+          "type": "text",
+          "description": "Level of time commitment required",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": true,
+          "allowed_values_source": {
+            "type": "table",
+            "table": "job_commitment_types",
+            "column": "name"
+          }
+        },
+        {
+          "name": "location_reqs",
+          "type": "text",
+          "description": "Location requirements for the job.",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": true,
+          "allowed_values_source": {
+            "type": "table",
+            "table": "job_location_types",
+            "column": "name"
+          }
+        },
+        {
+          "name": "regions",
+          "type": "text[]",
+          "description": "List of permitted regions if location_reqs equals to remote_region_specific",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": true,
+          "allowed_values_source": {
+            "type": "table",
+            "table": "regions",
+            "column": "name"
+          }
+        },
+        {
+          "name": "countries",
+          "type": "text[]",
+          "description": "List of permitted regions if location_reqs equals to remote_country_specific",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": true,
+          "allowed_values_source": {
+            "type": "table",
+            "table": "countries",
+            "column": "iso_code"
+          }
+        },
+        {
+          "name": "timezone",
+          "type": "text",
+          "description": "Primary timezone where the job is based.",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": true,
+          "allowed_values_source": {
+            "type": "table",
+            "table": "timezones",
+            "column": "name"
+          }
+        },
+        {
+          "name": "job_description",
+          "type": "text",
+          "description": "Job description",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "linkedin_query",
+          "type": "text",
+          "description": "LinkedIn search query for the given job",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestampz",
+          "description": "Record creation timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestampz",
+          "description": "Record update timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        }
+      ]
+    },
+    {
+      "table": "candidates",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "description": "Primary key",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "description": "Foreign key to profiles table - profiles.user_id",
+          "is_foreign_key": true,
+          "has_explicit_allowed_values": true,
+          "references": {
+            "table": "profiles",
+            "column": "user_id"
+          },
+          "allowed_values_source": {
+            "type": "table",
+            "table": "profiles",
+            "column": "user_id"
+          }
+        },
+        {
+          "name": "first_name",
+          "type": "text",
+          "description": "Candidate first name",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "last_name",
+          "type": "text",
+          "description": "Candidate last name",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "email",
+          "type": "text",
+          "description": "Candidate email address",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "linkedin",
+          "type": "text",
+          "description": "URL of the linkedin candidate's profile.",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "resume_url",
+          "type": "text",
+          "description": "URL pointing to the candidate's resume file.",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "country",
+          "type": "text",
+          "description": "Candidate's country of residence.",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": true,
+          "allowed_values_source": {
+            "type": "table",
+            "table": "countries",
+            "column": "iso_code"
+          }
+        },
+        {
+          "name": "created_at",
+          "type": "timestampz",
+          "description": "Record creation timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestampz",
+          "description": "Record update timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        }
+      ]
+    },
+    {
+      "table": "companies",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "description": "Primary key",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "description": "Foreign key to profiles table - profiles.user_id",
+          "is_foreign_key": true,
+          "has_explicit_allowed_values": true,
+          "references": {
+            "table": "profiles",
+            "column": "user_id"
+          },
+          "allowed_values_source": {
+            "type": "table",
+            "table": "profiles",
+            "column": "user_id"
+          }
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "description": "Company name",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "industry_id",
+          "type": "uuid",
+          "description": "Foreign key to industries table",
+          "is_foreign_key": true,
+          "has_explicit_allowed_values": true,
+          "references": {
+            "table": "industries",
+            "column": "id"
+          },
+          "allowed_values_source": {
+            "type": "table",
+            "table": "industries",
+            "column": "id"
+          }
+        },
+        {
+          "name": "website",
+          "type": "text",
+          "description": "Company website link",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "linkedin",
+          "type": "text",
+          "description": "Company LinkedIn profile link",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "country",
+          "type": "text",
+          "description": "Company country",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": true,
+          "allowed_values_source": {
+            "type": "table",
+            "table": "countries",
+            "column": "iso_code"
+          }
+        },
+        {
+          "name": "culture",
+          "type": "text",
+          "description": "User notes about company culture",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestampz",
+          "description": "Record creation timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestampz",
+          "description": "Record update timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        }
+      ]
+    },
+    {
+      "table": "candidates_skills",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "description": "Primary key",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "candidate_id",
+          "type": "uuid",
+          "description": "Foreign key to candidates table - candidates.id",
+          "is_foreign_key": true,
+          "has_explicit_allowed_values": true,
+          "references": {
+            "table": "candidates",
+            "column": "id"
+          },
+          "allowed_values_source": {
+            "type": "table",
+            "table": "candidates",
+            "column": "id"
+          }
+        },
+        {
+          "name": "skill",
+          "type": "text",
+          "description": "Skill name",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "type",
+          "type": "text",
+          "description": "Type of skill",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": true,
+          "allowed_values_source": {
+            "type": "table",
+            "table": "skill_types",
+            "column": "name"
+          }
+        },
+        {
+          "name": "source",
+          "type": "text",
+          "description": "Where this skill was extracted from (resume or linkedin)",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": true,
+          "allowed_values_source": {
+            "type": "table",
+            "table": "skill_sources",
+            "column": "name"
+          }
+        },
+        {
+          "name": "proficiency_level",
+          "type": "text",
+          "description": "Level of experience the candidate has with that skill",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": true,
+          "allowed_values_source": {
+            "type": "table",
+            "table": "proficiency_levels",
+            "column": "name"
+          }
+        },
+        {
+          "name": "created_at",
+          "type": "timestampz",
+          "description": "Record creation timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestampz",
+          "description": "Record update timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        }
+      ]
+    },
+    {
+      "table": "job_requirements",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "description": "Primary key",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "job_id",
+          "type": "uuid",
+          "description": "Foreign key to jobs table - jobs.id",
+          "is_foreign_key": true,
+          "has_explicit_allowed_values": true,
+          "references": {
+            "table": "jobs",
+            "column": "id"
+          },
+          "allowed_values_source": {
+            "type": "table",
+            "table": "jobs",
+            "column": "id"
+          }
+        },
+        {
+          "name": "requirement",
+          "type": "text",
+          "description": "Job requirement name",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "type",
+          "type": "text",
+          "description": "Type of requirement",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": true,
+          "allowed_values_source": {
+            "type": "table",
+            "table": "skill_types",
+            "column": "name"
+          }
+        },
+        {
+          "name": "is_mandatory",
+          "type": "bool",
+          "description": "Boolean to define if the requirement is mandatory or not",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "proficiency_level",
+          "type": "text",
+          "description": "Level of experience required",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": true,
+          "allowed_values_source": {
+            "type": "table",
+            "table": "proficiency_levels",
+            "column": "name"
+          }
+        },
+        {
+          "name": "weight",
+          "type": "numeric",
+          "description": "Relative importance of this requirement for the job, from 0.00 (optional) to 1.00 (must-have).",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestampz",
+          "description": "Record creation timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestampz",
+          "description": "Record update timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        }
+      ]
+    },
+    {
+      "table": "job_candidate_match_analysis",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "description": "Primary key",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "job_id",
+          "type": "uuid",
+          "description": "Foreign key to jobs.id",
+          "is_foreign_key": true,
+          "has_explicit_allowed_values": true,
+          "references": {
+            "table": "jobs",
+            "column": "id"
+          },
+          "allowed_values_source": {
+            "type": "table",
+            "table": "jobs",
+            "column": "id"
+          }
+        },
+        {
+          "name": "candidate_id",
+          "type": "uuid",
+          "description": "Foreign key to candidates.id",
+          "is_foreign_key": true,
+          "has_explicit_allowed_values": true,
+          "references": {
+            "table": "candidates",
+            "column": "id"
+          },
+          "allowed_values_source": {
+            "type": "table",
+            "table": "candidates",
+            "column": "id"
+          }
+        },
+        {
+          "name": "overall_score",
+          "type": "numeric",
+          "description": "Score describing how well the candidate meets the job (0.00–1.00)",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "feedback",
+          "type": "text",
+          "description": "Free-form rationale covering strengths/weaknesses/general fit",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestampz",
+          "description": "Record creation timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestampz",
+          "description": "Record update timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        }
+      ]
+    },
+    {
+      "table": "job_questions",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "description": "Primary key",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "job_id",
+          "type": "uuid",
+          "description": "Foreign key to jobs table - jobs.id",
+          "is_foreign_key": true,
+          "has_explicit_allowed_values": true,
+          "references": {
+            "table": "jobs",
+            "column": "id"
+          },
+          "allowed_values_source": {
+            "type": "table",
+            "table": "jobs",
+            "column": "id"
+          }
+        },
+        {
+          "name": "content",
+          "type": "text",
+          "description": "Question",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "type",
+          "type": "text",
+          "description": "Type of question",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": true,
+          "allowed_values_source": {
+            "type": "table",
+            "table": "question_types",
+            "column": "name"
+          }
+        },
+        {
+          "name": "created_at",
+          "type": "timestampz",
+          "description": "Record creation timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestampz",
+          "description": "Record update timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        }
+      ]
+    },
+    {
+      "table": "job_interview_transcript",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "description": "Primary key",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "job_id",
+          "type": "uuid",
+          "description": "Foreign key to jobs table - jobs.id",
+          "is_foreign_key": true,
+          "has_explicit_allowed_values": true,
+          "references": {
+            "table": "jobs",
+            "column": "id"
+          },
+          "allowed_values_source": {
+            "type": "table",
+            "table": "jobs",
+            "column": "id"
+          }
+        },
+        {
+          "name": "candidate_id",
+          "type": "uuid",
+          "description": "Foreign key to candidates table - candidates.id",
+          "is_foreign_key": true,
+          "has_explicit_allowed_values": true,
+          "references": {
+            "table": "candidates",
+            "column": "id"
+          },
+          "allowed_values_source": {
+            "type": "table",
+            "table": "candidates",
+            "column": "id"
+          }
+        },
+        {
+          "name": "content",
+          "type": "text",
+          "description": "Content of transcript",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestampz",
+          "description": "Record creation timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestampz",
+          "description": "Record update timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        }
+      ]
+    },
+    {
+      "table": "candidate_interview_evaluation",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "description": "Primary key",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "job_interview_transcript_id",
+          "type": "uuid",
+          "description": "Foreign key to job_interview_transcript table - job_interview_transcript.id",
+          "is_foreign_key": true,
+          "has_explicit_allowed_values": true,
+          "references": {
+            "table": "job_interview_transcript",
+            "column": "id"
+          },
+          "allowed_values_source": {
+            "type": "table",
+            "table": "job_interview_transcript",
+            "column": "id"
+          }
+        },
+        {
+          "name": "technical_skills_score",
+          "type": "numeric",
+          "description": "Score for Technical Skills & Domain Knowledge (0.00–1.00)",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "problem_solving_score",
+          "type": "numeric",
+          "description": "Score for Problem-Solving & Analytical Thinking (0.00–1.00)",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "communication_collaboration_score",
+          "type": "numeric",
+          "description": "Score for Communication & Collaboration (0.00–1.00)",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "leadership_initiative_score",
+          "type": "numeric",
+          "description": "Score for Leadership & Initiative (0.00–1.00)",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "adaptability_learning_agility_score",
+          "type": "numeric",
+          "description": "Score for Adaptability & Learning Agility (0.00–1.00)",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "cultural_fit_values_alignment_score",
+          "type": "numeric",
+          "description": "Score for Cultural Fit & Values Alignment (0.00–1.00)",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "feedback",
+          "type": "text",
+          "description": "Free-form rationale covering strengths, weaknesses, general fit",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "suggestions",
+          "type": "text",
+          "description": "Free-form rationale covering next steps or areas to explore",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestampz",
+          "description": "Record creation timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestampz",
+          "description": "Record update timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        }
+      ]
+    },
+    {
+      "table": "countries",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "description": "Primary key",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "iso_code",
+          "type": "text",
+          "description": "Country isocode",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "display_name",
+          "type": "text",
+          "description": "Country name used to appear in the app",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "region",
+          "type": "text",
+          "description": "The region to which the country belongs",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": true,
+          "allowed_values_source": {
+            "type": "table",
+            "table": "regions",
+            "column": "name"
+          }
+        },
+        {
+          "name": "region_parent",
+          "type": "text",
+          "description": "The parent region to which the country belongs",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": true,
+          "allowed_values_source": {
+            "type": "table",
+            "table": "regions",
+            "column": "name"
+          }
+        },
+        {
+          "name": "primary_timezone",
+          "type": "text",
+          "description": "Country primary timezone",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": true,
+          "allowed_values_source": {
+            "type": "table",
+            "table": "timezones",
+            "column": "name"
+          }
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "description": "Boolean to define if the value must be displayed or not",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestampz",
+          "description": "Record creation timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestampz",
+          "description": "Record update timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        }
+      ]
+    },
+    {
+      "table": "regions",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "description": "Primary key",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "description": "Region unique name",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "display_name",
+          "type": "text",
+          "description": "Region name used to appear in the app",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "is_parent",
+          "type": "bool",
+          "description": "Boolean to define if the region is a parent region or not",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "description": "Boolean to define if the value must be displayed or not",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestampz",
+          "description": "Record creation timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestampz",
+          "description": "Record update timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        }
+      ]
+    },
+    {
+      "table": "timezones",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "description": "Primary key",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "description": "Timezone unique name",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "display_name",
+          "type": "text",
+          "description": "Timezone name used to appear in the app",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "description": "Boolean to define if the value must be displayed or not",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestampz",
+          "description": "Record creation timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestampz",
+          "description": "Record update timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        }
+      ]
+    },
+    {
+      "table": "industries",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "description": "Primary key",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "display_name",
+          "type": "text",
+          "description": "The name used to appear in the app",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "description": "Boolean to define if the value must be displayed or not",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestampz",
+          "description": "Record creation timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestampz",
+          "description": "Record update timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        }
+      ]
+    },
+    {
+      "table": "job_durations",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "description": "Primary key",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "description": "Item unique name",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "display_name",
+          "type": "text",
+          "description": "The name used to appear in the app",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "description": "Boolean to define if the value must be displayed or not",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestampz",
+          "description": "Record creation timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestampz",
+          "description": "Record update timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        }
+      ]
+    },
+    {
+      "table": "job_pay_frequencies",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "description": "Primary key",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "description": "Item unique name",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "display_name",
+          "type": "text",
+          "description": "The name used to appear in the app",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "description": "Boolean to define if the value must be displayed or not",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestampz",
+          "description": "Record creation timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestampz",
+          "description": "Record update timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        }
+      ]
+    },
+    {
+      "table": "job_commitment_types",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "description": "Primary key",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "description": "Item unique name",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "display_name",
+          "type": "text",
+          "description": "The name used to appear in the app",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "description": "Boolean to define if the value must be displayed or not",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestampz",
+          "description": "Record creation timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestampz",
+          "description": "Record update timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        }
+      ]
+    },
+    {
+      "table": "skill_types",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "description": "Primary key",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "description": "Requirement type unique name",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "display_name",
+          "type": "text",
+          "description": "The name used to appear in the app",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "description": "Boolean to define if the value must be displayed or not",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestampz",
+          "description": "Record creation timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestampz",
+          "description": "Record update timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        }
+      ]
+    },
+    {
+      "table": "question_types",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "description": "Primary key",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "description": "Question type unique name",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "display_name",
+          "type": "text",
+          "description": "The name used to appear in the app",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "description": "Boolean to define if the value must be displayed or not",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestampz",
+          "description": "Record creation timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestampz",
+          "description": "Record update timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        }
+      ]
+    },
+    {
+      "table": "job_location_types",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "description": "Primary key",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "description": "Requirement type unique name",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "display_name",
+          "type": "text",
+          "description": "The name used to appear in the app",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "description": "Boolean to define if the value must be displayed or not",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestampz",
+          "description": "Record creation timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestampz",
+          "description": "Record update timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        }
+      ]
+    },
+    {
+      "table": "proficiency_levels",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "description": "Primary key",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "description": "Item unique name",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "display_name",
+          "type": "text",
+          "description": "The name used to appear in the app",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "description": "Boolean to define if the value must be displayed or not",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestampz",
+          "description": "Record creation timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestampz",
+          "description": "Record update timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        }
+      ]
+    },
+    {
+      "table": "skill_sources",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "description": "Primary key",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "description": "Item unique name",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "display_name",
+          "type": "text",
+          "description": "The name used to appear in the app",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "description": "Boolean to define if the value must be displayed or not",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestampz",
+          "description": "Record creation timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestampz",
+          "description": "Record update timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        }
+      ]
+    }
+  ]
+}
+            "column": "id"
+          },
+          "allowed_values_source": {
+            "type": "table",
+            "table": "candidates",
+            "column": "id"
+          }
+        },
+        {
+          "name": "job_requirement_id",
+          "type": "uuid",
+          "description": "Foreign key to job_requirements.id",
+          "is_foreign_key": true,
+          "has_explicit_allowed_values": true,
+          "references": {
+            "table": "job_requirements",
+            "column": "id"
+          },
+          "allowed_values_source": {
+            "type": "table",
+            "table": "job_requirements",
+            "column": "id"
+          }
+        },
+        {
+          "name": "score",
+          "type": "numeric",
+          "description": "Score describing how well the candidate meets this requirement (0.00–1.00)",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "feedback",
+          "type": "text",
+          "description": "Rationale & where to dig deeper for this specific requirement",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestampz",
+          "description": "Record creation timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestampz",
+          "description": "Record update timestamp",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        }
+      ]
+    },
+    {
+      "table": "job_candidate_evaluation",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "description": "Primary key",
+          "is_foreign_key": false,
+          "has_explicit_allowed_values": false
+        },
+        {
+          "name": "job_id",
+          "type": "uuid",
+          "description": "Foreign key to jobs.id",
+          "is_foreign_key": true,
+          "has_explicit_allowed_values": true,
+          "references": {
+            "table": "jobs",
+            "column": "id"
+          },
+          "allowed_values_source": {
+            "type": "table",
+            "table": "jobs",
+            "column": "id"
+          }
+        },
+        {
+          "name": "candidate_id",
+          "type": "uuid",
+          "description": "Foreign key to candidates.id",
+          "is_foreign_key": true,
+          "has_explicit_allowed_values": true,
+          "references": {
+            "table": "candidates",
