@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { unstable_noStore as noStore } from 'next/cache';
-import { getJobs } from "@/app/actions/jobs";
+import { getJobs, JobData } from "@/app/actions/jobs";
 import JobsTable from "@/components/jobs-table";
 
 export default async function JobsPage() {
@@ -15,10 +15,10 @@ export default async function JobsPage() {
     redirect("/auth/login");
   }
 
-  let jobs;
+  let jobs: JobData[] = [];
   try {
     jobs = await getJobs();
-  } catch (error) {
+  } catch {
     jobs = [];
   }
 

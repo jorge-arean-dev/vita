@@ -3,7 +3,6 @@
 import { Building2, LogOut } from "lucide-react"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAvatar } from "@/hooks/use-avatar"
 
@@ -14,7 +13,6 @@ interface HeaderProps {
 }
 
 export default function Header({ avatarUrl, firstName, userId }: HeaderProps) {
-  const router = useRouter()
   const { signedAvatarUrl, clearAllAvatarCaches } = useAvatar({ avatarUrl, userId })
 
   const logout = async () => {

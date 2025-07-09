@@ -54,8 +54,7 @@ export class CacheManager {
  */
 export function withUserCache<T>(
   operation: () => Promise<T>, 
-  userId: string,
-  tags: string[] = []
+  userId: string
 ): Promise<T> {
   // This would be used with fetch operations that support cache tags
   // For now, we'll just return the operation as-is since Supabase handles its own caching

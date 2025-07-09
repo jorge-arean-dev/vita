@@ -46,7 +46,7 @@ export default function JobsTable({ jobs: initialJobs }: JobsTableProps) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Jobs</h1>
-          <p className="text-muted-foreground">Manage your active roles. Create a new one when you're ready.</p>
+          <p className="text-muted-foreground">Manage your active roles. Create a new one when you&apos;re ready.</p>
         </div>
         <Button>Create New Job</Button>
       </div>
@@ -100,7 +100,7 @@ export default function JobsTable({ jobs: initialJobs }: JobsTableProps) {
                             <AlertDialogHeader>
                               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                This action cannot be undone. This will permanently delete the job "{job.title}" and all associated data.
+                                This action cannot be undone. This will permanently delete the job &quot;{job.title}&quot; and all associated data.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
