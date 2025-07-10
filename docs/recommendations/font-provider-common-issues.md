@@ -30,7 +30,7 @@ export function FontProvider({ children }: FontProviderProps) {
 }
 ```
 
-In this case, `--font-inter` and `--font-space-mono` are only available to elements inside the div wrapper, but portal elements render outside this scope.
+In this case, font variables are only available to elements inside the div wrapper, but portal elements render outside this scope.
 
 ## The Solution: Apply Font Variables to Document Root
 
@@ -43,14 +43,14 @@ Modify your `FontProvider` to apply CSS variables to the document root:
 import { Inter, Space_Mono } from 'next/font/google';
 import { useEffect } from 'react';
 
-// Initialize the Inter font
+// Initialize the Inter font for titles and text
 export const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
   display: 'swap',
 });
 
-// Initialize the Space Mono font
+// Initialize the Space Mono font for monospace
 export const spaceMono = Space_Mono({
   subsets: ['latin'],
   weight: ['400', '700'],
@@ -64,9 +64,10 @@ interface FontProviderProps {
 
 export function FontProvider({ children }: FontProviderProps) {
   useEffect(() => {
-    // Apply font variables to document root so they're available to portals
-    document.documentElement.style.setProperty('--font-inter', inter.style.fontFamily);
-    document.documentElement.style.setProperty('--font-space-mono', spaceMono.style.fontFamily);
+    // Apply semantic font variables to document root so they're available to portals
+    document.documentElement.style.setProperty('--font-titles', inter.style.fontFamily);
+    document.documentElement.style.setProperty('--font-text', inter.style.fontFamily);
+    document.documentElement.style.setProperty('--font-mono', spaceMono.style.fontFamily);
   }, []);
 
   return (
@@ -88,22 +89,54 @@ Ensure your `globals.css` has comprehensive font rules:
   
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-inter), system-ui, sans-serif;
+    font-family: var(--font-text), system-ui, sans-serif;
   }
   
-  /* Inter font for all components */
-  h1, h2, h3, h4, h5, h6, button, a, p, span, div, li, input, textarea, label, .font-sans {
-    font-family: var(--font-inter), system-ui, sans-serif !important;
+  /* Typography - Semantic font assignment */
+  
+  /* Titles use title font */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-titles), system-ui, sans-serif !important;
+  }
+  
+  /* Text elements use text font */
+  p, span, div, li, input, textarea, label, .font-sans {
+    font-family: var(--font-text), system-ui, sans-serif !important;
+  }
+  
+  /* Interactive elements use title font for emphasis */
+  button, a {
+    font-family: var(--font-titles), system-ui, sans-serif !important;
   }
   
   /* Radix UI portal elements that render outside normal DOM tree */
-  [data-radix-portal] *, [data-slot="dropdown-menu-content"] *, [data-slot="alert-dialog-content"] * {
-    font-family: var(--font-inter), system-ui, sans-serif !important;
+  [data-radix-portal] *, 
+  [data-slot="dropdown-menu-content"] *, 
+  [data-slot="alert-dialog-content"] *,
+  [data-slot="dialog-content"] *,
+  [data-slot="tooltip-content"] *,
+  [data-slot="popover-content"] * {
+    font-family: var(--font-text), system-ui, sans-serif !important;
   }
   
-  /* Space Mono only for explicit monospace elements */
+  /* Portal titles should use title font */
+  [data-radix-portal] h1, [data-radix-portal] h2, [data-radix-portal] h3, 
+  [data-radix-portal] h4, [data-radix-portal] h5, [data-radix-portal] h6,
+  [data-slot="alert-dialog-content"] h1, [data-slot="alert-dialog-content"] h2,
+  [data-slot="dialog-content"] h1, [data-slot="dialog-content"] h2 {
+    font-family: var(--font-titles), system-ui, sans-serif !important;
+  }
+  
+  /* Portal buttons should use title font */
+  [data-radix-portal] button, [data-radix-portal] a,
+  [data-slot="dropdown-menu-content"] button, [data-slot="dropdown-menu-content"] a,
+  [data-slot="alert-dialog-content"] button, [data-slot="alert-dialog-content"] a {
+    font-family: var(--font-titles), system-ui, sans-serif !important;
+  }
+  
+  /* Monospace elements */
   .font-mono, code, pre {
-    font-family: var(--font-space-mono), monospace !important;
+    font-family: var(--font-mono), monospace !important;
   }
 }
 ```
@@ -112,7 +145,7 @@ Ensure your `globals.css` has comprehensive font rules:
 
 ### 1. CSS Variables Not Defined
 **Problem**: Elements show fallback fonts (Times New Roman, etc.)
-**Diagnosis**: Check if `var(--font-inter)` resolves to a valid font family
+**Diagnosis**: Check if `var(--font-titles)` or `var(--font-text)` resolves to a valid font family
 **Solution**: Ensure variables are applied to `:root` or `document.documentElement`
 
 ### 2. Portal Elements Still Using Wrong Fonts
@@ -123,14 +156,20 @@ Ensure your `globals.css` has comprehensive font rules:
 ```css
 /* Target all portal elements */
 [data-radix-portal] * {
-  font-family: var(--font-inter), system-ui, sans-serif !important;
+  font-family: var(--font-text), system-ui, sans-serif !important;
 }
 
 /* Target specific component slots */
 [data-slot="dropdown-menu-content"] *,
 [data-slot="alert-dialog-content"] *,
 [data-slot="dialog-content"] * {
-  font-family: var(--font-inter), system-ui, sans-serif !important;
+  font-family: var(--font-text), system-ui, sans-serif !important;
+}
+
+/* Ensure portal titles use title font */
+[data-radix-portal] h1, [data-radix-portal] h2, [data-radix-portal] h3,
+[data-radix-portal] h4, [data-radix-portal] h5, [data-radix-portal] h6 {
+  font-family: var(--font-titles), system-ui, sans-serif !important;
 }
 ```
 
@@ -141,7 +180,7 @@ Ensure your `globals.css` has comprehensive font rules:
 ```css
 /* Always provide fallbacks */
 body {
-  font-family: var(--font-inter), system-ui, sans-serif;
+  font-family: var(--font-text), system-ui, sans-serif;
 }
 ```
 
@@ -154,7 +193,7 @@ body {
 .my-app [data-radix-portal] *,
 .my-app [role="dialog"] *,
 .my-app [role="menu"] * {
-  font-family: var(--font-inter), system-ui, sans-serif !important;
+  font-family: var(--font-text), system-ui, sans-serif !important;
 }
 ```
 
@@ -169,7 +208,9 @@ body {
 ### 2. Console Debugging
 ```javascript
 // Check if CSS variables are defined
-getComputedStyle(document.documentElement).getPropertyValue('--font-inter')
+getComputedStyle(document.documentElement).getPropertyValue('--font-titles')
+getComputedStyle(document.documentElement).getPropertyValue('--font-text')
+getComputedStyle(document.documentElement).getPropertyValue('--font-mono')
 
 // Check computed font on specific element
 getComputedStyle(document.querySelector('[data-radix-portal]')).fontFamily
@@ -194,21 +235,27 @@ getComputedStyle(document.querySelector('[data-radix-portal]')).fontFamily
 ### Dropdown Menus
 ```css
 [data-slot="dropdown-menu-content"] * {
-  font-family: var(--font-inter), system-ui, sans-serif !important;
+  font-family: var(--font-text), system-ui, sans-serif !important;
 }
 ```
 
 ### Alert Dialogs
 ```css
 [data-slot="alert-dialog-content"] * {
-  font-family: var(--font-inter), system-ui, sans-serif !important;
+  font-family: var(--font-text), system-ui, sans-serif !important;
+}
+
+/* Dialog titles should use title font */
+[data-slot="alert-dialog-content"] h1,
+[data-slot="alert-dialog-content"] h2 {
+  font-family: var(--font-titles), system-ui, sans-serif !important;
 }
 ```
 
 ### Toasts
 ```css
 [data-sonner-toast] * {
-  font-family: var(--font-inter), system-ui, sans-serif !important;
+  font-family: var(--font-text), system-ui, sans-serif !important;
 }
 ```
 
