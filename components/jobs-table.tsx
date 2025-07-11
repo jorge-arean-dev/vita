@@ -1,24 +1,27 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { MoreHorizontal, Eye, Trash2 } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { JobData, deleteJob } from "@/app/actions/jobs"
+import JobCreationDialog from "@/components/job-creation-dialog"
 
 interface JobsTableProps {
   jobs: JobData[]
 }
 
 export default function JobsTable({ jobs: initialJobs }: JobsTableProps) {
+  const router = useRouter()
   const [jobs, setJobs] = useState(initialJobs)
   const [isDeleting, setIsDeleting] = useState(false)
 
   const handleOpen = (jobId: string) => {
     console.log("Opening job:", jobId)
-    // Navigate to job details page
+    router.push(`/protected/jobs/${jobId}?phase=define&tab=initial-data`)
   }
 
   const handleDelete = async (jobId: string) => {
@@ -48,7 +51,9 @@ export default function JobsTable({ jobs: initialJobs }: JobsTableProps) {
           <h1 className="text-3xl font-bold tracking-tight">Jobs</h1>
           <p className="text-muted-foreground">Manage your active roles. Create a new one when you&apos;re ready.</p>
         </div>
-        <Button>Create New Job</Button>
+        <JobCreationDialog>
+          <Button>Create New Job</Button>
+        </JobCreationDialog>
       </div>
 
       <div className="rounded-md border">
