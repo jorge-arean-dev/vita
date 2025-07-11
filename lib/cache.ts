@@ -53,8 +53,7 @@ export class CacheManager {
  * Higher-order function to add user-specific cache tags to fetch operations
  */
 export function withUserCache<T>(
-  operation: () => Promise<T>, 
-  userId: string
+  operation: () => Promise<T>
 ): Promise<T> {
   // This would be used with fetch operations that support cache tags
   // For now, we'll just return the operation as-is since Supabase handles its own caching

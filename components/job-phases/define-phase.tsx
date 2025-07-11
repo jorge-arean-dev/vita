@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -34,7 +34,6 @@ import {
 
 export default function DefinePhase({ jobId, jobData, currentTab, onDataChange }: TabPhaseComponentProps) {
   const router = useRouter()
-  const searchParams = useSearchParams()
   
   const [formData, setFormData] = useState({
     title: jobData?.title || "",
@@ -49,7 +48,6 @@ export default function DefinePhase({ jobId, jobData, currentTab, onDataChange }
   )
 
   const [jobDescription, setJobDescription] = useState("")
-  const [isEditing, setIsEditing] = useState(false)
 
   const activeTab = currentTab || "initial-data"
 

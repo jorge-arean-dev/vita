@@ -2,7 +2,6 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
 import { jobCreationSchema, jobBasicInfoSchema, type JobCreationFormData, type JobBasicInfoFormData } from "@/lib/validations/job"
 
 /**
@@ -167,7 +166,9 @@ export async function getJobData(jobId: string) {
       id: jobData.id,
       title: jobData.title,
       companyId: jobData.company_id,
-      companyName: jobData.companies?.name,
+      companyName: Array.isArray(jobData.companies) 
+        ? jobData.companies[0]?.name || null 
+        : (jobData.companies as { name: string } | null)?.name || null,
       initialNotes: jobData.initial_notes,
       createdAt: jobData.created_at,
       updatedAt: jobData.updated_at
@@ -178,6 +179,7 @@ export async function getJobData(jobId: string) {
     return null
   }
 }
+
 
 /**
  * Generate AI content for various job phases
@@ -190,8 +192,7 @@ export async function getJobData(jobId: string) {
  */
 export async function generateJobContent(
   jobId: string, 
-  contentType: 'role-analysis' | 'job-description' | 'linkedin-query' | 'interview-questions',
-  inputData: Record<string, any>
+  contentType: 'role-analysis' | 'job-description' | 'linkedin-query' | 'interview-questions'
 ) {
   try {
     // TODO: Implement AI content generation

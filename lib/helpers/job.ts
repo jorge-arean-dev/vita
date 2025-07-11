@@ -123,8 +123,8 @@ export function cleanTextForSubmission(text: string): string {
  * @returns True if there are unsaved changes
  */
 export function hasUnsavedChanges(
-  current: Record<string, any>, 
-  original: Record<string, any>
+  current: Record<string, unknown>, 
+  original: Record<string, unknown>
 ): boolean {
   const currentKeys = Object.keys(current)
   const originalKeys = Object.keys(original)
@@ -141,7 +141,7 @@ export function hasUnsavedChanges(
  * @returns Placeholder text
  */
 export function getPlaceholderContent(contentType: string): string {
-  const placeholders = {
+  const placeholders: Record<string, string> = {
     'role-attributes': 'Job attributes will be generated from your initial notes...',
     'role-requirements': 'Requirements will be generated from your initial notes...',
     'job-description': 'Job description will be generated based on your selections...',

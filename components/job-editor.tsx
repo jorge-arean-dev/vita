@@ -57,8 +57,7 @@ export default function JobEditor({
   jobId, 
   jobData, 
   currentPhase, 
-  currentTab,
-  isNewJob 
+  currentTab
 }: JobEditorProps) {
   const router = useRouter()
   
@@ -67,7 +66,7 @@ export default function JobEditor({
   
   // Local job state that gets updated as user makes changes
   // This allows for real-time editing without immediate persistence
-  const [jobInfo, setJobInfo] = useState<JobData | null>(jobData)
+  const [jobInfo, setJobInfo] = useState<JobData | null>(jobData || null)
   
   // Error state for handling save/load errors
   const [error, setError] = useState<string | null>(null)
@@ -153,7 +152,7 @@ export default function JobEditor({
       case "source":
         return <SourcePhase {...commonProps} />
       case "review":
-        return <ReviewPhase {...commonProps} />
+        return <ReviewPhase />
       case "reach":
         return <ReachPhase {...commonProps} />
       case "assess":

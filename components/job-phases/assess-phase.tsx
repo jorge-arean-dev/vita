@@ -31,7 +31,7 @@ interface AssessPhaseProps {
   onDataChange: (data: Partial<JobData>) => void
 }
 
-export default function AssessPhase({ jobId, jobData, currentTab, onDataChange }: AssessPhaseProps) {
+export default function AssessPhase({ jobId, jobData, currentTab }: AssessPhaseProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   

@@ -34,7 +34,7 @@ interface ReachPhaseProps {
   onDataChange: (data: Partial<JobData>) => void
 }
 
-export default function ReachPhase({ jobId, jobData, onDataChange }: ReachPhaseProps) {
+export default function ReachPhase({ jobData }: ReachPhaseProps) {
   const [selectedCandidate, setSelectedCandidate] = useState("")
   const [selectedTemplate, setSelectedTemplate] = useState("")
   const [emailMessage, setEmailMessage] = useState("")

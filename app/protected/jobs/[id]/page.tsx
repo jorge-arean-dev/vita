@@ -4,6 +4,7 @@ import { Suspense } from "react"
 import JobEditor from "@/components/job-editor"
 import { getJobData } from "@/app/actions/job-management"
 import { Skeleton } from "@/components/ui/skeleton"
+import { JobPhase } from "@/types/job"
 
 interface JobPageProps {
   params: Promise<{ id: string }>
@@ -70,7 +71,7 @@ export default async function JobPage({ params, searchParams }: JobPageProps) {
   const resolvedSearchParams = await searchParams
 
   const isNewJob = resolvedParams.id.startsWith("new-")
-  const currentPhase = (resolvedSearchParams.phase as any) || "define"
+  const currentPhase = (resolvedSearchParams.phase as JobPhase) || "define"
   const currentTab = resolvedSearchParams.tab
 
   return (
@@ -95,7 +96,7 @@ async function JobEditorContainer({
   isNewJob
 }: {
   jobId: string
-  currentPhase: string
+  currentPhase: JobPhase
   currentTab?: string
   isNewJob: boolean
 }) {

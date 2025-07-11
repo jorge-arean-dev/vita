@@ -39,7 +39,7 @@ interface SubmitPhaseProps {
   onDataChange: (data: Partial<JobData>) => void
 }
 
-export default function SubmitPhase({ jobId, jobData, onDataChange }: SubmitPhaseProps) {
+export default function SubmitPhase({ jobData }: SubmitPhaseProps) {
   const [selectedCandidate, setSelectedCandidate] = useState("")
   const [selectedCompany, setSelectedCompany] = useState(jobData?.companyId || "")
   const [selectedTemplate, setSelectedTemplate] = useState("")

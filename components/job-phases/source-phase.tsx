@@ -21,7 +21,7 @@ interface SourcePhaseProps {
   onDataChange: (data: Partial<JobData>) => void
 }
 
-export default function SourcePhase({ jobId, jobData, onDataChange }: SourcePhaseProps) {
+export default function SourcePhase({ jobId, jobData }: SourcePhaseProps) {
   const [linkedinQuery, setLinkedinQuery] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
 

@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -15,21 +14,8 @@ interface Candidate {
   email?: string
 }
 
-interface JobData {
-  id: string
-  title: string
-  companyId?: string
-  companyName?: string
-  initialNotes?: string
-}
 
-interface ReviewPhaseProps {
-  jobId: string
-  jobData?: JobData | null
-  onDataChange: (data: Partial<JobData>) => void
-}
-
-export default function ReviewPhase({ jobId, jobData, onDataChange }: ReviewPhaseProps) {
+export default function ReviewPhase() {
   const [selectedCandidate, setSelectedCandidate] = useState("")
   const [analysisTypes, setAnalysisTypes] = useState({
     pdf: false,

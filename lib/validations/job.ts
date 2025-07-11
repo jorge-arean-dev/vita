@@ -27,8 +27,7 @@ export const jobCreationSchema = z.object({
   initialNotes: z
     .string()
     .max(5000, "Initial notes must not exceed 5000 characters")
-    .optional()
-    .transform(val => val?.trim() || "")
+    .trim()
 })
 
 /**
