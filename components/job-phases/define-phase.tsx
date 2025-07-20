@@ -11,13 +11,16 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 // import { Checkbox } from "@/components/ui/checkbox"
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Edit, Sparkles, Check, X, ChevronDown, Plus } from "lucide-react"
+import { Edit, Sparkles, Check, X, ChevronDown, Plus, Info } from "lucide-react"
 import CopyButton from "@/components/ui/copy-button"
-import { TabPhaseComponentProps, RoleAnalysis } from "@/types/job"
+import { TabPhaseComponentProps, RoleAnalysis, StructuredRoleAnalysis } from "@/types/job"
 import { buildJobPhaseUrl, getPlaceholderContent } from "@/lib/helpers/job"
 import { 
   DEFAULT_ROLE_ANALYSIS
 } from "@/lib/constants/job"
+import AttributesSection from "./attributes-section"
+import RequirementsSection from "./requirements-section"
+import JobDescriptionSection from "./job-description-section"
 
 /**
  * Define phase component for job creation and editing.
@@ -44,15 +47,27 @@ export default function DefinePhase({ jobId, jobData, currentTab, onDataChange }
 
   const [roleAnalysis, setRoleAnalysis] = useState<RoleAnalysis>(DEFAULT_ROLE_ANALYSIS)
 
-  // const [jobDescriptionOptions, setJobDescriptionOptions] = useState<JobDescriptionOptions>(
-  //   DEFAULT_JOB_DESCRIPTION_OPTIONS
-  // )
+  // New structured data state
+  const [structuredRoleAnalysis, setStructuredRoleAnalysis] = useState<StructuredRoleAnalysis>({
+    attributes: {
+      rate: { value: null, freq: "" },
+      commitment: "",
+      duration: "",
+      location: { category: "", regions: [], countries: [] }
+    },
+    requirements: [],
+    job_description: ""
+  })
 
   const [jobDescription, setJobDescription] = useState("")
   
   // Edit mode and loading states for Role Analysis
   const [isEditMode, setIsEditMode] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isAutoEditMode, setIsAutoEditMode] = useState(false) // True when auto-entered edit after generate
+  
+  // Backup content for cancel functionality
+  const [backupStructuredContent, setBackupStructuredContent] = useState<StructuredRoleAnalysis | null>(null)
   
   // Edit mode for Initial Data section
   const [isInitialDataEditMode, setIsInitialDataEditMode] = useState(false)
@@ -180,7 +195,11 @@ export default function DefinePhase({ jobId, jobData, currentTab, onDataChange }
   const hasExistingContent = () => {
     return roleAnalysis.attributes.trim() !== "" || 
            roleAnalysis.requirements.trim() !== "" || 
-           jobDescription.trim() !== ""
+           jobDescription.trim() !== "" ||
+           structuredRoleAnalysis.requirements.length > 0 ||
+           structuredRoleAnalysis.job_description.trim() !== "" ||
+           structuredRoleAnalysis.attributes.rate.value !== null ||
+           structuredRoleAnalysis.attributes.commitment !== ""
   }
 
   const handleGenerate = async () => {
@@ -192,6 +211,9 @@ export default function DefinePhase({ jobId, jobData, currentTab, onDataChange }
       if (!confirmed) return
     }
 
+    // Store current content as backup before generating
+    setBackupStructuredContent({ ...structuredRoleAnalysis })
+
     setIsGenerating(true)
     
     try {
@@ -201,12 +223,81 @@ export default function DefinePhase({ jobId, jobData, currentTab, onDataChange }
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000))
       
-      // Placeholder data - populate all three sections
+      // Mock API response based on the provided sample
+      const mockApiResponse: StructuredRoleAnalysis = {
+        attributes: {
+          rate: {
+            value: 50,
+            freq: "hourly"
+          },
+          commitment: "full_time",
+          duration: "permanent",
+          location: {
+            category: "remote_region_specific",
+            regions: ["south_america"],
+            countries: []
+          }
+        },
+        requirements: [
+          {
+            requirement: "TypeScript",
+            type: "technical",
+            is_mandatory: true,
+            proficiency_level: "expert",
+            weight: 1
+          },
+          {
+            requirement: "React",
+            type: "technical",
+            is_mandatory: true,
+            proficiency_level: "expert",
+            weight: 1
+          },
+          {
+            requirement: "Node",
+            type: "technical",
+            is_mandatory: true,
+            proficiency_level: "expert",
+            weight: 1
+          },
+          {
+            requirement: "Postgres",
+            type: "technical",
+            is_mandatory: true,
+            proficiency_level: "advanced",
+            weight: 0.75
+          },
+          {
+            requirement: "Communication",
+            type: "soft_skill",
+            is_mandatory: true,
+            proficiency_level: null,
+            weight: 1
+          },
+          {
+            requirement: "Financial Services",
+            type: "industry",
+            is_mandatory: true,
+            proficiency_level: "advanced",
+            weight: 0.75
+          }
+        ],
+        job_description: "Our client operates in the Financial Services industry. They are a dynamic and innovative company, always looking for new ways to improve their services.\n\nThey are currently looking for a Senior Full-Stack Developer. The successful candidate will be able to work independently and contribute to architecture decisions."
+      }
+      
+      // Update structured data
+      setStructuredRoleAnalysis(mockApiResponse)
+      
+      // Keep legacy format for backward compatibility
       setRoleAnalysis({
         attributes: "Generated attributes based on the initial notes and job requirements...",
         requirements: "Generated requirements including technical skills, experience, and qualifications..."
       })
-      setJobDescription("Generated comprehensive job description with responsibilities, requirements, and company information...")
+      setJobDescription(mockApiResponse.job_description)
+      
+      // Auto-enter edit mode after successful generation
+      setIsAutoEditMode(true)
+      setIsEditMode(true)
       
     } catch (error) {
       console.error("Generation error:", error)
@@ -217,18 +308,32 @@ export default function DefinePhase({ jobId, jobData, currentTab, onDataChange }
   }
 
   const handleEdit = () => {
+    // Store current content as backup when manually entering edit mode
+    setBackupStructuredContent({ ...structuredRoleAnalysis })
     setIsEditMode(true)
+    setIsAutoEditMode(false)
   }
 
   const handleSave = () => {
-    // TODO: Implement save logic
-    console.log("Saving role analysis data")
+    // TODO: Implement actual save logic to database
+    console.log("Saving role analysis data to database:", structuredRoleAnalysis)
+    
+    // Exit edit mode and clear auto-edit state
     setIsEditMode(false)
+    setIsAutoEditMode(false)
+    setBackupStructuredContent(null)
   }
 
   const handleCancel = () => {
-    // TODO: Optionally revert changes if needed
+    // Restore backup content if available
+    if (backupStructuredContent) {
+      setStructuredRoleAnalysis(backupStructuredContent)
+      setBackupStructuredContent(null)
+    }
+    
+    // Exit edit mode and clear auto-edit state
     setIsEditMode(false)
+    setIsAutoEditMode(false)
   }
 
   const handleCopySuccess = () => {
@@ -387,7 +492,7 @@ export default function DefinePhase({ jobId, jobData, currentTab, onDataChange }
                 </p>
               </div>
               <div className="flex items-center space-x-2">
-                {!isEditMode && !isGenerating && (
+                {!isEditMode && !isGenerating && !isAutoEditMode && (
                   <>
                     <Button onClick={handleGenerate} size="sm">
                       <Sparkles className="h-4 w-4 mr-2" />
@@ -419,66 +524,58 @@ export default function DefinePhase({ jobId, jobData, currentTab, onDataChange }
                 )}
               </div>
             </CardHeader>
+            
+            {/* Info indicator bar - shown in auto-edit mode */}
+            {isAutoEditMode && (
+              <div className="info-indicator mx-6">
+                <Info className="h-4 w-4 flex-shrink-0" />
+                <span>Please review the generated content and click Save to confirm.</span>
+              </div>
+            )}
+            
             <CardContent className="space-y-8">
-              {/* Attributes Subsection */}
+              {/* Attributes Section */}
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label className="text-base font-medium">Attributes</Label>
-                  <CopyButton 
-                    text={roleAnalysis.attributes}
-                    onCopy={handleCopySuccess}
-                  />
-                </div>
-                <Textarea
-                  value={roleAnalysis.attributes}
-                  onChange={(e) => setRoleAnalysis(prev => ({ ...prev, attributes: e.target.value }))}
-                  placeholder={getPlaceholderContent('role-attributes')}
-                  rows={6}
-                  readOnly={!isEditMode}
-                  disabled={isGenerating}
-                  className={!isEditMode ? "cursor-default" : ""}
+                <Label className="text-base font-medium">Attributes</Label>
+                <AttributesSection
+                  data={structuredRoleAnalysis.attributes}
+                  isEditMode={isEditMode}
+                  onChange={(newAttributes) => 
+                    setStructuredRoleAnalysis(prev => ({
+                      ...prev,
+                      attributes: newAttributes
+                    }))
+                  }
                 />
               </div>
 
-              {/* Requirements Subsection */}
+              {/* Requirements Section */}
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label className="text-base font-medium">Requirements</Label>
-                  <CopyButton 
-                    text={roleAnalysis.requirements}
-                    onCopy={handleCopySuccess}
-                  />
-                </div>
-                <Textarea
-                  value={roleAnalysis.requirements}
-                  onChange={(e) => setRoleAnalysis(prev => ({ ...prev, requirements: e.target.value }))}
-                  placeholder={getPlaceholderContent('role-requirements')}
-                  rows={6}
-                  readOnly={!isEditMode}
-                  disabled={isGenerating}
-                  className={!isEditMode ? "cursor-default" : ""}
+                <Label className="text-base font-medium">Requirements</Label>
+                <RequirementsSection
+                  requirements={structuredRoleAnalysis.requirements}
+                  isEditMode={isEditMode}
+                  onChange={(newRequirements) =>
+                    setStructuredRoleAnalysis(prev => ({
+                      ...prev,
+                      requirements: newRequirements
+                    }))
+                  }
                 />
               </div>
 
-              {/* Job Description Subsection */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label className="text-base font-medium">Job Description</Label>
-                  <CopyButton 
-                    text={jobDescription}
-                    onCopy={handleCopySuccess}
-                  />
-                </div>
-                <Textarea
-                  value={jobDescription}
-                  onChange={(e) => setJobDescription(e.target.value)}
-                  placeholder={getPlaceholderContent('job-description')}
-                  rows={12}
-                  readOnly={!isEditMode}
-                  disabled={isGenerating}
-                  className={!isEditMode ? "cursor-default" : ""}
-                />
-              </div>
+              {/* Job Description Section */}
+              <JobDescriptionSection
+                jobDescription={structuredRoleAnalysis.job_description}
+                isEditMode={isEditMode}
+                onChange={(newDescription) =>
+                  setStructuredRoleAnalysis(prev => ({
+                    ...prev,
+                    job_description: newDescription
+                  }))
+                }
+                onCopy={handleCopySuccess}
+              />
 
             </CardContent>
           </Card>

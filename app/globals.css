@@ -142,6 +142,16 @@
   .font-mono, code, pre {
     font-family: var(--font-mono), monospace !important;
   }
+
+  /* Info indicator bar for informative notifications */
+  .info-indicator {
+    @apply bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-md;
+    @apply flex items-center gap-2 text-sm;
+  }
+
+  .dark .info-indicator {
+    @apply bg-blue-950 border-blue-800 text-blue-200;
+  }
 }
 
 @theme inline {

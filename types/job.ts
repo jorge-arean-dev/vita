@@ -74,6 +74,33 @@ export interface RoleAnalysis {
 }
 
 /**
+ * Structured role analysis data from API
+ */
+export interface StructuredRoleAnalysis {
+  attributes: {
+    rate: {
+      value: number | null
+      freq: string
+    }
+    commitment: string
+    duration: string
+    location: {
+      category: string
+      regions: string[]
+      countries: string[]
+    }
+  }
+  requirements: Array<{
+    requirement: string
+    type: string
+    is_mandatory: boolean
+    proficiency_level: "expert" | "advanced" | "beginner" | null
+    weight: number
+  }>
+  job_description: string
+}
+
+/**
  * Job description generation options
  */
 export interface JobDescriptionOptions {
