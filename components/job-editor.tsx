@@ -70,7 +70,6 @@ export default function JobEditor({
   
   // Error state for handling save/load errors
   const [error, setError] = useState<string | null>(null)
-  const [isSaving, setIsSaving] = useState(false)
 
   /**
    * Prevent users from accidentally losing unsaved changes
@@ -102,31 +101,6 @@ export default function JobEditor({
     router.push("/protected/jobs")
   }
 
-  /**
-   * Save job data to the database
-   * Uses server action for validated data persistence
-   */
-  const handleSave = async () => {
-    if (!jobInfo) return
-    
-    setIsSaving(true)
-    setError(null)
-    
-    try {
-      // TODO: Call appropriate server action based on what's being saved
-      console.log("Saving job:", jobInfo)
-      
-      // Simulate save operation
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      setHasUnsavedChanges(false)
-    } catch (error) {
-      console.error("Save error:", error)
-      setError("Failed to save changes. Please try again.")
-    } finally {
-      setIsSaving(false)
-    }
-  }
 
   /**
    * Render the appropriate phase component based on current navigation state
@@ -171,15 +145,6 @@ export default function JobEditor({
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex items-center justify-between px-6 py-3">
           <div className="flex items-center space-x-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleClose}
-              className="h-8 w-8 p-0 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-              aria-label="Close job editor and return to jobs list"
-            >
-              <X className="h-4 w-4" />
-            </Button>
             <div>
               <h1 className="text-lg font-semibold">
                 {jobInfo?.title || "New Job"}
@@ -191,24 +156,15 @@ export default function JobEditor({
               )}
             </div>
           </div>
-          <div className="flex items-center space-x-2">
-            {hasUnsavedChanges && (
-              <span className="text-sm text-muted-foreground">
-                Unsaved changes
-              </span>
-            )}
-            <Button 
-              onClick={handleSave} 
-              disabled={!hasUnsavedChanges || isSaving}
-              aria-label={
-                isSaving 
-                  ? "Saving job changes..." 
-                  : hasUnsavedChanges 
-                    ? "Save unsaved changes" 
-                    : "No changes to save"
-              }
+          <div className="flex items-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleClose}
+              className="h-8 w-8 p-0 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+              aria-label="Close job editor and return to jobs list"
             >
-              {isSaving ? "Saving..." : "Save"}
+              <X className="h-4 w-4" />
             </Button>
           </div>
         </div>

@@ -151,14 +151,14 @@ export default function JobPhaseNavigator({ currentPhase, jobId, className }: Jo
             className="text-2xl font-bold tracking-tight mb-1"
             id="phase-title"
           >
-            {currentPhaseConfig.label}
+            {currentPhaseConfig?.label || "Unknown Phase"}
           </h1>
           <p 
             className="text-sm text-muted-foreground"
             id="phase-description"
             aria-describedby="phase-title"
           >
-            {currentPhaseConfig.subtitle}
+            {currentPhaseConfig?.subtitle || "Phase description not available"}
           </p>
         </div>
       )}
