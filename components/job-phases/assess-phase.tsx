@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Copy } from "lucide-react"
+import { Copy, Sparkles, Edit, Save, X } from "lucide-react"
 
 interface Candidate {
   id: string
@@ -24,6 +24,23 @@ interface JobData {
   initialNotes?: string
 }
 
+interface Question {
+  type: string
+  question: string
+}
+
+interface InterviewQuestion {
+  id: string
+  question: string
+  isEditing: boolean
+}
+
+interface QuestionGroup {
+  type: string
+  displayName: string
+  questions: InterviewQuestion[]
+}
+
 interface AssessPhaseProps {
   jobId: string
   jobData?: JobData | null
@@ -31,11 +48,21 @@ interface AssessPhaseProps {
   onDataChange: (data: Partial<JobData>) => void
 }
 
+// Question type mapping
+const QUESTION_TYPE_MAPPING: Record<string, string> = {
+  technical: "Technical Skills & Domain Knowledge",
+  problem_solving: "Problem-Solving & Analytical Thinking", 
+  communication: "Communication & Collaboration",
+  leadership: "Leadership & Initiative",
+  learning: "Adaptability & Learning Agility",
+  cultural: "Cultural Fit & Values Alignment"
+}
+
 export default function AssessPhase({ jobId, jobData, currentTab }: AssessPhaseProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   
-  const [interviewQuestions, setInterviewQuestions] = useState("")
+  const [questionGroups, setQuestionGroups] = useState<QuestionGroup[]>([])
   const [selectedCandidate, setSelectedCandidate] = useState("")
   const [interviewTranscript, setInterviewTranscript] = useState("")
   const [evaluationResults, setEvaluationResults] = useState("")
@@ -58,7 +85,20 @@ export default function AssessPhase({ jobId, jobData, currentTab }: AssessPhaseP
     router.push(`/protected/jobs/${jobId}?${params.toString()}`)
   }
 
+  // Check if any questions exist
+  const hasExistingQuestions = () => {
+    return questionGroups.some(group => group.questions.length > 0)
+  }
+
   const handleGenerateQuestions = async () => {
+    // Check for existing content and show confirmation if needed
+    if (hasExistingQuestions()) {
+      const confirmed = window.confirm(
+        "This will overwrite your existing questions. Are you sure you want to continue?"
+      )
+      if (!confirmed) return
+    }
+
     setIsGenerating(true)
     try {
       // TODO: Implement API call to generate interview questions
@@ -67,26 +107,83 @@ export default function AssessPhase({ jobId, jobData, currentTab }: AssessPhaseP
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000))
       
-      // Mock interview questions
-      setInterviewQuestions(`1. Can you walk me through your experience with React and modern JavaScript frameworks? What projects have you worked on that demonstrate your proficiency?
-
-2. Describe a challenging technical problem you've solved recently. What was your approach and what did you learn from the experience?
-
-3. How do you approach code review and collaboration with team members? Can you give an example of how you've helped improve code quality in a team setting?
-
-4. What's your experience with testing in frontend applications? How do you balance unit tests, integration tests, and end-to-end tests?
-
-5. Tell me about a time when you had to learn a new technology or framework quickly for a project. How did you approach the learning process?
-
-6. How do you handle performance optimization in React applications? What tools and techniques do you use to identify and fix performance issues?
-
-7. Describe your experience with state management in complex applications. When would you choose Redux vs Context API vs other solutions?
-
-8. What's your approach to handling errors and edge cases in your applications? Can you give an example?
-
-9. How do you stay current with frontend development trends and best practices? What resources do you rely on?
-
-10. Where do you see your career going in the next 2-3 years? What skills are you most interested in developing?`)
+      // Mock API response - matching the provided format
+      const mockApiResponse = {
+        questions: [
+          {
+            type: "technical",
+            question: "Can you describe your experience with React.js and how you've used it in complex applications?"
+          },
+          {
+            type: "technical", 
+            question: "How have you implemented TypeScript in your React projects, and what benefits have you seen?"
+          },
+          {
+            type: "problem_solving",
+            question: "Tell me about a time you faced an unexpected technical challenge and how you solved it."
+          },
+          {
+            type: "problem_solving",
+            question: "Can you walk me through how you approach debugging a complex issue in a React application?"
+          },
+          {
+            type: "communication",
+            question: "How do you ensure your technical ideas are clearly communicated when working with non-technical stakeholders?"
+          },
+          {
+            type: "communication",
+            question: "Tell me about a time you had to explain a complex technical concept to someone without your background."
+          },
+          {
+            type: "leadership",
+            question: "Describe a situation where you took initiative to improve a development process or mentor a teammate."
+          },
+          {
+            type: "leadership",
+            question: "How do you approach code reviews and providing constructive feedback to junior developers?"
+          },
+          {
+            type: "learning",
+            question: "Tell me about a time you had to quickly learn a new technology or framework for a project."
+          },
+          {
+            type: "learning",
+            question: "How do you stay up to date with the rapidly changing React ecosystem and web development trends?"
+          },
+          {
+            type: "cultural",
+            question: "How do you thrive in an agile, collaborative environment with flexible schedules?"
+          },
+          {
+            type: "cultural",
+            question: "What does continuous learning mean to you, and how do you incorporate it into your daily work?"
+          }
+        ]
+      }
+      
+      // Process API response and group questions
+      const groupedQuestions: Record<string, InterviewQuestion[]> = {}
+      
+      mockApiResponse.questions.forEach((q, index) => {
+        if (!groupedQuestions[q.type]) {
+          groupedQuestions[q.type] = []
+        }
+        groupedQuestions[q.type].push({
+          id: `${q.type}-${index}`,
+          question: q.question,
+          isEditing: false
+        })
+      })
+      
+      // Convert to QuestionGroup array
+      const newQuestionGroups: QuestionGroup[] = Object.entries(groupedQuestions).map(([type, questions]) => ({
+        type,
+        displayName: QUESTION_TYPE_MAPPING[type] || type,
+        questions
+      }))
+      
+      setQuestionGroups(newQuestionGroups)
+      
     } catch (error) {
       console.error("Error generating questions:", error)
     } finally {
@@ -159,6 +256,49 @@ NEXT STEPS:
     }
   }
 
+  // Individual question edit handlers
+  const handleEditQuestion = (groupType: string, questionId: string) => {
+    setQuestionGroups(prev => prev.map(group => {
+      if (group.type === groupType) {
+        return {
+          ...group,
+          questions: group.questions.map(q => 
+            q.id === questionId ? { ...q, isEditing: true } : q
+          )
+        }
+      }
+      return group
+    }))
+  }
+
+  const handleSaveQuestion = (groupType: string, questionId: string, newQuestion: string) => {
+    setQuestionGroups(prev => prev.map(group => {
+      if (group.type === groupType) {
+        return {
+          ...group,
+          questions: group.questions.map(q => 
+            q.id === questionId ? { ...q, question: newQuestion, isEditing: false } : q
+          )
+        }
+      }
+      return group
+    }))
+  }
+
+  const handleCancelEdit = (groupType: string, questionId: string) => {
+    setQuestionGroups(prev => prev.map(group => {
+      if (group.type === groupType) {
+        return {
+          ...group,
+          questions: group.questions.map(q => 
+            q.id === questionId ? { ...q, isEditing: false } : q
+          )
+        }
+      }
+      return group
+    }))
+  }
+
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text)
     // TODO: Add toast notification
@@ -166,8 +306,66 @@ NEXT STEPS:
   }
 
   const handleSave = () => {
-    console.log("Saving assess data:", { interviewQuestions, selectedCandidate, interviewTranscript, evaluationResults })
+    console.log("Saving assess data:", { questionGroups, selectedCandidate, interviewTranscript, evaluationResults })
     // TODO: Implement save logic
+  }
+
+  // Individual Question Component
+  const QuestionItem = ({ question, groupType }: { question: InterviewQuestion; groupType: string }) => {
+    const [editedText, setEditedText] = useState(question.question)
+
+    const handleSave = () => {
+      handleSaveQuestion(groupType, question.id, editedText)
+    }
+
+    const handleCancel = () => {
+      setEditedText(question.question)
+      handleCancelEdit(groupType, question.id)
+    }
+
+    if (question.isEditing) {
+      return (
+        <div className="space-y-2">
+          <Textarea
+            value={editedText}
+            onChange={(e) => setEditedText(e.target.value)}
+            className="min-h-[80px]"
+            placeholder="Enter interview question..."
+          />
+          <div className="flex justify-end space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleCancel}
+            >
+              <X className="h-4 w-4 mr-1" />
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleSave}
+            >
+              <Save className="h-4 w-4 mr-1" />
+              Save
+            </Button>
+          </div>
+        </div>
+      )
+    }
+
+    return (
+      <div className="flex items-start justify-between space-x-3 p-3 bg-muted/30 rounded-lg">
+        <p className="text-sm flex-1 leading-relaxed">{question.question}</p>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => handleEditQuestion(groupType, question.id)}
+          className="h-8 w-8 p-0 flex-shrink-0"
+        >
+          <Edit className="h-4 w-4" />
+        </Button>
+      </div>
+    )
   }
 
   return (
@@ -180,43 +378,70 @@ NEXT STEPS:
 
         <TabsContent value="interview-questions">
           <Card>
-            <CardHeader>
-              <h3 className="text-lg font-semibold">Interview Questions</h3>
-              <p className="text-sm text-muted-foreground">
-                Generate tailored interview questions based on job requirements
-              </p>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label>Interview Questions</Label>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleCopy(interviewQuestions)}
-                    className="h-8 w-8 p-0"
-                    disabled={!interviewQuestions}
-                  >
-                    <Copy className="h-4 w-4" />
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div className="space-y-1">
+                <h3 className="text-lg font-semibold">Interview Questions</h3>
+                <p className="text-sm text-muted-foreground">
+                  {isGenerating 
+                    ? "Generating questions..." 
+                    : "Generate tailored interview questions based on job requirements"
+                  }
+                </p>
+              </div>
+              <div className="flex items-center space-x-2">
+                {!isGenerating && (
+                  <Button onClick={handleGenerateQuestions} size="sm">
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Generate
                   </Button>
+                )}
+                {isGenerating && (
+                  <Button disabled size="sm">
+                    <Sparkles className="h-4 w-4 mr-2 animate-spin" />
+                    Generating...
+                  </Button>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {questionGroups.length === 0 && !isGenerating && (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>No interview questions generated yet.</p>
+                  <p className="text-sm">Click "Generate" to create questions based on your job requirements.</p>
                 </div>
-                <Textarea
-                  value={interviewQuestions}
-                  onChange={(e) => setInterviewQuestions(e.target.value)}
-                  placeholder="Interview questions will be generated based on your job requirements..."
-                  rows={15}
-                />
-              </div>
+              )}
+              
+              {isGenerating && (
+                <div className="text-center py-8 text-muted-foreground">
+                  <div className="flex items-center justify-center space-x-2">
+                    <Sparkles className="h-5 w-5 animate-spin" />
+                    <p>Generating questions...</p>
+                  </div>
+                </div>
+              )}
 
-              <div className="flex justify-between">
-                <Button 
-                  onClick={handleGenerateQuestions}
-                  disabled={isGenerating}
-                >
-                  {isGenerating ? "Generating..." : "Generate Questions"}
-                </Button>
-                <Button onClick={handleSave}>Save</Button>
-              </div>
+              {questionGroups.map((group) => (
+                <Card key={group.type} className="bg-muted/20">
+                  <CardHeader className="pb-3">
+                    <h4 className="text-base font-medium">{group.displayName}</h4>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {group.questions.map((question) => (
+                      <QuestionItem 
+                        key={question.id} 
+                        question={question} 
+                        groupType={group.type} 
+                      />
+                    ))}
+                  </CardContent>
+                </Card>
+              ))}
+
+              {questionGroups.length > 0 && (
+                <div className="flex justify-end pt-4">
+                  <Button onClick={handleSave}>Save Changes</Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
