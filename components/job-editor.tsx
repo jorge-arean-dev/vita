@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { X, AlertTriangle } from "lucide-react"
-import JobPhaseNavigator, { JobPhase } from "@/components/job-phase-navigator"
+import JobPhaseCarousel, { JobPhase } from "@/components/job-phase-carousel"
 import DefinePhase from "@/components/job-phases/define-phase"
 import SourcePhase from "@/components/job-phases/source-phase"
 import ReviewPhase from "@/components/job-phases/review-phase"
@@ -214,18 +214,10 @@ export default function JobEditor({
         </div>
       </div>
 
-      {/* Phase Navigator */}
-      <JobPhaseNavigator
+      {/* Phase Carousel */}
+      <JobPhaseCarousel
         currentPhase={currentPhase}
         jobId={jobId}
-      />
-
-      {/* Main Content */}
-      <main 
-        className="container mx-auto px-6 py-6"
-        role="main"
-        aria-labelledby="phase-title"
-        aria-describedby="phase-description"
       >
         {/* Error Alert */}
         {error && (
@@ -252,7 +244,7 @@ export default function JobEditor({
         )}
         
         {renderPhaseContent()}
-      </main>
+      </JobPhaseCarousel>
     </div>
   )
 }
