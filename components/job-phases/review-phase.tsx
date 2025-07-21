@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Sparkles, ChevronDown, User, Save } from "lucide-react"
+import { Sparkles, ChevronDown, User, Save, UserPlus } from "lucide-react"
+import ToggleSlider from "@/components/ui/toggle-slider"
 
 interface Candidate {
   id: string
@@ -175,13 +175,22 @@ export default function ReviewPhase() {
           </p>
         </CardHeader>
         <CardContent>
-          <Tabs value={candidateType} onValueChange={(value) => setCandidateType(value as "existing" | "new")} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="existing">Existing Candidate</TabsTrigger>
-              <TabsTrigger value="new">New Candidate</TabsTrigger>
-            </TabsList>
+          <div className="space-y-6">
+            {/* Candidate Type Selection */}
+            <div className="flex justify-center">
+              <ToggleSlider
+                option1="Existing Candidate"
+                option2="New Candidate"
+                icon1={<User className="h-4 w-4" />}
+                icon2={<UserPlus className="h-4 w-4" />}
+                defaultOption={candidateType === "existing" ? 1 : 2}
+                onChange={(option) => setCandidateType(option === 1 ? "existing" : "new")}
+              />
+            </div>
 
-            <TabsContent value="existing" className="space-y-4">
+            {/* Existing Candidate Section */}
+            {candidateType === "existing" && (
+              <div className="space-y-4">
               <div className="space-y-2">
                 <Label>Select Candidate</Label>
                 <Popover open={isCandidateDropdownOpen} onOpenChange={setIsCandidateDropdownOpen}>
@@ -235,55 +244,57 @@ export default function ReviewPhase() {
                   </PopoverContent>
                 </Popover>
               </div>
-            </TabsContent>
+              </div>
+            )}
 
-            <TabsContent value="new" className="space-y-4">
+            {/* New Candidate Section */}
+            {candidateType === "new" && (
+              <div className="space-y-4">
               <div className="space-y-4">
                 <Label>Input Method</Label>
                 <RadioGroup 
                   value={newCandidateMethod} 
                   onValueChange={(value) => setNewCandidateMethod(value as "linkedin" | "pdf")}
-                  className="space-y-3"
+                  className="flex space-x-6"
                 >
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="linkedin" id="linkedin" />
-                      <Label htmlFor="linkedin">LinkedIn Profile URL</Label>
-                    </div>
-                    {newCandidateMethod === "linkedin" && (
-                      <Input
-                        placeholder="https://linkedin.com/in/candidate-name"
-                        value={linkedinUrl}
-                        onChange={(e) => setLinkedinUrl(e.target.value)}
-                        className="ml-6"
-                      />
-                    )}
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="linkedin" id="linkedin" />
+                    <Label htmlFor="linkedin">LinkedIn Profile URL</Label>
                   </div>
                   
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="pdf" id="pdf" />
-                      <Label htmlFor="pdf">PDF Resume Upload</Label>
-                    </div>
-                    {newCandidateMethod === "pdf" && (
-                      <div className="ml-6">
-                        <Input
-                          type="file"
-                          accept=".pdf"
-                          onChange={handleFileUpload}
-                          className="file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-sm file:bg-muted file:text-muted-foreground"
-                        />
-                        {uploadedFile && (
-                          <p className="text-sm text-muted-foreground mt-2">
-                            Selected: {uploadedFile.name}
-                          </p>
-                        )}
-                      </div>
-                    )}
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="pdf" id="pdf" />
+                    <Label htmlFor="pdf">PDF Resume Upload</Label>
                   </div>
                 </RadioGroup>
+                
+                {/* Input fields below radio buttons */}
+                {newCandidateMethod === "linkedin" && (
+                  <Input
+                    placeholder="https://linkedin.com/in/candidate-name"
+                    value={linkedinUrl}
+                    onChange={(e) => setLinkedinUrl(e.target.value)}
+                  />
+                )}
+                
+                {newCandidateMethod === "pdf" && (
+                  <div>
+                    <Input
+                      type="file"
+                      accept=".pdf"
+                      onChange={handleFileUpload}
+                      className="file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-sm file:bg-primary file:text-primary-foreground file:cursor-pointer cursor-pointer"
+                    />
+                    {uploadedFile && (
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Selected: {uploadedFile.name}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
-            </TabsContent>
+              </div>
+            )}
 
             {/* Run Analysis Button */}
             <div className="pt-4 border-t">
@@ -296,7 +307,7 @@ export default function ReviewPhase() {
                 {isRunningAnalysis ? "Analyzing candidate..." : "Run Analysis"}
               </Button>
             </div>
-          </Tabs>
+          </div>
         </CardContent>
       </Card>
 
