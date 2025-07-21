@@ -1,11 +1,15 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Copy, Edit, Sparkles, Check, X } from "lucide-react"
+import { buildJobPhaseUrl } from "@/lib/helpers/job"
 
 interface JobData {
   id: string
@@ -15,26 +19,65 @@ interface JobData {
   initialNotes?: string
 }
 
+interface QueryVariations {
+  complete_query_all: string
+  complete_query_skills_only: string
+  complete_query_job_titles_only: string
+  mandatory_only_query_all: string
+  mandatory_only_query_skills_only: string
+  mandatory_only_query_job_titles_only: string
+}
+
+interface Recommendation {
+  type: string
+  display_name_type: string
+  recommendation: string
+}
+
+interface LinkedInQueryData {
+  boolean_queries: QueryVariations
+  recommendations: Recommendation[]
+}
+
 interface SourcePhaseProps {
   jobId: string
   jobData?: JobData | null
+  currentTab?: string
   onDataChange: (data: Partial<JobData>) => void
 }
 
-export default function SourcePhase({ jobId, jobData }: SourcePhaseProps) {
+export default function SourcePhase({ jobId, jobData, currentTab }: SourcePhaseProps) {
+  const router = useRouter()
   const [mounted, setMounted] = useState(false)
   const [linkedinQuery, setLinkedinQuery] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
   const [isEditMode, setIsEditMode] = useState(false)
+  
+  // New state for query variations and recommendations
+  const [queryData, setQueryData] = useState<LinkedInQueryData | null>(null)
+  const [selectedQueryType, setSelectedQueryType] = useState<keyof QueryVariations>("complete_query_all")
+  const [hasGeneratedData, setHasGeneratedData] = useState(false)
+  
+  // State management for Save/Cancel functionality
+  const [savedQueryData, setSavedQueryData] = useState<LinkedInQueryData | null>(null)
+  const [backupQueryData, setBackupQueryData] = useState<LinkedInQueryData | null>(null)
+  const [backupSelectedQueryType, setBackupSelectedQueryType] = useState<keyof QueryVariations>("complete_query_all")
 
   // Initialize after mount to prevent hydration mismatch
   useEffect(() => {
     setMounted(true)
   }, [])
 
+  // Handle tab navigation
+  const activeTab = currentTab || "linkedin-query"
+
+  const handleTabChange = (value: string) => {
+    router.push(buildJobPhaseUrl(jobId, "source", value))
+  }
+
   // Check if any content exists that would be overwritten
   const hasExistingContent = () => {
-    return linkedinQuery.trim() !== ""
+    return savedQueryData !== null
   }
 
   const handleGenerate = async () => {
@@ -54,8 +97,45 @@ export default function SourcePhase({ jobId, jobData }: SourcePhaseProps) {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000))
       
-      // Placeholder data
-      setLinkedinQuery(`(title:"Software Engineer" OR title:"Frontend Developer" OR title:"React Developer") AND (skills:"React" OR skills:"JavaScript" OR skills:"TypeScript") AND location:"United States"`)
+      // Mock API response matching the actual API structure
+      const mockQueryData: LinkedInQueryData = {
+        boolean_queries: {
+          complete_query_all: `("Senior Full-Stack Developer" OR "Senior Fullstack Developer" OR "Full Stack Engineer" OR "Fullstack Engineer" OR "Senior Software Engineer") AND (TypeScript AND React AND Node AND Postgres AND Mongo AND AWS OR "Financial Services")`,
+          complete_query_skills_only: `(TypeScript AND React AND Node AND Postgres AND Mongo AND AWS OR "Financial Services")`,
+          complete_query_job_titles_only: `("Senior Full-Stack Developer" OR "Senior Fullstack Developer" OR "Full Stack Engineer" OR "Fullstack Engineer" OR "Senior Software Engineer")`,
+          mandatory_only_query_all: `("Senior Full-Stack Developer" OR "Senior Fullstack Developer" OR "Full Stack Engineer" OR "Fullstack Engineer" OR "Senior Software Engineer") AND (TypeScript AND React AND Node AND Postgres AND Mongo)`,
+          mandatory_only_query_skills_only: `(TypeScript AND React AND Node AND Postgres AND Mongo)`,
+          mandatory_only_query_job_titles_only: `("Senior Full-Stack Developer" OR "Senior Fullstack Developer" OR "Full Stack Engineer" OR "Fullstack Engineer" OR "Senior Software Engineer")`
+        },
+        recommendations: [
+          {
+            type: "location",
+            display_name_type: "Location",
+            recommendation: "Use the 'Location' filter to select 'South America' as the region. Since the job is remote, you can also select 'Remote' in the 'Location' filter."
+          },
+          {
+            type: "industry",
+            display_name_type: "Industry",
+            recommendation: "Use the 'Industry' filter to select 'Financial Services'. This is not a mandatory requirement, but it may help find candidates with relevant industry experience."
+          },
+          {
+            type: "experience",
+            display_name_type: "Experience",
+            recommendation: "Use the 'Experience' filter to select '5+ years' for TypeScript, React, and Node, and '2-5 years' for Postgres and Mongo. This aligns with the proficiency levels specified in the job requirements."
+          }
+        ]
+      }
+      
+      setQueryData(mockQueryData)
+      setSelectedQueryType("complete_query_all")
+      setHasGeneratedData(true)
+      
+      // Create backup when entering edit mode
+      setBackupQueryData(queryData) // Previous state (could be null)
+      setBackupSelectedQueryType(selectedQueryType)
+      
+      setIsEditMode(true) // Auto-enter edit mode
+      
     } catch (error) {
       console.error("Error generating query:", error)
       // TODO: Show error toast/alert
@@ -69,13 +149,36 @@ export default function SourcePhase({ jobId, jobData }: SourcePhaseProps) {
   }
 
   const handleSaveQuery = () => {
-    // TODO: Implement save logic for LinkedIn query
-    console.log("Saving LinkedIn query:", linkedinQuery)
+    // TODO: Implement save logic for LinkedIn query data
+    console.log("Saving LinkedIn query data:", queryData)
+    
+    // Save current data as the confirmed saved state
+    setSavedQueryData(queryData)
+    setHasGeneratedData(true)
+    
+    // Clear backup data
+    setBackupQueryData(null)
+    setBackupSelectedQueryType("complete_query_all")
+    
+    // Return to view mode
     setIsEditMode(false)
   }
 
   const handleCancel = () => {
-    // TODO: Optionally revert changes if needed
+    // Restore from backup (state when edit mode was entered)
+    setQueryData(backupQueryData)
+    setSelectedQueryType(backupSelectedQueryType)
+    
+    // If backup was null, clear generated data flag
+    if (backupQueryData === null) {
+      setHasGeneratedData(false)
+    }
+    
+    // Clear backup data
+    setBackupQueryData(null)
+    setBackupSelectedQueryType("complete_query_all")
+    
+    // Return to view mode
     setIsEditMode(false)
   }
 
@@ -83,6 +186,19 @@ export default function SourcePhase({ jobId, jobData }: SourcePhaseProps) {
     navigator.clipboard.writeText(text)
     // TODO: Add toast notification
     console.log("Copied to clipboard:", text)
+  }
+
+  // Get the data to display (current data in edit mode, saved data in view mode)
+  const getDisplayData = () => {
+    if (isEditMode) return queryData
+    return savedQueryData
+  }
+
+  // Get current query based on selected radio button
+  const getCurrentQuery = () => {
+    const displayData = getDisplayData()
+    if (!displayData) return ""
+    return displayData.boolean_queries[selectedQueryType]
   }
 
   // const handleSave = () => {
@@ -101,104 +217,194 @@ export default function SourcePhase({ jobId, jobData }: SourcePhaseProps) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* LinkedIn Boolean Query Section */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div className="space-y-1">
-            <h3 className="text-lg font-semibold">LinkedIn Boolean Query</h3>
-            <p className="text-sm text-muted-foreground">
-              {isGenerating 
-                ? "Generating LinkedIn Boolean query..." 
-                : "Generate search queries for LinkedIn Recruiter or Sales Navigator"
-              }
-            </p>
-          </div>
-          <div className="flex items-center space-x-2">
-            {!isEditMode && !isGenerating && (
-              <>
-                <Button onClick={handleGenerate} size="sm">
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Generate
-                </Button>
-                <Button variant="outline" size="sm" onClick={handleEdit}>
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit
-                </Button>
-              </>
-            )}
-            {isEditMode && (
-              <>
-                <Button onClick={handleSaveQuery} size="sm">
-                  <Check className="h-4 w-4 mr-2" />
-                  Save
-                </Button>
-                <Button variant="outline" size="sm" onClick={handleCancel}>
-                  <X className="h-4 w-4 mr-2" />
-                  Cancel
-                </Button>
-              </>
-            )}
-            {isGenerating && (
-              <Button disabled size="sm">
-                <Sparkles className="h-4 w-4 mr-2 animate-spin" />
-                Generating...
-              </Button>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label>LinkedIn Search Query</Label>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleCopy(linkedinQuery)}
-                className="h-8 w-8 p-0"
-                disabled={!linkedinQuery}
-              >
-                <Copy className="h-4 w-4" />
-              </Button>
-            </div>
-            <Textarea
-              value={linkedinQuery}
-              onChange={(e) => setLinkedinQuery(e.target.value)}
-              placeholder="LinkedIn boolean query will be generated based on your job requirements..."
-              rows={6}
-              readOnly={!isEditMode}
-              disabled={isGenerating}
-              className={!isEditMode ? "cursor-default" : ""}
-            />
-          </div>
+    <div className="max-w-4xl mx-auto">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="linkedin-query">LinkedIn Query</TabsTrigger>
+          <TabsTrigger value="request-candidates">Request for Candidates</TabsTrigger>
+        </TabsList>
 
-        </CardContent>
-      </Card>
+        <TabsContent value="linkedin-query">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div className="space-y-1">
+                <h3 className="text-lg font-semibold">LinkedIn Boolean Query</h3>
+                <p className="text-sm text-muted-foreground">
+                  {isGenerating 
+                    ? "Generating LinkedIn Boolean query..." 
+                    : hasGeneratedData 
+                      ? "AI-generated LinkedIn search queries and recommendations"
+                      : "Generate search queries for LinkedIn Recruiter or Sales Navigator"
+                  }
+                </p>
+              </div>
+              <div className="flex items-center space-x-2">
+                {!isEditMode && !isGenerating && (
+                  <Button onClick={handleGenerate} size="sm">
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Generate
+                  </Button>
+                )}
+                {isEditMode && (
+                  <>
+                    <Button onClick={handleSaveQuery} size="sm">
+                      <Check className="h-4 w-4 mr-2" />
+                      Save
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={handleCancel}>
+                      <X className="h-4 w-4 mr-2" />
+                      Cancel
+                    </Button>
+                  </>
+                )}
+                {isGenerating && (
+                  <Button disabled size="sm">
+                    <Sparkles className="h-4 w-4 mr-2 animate-spin" />
+                    Generating...
+                  </Button>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Show prompt message when no data exists */}
+              {!hasGeneratedData && !savedQueryData && !isGenerating && (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground mb-4">
+                    Click the "Generate" button to create LinkedIn search queries based on your job requirements.
+                  </p>
+                </div>
+              )}
 
-      {/* Pre-vetted Candidates Section */}
-      <Card>
-        <CardHeader>
-          <h3 className="text-lg font-semibold">Pre-vetted Candidates Request</h3>
-          <p className="text-sm text-muted-foreground">
-            Access pre-vetted candidates who are a fit for this job
-          </p>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="bg-muted/50 p-4 rounded-lg">
-            <p className="text-sm text-muted-foreground mb-4">
-              Submit a request to access our database of pre-vetted candidates who match your job requirements. 
-              Our team will review your job details and provide you with qualified candidates who are actively 
-              looking for opportunities.
-            </p>
-            <Button 
-              onClick={handleRequestPreVettedCandidates}
-              className="w-full"
-            >
-              Request Pre-vetted Candidates
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+              {/* Show generated content - use queryData in edit mode, savedQueryData in view mode */}
+              {(hasGeneratedData || savedQueryData) && (() => {
+                const displayData = getDisplayData()
+                if (!displayData) return null
+                
+                return (
+                <>
+                  {/* LinkedIn Search Query Section */}
+                  <div className="space-y-4">
+                    <Label className="text-base font-medium">LinkedIn Search Query</Label>
+                    
+                    {/* Radio buttons in 3x2 grid */}
+                    <RadioGroup 
+                      value={selectedQueryType} 
+                      onValueChange={(value) => setSelectedQueryType(value as keyof QueryVariations)}
+                      className="grid grid-cols-2 gap-4"
+                    >
+                      {/* Left Column */}
+                      <div className="space-y-3">
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="complete_query_all" id="complete_query_all" />
+                          <Label htmlFor="complete_query_all" className="text-sm font-normal cursor-pointer">
+                            Full Query
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="complete_query_skills_only" id="complete_query_skills_only" />
+                          <Label htmlFor="complete_query_skills_only" className="text-sm font-normal cursor-pointer">
+                            Skills Only
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="complete_query_job_titles_only" id="complete_query_job_titles_only" />
+                          <Label htmlFor="complete_query_job_titles_only" className="text-sm font-normal cursor-pointer">
+                            Job Titles Only
+                          </Label>
+                        </div>
+                      </div>
+                      
+                      {/* Right Column */}
+                      <div className="space-y-3">
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="mandatory_only_query_all" id="mandatory_only_query_all" />
+                          <Label htmlFor="mandatory_only_query_all" className="text-sm font-normal cursor-pointer">
+                            Must-Haves Only (All)
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="mandatory_only_query_skills_only" id="mandatory_only_query_skills_only" />
+                          <Label htmlFor="mandatory_only_query_skills_only" className="text-sm font-normal cursor-pointer">
+                            Must-Haves Skills Only
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="mandatory_only_query_job_titles_only" id="mandatory_only_query_job_titles_only" />
+                          <Label htmlFor="mandatory_only_query_job_titles_only" className="text-sm font-normal cursor-pointer">
+                            Must-Haves Job Titles Only
+                          </Label>
+                        </div>
+                      </div>
+                    </RadioGroup>
+
+                    {/* Query display with copy button */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label>Query Text</Label>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleCopy(getCurrentQuery())}
+                          className="h-8 w-8 p-0"
+                          disabled={!getCurrentQuery()}
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <Textarea
+                        value={getCurrentQuery()}
+                        readOnly
+                        rows={4}
+                        className="cursor-default bg-muted/50"
+                      />
+                    </div>
+                  </div>
+
+                  {/* LinkedIn Search Recommendations Section */}
+                  <div className="space-y-4">
+                    <Label className="text-base font-medium">LinkedIn Search Recommendations</Label>
+                    <div className="grid gap-4">
+                      {displayData.recommendations.map((recommendation, index) => (
+                        <Card key={index} className="p-4">
+                          <h4 className="font-medium mb-2">{recommendation.display_name_type}</h4>
+                          <p className="text-sm text-muted-foreground">{recommendation.recommendation}</p>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                </>
+                )
+              })()}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="request-candidates">
+          <Card>
+            <CardHeader>
+              <h3 className="text-lg font-semibold">Pre-vetted Candidates Request</h3>
+              <p className="text-sm text-muted-foreground">
+                Access pre-vetted candidates who are a fit for this job
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <p className="text-sm text-muted-foreground mb-4">
+                  Submit a request to access our database of pre-vetted candidates who match your job requirements. 
+                  Our team will review your job details and provide you with qualified candidates who are actively 
+                  looking for opportunities.
+                </p>
+                <Button 
+                  onClick={handleRequestPreVettedCandidates}
+                  className="w-full"
+                >
+                  Request Pre-vetted Candidates
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
