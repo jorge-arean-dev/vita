@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { ArrowLeft, FileText, AlertCircle } from "lucide-react"
+import { FileText, AlertCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 interface JobData {
@@ -22,28 +22,15 @@ interface JobDescriptionBuilderProps {
 export default function JobDescriptionBuilder({ jobId }: JobDescriptionBuilderProps) {
   const router = useRouter()
 
-  const handleBack = () => {
-    router.push(`/protected/jobs/${jobId}`)
-  }
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          {/* Tool Header with responsive layout */}
-          <div className="space-y-4">
-            {/* Title and Back button - Option A layout */}
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-              <h2 className="text-2xl font-bold tracking-tight">Job Description Builder</h2>
-              <Button variant="outline" size="sm" onClick={handleBack} className="gap-2 sm:mt-0">
-                <ArrowLeft className="h-4 w-4" />
-                Back to Tools
-              </Button>
-              </div>
-              
-              {/* Subtitle spans full width */}
-              <p className="text-muted-foreground">Create polished job descriptions from rough notes or client calls with AI assistance to attract the right candidates.</p>
-            </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-bold tracking-tight">Job Description Builder</h2>
+            <p className="text-muted-foreground">Create polished job descriptions from rough notes or client calls with AI assistance to attract the right candidates.</p>
+          </div>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* TODO Alert */}

@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Sparkles, ArrowLeft, Save } from "lucide-react"
+import { Sparkles, Save } from "lucide-react"
 
 interface JobData {
   id: string
@@ -44,9 +44,6 @@ export default function InterviewAnalysis({ jobId, jobData }: InterviewAnalysisP
     { id: "5", name: "David Brown", email: "david@example.com" }
   ]
 
-  const handleBack = () => {
-    router.push(`/protected/jobs/${jobId}`)
-  }
 
   const handleEvaluateTranscript = async () => {
     if (!selectedCandidate || !interviewTranscript.trim()) {
@@ -131,18 +128,8 @@ NEXT STEPS:
       {/* Interview Input Card */}
       <Card>
         <CardHeader>
-          {/* Tool Header with responsive layout */}
-          <div className="space-y-4">
-            {/* Title and Back button - Option A layout */}
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-              <h2 className="text-2xl font-bold tracking-tight">Interview Analysis</h2>
-              <Button variant="outline" size="sm" onClick={handleBack} className="gap-2 sm:mt-0">
-                <ArrowLeft className="h-4 w-4" />
-                Back to Tools
-              </Button>
-            </div>
-            
-            {/* Subtitle spans full width */}
+          <div className="space-y-2">
+            <h2 className="text-2xl font-bold tracking-tight">Interview Analysis</h2>
             <p className="text-muted-foreground">Analyze candidate interview responses and get AI-powered evaluation scores to make informed hiring decisions effortlessly.</p>
           </div>
         </CardHeader>

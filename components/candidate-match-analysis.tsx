@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Sparkles, ChevronDown, User, Save, UserPlus, ArrowLeft } from "lucide-react"
+import { Sparkles, ChevronDown, User, Save, UserPlus } from "lucide-react"
 import ToggleSlider from "@/components/ui/toggle-slider"
 
 interface JobData {
@@ -77,9 +77,6 @@ export default function CandidateMatchAnalysis({ jobId }: CandidateMatchAnalysis
     setMounted(true)
   }, [])
 
-  const handleBack = () => {
-    router.push(`/protected/jobs/${jobId}`)
-  }
 
   // Filter candidates based on search input
   const filteredCandidates = candidates.filter(candidate =>
@@ -188,18 +185,8 @@ export default function CandidateMatchAnalysis({ jobId }: CandidateMatchAnalysis
       {/* Candidate Panel */}
       <Card>
           <CardHeader>
-            {/* Tool Header with responsive layout */}
-            <div className="space-y-4">
-              {/* Title and Back button - Option A layout */}
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                <h2 className="text-2xl font-bold tracking-tight">Candidate Match Analysis</h2>
-                <Button variant="outline" size="sm" onClick={handleBack} className="gap-2 sm:mt-0">
-                  <ArrowLeft className="h-4 w-4" />
-                  Back to Tools
-                </Button>
-              </div>
-              
-              {/* Subtitle spans full width */}
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold tracking-tight">Candidate Match Analysis</h2>
               <p className="text-muted-foreground">Upload resumes or LinkedIn profiles to instantly assess how well candidates match your job requirements with AI-powered analysis.</p>
             </div>
           </CardHeader>

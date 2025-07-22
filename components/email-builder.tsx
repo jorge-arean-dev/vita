@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Copy, Sparkles, ArrowLeft, Save } from "lucide-react"
+import { Copy, Sparkles, Save } from "lucide-react"
 
 interface JobData {
   id: string
@@ -76,9 +76,6 @@ export default function EmailBuilder({ jobId, jobData }: EmailBuilderProps) {
     { id: "follow-up", name: "Follow-up", description: "Follow up on candidate status" }
   ]
 
-  const handleBack = () => {
-    router.push(`/protected/jobs/${jobId}`)
-  }
 
   const handleGenerateCandidateEmail = async () => {
     if (!candidateSelectedCandidate || !candidateSelectedTemplate) {
@@ -293,18 +290,8 @@ Best regards,
     <div className="space-y-6">
         <Card>
           <CardHeader>
-            {/* Tool Header with responsive layout */}
-            <div className="space-y-4">
-              {/* Title and Back button - Option A layout */}
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                <h2 className="text-2xl font-bold tracking-tight">Email Builder</h2>
-                <Button variant="outline" size="sm" onClick={handleBack} className="gap-2 sm:mt-0">
-                  <ArrowLeft className="h-4 w-4" />
-                  Back to Tools
-                </Button>
-              </div>
-              
-              {/* Subtitle spans full width */}
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold tracking-tight">Email Builder</h2>
               <p className="text-muted-foreground">Create professional outreach, follow-up, and client communication emails with AI assistance to save time and improve response rates.</p>
             </div>
           </CardHeader>

@@ -1,8 +1,6 @@
 "use client"
 
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
+import { JobBreadcrumb } from "@/components/job-breadcrumb"
 
 interface JobData {
   id: string
@@ -18,23 +16,15 @@ interface JobLayoutProps {
   children: React.ReactNode
 }
 
-export default function JobLayout({ jobData, children }: JobLayoutProps) {
-  const router = useRouter()
-
-  const handleBackToJobs = () => {
-    router.push("/protected/jobs")
-  }
+export default function JobLayout({ jobId, jobData, children }: JobLayoutProps) {
 
   return (
     <div className="container mx-auto p-6">
       {/* Fixed Header Section */}
       <div className="border-b pb-6 mb-6 space-y-4">
-        {/* Back to Jobs Button */}
+        {/* Breadcrumb Navigation */}
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={handleBackToJobs} className="gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Jobs
-          </Button>
+          <JobBreadcrumb jobId={jobId} jobTitle={jobData.title} />
         </div>
 
         {/* Job Title and Company */}
