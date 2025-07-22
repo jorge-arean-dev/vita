@@ -8,7 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from "@/components/ui/button"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { JobData, deleteJob } from "@/app/actions/jobs"
-import JobCreationDialog from "@/components/job-creation-dialog"
+import CreateJobDialog from "@/components/create-job-dialog"
 
 interface JobsTableProps {
   jobs: JobData[]
@@ -18,10 +18,11 @@ export default function JobsTable({ jobs: initialJobs }: JobsTableProps) {
   const router = useRouter()
   const [jobs, setJobs] = useState(initialJobs)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [showCreateDialog, setShowCreateDialog] = useState(false)
 
   const handleOpen = (jobId: string) => {
     console.log("Opening job:", jobId)
-    router.push(`/protected/jobs/${jobId}?phase=define&tab=initial-data`)
+    router.push(`/protected/jobs/${jobId}`)
   }
 
   const handleDelete = async (jobId: string) => {
@@ -34,6 +35,13 @@ export default function JobsTable({ jobs: initialJobs }: JobsTableProps) {
     } finally {
       setIsDeleting(false)
     }
+  }
+
+  const handleJobCreated = (newJob: any) => {
+    console.log("New job created:", newJob)
+    // Refresh the page to show the new job
+    router.refresh()
+    setShowCreateDialog(false)
   }
 
   const formatDate = (dateString: string) => {
@@ -49,11 +57,9 @@ export default function JobsTable({ jobs: initialJobs }: JobsTableProps) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Jobs</h1>
-          <p className="text-muted-foreground">Manage your active roles. Create a new one when you&apos;re ready.</p>
+          <p className="text-muted-foreground">Manage your job listings and track candidate progress</p>
         </div>
-        <JobCreationDialog>
-          <Button>Create New Job</Button>
-        </JobCreationDialog>
+        <Button onClick={() => setShowCreateDialog(true)}>Create New Job</Button>
       </div>
 
       <div className="rounded-md border">
@@ -129,6 +135,12 @@ export default function JobsTable({ jobs: initialJobs }: JobsTableProps) {
           </TableBody>
         </Table>
       </div>
+
+      <CreateJobDialog 
+        open={showCreateDialog} 
+        onOpenChange={setShowCreateDialog} 
+        onJobCreated={handleJobCreated} 
+      />
     </div>
   )
 }
