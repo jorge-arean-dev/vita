@@ -18,7 +18,7 @@ interface JobLayoutProps {
   children: React.ReactNode
 }
 
-export default function JobLayout({ jobId, jobData, children }: JobLayoutProps) {
+export default function JobLayout({ jobData, children }: JobLayoutProps) {
   const router = useRouter()
 
   const handleBackToJobs = () => {

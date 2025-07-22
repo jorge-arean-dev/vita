@@ -26,7 +26,7 @@ const mockCompanies = [
 interface CreateJobDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onJobCreated: (job: any) => void
+  onJobCreated: (result: { success: boolean; jobId?: string; error?: string }) => void
 }
 
 interface Company {

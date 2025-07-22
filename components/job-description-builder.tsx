@@ -19,7 +19,7 @@ interface JobDescriptionBuilderProps {
   jobData?: JobData | null
 }
 
-export default function JobDescriptionBuilder({ jobId, jobData }: JobDescriptionBuilderProps) {
+export default function JobDescriptionBuilder({ jobId }: JobDescriptionBuilderProps) {
   const router = useRouter()
 
   const handleBack = () => {

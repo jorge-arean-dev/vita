@@ -307,7 +307,7 @@ export default function InterviewQuestionsGenerator({ jobId, jobData }: Intervie
             {!hasExistingQuestions() && !isGenerating && (
               <div className="text-center py-8">
                 <p className="text-muted-foreground mb-4">
-                  Click "Generate Questions" to create tailored interview questions based on your job requirements.
+                  Click &quot;Generate Questions&quot; to create tailored interview questions based on your job requirements.
                 </p>
               </div>
             )}

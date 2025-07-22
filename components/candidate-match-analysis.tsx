@@ -43,7 +43,7 @@ interface CandidateMatchAnalysisProps {
   jobData?: JobData | null
 }
 
-export default function CandidateMatchAnalysis({ jobId, jobData }: CandidateMatchAnalysisProps) {
+export default function CandidateMatchAnalysis({ jobId }: CandidateMatchAnalysisProps) {
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
   

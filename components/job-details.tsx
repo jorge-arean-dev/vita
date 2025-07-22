@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation"
 import { ArrowLeft, FileText, Search, UserCheck, MessageSquare, BarChart3, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { JobData } from "@/app/actions/jobs"
 
 interface JobDetailsProps {
   job: {

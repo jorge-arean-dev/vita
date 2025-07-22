@@ -24,10 +24,6 @@ interface Candidate {
   email?: string
 }
 
-interface Company {
-  id: string
-  name: string
-}
 
 interface EmailTemplate {
   id: string

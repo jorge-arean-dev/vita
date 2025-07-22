@@ -37,8 +37,8 @@ export default function JobsTable({ jobs: initialJobs }: JobsTableProps) {
     }
   }
 
-  const handleJobCreated = (newJob: any) => {
-    console.log("New job created:", newJob)
+  const handleJobCreated = (result: { success: boolean; jobId?: string; error?: string }) => {
+    console.log("New job created:", result)
     // Refresh the page to show the new job
     router.refresh()
     setShowCreateDialog(false)

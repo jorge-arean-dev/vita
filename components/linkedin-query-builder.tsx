@@ -275,7 +275,7 @@ export default function LinkedInQueryBuilder({ jobId, jobData }: LinkedInQueryBu
           {!hasGeneratedData && !savedQueryData && !isGenerating && (
             <div className="text-center py-8">
               <p className="text-muted-foreground mb-4">
-                Click the "Generate" button to create LinkedIn search queries based on your job requirements.
+                Click the &quot;Generate&quot; button to create LinkedIn search queries based on your job requirements.
               </p>
             </div>
           )}
