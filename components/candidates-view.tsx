@@ -191,7 +191,11 @@ export default function CandidatesView({ candidates: initialCandidates }: Candid
                       {/* Added Date */}
                       <div className="col-span-2">
                         <span className="text-muted-foreground">
-                          {new Date(candidate.created_at).toLocaleDateString()}
+                          {new Date(candidate.created_at).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          })}
                         </span>
                       </div>
 
