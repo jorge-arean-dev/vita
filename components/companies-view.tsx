@@ -20,7 +20,7 @@ export default function CompaniesView({ companies: initialCompanies }: Companies
   const handleOpen = (company: CompanyData) => {
     console.log("Opening company:", company)
     // TODO: Navigate to company detail page or open modal
-    toast.info(`Opening ${company.name}'s profile`)
+    toast.info(`Opening ${company.name}&apos;s profile`)
   }
 
   const handleDelete = (companyId: string) => {
@@ -65,7 +65,7 @@ export default function CompaniesView({ companies: initialCompanies }: Companies
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Companies</h1>
-            <p className="text-muted-foreground">Manage all the companies you’re working with. Create a new one to link it to upcoming jobs</p>
+            <p className="text-muted-foreground">Manage all the companies you&apos;re working with. Create a new one to link it to upcoming jobs</p>
           </div>
           <Button>Add Company</Button>
         </div>

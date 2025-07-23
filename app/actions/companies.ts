@@ -14,8 +14,8 @@ export interface CompanyData {
   culture: string | null
   created_at: string
   updated_at: string
-  country_name?: string
-  industry_name?: string
+  country_name?: string | null
+  industry_name?: string | null
 }
 
 export async function getCompanies(): Promise<CompanyData[]> {

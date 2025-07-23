@@ -21,7 +21,7 @@ export default function CandidatesView({ candidates: initialCandidates }: Candid
     console.log("Opening candidate:", candidate)
     // TODO: Navigate to candidate detail page or open modal
     const fullName = `${candidate.first_name || ''} ${candidate.last_name || ''}`.trim()
-    toast.info(`Opening ${fullName || 'candidate'}'s profile`)
+    toast.info(`Opening ${fullName || 'candidate'}&apos;s profile`)
   }
 
   const handleDelete = (candidateId: string) => {
@@ -79,7 +79,7 @@ export default function CandidatesView({ candidates: initialCandidates }: Candid
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Candidates</h1>
-          <p className="text-muted-foreground">See all the candidates you've reviewed, sourced or assessed, past and present</p>
+          <p className="text-muted-foreground">See all the candidates you&apos;ve reviewed, sourced or assessed, past and present</p>
         </div>
         <div className="flex gap-2">
           {candidates.length === 0 && (
