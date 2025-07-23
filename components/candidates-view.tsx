@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { toast } from "sonner"
 import { deleteCandidate, createSampleCandidates, CandidateData } from "@/app/actions/candidates"
+import CreateTalentDialog from "@/components/create-talent-dialog"
 
 interface CandidatesViewProps {
   candidates: CandidateData[]
@@ -16,12 +17,13 @@ interface CandidatesViewProps {
 export default function CandidatesView({ candidates: initialCandidates }: CandidatesViewProps) {
   const [candidates, setCandidates] = useState(initialCandidates)
   const [isPending, startTransition] = useTransition()
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
 
   const handleOpen = (candidate: CandidateData) => {
     console.log("Opening candidate:", candidate)
     // TODO: Navigate to candidate detail page or open modal
     const fullName = `${candidate.first_name || ''} ${candidate.last_name || ''}`.trim()
-    toast.info(`Opening ${fullName || 'candidate'}&apos;s profile`)
+    toast.info(`Opening ${fullName || 'candidate'}'s profile`)
   }
 
   const handleDelete = (candidateId: string) => {
@@ -49,6 +51,11 @@ export default function CandidatesView({ candidates: initialCandidates }: Candid
         console.error("Error creating sample candidates:", error)
       }
     })
+  }
+
+  const handleCandidateCreated = () => {
+    // Refresh the page to show the new candidate
+    window.location.reload()
   }
 
   const getInitials = (firstName: string | null, lastName: string | null) => {
@@ -79,7 +86,7 @@ export default function CandidatesView({ candidates: initialCandidates }: Candid
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Candidates</h1>
-          <p className="text-muted-foreground">See all the candidates you&apos;ve reviewed, sourced or assessed, past and present</p>
+          <p className="text-muted-foreground">See all the candidates you've reviewed, sourced or assessed, past and present</p>
         </div>
         <div className="flex gap-2">
           {candidates.length === 0 && (
@@ -91,7 +98,7 @@ export default function CandidatesView({ candidates: initialCandidates }: Candid
               Create Sample Data
             </Button>
           )}
-          <Button>Add Candidate</Button>
+          <Button onClick={() => setIsCreateDialogOpen(true)}>Create Candidate</Button>
         </div>
       </div>
 
@@ -100,7 +107,7 @@ export default function CandidatesView({ candidates: initialCandidates }: Candid
           <div className="rounded-full bg-muted p-3 mb-4">
             <Users className="h-6 w-6 text-muted-foreground" />
           </div>
-          <h3 className="text-lg font-medium mb-2">No candidates found</h3>
+          <h3 className="text-lg font-medium mb-2">No candidates created yet</h3>
           <p className="text-muted-foreground mb-4">Add your first candidate to get started.</p>
           <div className="flex gap-2">
             <Button 
@@ -110,7 +117,7 @@ export default function CandidatesView({ candidates: initialCandidates }: Candid
             >
               Create Sample Data
             </Button>
-            <Button>Add Candidate</Button>
+            <Button onClick={() => setIsCreateDialogOpen(true)}>Create Candidate</Button>
           </div>
         </div>
       ) : (
@@ -258,6 +265,12 @@ export default function CandidatesView({ candidates: initialCandidates }: Candid
         </div>
       )}
       </div>
+
+      <CreateTalentDialog
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+        onCandidateCreated={handleCandidateCreated}
+      />
     </TooltipProvider>
   )
 }

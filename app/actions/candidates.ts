@@ -146,3 +146,30 @@ export async function createSampleCandidates(): Promise<void> {
   // Revalidate the candidates page to reflect the changes
   revalidatePath("/protected/candidates")
 }
+
+export async function searchCountries(searchTerm: string): Promise<{ iso_code: string; display_name: string }[]> {
+  const supabase = await createClient()
+  
+  if (!searchTerm.trim()) {
+    return []
+  }
+
+  try {
+    const { data: countries, error } = await supabase
+      .from("countries")
+      .select("iso_code, display_name")
+      .ilike("display_name", `%${searchTerm}%`)
+      .order("display_name")
+      .limit(10) // Limit results for performance
+
+    if (error) {
+      console.error("Error searching countries:", error)
+      return []
+    }
+
+    return countries || []
+  } catch (error) {
+    console.error("Error searching countries:", error)
+    return []
+  }
+}
