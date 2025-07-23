@@ -11,8 +11,10 @@ import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
 import { createJob } from "@/app/actions/job-management"
+import AttributesSection from "@/components/sample-reqs-and-attributes"
 
 // Mock companies data - TODO: Replace with real data from Supabase
 const mockCompanies = [
@@ -36,6 +38,38 @@ interface Company {
   industry: string
 }
 
+interface AttributesData {
+  rate: {
+    value: number | null
+    freq: string
+  }
+  commitment: string
+  duration: string
+  location: {
+    category: string
+    regions: string[]
+    countries: string[]
+  }
+}
+
+interface ApiResponse {
+  attributes: {
+    title: string
+    rate: {
+      value: number
+      freq: string
+    }
+    commitment: string
+    duration: string
+    location: {
+      category: string
+      regions: string[]
+      countries: string[]
+    }
+  }
+  requirements: unknown[] // Placeholder for now
+}
+
 export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: CreateJobDialogProps) {
   const router = useRouter()
   const [step, setStep] = useState(1)
@@ -47,6 +81,14 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
   const [showCompanyForm, setShowCompanyForm] = useState(false)
   const [comboOpen, setComboOpen] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
+  const [isProcessingStep1, setIsProcessingStep1] = useState(false)
+  const [apiResponse, setApiResponse] = useState<ApiResponse | null>(null)
+  const [attributesData, setAttributesData] = useState<AttributesData>({
+    rate: { value: null, freq: "hourly" },
+    commitment: "",
+    duration: "",
+    location: { category: "", regions: [], countries: [] }
+  })
 
   // New company form fields
   const [newCompanyName, setNewCompanyName] = useState("")
@@ -69,6 +111,14 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
     setNewCompanyName("")
     setNewCompanyWebsite("")
     setNewCompanyIndustry("")
+    setIsProcessingStep1(false)
+    setApiResponse(null)
+    setAttributesData({
+      rate: { value: null, freq: "hourly" },
+      commitment: "",
+      duration: "",
+      location: { category: "", regions: [], countries: [] }
+    })
   }
 
   const handleClose = () => {
@@ -112,9 +162,51 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
     setNewCompanyIndustry("")
   }
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (step === 1) {
-      setStep(2)
+      setIsProcessingStep1(true)
+      
+      try {
+        // Simulate API call delay
+        await new Promise(resolve => setTimeout(resolve, 2000))
+        
+        // Mock API response based on the sample
+        const mockResponse: ApiResponse = {
+          attributes: {
+            title: "Senior Full-Stack Developer",
+            rate: {
+              value: 50,
+              freq: "hourly"
+            },
+            commitment: "full_time",
+            duration: "permanent",
+            location: {
+              category: "remote_region_specific",
+              regions: ["south_america"],
+              countries: []
+            }
+          },
+          requirements: [] // Placeholder
+        }
+        
+        setApiResponse(mockResponse)
+        setAttributesData({
+          rate: {
+            value: mockResponse.attributes.rate.value,
+            freq: mockResponse.attributes.rate.freq
+          },
+          commitment: mockResponse.attributes.commitment,
+          duration: mockResponse.attributes.duration,
+          location: mockResponse.attributes.location
+        })
+        
+        setStep(2)
+      } catch (error) {
+        console.error("Error processing step 1:", error)
+        // TODO: Show error to user
+      } finally {
+        setIsProcessingStep1(false)
+      }
     }
   }
 
@@ -129,11 +221,15 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
     setIsCreating(true)
     
     try {
-      // Prepare data for job creation
+      // Prepare data for job creation - combining step 1 and step 2 data
       const jobData = {
-        title: needHelpWithTitle ? "Job Title TBD" : jobTitle,
+        // Step 1 data
+        title: needHelpWithTitle ? apiResponse?.attributes.title || "Job Title TBD" : jobTitle,
         companyId: selectedCompany?.id || "",
         initialNotes: initialNotes,
+        // Step 2 data
+        attributes: attributesData,
+        apiGeneratedTitle: apiResponse?.attributes.title
       }
 
       const result = await createJob(jobData)
@@ -141,7 +237,7 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
       if (result.success) {
         handleClose()
         onJobCreated(result)
-        // Navigate to new job detail page (not phases anymore)
+        // Navigate to new job detail page
         router.push(`/protected/jobs/${result.jobId}`)
       } else {
         console.error("Failed to create job:", result.error)
@@ -156,14 +252,22 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
   }
 
   // Updated validation: can proceed if either job title is filled OR help is requested
-  const canProceed = (jobTitle.trim() || needHelpWithTitle) && selectedCompany && initialNotes.trim()
+  const canProceedStep1 = (jobTitle.trim() || needHelpWithTitle) && selectedCompany && initialNotes.trim()
   const canSaveNewCompany = newCompanyName.trim() && newCompanyWebsite.trim() && newCompanyIndustry.trim()
+  const canCreateJob = attributesData.commitment && attributesData.duration && attributesData.location.category
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[800px] max-h-[95vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create New Job</DialogTitle>
+          <DialogTitle className="mb-6">Create Job</DialogTitle>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <span>Step {step} of 2</span>
+              <span>{step === 1 ? "Share what you know about the job" : "Review and refine job details"}</span>
+            </div>
+            <Progress value={step === 1 ? 50 : 100} className="h-2" />
+          </div>
         </DialogHeader>
 
         {step === 1 && (
@@ -329,12 +433,36 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
 
         {step === 2 && (
           <div className="space-y-6 py-4">
-            <div className="text-center">
-              <h3 className="text-lg font-semibold mb-2">Review Job Details</h3>
-              <div className="space-y-2 text-sm">
-                <p><span className="font-medium">Title:</span> {needHelpWithTitle ? "Job Title TBD (AI will help generate)" : jobTitle}</p>
-                <p><span className="font-medium">Company:</span> {selectedCompany?.name}</p>
-                <p><span className="font-medium">Notes:</span> {initialNotes}</p>
+            <div className="info-indicator">
+              <span>Here&apos;s a preview of the information we&apos;ve extracted from your notes. You can review and edit this information later.</span>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Job Attributes</h3>
+                <div className="space-y-2 mb-4">
+                  <Label htmlFor="generated-title" className="text-sm font-medium">Job Title</Label>
+                  <Input
+                    id="generated-title"
+                    value={apiResponse?.attributes.title || ""}
+                    readOnly
+                    className="bg-muted cursor-default"
+                  />
+                  <p className="text-xs text-muted-foreground">Generated based on your input</p>
+                </div>
+                <AttributesSection
+                  data={attributesData}
+                  isEditMode={true}
+                  onChange={setAttributesData}
+                />
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Job Requirements</h3>
+                <div className="p-4 border rounded-lg bg-muted/50">
+                  <p className="text-sm text-muted-foreground text-center">
+                    Requirements section will be implemented next...
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -342,25 +470,26 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
 
         {/* Dialog Actions */}
         <div className="flex justify-between pt-4">
-          <Button variant="outline" onClick={handleCancel}>
-            Cancel
-          </Button>
-
           {step === 1 && (
-            <Button onClick={handleNext} disabled={!canProceed}>
-              Next
-            </Button>
+            <>
+              <Button variant="outline" onClick={handleCancel}>
+                Cancel
+              </Button>
+              <Button onClick={handleNext} disabled={!canProceedStep1 || isProcessingStep1}>
+                {isProcessingStep1 ? "Processing..." : "Next"}
+              </Button>
+            </>
           )}
 
           {step === 2 && (
-            <div className="flex gap-2">
+            <>
               <Button variant="outline" onClick={() => setStep(1)}>
                 Back
               </Button>
-              <Button onClick={handleCreateJob} disabled={isCreating}>
-                {isCreating ? "Creating..." : "Create Job"}
+              <Button onClick={handleCreateJob} disabled={isCreating || !canCreateJob}>
+                {isCreating ? "Creating..." : "Create"}
               </Button>
-            </div>
+            </>
           )}
         </div>
       </DialogContent>

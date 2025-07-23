@@ -1,0 +1,76 @@
+{
+    "attributes": {
+        "title": "Senior Full-Stack Developer",
+        "rate": {
+            "value": 50,
+            "freq": "hourly"
+        },
+        "commitment": "full_time",
+        "duration": "permanent",
+        "location": {
+            "category": "remote_region_specific",
+            "regions": [
+                "south_america"
+            ],
+            "countries": []
+        }
+    },
+    "requirements": [
+        {
+            "requirement": "TypeScript",
+            "type": "technical_skill",
+            "is_mandatory": true,
+            "proficiency_level": "expert",
+            "weight": 1
+        },
+        {
+            "requirement": "React",
+            "type": "technical_skill",
+            "is_mandatory": true,
+            "proficiency_level": "expert",
+            "weight": 1
+        },
+        {
+            "requirement": "Node",
+            "type": "technical_skill",
+            "is_mandatory": true,
+            "proficiency_level": "expert",
+            "weight": 1
+        },
+        {
+            "requirement": "Postgres",
+            "type": "technical_skill",
+            "is_mandatory": true,
+            "proficiency_level": "advanced",
+            "weight": 0.75
+        },
+        {
+            "requirement": "Mongo",
+            "type": "technical_skill",
+            "is_mandatory": true,
+            "proficiency_level": "advanced",
+            "weight": 0.75
+        },
+        {
+            "requirement": "AWS",
+            "type": "technical_skill",
+            "is_mandatory": false,
+            "proficiency_level": "advanced",
+            "weight": 0.5
+        },
+        {
+            "requirement": "Communication",
+            "type": "soft_skill",
+            "is_mandatory": true,
+            "proficiency_level": null,
+            "weight": 1
+        },
+        {
+            "requirement": "Financial Services",
+            "type": "industry",
+            "is_mandatory": true,
+            "proficiency_level": "advanced",
+            "weight": 0.75
+        }
+    ]
+}
