@@ -69,7 +69,7 @@ export default function JobsTable({ jobs: initialJobs }: JobsTableProps) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Jobs</h1>
-          <p className="text-muted-foreground">Manage your job listings and track candidate progress</p>
+          <p className="text-muted-foreground">Stay on top of your recruiting pipeline. Create new jobs as they come in</p>
         </div>
         <Button onClick={() => setShowCreateDialog(true)}>Create New Job</Button>
       </div>
@@ -79,7 +79,7 @@ export default function JobsTable({ jobs: initialJobs }: JobsTableProps) {
           <div className="rounded-full bg-muted p-3 mb-4">
             <Building2 className="h-6 w-6 text-muted-foreground" />
           </div>
-          <h3 className="text-lg font-medium mb-2">No jobs found</h3>
+          <h3 className="text-lg font-medium mb-2">No jobs created yet</h3>
           <p className="text-muted-foreground mb-4">Create your first job to get started.</p>
           <Button onClick={() => setShowCreateDialog(true)}>Create New Job</Button>
         </div>

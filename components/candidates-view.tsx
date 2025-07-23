@@ -79,7 +79,7 @@ export default function CandidatesView({ candidates: initialCandidates }: Candid
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Candidates</h1>
-          <p className="text-muted-foreground">Manage your candidate profiles and track their progress</p>
+          <p className="text-muted-foreground">See all the candidates you've reviewed, sourced or assessed, past and present</p>
         </div>
         <div className="flex gap-2">
           {candidates.length === 0 && (

@@ -1,31 +1,11 @@
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
-import { unstable_noStore as noStore } from 'next/cache';
+import { unstable_noStore as noStore } from "next/cache"
+import { getCompanies } from "@/app/actions/companies"
+import CompaniesView from "@/components/companies-view"
 
 export default async function CompaniesPage() {
-  // Disable caching to ensure fresh user data on each request
-  noStore();
+  noStore() // Prevent caching for user-specific data
   
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const companies = await getCompanies()
 
-  if (!user) {
-    redirect("/auth/login");
-  }
-
-  return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-medium">Companies</h3>
-        <p className="text-sm text-muted-foreground">
-          Browse and manage company profiles.
-        </p>
-      </div>
-      <div className="rounded-md bg-secondary p-8 text-center">
-        <p className="text-muted-foreground">
-          Company profiles will be displayed here. This section is under development.
-        </p>
-      </div>
-    </div>
-  );
+  return <CompaniesView companies={companies} />
 }
