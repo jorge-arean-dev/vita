@@ -8,9 +8,9 @@ import { Input } from "@/components/ui/input"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Upload, Link, ChevronDown, UserPlus, Users, Info } from "lucide-react"
+import { Upload, Link, ChevronDown, UserPlus, Info } from "lucide-react"
 import ToggleSlider from "@/components/ui/toggle-slider"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { toast } from "sonner"
 import { searchCountries } from "@/app/actions/candidates"
 
@@ -279,7 +279,7 @@ export default function CreateTalentDialog({
           {currentStep !== "review-form" && (
             <div className="text-center space-y-4">
               <p className="text-muted-foreground">
-                Choose how you'd like to add this candidate
+                Choose how you&apos;d like to add this candidate
               </p>
               
               <div className="flex justify-center">
