@@ -14,7 +14,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
 import { createJob } from "@/app/actions/job-management"
-import AttributesSection from "@/components/sample-reqs-and-attributes"
+import AttributesSection from "@/components/sample-job-attributes"
+import RequirementsSection from "@/components/requirements-section"
 
 // Mock companies data - TODO: Replace with real data from Supabase
 const mockCompanies = [
@@ -52,6 +53,14 @@ interface AttributesData {
   }
 }
 
+interface Requirement {
+  requirement: string
+  type: string
+  is_mandatory: boolean
+  proficiency_level: "expert" | "advanced" | "beginner" | null
+  weight: number
+}
+
 interface ApiResponse {
   attributes: {
     title: string
@@ -67,7 +76,7 @@ interface ApiResponse {
       countries: string[]
     }
   }
-  requirements: unknown[] // Placeholder for now
+  requirements: Requirement[]
 }
 
 export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: CreateJobDialogProps) {
@@ -89,6 +98,7 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
     duration: "",
     location: { category: "", regions: [], countries: [] }
   })
+  const [requirementsData, setRequirementsData] = useState<Requirement[]>([])
 
   // New company form fields
   const [newCompanyName, setNewCompanyName] = useState("")
@@ -119,6 +129,7 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
       duration: "",
       location: { category: "", regions: [], countries: [] }
     })
+    setRequirementsData([])
   }
 
   const handleClose = () => {
@@ -186,7 +197,71 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
               countries: []
             }
           },
-          requirements: [] // Placeholder
+          requirements: [
+            {
+              requirement: "React.js",
+              type: "technical",
+              is_mandatory: true,
+              proficiency_level: "expert",
+              weight: 1
+            },
+            {
+              requirement: "Node.js",
+              type: "technical",
+              is_mandatory: true,
+              proficiency_level: "advanced",
+              weight: 0.75
+            },
+            {
+              requirement: "PostgreSQL",
+              type: "technical",
+              is_mandatory: true,
+              proficiency_level: "advanced",
+              weight: 0.75
+            },
+            {
+              requirement: "TypeScript",
+              type: "technical",
+              is_mandatory: true,
+              proficiency_level: "expert",
+              weight: 1
+            },
+            {
+              requirement: "AWS",
+              type: "technology_domain",
+              is_mandatory: false,
+              proficiency_level: "beginner",
+              weight: 0.5
+            },
+            {
+              requirement: "Communication",
+              type: "soft_skill",
+              is_mandatory: true,
+              proficiency_level: null,
+              weight: 0.75
+            },
+            {
+              requirement: "Team collaboration",
+              type: "soft_skill",
+              is_mandatory: true,
+              proficiency_level: null,
+              weight: 0.75
+            },
+            {
+              requirement: "Full-stack development",
+              type: "role",
+              is_mandatory: true,
+              proficiency_level: "expert",
+              weight: 1
+            },
+            {
+              requirement: "Cloud computing",
+              type: "technology_domain",
+              is_mandatory: false,
+              proficiency_level: "beginner",
+              weight: 0.5
+            }
+          ]
         }
         
         setApiResponse(mockResponse)
@@ -199,6 +274,7 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
           duration: mockResponse.attributes.duration,
           location: mockResponse.attributes.location
         })
+        setRequirementsData(mockResponse.requirements)
         
         setStep(2)
       } catch (error) {
@@ -229,6 +305,7 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
         initialNotes: initialNotes,
         // Step 2 data
         attributes: attributesData,
+        requirements: requirementsData,
         apiGeneratedTitle: apiResponse?.attributes.title
       }
 
@@ -257,7 +334,13 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
   const canCreateJob = attributesData.commitment && attributesData.duration && attributesData.location.category
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(newOpen) => {
+      if (!newOpen) {
+        handleClose()
+      } else {
+        onOpenChange(newOpen)
+      }
+    }}>
       <DialogContent className="sm:max-w-[800px] max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="mb-6">Create Job</DialogTitle>
@@ -458,11 +541,11 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
               
               <div>
                 <h3 className="text-lg font-semibold mb-4">Job Requirements</h3>
-                <div className="p-4 border rounded-lg bg-muted/50">
-                  <p className="text-sm text-muted-foreground text-center">
-                    Requirements section will be implemented next...
-                  </p>
-                </div>
+                <RequirementsSection
+                  requirements={requirementsData}
+                  isEditMode={true}
+                  onChange={setRequirementsData}
+                />
               </div>
             </div>
           </div>
