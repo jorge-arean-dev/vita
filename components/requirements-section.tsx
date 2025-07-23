@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { X, Plus, ChevronDown, ChevronUp } from "lucide-react"
+import { X, Plus, ChevronUp } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 
@@ -103,9 +103,6 @@ export default function RequirementsSection({ requirements, isEditMode, onChange
     setIsAddSectionOpen(false)
   }
 
-  const getTypeDisplayName = (typeName: string) => {
-    return REQUIREMENT_TYPES.find(type => type.name === typeName)?.display_name || typeName
-  }
 
   const getProficiencyDisplayName = (proficiency: string | null) => {
     if (!proficiency) return "No level"
@@ -119,7 +116,7 @@ export default function RequirementsSection({ requirements, isEditMode, onChange
         <div key={group.name} className="space-y-3">
           <Label className="text-sm font-medium">{group.display_name}</Label>
           <div className="flex flex-wrap gap-2">
-            {group.requirements.map((req, globalIndex) => {
+            {group.requirements.map((req) => {
               const reqIndex = requirements.findIndex(r => r === req)
               return (
                 <div key={reqIndex} className="relative group">

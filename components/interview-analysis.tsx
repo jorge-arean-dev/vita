@@ -1,13 +1,18 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sparkles, Save } from "lucide-react"
+
+interface Candidate {
+  id: string
+  name: string
+  email?: string
+}
 
 interface JobData {
   id: string
@@ -17,19 +22,11 @@ interface JobData {
   initialNotes?: string
 }
 
-interface Candidate {
-  id: string
-  name: string
-  email?: string
-}
-
 interface InterviewAnalysisProps {
-  jobId: string
   jobData?: JobData | null
 }
 
-export default function InterviewAnalysis({ jobId, jobData }: InterviewAnalysisProps) {
-  const router = useRouter()
+export default function InterviewAnalysis({ jobData }: InterviewAnalysisProps) {
   const [selectedCandidate, setSelectedCandidate] = useState("")
   const [interviewTranscript, setInterviewTranscript] = useState("")
   const [evaluationResults, setEvaluationResults] = useState("")

@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -9,14 +8,6 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Copy, Sparkles, Save } from "lucide-react"
-
-interface JobData {
-  id: string
-  title: string
-  companyId?: string
-  companyName?: string
-  initialNotes?: string
-}
 
 interface Candidate {
   id: string
@@ -31,13 +22,19 @@ interface EmailTemplate {
   description: string
 }
 
+interface JobData {
+  id: string
+  title: string
+  companyId?: string
+  companyName?: string
+  initialNotes?: string
+}
+
 interface EmailBuilderProps {
-  jobId: string
   jobData?: JobData | null
 }
 
-export default function EmailBuilder({ jobId, jobData }: EmailBuilderProps) {
-  const router = useRouter()
+export default function EmailBuilder({ jobData }: EmailBuilderProps) {
   
   // Candidate Email State
   const [candidateSelectedCandidate, setCandidateSelectedCandidate] = useState("")

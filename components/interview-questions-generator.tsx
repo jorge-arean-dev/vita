@@ -1,19 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Sparkles, Edit, Save, X } from "lucide-react"
-
-interface JobData {
-  id: string
-  title: string
-  companyId?: string
-  companyName?: string
-  initialNotes?: string
-}
 
 interface InterviewQuestion {
   id: string
@@ -27,8 +18,15 @@ interface QuestionGroup {
   questions: InterviewQuestion[]
 }
 
+interface JobData {
+  id: string
+  title: string
+  companyId?: string
+  companyName?: string
+  initialNotes?: string
+}
+
 interface InterviewQuestionsGeneratorProps {
-  jobId: string
   jobData?: JobData | null
 }
 
@@ -42,8 +40,7 @@ const QUESTION_TYPE_MAPPING: Record<string, string> = {
   cultural: "Cultural Fit & Values Alignment"
 }
 
-export default function InterviewQuestionsGenerator({ jobId, jobData }: InterviewQuestionsGeneratorProps) {
-  const router = useRouter()
+export default function InterviewQuestionsGenerator({ jobData }: InterviewQuestionsGeneratorProps) {
   const [questionGroups, setQuestionGroups] = useState<QuestionGroup[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
 

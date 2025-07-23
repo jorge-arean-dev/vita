@@ -86,5 +86,5 @@ async function EmailBuilderContainer({ jobId }: { jobId: string }) {
     redirect("/protected/jobs")
   }
 
-  return <EmailBuilder jobId={jobId} jobData={jobData} />
+  return <EmailBuilder jobData={jobData} />
 }

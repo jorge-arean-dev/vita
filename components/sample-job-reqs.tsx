@@ -100,9 +100,6 @@ export default function RequirementsSection({ requirements, isEditMode, onChange
     setNewProficiencyLevel("")
   }
 
-  const getTypeDisplayName = (typeName: string) => {
-    return REQUIREMENT_TYPES.find(type => type.name === typeName)?.display_name || typeName
-  }
 
   const getProficiencyDisplayName = (proficiency: string | null) => {
     if (!proficiency) return "No level"
@@ -116,7 +113,7 @@ export default function RequirementsSection({ requirements, isEditMode, onChange
         <div key={group.name} className="space-y-3">
           <Label className="text-sm font-medium">{group.display_name}</Label>
           <div className="flex flex-wrap gap-2">
-            {group.requirements.map((req, globalIndex) => {
+            {group.requirements.map((req) => {
               const reqIndex = requirements.findIndex(r => r === req)
               return (
                 <div key={reqIndex} className="relative group">

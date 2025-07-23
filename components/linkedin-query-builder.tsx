@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -38,12 +37,10 @@ interface LinkedInQueryData {
 }
 
 interface LinkedInQueryBuilderProps {
-  jobId: string
   jobData?: JobData | null
 }
 
-export default function LinkedInQueryBuilder({ jobId, jobData }: LinkedInQueryBuilderProps) {
-  const router = useRouter()
+export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderProps) {
   const [mounted, setMounted] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
   const [isEditMode, setIsEditMode] = useState(false)

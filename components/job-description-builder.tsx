@@ -1,26 +1,11 @@
 "use client"
 
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { FileText, AlertCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
-interface JobData {
-  id: string
-  title: string
-  companyId?: string
-  companyName?: string
-  initialNotes?: string
-}
 
-interface JobDescriptionBuilderProps {
-  jobId: string
-  jobData?: JobData | null
-}
-
-export default function JobDescriptionBuilder({ jobId }: JobDescriptionBuilderProps) {
-  const router = useRouter()
+export default function JobDescriptionBuilder() {
 
 
   return (

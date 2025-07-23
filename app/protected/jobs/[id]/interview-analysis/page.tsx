@@ -77,5 +77,5 @@ async function InterviewAnalysisContainer({ jobId }: { jobId: string }) {
     redirect("/protected/jobs")
   }
 
-  return <InterviewAnalysis jobId={jobId} jobData={jobData} />
+  return <InterviewAnalysis jobData={jobData} />
 }

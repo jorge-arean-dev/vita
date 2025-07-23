@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -11,14 +10,6 @@ import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Sparkles, ChevronDown, User, Save, UserPlus } from "lucide-react"
 import ToggleSlider from "@/components/ui/toggle-slider"
-
-interface JobData {
-  id: string
-  title: string
-  companyId?: string
-  companyName?: string
-  initialNotes?: string
-}
 
 interface Candidate {
   id: string
@@ -38,13 +29,7 @@ interface AnalysisResults {
   nextSteps: string[]
 }
 
-interface CandidateMatchAnalysisProps {
-  jobId: string
-  jobData?: JobData | null
-}
-
-export default function CandidateMatchAnalysis({ jobId }: CandidateMatchAnalysisProps) {
-  const router = useRouter()
+export default function CandidateMatchAnalysis() {
   const [mounted, setMounted] = useState(false)
   
   // Candidate selection state

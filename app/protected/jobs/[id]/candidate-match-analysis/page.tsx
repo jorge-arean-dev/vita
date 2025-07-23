@@ -81,5 +81,5 @@ async function CandidateMatchAnalysisContainer({ jobId }: { jobId: string }) {
     redirect("/protected/jobs")
   }
 
-  return <CandidateMatchAnalysis jobId={jobId} jobData={jobData} />
+  return <CandidateMatchAnalysis />
 }

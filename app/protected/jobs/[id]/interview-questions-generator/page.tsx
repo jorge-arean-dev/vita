@@ -78,5 +78,5 @@ async function InterviewQuestionsGeneratorContainer({ jobId }: { jobId: string }
     redirect("/protected/jobs")
   }
 
-  return <InterviewQuestionsGenerator jobId={jobId} jobData={jobData} />
+  return <InterviewQuestionsGenerator jobData={jobData} />
 }

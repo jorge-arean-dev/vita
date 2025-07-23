@@ -73,5 +73,5 @@ async function JobDescriptionBuilderContainer({ jobId }: { jobId: string }) {
     redirect("/protected/jobs")
   }
 
-  return <JobDescriptionBuilder jobId={jobId} jobData={jobData} />
+  return <JobDescriptionBuilder />
 }

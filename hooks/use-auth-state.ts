@@ -14,7 +14,7 @@ export function useAuthState() {
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    } = supabase.auth.onAuthStateChange((event) => {
       // Handle auth state changes
       if (event === 'SIGNED_OUT') {
         // Clear all client-side caches

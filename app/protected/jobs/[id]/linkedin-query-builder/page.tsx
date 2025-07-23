@@ -77,5 +77,5 @@ async function LinkedInQueryBuilderContainer({ jobId }: { jobId: string }) {
     redirect("/protected/jobs")
   }
 
-  return <LinkedInQueryBuilder jobId={jobId} jobData={jobData} />
+  return <LinkedInQueryBuilder jobData={jobData} />
 }
