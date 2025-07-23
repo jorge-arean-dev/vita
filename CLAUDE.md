@@ -213,7 +213,7 @@ Portal-based components (DropdownMenu, Dialog, Tooltip, etc.) require special CS
 - `@docs/recommendations/font-provider-common-issues.md` - Best practices
 
 ### Database Changes
-- `@docs/db-schema/db_schema.json` - Current schema
+- `@docs/db-schema/supabase-db-schema.csv` - Current schema
 - `@supabase/migrations/` - Migration patterns
 - `@types/database.types.ts` - TypeScript definitions
 

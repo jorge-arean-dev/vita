@@ -1,0 +1,176 @@
+table_name,column_name,data_type,character_maximum_length,is_nullable,column_default,key_type,referenced_table_name,referenced_column_name
+candidate_interview_evaluation,id,uuid,null,NO,gen_random_uuid(),PRIMARY KEY,null,null
+candidate_interview_evaluation,job_interview_transcript_id,uuid,null,NO,null,FOREIGN KEY,job_interview_transcript,id
+candidate_interview_evaluation,technical_skills_score,numeric,null,YES,null,,null,null
+candidate_interview_evaluation,problem_solving_score,numeric,null,YES,null,,null,null
+candidate_interview_evaluation,communication_collaboration_score,numeric,null,YES,null,,null,null
+candidate_interview_evaluation,leadership_initiative_score,numeric,null,YES,null,,null,null
+candidate_interview_evaluation,adaptability_learning_agility_score,numeric,null,YES,null,,null,null
+candidate_interview_evaluation,cultural_fit_values_alignment_score,numeric,null,YES,null,,null,null
+candidate_interview_evaluation,feedback,text,null,YES,null,,null,null
+candidate_interview_evaluation,suggestions,text,null,YES,null,,null,null
+candidate_interview_evaluation,created_at,timestamp with time zone,null,NO,now(),,null,null
+candidate_interview_evaluation,updated_at,timestamp with time zone,null,NO,now(),,null,null
+candidates,id,uuid,null,NO,gen_random_uuid(),PRIMARY KEY,null,null
+candidates,user_id,uuid,null,NO,null,FOREIGN KEY,profiles,user_id
+candidates,first_name,text,null,YES,null,,null,null
+candidates,last_name,text,null,YES,null,,null,null
+candidates,email,text,null,YES,null,,null,null
+candidates,linkedin,text,null,YES,null,,null,null
+candidates,resume_url,text,null,YES,null,,null,null
+candidates,country,text,null,YES,null,FOREIGN KEY,countries,iso_code
+candidates,created_at,timestamp with time zone,null,NO,now(),,null,null
+candidates,updated_at,timestamp with time zone,null,NO,now(),,null,null
+candidates_skills,id,uuid,null,NO,gen_random_uuid(),PRIMARY KEY,null,null
+candidates_skills,candidate_id,uuid,null,NO,null,FOREIGN KEY,candidates,id
+candidates_skills,skill,text,null,NO,null,,null,null
+candidates_skills,type,text,null,NO,null,FOREIGN KEY,skill_types,name
+candidates_skills,source,text,null,NO,null,FOREIGN KEY,skill_sources,name
+candidates_skills,proficiency_level,text,null,YES,null,FOREIGN KEY,proficiency_levels,name
+candidates_skills,created_at,timestamp with time zone,null,NO,now(),,null,null
+candidates_skills,updated_at,timestamp with time zone,null,NO,now(),,null,null
+companies,id,uuid,null,NO,gen_random_uuid(),PRIMARY KEY,null,null
+companies,user_id,uuid,null,NO,null,FOREIGN KEY,profiles,user_id
+companies,name,text,null,NO,null,,null,null
+companies,industry_id,uuid,null,YES,null,FOREIGN KEY,industries,id
+companies,website,text,null,YES,null,,null,null
+companies,linkedin,text,null,YES,null,,null,null
+companies,country,text,null,YES,null,FOREIGN KEY,countries,iso_code
+companies,culture,text,null,YES,null,,null,null
+companies,created_at,timestamp with time zone,null,NO,now(),,null,null
+companies,updated_at,timestamp with time zone,null,NO,now(),,null,null
+countries,id,uuid,null,NO,gen_random_uuid(),PRIMARY KEY,null,null
+countries,iso_code,text,null,NO,null,,null,null
+countries,display_name,text,null,NO,null,,null,null
+countries,region,text,null,YES,null,FOREIGN KEY,regions,name
+countries,region_parent,text,null,YES,null,FOREIGN KEY,regions,name
+countries,primary_timezone,text,null,NO,null,FOREIGN KEY,timezones,name
+countries,is_active,boolean,null,NO,true,,null,null
+countries,created_at,timestamp with time zone,null,NO,now(),,null,null
+countries,updated_at,timestamp with time zone,null,NO,now(),,null,null
+industries,id,uuid,null,NO,gen_random_uuid(),PRIMARY KEY,null,null
+industries,display_name,text,null,NO,null,,null,null
+industries,is_active,boolean,null,NO,true,,null,null
+industries,created_at,timestamp with time zone,null,NO,now(),,null,null
+industries,updated_at,timestamp with time zone,null,NO,now(),,null,null
+job_candidate_evaluation,id,uuid,null,NO,gen_random_uuid(),PRIMARY KEY,null,null
+job_candidate_evaluation,job_id,uuid,null,NO,null,FOREIGN KEY,jobs,id
+job_candidate_evaluation,candidate_id,uuid,null,NO,null,FOREIGN KEY,candidates,id
+job_candidate_evaluation,job_requirement_id,uuid,null,NO,null,FOREIGN KEY,job_requirements,id
+job_candidate_evaluation,score,numeric,null,NO,null,,null,null
+job_candidate_evaluation,feedback,text,null,YES,null,,null,null
+job_candidate_evaluation,created_at,timestamp with time zone,null,NO,now(),,null,null
+job_candidate_evaluation,updated_at,timestamp with time zone,null,NO,now(),,null,null
+job_candidate_match_analysis,id,uuid,null,NO,gen_random_uuid(),PRIMARY KEY,null,null
+job_candidate_match_analysis,job_id,uuid,null,NO,null,FOREIGN KEY,jobs,id
+job_candidate_match_analysis,candidate_id,uuid,null,NO,null,FOREIGN KEY,candidates,id
+job_candidate_match_analysis,overall_score,numeric,null,NO,null,,null,null
+job_candidate_match_analysis,feedback,text,null,YES,null,,null,null
+job_candidate_match_analysis,created_at,timestamp with time zone,null,NO,now(),,null,null
+job_candidate_match_analysis,updated_at,timestamp with time zone,null,NO,now(),,null,null
+job_commitment_types,id,uuid,null,NO,gen_random_uuid(),PRIMARY KEY,null,null
+job_commitment_types,name,text,null,NO,null,,null,null
+job_commitment_types,display_name,text,null,NO,null,,null,null
+job_commitment_types,is_active,boolean,null,NO,true,,null,null
+job_commitment_types,created_at,timestamp with time zone,null,NO,now(),,null,null
+job_commitment_types,updated_at,timestamp with time zone,null,NO,now(),,null,null
+job_durations,id,uuid,null,NO,gen_random_uuid(),PRIMARY KEY,null,null
+job_durations,name,text,null,NO,null,,null,null
+job_durations,display_name,text,null,NO,null,,null,null
+job_durations,is_active,boolean,null,NO,true,,null,null
+job_durations,created_at,timestamp with time zone,null,NO,now(),,null,null
+job_durations,updated_at,timestamp with time zone,null,NO,now(),,null,null
+job_interview_transcript,id,uuid,null,NO,gen_random_uuid(),PRIMARY KEY,null,null
+job_interview_transcript,job_id,uuid,null,NO,null,FOREIGN KEY,jobs,id
+job_interview_transcript,candidate_id,uuid,null,NO,null,FOREIGN KEY,candidates,id
+job_interview_transcript,content,text,null,NO,null,,null,null
+job_interview_transcript,created_at,timestamp with time zone,null,NO,now(),,null,null
+job_interview_transcript,updated_at,timestamp with time zone,null,NO,now(),,null,null
+job_location_types,id,uuid,null,NO,gen_random_uuid(),PRIMARY KEY,null,null
+job_location_types,name,text,null,NO,null,,null,null
+job_location_types,display_name,text,null,NO,null,,null,null
+job_location_types,is_active,boolean,null,NO,true,,null,null
+job_location_types,created_at,timestamp with time zone,null,NO,now(),,null,null
+job_location_types,updated_at,timestamp with time zone,null,NO,now(),,null,null
+job_pay_frequencies,id,uuid,null,NO,gen_random_uuid(),PRIMARY KEY,null,null
+job_pay_frequencies,name,text,null,NO,null,,null,null
+job_pay_frequencies,display_name,text,null,NO,null,,null,null
+job_pay_frequencies,is_active,boolean,null,NO,true,,null,null
+job_pay_frequencies,created_at,timestamp with time zone,null,NO,now(),,null,null
+job_pay_frequencies,updated_at,timestamp with time zone,null,NO,now(),,null,null
+job_questions,id,uuid,null,NO,gen_random_uuid(),PRIMARY KEY,null,null
+job_questions,job_id,uuid,null,NO,null,FOREIGN KEY,jobs,id
+job_questions,content,text,null,NO,null,,null,null
+job_questions,type,text,null,NO,null,FOREIGN KEY,question_types,name
+job_questions,created_at,timestamp with time zone,null,NO,now(),,null,null
+job_questions,updated_at,timestamp with time zone,null,NO,now(),,null,null
+job_requirements,id,uuid,null,NO,gen_random_uuid(),PRIMARY KEY,null,null
+job_requirements,job_id,uuid,null,NO,null,FOREIGN KEY,jobs,id
+job_requirements,requirement,text,null,NO,null,,null,null
+job_requirements,type,text,null,NO,null,FOREIGN KEY,skill_types,name
+job_requirements,is_mandatory,boolean,null,NO,false,,null,null
+job_requirements,proficiency_level,text,null,YES,null,FOREIGN KEY,proficiency_levels,name
+job_requirements,weight,numeric,null,YES,0.50,,null,null
+job_requirements,created_at,timestamp with time zone,null,NO,now(),,null,null
+job_requirements,updated_at,timestamp with time zone,null,NO,now(),,null,null
+jobs,id,uuid,null,NO,gen_random_uuid(),PRIMARY KEY,null,null
+jobs,user_id,uuid,null,NO,null,FOREIGN KEY,profiles,user_id
+jobs,company_id,uuid,null,NO,null,FOREIGN KEY,companies,id
+jobs,title,text,null,NO,null,,null,null
+jobs,initial_notes,text,null,YES,null,,null,null
+jobs,rate,numeric,null,YES,null,,null,null
+jobs,pay_freq,text,null,YES,null,FOREIGN KEY,job_pay_frequencies,name
+jobs,duration,text,null,YES,null,FOREIGN KEY,job_durations,name
+jobs,commitment,text,null,YES,null,FOREIGN KEY,job_commitment_types,name
+jobs,location_reqs,text,null,YES,null,FOREIGN KEY,job_location_types,name
+jobs,regions,ARRAY,null,YES,null,,null,null
+jobs,countries,ARRAY,null,YES,null,,null,null
+jobs,timezone,text,null,YES,null,FOREIGN KEY,timezones,name
+jobs,job_description,text,null,YES,null,,null,null
+jobs,linkedin_query,text,null,YES,null,,null,null
+jobs,created_at,timestamp with time zone,null,NO,now(),,null,null
+jobs,updated_at,timestamp with time zone,null,NO,now(),,null,null
+proficiency_levels,id,uuid,null,NO,gen_random_uuid(),PRIMARY KEY,null,null
+proficiency_levels,name,text,null,NO,null,,null,null
+proficiency_levels,display_name,text,null,NO,null,,null,null
+proficiency_levels,is_active,boolean,null,NO,true,,null,null
+proficiency_levels,created_at,timestamp with time zone,null,NO,now(),,null,null
+proficiency_levels,updated_at,timestamp with time zone,null,NO,now(),,null,null
+profiles,id,uuid,null,NO,gen_random_uuid(),PRIMARY KEY,null,null
+profiles,user_id,uuid,null,NO,null,,null,null
+profiles,first_name,text,null,YES,null,,null,null
+profiles,avatar_url,text,null,YES,null,,null,null
+profiles,email,text,null,NO,null,,null,null
+profiles,created_at,timestamp with time zone,null,NO,now(),,null,null
+profiles,updated_at,timestamp with time zone,null,NO,now(),,null,null
+question_types,id,uuid,null,NO,gen_random_uuid(),PRIMARY KEY,null,null
+question_types,name,text,null,NO,null,,null,null
+question_types,display_name,text,null,NO,null,,null,null
+question_types,is_active,boolean,null,NO,true,,null,null
+question_types,created_at,timestamp with time zone,null,NO,now(),,null,null
+question_types,updated_at,timestamp with time zone,null,NO,now(),,null,null
+regions,id,uuid,null,NO,gen_random_uuid(),PRIMARY KEY,null,null
+regions,name,text,null,NO,null,,null,null
+regions,display_name,text,null,NO,null,,null,null
+regions,is_parent,boolean,null,NO,false,,null,null
+regions,is_active,boolean,null,NO,true,,null,null
+regions,created_at,timestamp with time zone,null,NO,now(),,null,null
+regions,updated_at,timestamp with time zone,null,NO,now(),,null,null
+skill_sources,id,uuid,null,NO,gen_random_uuid(),PRIMARY KEY,null,null
+skill_sources,name,text,null,NO,null,,null,null
+skill_sources,display_name,text,null,NO,null,,null,null
+skill_sources,is_active,boolean,null,NO,true,,null,null
+skill_sources,created_at,timestamp with time zone,null,NO,now(),,null,null
+skill_sources,updated_at,timestamp with time zone,null,NO,now(),,null,null
+skill_types,id,uuid,null,NO,gen_random_uuid(),PRIMARY KEY,null,null
+skill_types,name,text,null,NO,null,,null,null
+skill_types,display_name,text,null,NO,null,,null,null
+skill_types,is_active,boolean,null,NO,true,,null,null
+skill_types,created_at,timestamp with time zone,null,NO,now(),,null,null
+skill_types,updated_at,timestamp with time zone,null,NO,now(),,null,null
+timezones,id,uuid,null,NO,gen_random_uuid(),PRIMARY KEY,null,null
+timezones,name,text,null,NO,null,,null,null
+timezones,display_name,text,null,NO,null,,null,null
+timezones,is_active,boolean,null,NO,true,,null,null
+timezones,created_at,timestamp with time zone,null,NO,now(),,null,null
+timezones,updated_at,timestamp with time zone,null,NO,now(),,null,null
