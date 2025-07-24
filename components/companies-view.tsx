@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { toast } from "sonner"
 import { deleteCompany, CompanyData } from "@/app/actions/companies"
+import CompanyDialog from "@/components/company-dialog"
 
 interface CompaniesViewProps {
   companies: CompanyData[]
@@ -16,11 +17,13 @@ interface CompaniesViewProps {
 export default function CompaniesView({ companies: initialCompanies }: CompaniesViewProps) {
   const [companies, setCompanies] = useState(initialCompanies)
   const [isPending, startTransition] = useTransition()
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null)
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
 
   const handleOpen = (company: CompanyData) => {
-    console.log("Opening company:", company)
-    // TODO: Navigate to company detail page or open modal
-    toast.info(`Opening ${company.name}&apos;s profile`)
+    setSelectedCompanyId(company.id)
+    setIsViewDialogOpen(true)
   }
 
   const handleDelete = (companyId: string) => {
@@ -59,15 +62,25 @@ export default function CompaniesView({ companies: initialCompanies }: Companies
     return colors[index]
   }
 
+  const handleCompanyCreated = () => {
+    // Refresh the page to get the updated list
+    window.location.reload()
+  }
+
+  const handleCompanyUpdated = () => {
+    // Refresh the page to get the updated list
+    window.location.reload()
+  }
+
   return (
     <TooltipProvider>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Companies</h1>
-            <p className="text-muted-foreground">Manage all the companies you&apos;re working with. Create a new one to link it to upcoming jobs</p>
+            <p className="text-muted-foreground">Manage all the companies you’re working with. Create a new one to link it to upcoming jobs</p>
           </div>
-          <Button>Add Company</Button>
+          <Button onClick={() => setIsCreateDialogOpen(true)}>Create Company</Button>
         </div>
 
         {companies.length === 0 ? (
@@ -75,9 +88,9 @@ export default function CompaniesView({ companies: initialCompanies }: Companies
             <div className="rounded-full bg-muted p-3 mb-4">
               <Building2 className="h-6 w-6 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-medium mb-2">No companies found</h3>
-            <p className="text-muted-foreground mb-4">Add your first company to get started.</p>
-            <Button>Add Company</Button>
+            <h3 className="text-lg font-medium mb-2">No companies created yet</h3>
+            <p className="text-muted-foreground mb-4">Create your first company to get started.</p>
+            <Button onClick={() => setIsCreateDialogOpen(true)}>Create Company</Button>
           </div>
         ) : (
           <div className="space-y-4">
@@ -140,7 +153,11 @@ export default function CompaniesView({ companies: initialCompanies }: Companies
                         {/* Added Date */}
                         <div className="col-span-2">
                           <span className="text-muted-foreground">
-                            {new Date(company.created_at).toLocaleDateString()}
+                            {new Date(company.created_at).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric'
+                            })}
                           </span>
                         </div>
 
@@ -214,6 +231,21 @@ export default function CompaniesView({ companies: initialCompanies }: Companies
           </div>
         )}
       </div>
+
+      <CompanyDialog
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+        mode="create"
+        onCompanyCreated={handleCompanyCreated}
+      />
+
+      <CompanyDialog
+        open={isViewDialogOpen}
+        onOpenChange={setIsViewDialogOpen}
+        mode="view"
+        companyId={selectedCompanyId || undefined}
+        onCompanyUpdated={handleCompanyUpdated}
+      />
     </TooltipProvider>
   )
 }
