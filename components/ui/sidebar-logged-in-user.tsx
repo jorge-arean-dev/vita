@@ -2,11 +2,13 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Briefcase, Building2, ChevronLeft, ChevronRight, Users, Settings } from "lucide-react"
 
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false)
+  const pathname = usePathname()
 
   const toggleSidebar = () => {
     setCollapsed(!collapsed)
@@ -36,8 +38,7 @@ export default function Sidebar() {
             "flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors",
             "hover:bg-accent hover:text-accent-foreground",
             collapsed ? "justify-center" : "justify-start",
-            // Active state - replace this condition with actual route checking
-            true ? "bg-primary text-primary-foreground" : "text-muted-foreground",
+            pathname === "/protected/jobs" ? "bg-primary text-primary-foreground" : "text-muted-foreground",
           )}
         >
           <Briefcase className={cn("h-5 w-5", collapsed ? "mx-0" : "mr-3")} />
@@ -50,7 +51,7 @@ export default function Sidebar() {
             "flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors",
             "hover:bg-accent hover:text-accent-foreground",
             collapsed ? "justify-center" : "justify-start",
-            false ? "bg-primary text-primary-foreground" : "text-muted-foreground",
+            pathname === "/protected/candidates" ? "bg-primary text-primary-foreground" : "text-muted-foreground",
           )}
         >
           <Users className={cn("h-5 w-5", collapsed ? "mx-0" : "mr-3")} />
@@ -63,7 +64,7 @@ export default function Sidebar() {
             "flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors",
             "hover:bg-accent hover:text-accent-foreground",
             collapsed ? "justify-center" : "justify-start",
-            false ? "bg-primary text-primary-foreground" : "text-muted-foreground",
+            pathname === "/protected/companies" ? "bg-primary text-primary-foreground" : "text-muted-foreground",
           )}
         >
           <Building2 className={cn("h-5 w-5", collapsed ? "mx-0" : "mr-3")} />
@@ -76,7 +77,7 @@ export default function Sidebar() {
             "flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors",
             "hover:bg-accent hover:text-accent-foreground",
             collapsed ? "justify-center" : "justify-start",
-            false ? "bg-primary text-primary-foreground" : "text-muted-foreground",
+            pathname === "/protected/settings" ? "bg-primary text-primary-foreground" : "text-muted-foreground",
           )}
         >
           <Settings className={cn("h-5 w-5", collapsed ? "mx-0" : "mr-3")} />
