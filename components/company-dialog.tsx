@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition, useEffect } from "react"
+import { useState, useTransition, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
@@ -10,7 +10,7 @@ import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { ChevronDown, Building2 } from "lucide-react"
 import { toast } from "sonner"
-import { createCompany, getCompany, updateCompany, CompanyData } from "@/app/actions/companies"
+import { createCompany, getCompany, updateCompany } from "@/app/actions/companies"
 import { Edit, X, Check } from "lucide-react"
 
 type DialogMode = 'create' | 'view' | 'edit'
@@ -74,19 +74,8 @@ export default function CompanyDialog({
   const [industrySearchValue, setIndustrySearchValue] = useState("")
   const [countrySearchValue, setCountrySearchValue] = useState("")
 
-  // Load company data when in view/edit mode
-  useEffect(() => {
-    if (open && companyId && mode !== 'create') {
-      loadCompanyData()
-    }
-  }, [open, companyId, mode])
-
-  // Reset state when mode changes
-  useEffect(() => {
-    setCurrentMode(mode)
-  }, [mode])
-
-  const loadCompanyData = async () => {
+  // Load company data function with useCallback to prevent unnecessary re-renders
+  const loadCompanyData = useCallback(async () => {
     if (!companyId) return
     
     setIsLoading(true)
@@ -118,7 +107,20 @@ export default function CompanyDialog({
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [companyId])
+
+  // Load company data when in view/edit mode
+  useEffect(() => {
+    if (open && companyId && mode !== 'create') {
+      loadCompanyData()
+    }
+  }, [open, companyId, mode, loadCompanyData])
+
+  // Reset state when mode changes
+  useEffect(() => {
+    setCurrentMode(mode)
+  }, [mode])
+
 
   // Reset form when dialog closes
   const handleOpenChange = (newOpen: boolean) => {

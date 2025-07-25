@@ -367,6 +367,385 @@ export async function updateCandidatePersonalInfo(
 }
 
 // Create a new candidate
+// Upload resume file temporarily (before candidate creation)
+export async function uploadTemporaryResume(
+  file: File
+): Promise<{ success: boolean; error?: string; tempUrl?: string; tempPath?: string }> {
+  const supabase = await createClient()
+  
+  // Get the current user
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) {
+    return { success: false, error: "User not authenticated" }
+  }
+
+  // Validate file type
+  const allowedTypes = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ]
+  
+  if (!allowedTypes.includes(file.type)) {
+    return { success: false, error: "Only PDF and Word documents are allowed" }
+  }
+
+  // Validate file size (5MB limit)
+  if (file.size > 5 * 1024 * 1024) {
+    return { success: false, error: "File size must be less than 5MB" }
+  }
+
+  try {
+    // Create temporary file path: {userId}/{timestamp}/{original-filename}
+    const timestamp = Date.now()
+    // Sanitize filename to prevent path traversal attacks
+    const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+    const tempPath = `${user.id}/${timestamp}/${sanitizedFileName}`
+
+    console.log("Attempting to upload file:", {
+      tempPath,
+      fileSize: file.size,
+      fileType: file.type,
+      fileName: file.name,
+      sanitizedFileName,
+      userId: user.id,
+      bucket: 'temp_resumes'
+    })
+
+    // Upload to temporary bucket
+    const { error: uploadError } = await supabase.storage
+      .from('temp_resumes')
+      .upload(tempPath, file, {
+        contentType: file.type
+      })
+
+    if (uploadError) {
+      console.error("Supabase storage upload error:", uploadError)
+      console.error("Upload error details:", {
+        message: uploadError.message
+      })
+      return { success: false, error: `Upload failed: ${uploadError.message}` }
+    }
+
+    // Get the public URL for the temporary file (for API parsing)
+    const { data: publicUrlData } = supabase.storage
+      .from('temp_resumes')
+      .getPublicUrl(tempPath)
+
+    if (!publicUrlData.publicUrl) {
+      return { success: false, error: "Failed to generate file URL" }
+    }
+
+    return { 
+      success: true, 
+      tempUrl: publicUrlData.publicUrl,
+      tempPath: tempPath
+    }
+  } catch (error) {
+    console.error("Error uploading temporary file:", error)
+    return { success: false, error: "An unexpected error occurred. Please try again." }
+  }
+}
+
+// Upload resume file and update candidate record
+export async function uploadCandidateResume(
+  candidateId: string,
+  file: File
+): Promise<{ success: boolean; error?: string; resumeUrl?: string }> {
+  const supabase = await createClient()
+  
+  // Get the current user
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) {
+    return { success: false, error: "User not authenticated" }
+  }
+
+  // Validate file type
+  const allowedTypes = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ]
+  
+  if (!allowedTypes.includes(file.type)) {
+    return { success: false, error: "Only PDF and Word documents are allowed" }
+  }
+
+  // Validate file size (5MB limit)
+  if (file.size > 5 * 1024 * 1024) {
+    return { success: false, error: "File size must be less than 5MB" }
+  }
+
+  try {
+    // First verify the candidate belongs to the user
+    const { data: candidate, error: candidateError } = await supabase
+      .from("candidates")
+      .select("user_id, resume_url")
+      .eq("id", candidateId)
+      .eq("user_id", user.id)
+      .single()
+
+    if (candidateError || !candidate) {
+      return { success: false, error: "Candidate not found or access denied" }
+    }
+
+    // Define the file path: {userId}/{candidateId}/{original-filename}
+    // Sanitize filename to prevent path traversal attacks
+    const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+    const filePath = `${user.id}/${candidateId}/${sanitizedFileName}`
+
+    // If there's an existing resume in our bucket, delete it first
+    if (candidate.resume_url && candidate.resume_url.includes('supabase')) {
+      // Extract the file path from the existing URL to delete it
+      const urlParts = candidate.resume_url.split('/storage/v1/object/public/resumes/')
+      if (urlParts.length > 1) {
+        const existingPath = urlParts[1]
+        await supabase.storage
+          .from('resumes')
+          .remove([existingPath])
+      }
+    }
+
+    // Upload the new file
+    const { error: uploadError } = await supabase.storage
+      .from('resumes')
+      .upload(filePath, file, {
+        upsert: true, // Overwrite if exists
+        contentType: file.type
+      })
+
+    if (uploadError) {
+      console.error("Error uploading file:", uploadError)
+      return { success: false, error: "Failed to upload resume. Please try again." }
+    }
+
+    // Get the signed URL for the uploaded file (valid for 1 year)
+    const { data: signedUrlData, error: urlError } = await supabase.storage
+      .from('resumes')
+      .createSignedUrl(filePath, 31536000) // 1 year in seconds
+
+    if (urlError || !signedUrlData) {
+      console.error("Error creating signed URL:", urlError)
+      return { success: false, error: "Failed to generate resume URL" }
+    }
+
+    // Update the candidate record with the new resume URL
+    const { error: updateError } = await supabase
+      .from("candidates")
+      .update({ 
+        resume_url: signedUrlData.signedUrl,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", candidateId)
+      .eq("user_id", user.id)
+
+    if (updateError) {
+      console.error("Error updating candidate:", updateError)
+      return { success: false, error: "Failed to update candidate record" }
+    }
+
+    // Revalidate the candidates pages
+    revalidatePath("/protected/candidates")
+    revalidatePath(`/protected/candidates/${candidateId}`)
+
+    return { 
+      success: true, 
+      resumeUrl: signedUrlData.signedUrl 
+    }
+  } catch (error) {
+    console.error("Error uploading resume:", error)
+    return { success: false, error: "An unexpected error occurred. Please try again." }
+  }
+}
+
+// Move temporary file to final candidate location
+export async function moveTempResumeToCandidate(
+  tempPath: string,
+  candidateId: string
+): Promise<{ success: boolean; error?: string; finalUrl?: string }> {
+  const supabase = await createClient()
+  
+  // Get the current user
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) {
+    return { success: false, error: "User not authenticated" }
+  }
+
+  try {
+    // Extract filename from temp path
+    const pathParts = tempPath.split('/')
+    const filename = pathParts[pathParts.length - 1]
+    const finalPath = `${user.id}/${candidateId}/${filename}`
+
+    console.log("Moving file from temp to final location:", {
+      tempPath,
+      finalPath,
+      filename
+    })
+
+    // Download the temporary file from temp_resumes bucket
+    const { data: fileData, error: downloadError } = await supabase.storage
+      .from('temp_resumes')
+      .download(tempPath)
+
+    if (downloadError || !fileData) {
+      console.error("Error downloading temporary file:", downloadError)
+      return { success: false, error: "Failed to access temporary file" }
+    }
+
+    // Upload to final location in resumes bucket (private)
+    const { error: uploadError } = await supabase.storage
+      .from('resumes')
+      .upload(finalPath, fileData, {
+        upsert: true,
+        contentType: fileData.type
+      })
+
+    if (uploadError) {
+      console.error("Error uploading to final location:", uploadError)
+      return { success: false, error: "Failed to move file to final location" }
+    }
+
+    // Immediately remove the temporary file from temp_resumes bucket
+    const { error: removeFileError } = await supabase.storage
+      .from('temp_resumes')
+      .remove([tempPath])
+
+    if (removeFileError) {
+      console.error("Error removing temporary file:", removeFileError)
+    }
+
+    // Remove the timestamp directory from temp_resumes bucket (will succeed if empty)
+    const tempDir = tempPath.substring(0, tempPath.lastIndexOf('/'))
+    const { error: removeDirError } = await supabase.storage
+      .from('temp_resumes')
+      .remove([tempDir])
+
+    if (removeDirError) {
+      console.error("Error removing temp directory:", removeDirError)
+    }
+
+    // Get signed URL for the final location (valid for 1 year)
+    const { data: signedUrlData, error: urlError } = await supabase.storage
+      .from('resumes')
+      .createSignedUrl(finalPath, 31536000) // 1 year in seconds
+
+    if (urlError || !signedUrlData) {
+      console.error("Error creating final signed URL:", urlError)
+      return { success: false, error: "Failed to generate final file URL" }
+    }
+
+    return { 
+      success: true, 
+      finalUrl: signedUrlData.signedUrl 
+    }
+  } catch (error) {
+    console.error("Error moving temporary file:", error)
+    return { success: false, error: "An unexpected error occurred while moving the file" }
+  }
+}
+
+// Insert candidate skills from parsed resume data
+export async function insertCandidateSkills(
+  candidateId: string,
+  skills: Array<{
+    name: string
+    type: string
+    yoe?: number | null
+    proficiency_level?: string | null
+  }>
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient()
+  
+  // Get the current user
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) {
+    return { success: false, error: "User not authenticated" }
+  }
+
+  try {
+    // Verify the candidate belongs to the user
+    const { data: candidate, error: candidateError } = await supabase
+      .from("candidates")
+      .select("user_id")
+      .eq("id", candidateId)
+      .eq("user_id", user.id)
+      .single()
+
+    if (candidateError || !candidate) {
+      return { success: false, error: "Candidate not found or access denied" }
+    }
+
+    // Prepare skills data for insertion
+    const skillsToInsert = skills.map(skill => ({
+      candidate_id: candidateId,
+      skill: skill.name,
+      type: skill.type, // Direct mapping - no conversion needed
+      source: "resume", // Correct source for PDF uploads
+      proficiency_level: skill.proficiency_level || null
+    }))
+
+    // Insert skills
+    const { error: insertError } = await supabase
+      .from("candidates_skills")
+      .insert(skillsToInsert)
+
+    if (insertError) {
+      console.error("Error inserting candidate skills:", insertError)
+      return { success: false, error: "Failed to save candidate skills" }
+    }
+
+    return { success: true }
+  } catch (error) {
+    console.error("Error inserting candidate skills:", error)
+    return { success: false, error: "An unexpected error occurred while saving skills" }
+  }
+}
+
+// Update candidate resume URL after file move
+export async function updateCandidateResumeUrl(
+  candidateId: string,
+  resumeUrl: string
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient()
+  
+  // Get the current user
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) {
+    return { success: false, error: "User not authenticated" }
+  }
+
+  try {
+    const { error } = await supabase
+      .from("candidates")
+      .update({ 
+        resume_url: resumeUrl,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", candidateId)
+      .eq("user_id", user.id)
+
+    if (error) {
+      console.error("Error updating candidate resume URL:", error)
+      return { success: false, error: "Failed to update resume URL" }
+    }
+
+    // Revalidate the candidates pages
+    revalidatePath("/protected/candidates")
+    revalidatePath(`/protected/candidates/${candidateId}`)
+
+    return { success: true }
+  } catch (error) {
+    console.error("Error updating candidate resume URL:", error)
+    return { success: false, error: "An unexpected error occurred while updating resume URL" }
+  }
+}
+
 export async function createCandidate(data: {
   firstName: string
   lastName: string
@@ -375,7 +754,7 @@ export async function createCandidate(data: {
   linkedin?: string
   github?: string
   yearsExperience?: number
-}): Promise<{ success: boolean; error?: string }> {
+}): Promise<{ success: boolean; error?: string; candidateId?: string }> {
   const supabase = await createClient()
   
   // Get the current user
@@ -440,8 +819,8 @@ export async function createCandidate(data: {
   }
 
   try {
-    // Insert the new candidate
-    const { error } = await supabase
+    // Insert the new candidate and return the ID
+    const { data: candidateData, error } = await supabase
       .from("candidates")
       .insert({
         user_id: user.id,
@@ -453,6 +832,8 @@ export async function createCandidate(data: {
         github: githubUrl || null,
         years_experience: data.yearsExperience || null
       })
+      .select("id")
+      .single()
 
     if (error) {
       console.error("Error creating candidate:", error)
@@ -462,7 +843,7 @@ export async function createCandidate(data: {
     // Revalidate the candidates page
     revalidatePath("/protected/candidates")
     
-    return { success: true }
+    return { success: true, candidateId: candidateData.id }
   } catch (error) {
     console.error("Error creating candidate:", error)
     return { success: false, error: "An unexpected error occurred. Please try again." }

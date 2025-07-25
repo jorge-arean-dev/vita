@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -13,7 +13,7 @@ import ToggleSlider from "@/components/ui/toggle-slider"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { toast } from "sonner"
-import { searchCountries, createCandidate } from "@/app/actions/candidates"
+import { searchCountries, createCandidate, uploadTemporaryResume, moveTempResumeToCandidate, insertCandidateSkills, updateCandidateResumeUrl } from "@/app/actions/candidates"
 
 interface Country {
   iso_code: string
@@ -28,6 +28,13 @@ interface CandidateFormData {
   linkedin: string
   github: string
   yearsExperience: string
+}
+
+interface ParsedSkill {
+  name: string
+  type: string
+  yoe?: number | null
+  proficiency_level?: string | null
 }
 
 interface CreateTalentDialogProps {
@@ -53,6 +60,10 @@ export default function CreateTalentDialog({
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [fileUploadError, setFileUploadError] = useState("")
   const [isProcessing, setIsProcessing] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState("")
+  const [parsingProgress, setParsingProgress] = useState("")
+  const [tempFilePath, setTempFilePath] = useState("")
+  const [parsedSkills, setParsedSkills] = useState<ParsedSkill[]>([])
   const [isPending, startTransition] = useTransition()
   
   // Form data
@@ -166,35 +177,92 @@ export default function CreateTalentDialog({
     setIsProcessing(true)
     
     try {
-      // TODO: Replace with actual API call
-      console.log("Processing data source:", {
-        dataSource,
-        linkedinUrl,
-        uploadedFile: uploadedFile?.name
-      })
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      // Mock API response - pre-fill form data
-      setFormData({
-        firstName: "John",
-        lastName: "Doe", 
-        email: "john.doe@example.com",
-        country: "US",
-        linkedin: dataSource === "linkedin" ? linkedinUrl : "https://linkedin.com/in/john-doe",
-        github: "https://github.com/johndoe",
-        yearsExperience: "5"
-      })
-      setIsDirty(true)
-      
-      setCurrentStep("review-form")
-      toast.success("Data extracted successfully!")
+      if (dataSource === "pdf" && uploadedFile) {
+        // Step 1: Upload file to temporary location
+        console.log("Starting PDF upload...")
+        setUploadProgress("Uploading your resume...")
+        const uploadResult = await uploadTemporaryResume(uploadedFile)
+        
+        console.log("Upload result:", uploadResult)
+        if (!uploadResult.success) {
+          console.error("Upload failed:", uploadResult.error)
+          toast.error(uploadResult.error || "Failed to upload file")
+          return
+        }
+        
+        setTempFilePath(uploadResult.tempPath!)
+        setUploadProgress("Upload complete!")
+        console.log("Upload complete, starting parsing...")
+        
+        // Step 2: Parse the resume
+        setParsingProgress("Analyzing your resume with AI...")
+        console.log("Making API call to parse resume with URL:", uploadResult.tempUrl)
+        
+        const parseResponse = await fetch('/api/parse-resume', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ pdf_url: uploadResult.tempUrl })
+        })
+        
+        console.log("Parse response status:", parseResponse.status)
+        const parseData = await parseResponse.json()
+        console.log("Parse response data:", parseData)
+        
+        if (!parseResponse.ok) {
+          console.error("Parse failed:", parseData.error)
+          toast.error(parseData.error || "Failed to parse resume")
+          return
+        }
+        
+        setParsingProgress("Analysis complete!")
+        console.log("Parsing complete, populating form...")
+        
+        // Step 3: Pre-fill form data
+        setFormData({
+          firstName: parseData.main?.first_name || "",
+          lastName: parseData.main?.last_name || "",
+          email: parseData.main?.email || "",
+          country: parseData.main?.country || "",
+          linkedin: parseData.main?.linkedin || "",
+          github: parseData.main?.github || "",
+          yearsExperience: parseData.years_of_experience ? parseData.years_of_experience.toString() : ""
+        })
+        
+        // Store parsed skills for later use
+        setParsedSkills(parseData.skills || [])
+        setIsDirty(true)
+        
+        console.log("Moving to review form step...")
+        setCurrentStep("review-form")
+        toast.success("Resume data extracted successfully!")
+      } else {
+        // LinkedIn URL processing (existing mock behavior)
+        console.log("Processing LinkedIn URL:", linkedinUrl)
+        await new Promise(resolve => setTimeout(resolve, 2000))
+        
+        setFormData({
+          firstName: "John",
+          lastName: "Doe", 
+          email: "john.doe@example.com",
+          country: "US",
+          linkedin: linkedinUrl,
+          github: "",
+          yearsExperience: "5"
+        })
+        setIsDirty(true)
+        
+        setCurrentStep("review-form")
+        toast.success("LinkedIn data extracted successfully!")
+      }
     } catch (error) {
       console.error("Error processing data source:", error)
-      toast.error("Failed to process data source")
+      toast.error("Failed to process data source. Please try again.")
     } finally {
       setIsProcessing(false)
+      setUploadProgress("")
+      setParsingProgress("")
     }
   }
 
@@ -247,6 +315,7 @@ export default function CreateTalentDialog({
 
     startTransition(async () => {
       try {
+        // Step 1: Create the candidate
         const result = await createCandidate({
           firstName: formData.firstName,
           lastName: formData.lastName,
@@ -257,14 +326,50 @@ export default function CreateTalentDialog({
           yearsExperience: formData.yearsExperience ? parseFloat(formData.yearsExperience) : undefined
         })
         
-        if (result.success) {
-          toast.success("Candidate created successfully!")
-          resetForm() // Reset form and clear dirty state
-          onOpenChange(false) // Bypass unsaved changes check
-          onCandidateCreated?.()
-        } else {
+        if (!result.success) {
           toast.error(result.error || "Failed to create candidate")
+          return
         }
+
+        // We need the candidate ID for the next steps
+        // Since createCandidate doesn't return it, we'll need to modify it
+        // For now, let's assume we get it from a modified response
+        const candidateId = result.candidateId
+        
+        if (!candidateId) {
+          toast.error("Failed to get candidate ID")
+          return
+        }
+
+        // Step 2: Move temporary file to final location (if we have one)
+        if (tempFilePath) {
+          const moveResult = await moveTempResumeToCandidate(tempFilePath, candidateId)
+          if (!moveResult.success) {
+            console.error("Failed to move resume file:", moveResult.error)
+            toast.error("Failed to move resume file, but candidate was created")
+          } else if (moveResult.finalUrl) {
+            // Step 2a: Update candidate with resume URL
+            const updateResult = await updateCandidateResumeUrl(candidateId, moveResult.finalUrl)
+            if (!updateResult.success) {
+              console.error("Failed to update resume URL:", updateResult.error)
+              toast.error("Resume uploaded but URL not saved to candidate")
+            }
+          }
+        }
+
+        // Step 3: Insert skills (if we have any)
+        if (parsedSkills.length > 0) {
+          const skillsResult = await insertCandidateSkills(candidateId, parsedSkills)
+          if (!skillsResult.success) {
+            console.error("Failed to insert skills:", skillsResult.error)
+            // Don't fail the entire process, just log the error
+          }
+        }
+
+        toast.success("Candidate created successfully!")
+        resetForm() // Reset form and clear dirty state
+        onOpenChange(false) // Bypass unsaved changes check
+        onCandidateCreated?.()
       } catch (error) {
         console.error("Error creating candidate:", error)
         toast.error("Failed to create candidate")
@@ -398,6 +503,24 @@ export default function CreateTalentDialog({
                     <p className="text-xs text-muted-foreground">
                       Maximum file size: 5MB. PDF files only.
                     </p>
+                    
+                    {/* Progress indicators */}
+                    {isProcessing && (uploadProgress || parsingProgress) && (
+                      <div className="mt-3 space-y-2">
+                        {uploadProgress && (
+                          <div className="flex items-center gap-2 text-sm text-blue-600">
+                            <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                            <span>{uploadProgress}</span>
+                          </div>
+                        )}
+                        {parsingProgress && (
+                          <div className="flex items-center gap-2 text-sm text-purple-600">
+                            <div className="w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+                            <span>{parsingProgress}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -410,8 +533,10 @@ export default function CreateTalentDialog({
               <Alert>
                 <Info className="h-4 w-4" />
                 <AlertDescription>
-                  Please review the pre-filled information below. You can edit any field as needed.
-                  All changes can be updated later from the candidate profile.
+                  {dataSource === "pdf" && parsedSkills.length > 0
+                    ? "Great! We've extracted information from your resume. Please review the details below and make any necessary adjustments before creating the candidate profile."
+                    : "Please review the pre-filled information below. You can edit any field as needed. All changes can be updated later from the candidate profile."
+                  }
                 </AlertDescription>
               </Alert>
 
