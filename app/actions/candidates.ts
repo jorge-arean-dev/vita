@@ -656,6 +656,7 @@ export async function insertCandidateSkills(
     type: string
     yoe?: number | null
     proficiency_level?: string | null
+    source?: string
   }>
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient()
@@ -685,7 +686,7 @@ export async function insertCandidateSkills(
       candidate_id: candidateId,
       skill: skill.name,
       type: skill.type, // Direct mapping - no conversion needed
-      source: "resume", // Correct source for PDF uploads
+      source: skill.source || "resume", // Use provided source or default to resume
       proficiency_level: skill.proficiency_level || null
     }))
 

@@ -35,6 +35,7 @@ interface ParsedSkill {
   type: string
   yoe?: number | null
   proficiency_level?: string | null
+  source?: string
 }
 
 interface CreateTalentDialogProps {
@@ -62,6 +63,7 @@ export default function CreateTalentDialog({
   const [isProcessing, setIsProcessing] = useState(false)
   const [uploadProgress, setUploadProgress] = useState("")
   const [parsingProgress, setParsingProgress] = useState("")
+  const [linkedinProgress, setLinkedinProgress] = useState("")
   const [tempFilePath, setTempFilePath] = useState("")
   const [parsedSkills, setParsedSkills] = useState<ParsedSkill[]>([])
   const [isPending, startTransition] = useTransition()
@@ -108,6 +110,11 @@ export default function CreateTalentDialog({
     setUploadedFile(null)
     setFileUploadError("")
     setIsProcessing(false)
+    setUploadProgress("")
+    setParsingProgress("")
+    setLinkedinProgress("")
+    setTempFilePath("")
+    setParsedSkills([])
     setFormData({
       firstName: "",
       lastName: "",
@@ -220,49 +227,230 @@ export default function CreateTalentDialog({
         console.log("Parsing complete, populating form...")
         
         // Step 3: Pre-fill form data
+        const countryCode = parseData.main?.country || ""
+        
         setFormData({
           firstName: parseData.main?.first_name || "",
           lastName: parseData.main?.last_name || "",
           email: parseData.main?.email || "",
-          country: parseData.main?.country || "",
+          country: countryCode,
           linkedin: parseData.main?.linkedin || "",
           github: parseData.main?.github || "",
           yearsExperience: parseData.years_of_experience ? parseData.years_of_experience.toString() : ""
         })
         
-        // Store parsed skills for later use
-        setParsedSkills(parseData.skills || [])
+        // If we have a country code, fetch the display name
+        if (countryCode) {
+          try {
+            const countryResults = await searchCountries(countryCode)
+            if (countryResults.length > 0) {
+              // Find exact match for the ISO code
+              const exactMatch = countryResults.find(c => c.iso_code === countryCode)
+              if (exactMatch) {
+                setCountrySearchValue(exactMatch.display_name)
+              }
+            }
+          } catch (error) {
+            console.error("Error fetching country display name:", error)
+          }
+        }
+        
+        // Store parsed skills for later use (with resume source)
+        const resumeSkills = (parseData.skills || []).map((skill: ParsedSkill) => ({
+          name: skill.name,
+          type: skill.type,
+          yoe: skill.yoe,
+          proficiency_level: skill.proficiency_level,
+          source: 'resume'
+        }))
+        setParsedSkills(resumeSkills)
         setIsDirty(true)
         
         console.log("Moving to review form step...")
         setCurrentStep("review-form")
         toast.success("Resume data extracted successfully!")
       } else {
-        // LinkedIn URL processing (existing mock behavior)
+        // LinkedIn URL processing (3-step API flow)
         console.log("Processing LinkedIn URL:", linkedinUrl)
-        await new Promise(resolve => setTimeout(resolve, 2000))
+        
+        // Step 1: Scrape LinkedIn profile
+        setLinkedinProgress("Scraping LinkedIn profile...")
+        console.log("Step 1: Calling apify-linkedin-scraper...")
+        
+        const scrapeResponse = await fetch(`https://api.apify.com/v2/acts/dev_fusion~linkedin-profile-scraper/run-sync-get-dataset-items?token=apify_api_93zdEJsXGrvPFQdzh2as637W3Za2VE0C3Bi2`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            profileUrls: [linkedinUrl]
+          })
+        })
+        
+        console.log("Scrape response status:", scrapeResponse.status)
+        if (!scrapeResponse.ok) {
+          const errorData = await scrapeResponse.json()
+          console.error("Scrape failed:", errorData)
+          if (scrapeResponse.status === 401) {
+            throw new Error("LinkedIn scraper authentication failed")
+          }
+          if (scrapeResponse.status === 429) {
+            throw new Error("Too many requests. Please try again later.")
+          }
+          throw new Error("Failed to scrape LinkedIn profile. Please check the URL and try again.")
+        }
+        
+        const scrapedData = await scrapeResponse.json()
+        console.log("Scrape response data:", scrapedData)
+        
+        if (!scrapedData || !Array.isArray(scrapedData) || scrapedData.length === 0) {
+          throw new Error("No profile data found. The LinkedIn profile may be private or the URL is incorrect.")
+        }
+        
+        const profileData = scrapedData[0]
+        console.log("Profile data structure:", Object.keys(profileData))
+        console.log("Profile data sample:", {
+          firstName: profileData.firstName,
+          lastName: profileData.lastName,
+          experiences: profileData.experiences?.length || 0,
+          hasExperiences: !!profileData.experiences
+        })
+        setLinkedinProgress("Profile scraped successfully!")
+        
+        // Step 2: Reduce/format the profile data
+        setLinkedinProgress("Formatting profile data...")
+        console.log("Step 2: Calling linkedin-profile-reducer...")
+        
+        const reduceResponse = await fetch('https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/linkedin-profile-reducer', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`
+          },
+          body: JSON.stringify(profileData)
+        })
+        
+        console.log("Reduce response status:", reduceResponse.status)
+        console.log("Reduce response headers:", Object.fromEntries(reduceResponse.headers.entries()))
+        
+        if (!reduceResponse.ok) {
+          let errorData = {}
+          try {
+            errorData = await reduceResponse.json()
+          } catch {
+            const textError = await reduceResponse.text()
+            console.error("Reduce failed - not JSON response:", textError)
+            throw new Error(`LinkedIn profile reducer returned ${reduceResponse.status}: ${textError || 'Unknown error'}`)
+          }
+          
+          console.error("Reduce failed:", errorData)
+          console.error("Profile data sent to reducer:", profileData)
+          
+          if (reduceResponse.status === 400) {
+            throw new Error("Invalid profile data format. Please try a different LinkedIn URL.")
+          }
+          if (reduceResponse.status === 405) {
+            throw new Error("Method not allowed - LinkedIn profile reducer configuration error.")
+          }
+          if (reduceResponse.status >= 500) {
+            throw new Error("LinkedIn profile reducer service error. Please try again later.")
+          }
+          throw new Error(`Failed to format profile data (${reduceResponse.status}). Please try again.`)
+        }
+        
+        const reducedData = await reduceResponse.json()
+        console.log("Reduce response data:", reducedData)
+        setLinkedinProgress("Profile formatted successfully!")
+        
+        // Step 3: Parse skills and extract structured data
+        setLinkedinProgress("Analyzing profile with AI...")
+        console.log("Step 3: Calling parse-linkedin-skill...")
+        
+        const parseResponse = await fetch('https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/parse-linkedin-skill', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`
+          },
+          body: JSON.stringify(reducedData)
+        })
+        
+        console.log("Parse response status:", parseResponse.status)
+        if (!parseResponse.ok) {
+          const errorData = await parseResponse.json()
+          console.error("Parse failed:", errorData)
+          if (parseResponse.status === 400) {
+            throw new Error("Profile missing required information (name or experience). Please try a different profile.")
+          }
+          if (parseResponse.status === 500 && errorData.error?.includes('OpenAI')) {
+            throw new Error("AI analysis service is temporarily unavailable. Please try again later.")
+          }
+          throw new Error("Failed to analyze profile with AI. Please try again.")
+        }
+        
+        const parsedData = await parseResponse.json()
+        console.log("Parse response data:", parsedData)
+        
+        // Validate the parsed data has required fields
+        if (!parsedData.main || (!parsedData.main.first_name && !parsedData.main.last_name)) {
+          throw new Error("Could not extract name from LinkedIn profile. Please check the profile URL.")
+        }
+        
+        setLinkedinProgress("Profile analysis complete!")
+        
+        // Step 4: Pre-fill form data
+        const countryCode = parsedData.main?.country || ""
         
         setFormData({
-          firstName: "John",
-          lastName: "Doe", 
-          email: "john.doe@example.com",
-          country: "US",
-          linkedin: linkedinUrl,
-          github: "",
-          yearsExperience: "5"
+          firstName: parsedData.main?.first_name || "",
+          lastName: parsedData.main?.last_name || "",
+          email: parsedData.main?.email || "",
+          country: countryCode,
+          linkedin: parsedData.main?.linkedin || linkedinUrl,
+          github: parsedData.main?.github || "",
+          yearsExperience: parsedData.years_of_experience ? parsedData.years_of_experience.toString() : ""
         })
+        
+        // If we have a country code, fetch the display name
+        if (countryCode) {
+          try {
+            const countryResults = await searchCountries(countryCode)
+            if (countryResults.length > 0) {
+              // Find exact match for the ISO code
+              const exactMatch = countryResults.find(c => c.iso_code === countryCode)
+              if (exactMatch) {
+                setCountrySearchValue(exactMatch.display_name)
+              }
+            }
+          } catch (error) {
+            console.error("Error fetching country display name:", error)
+          }
+        }
+        
+        // Store parsed skills for later use (with linkedin source)
+        const linkedinSkills = (parsedData.skills || []).map((skill: ParsedSkill) => ({
+          name: skill.name,
+          type: skill.type,
+          yoe: skill.yoe,
+          proficiency_level: skill.proficiency_level,
+          source: 'linkedin'
+        }))
+        setParsedSkills(linkedinSkills)
         setIsDirty(true)
         
+        console.log("Moving to review form step...")
         setCurrentStep("review-form")
-        toast.success("LinkedIn data extracted successfully!")
+        toast.success("LinkedIn profile analyzed successfully!")
       }
     } catch (error) {
       console.error("Error processing data source:", error)
-      toast.error("Failed to process data source. Please try again.")
+      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred"
+      toast.error(errorMessage)
     } finally {
       setIsProcessing(false)
       setUploadProgress("")
       setParsingProgress("")
+      setLinkedinProgress("")
     }
   }
 
@@ -479,6 +667,16 @@ export default function CreateTalentDialog({
                       value={linkedinUrl}
                       onChange={(e) => setLinkedinUrl(e.target.value)}
                     />
+                    
+                    {/* Progress indicator for LinkedIn processing */}
+                    {isProcessing && linkedinProgress && (
+                      <div className="mt-3 space-y-2">
+                        <div className="flex items-center gap-2 text-sm text-blue-600">
+                          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                          <span>{linkedinProgress}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
                 
