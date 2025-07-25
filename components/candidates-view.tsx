@@ -151,7 +151,7 @@ export default function CandidatesView({ candidates: initialCandidates }: Candid
                     }
                   }}
                 >
-                  <CardContent className="p-4">
+                  <CardContent className="px-4 pb-0 pt-0">
                     <div className="grid grid-cols-12 gap-4 items-center">
                       {/* Profile Picture + Name */}
                       <div className="col-span-4 flex items-center gap-3">
@@ -180,7 +180,10 @@ export default function CandidatesView({ candidates: initialCandidates }: Candid
                       {/* Experience */}
                       <div className="col-span-2">
                         <span className="text-muted-foreground">
-                          N/A
+                          {candidate.years_experience 
+                            ? `${candidate.years_experience} ${candidate.years_experience === 1 ? 'year' : 'years'}`
+                            : 'N/A'
+                          }
                         </span>
                       </div>
 
@@ -200,14 +203,20 @@ export default function CandidatesView({ candidates: initialCandidates }: Candid
                         {/* PDF Icon */}
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <FileText 
-                              className={`h-5 w-5 cursor-pointer ${
-                                candidate.resume_url ? "text-green-600" : "text-gray-400"
-                              }`}
-                            />
+                            {candidate.resume_url ? (
+                              <FileText 
+                                className="h-5 w-5 cursor-pointer text-green-600 hover:text-green-700 transition-colors"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  window.open(candidate.resume_url!, '_blank', 'noopener,noreferrer')
+                                }}
+                              />
+                            ) : (
+                              <FileText className="h-5 w-5 text-gray-400 cursor-not-allowed" />
+                            )}
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>{candidate.resume_url ? "Resume Available" : "No Resume Uploaded"}</p>
+                            <p>{candidate.resume_url ? "Click to open resume" : "No Resume Uploaded"}</p>
                           </TooltipContent>
                         </Tooltip>
 
@@ -215,15 +224,23 @@ export default function CandidatesView({ candidates: initialCandidates }: Candid
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <div
-                              className={`h-5 w-5 rounded-sm flex items-center justify-center cursor-pointer ${
-                                candidate.linkedin ? "bg-[#0A66C2]" : "bg-gray-400"
+                              className={`h-5 w-5 rounded-sm flex items-center justify-center transition-colors ${
+                                candidate.linkedin 
+                                  ? "bg-[#0A66C2] hover:bg-[#004182] cursor-pointer" 
+                                  : "bg-gray-400 cursor-not-allowed"
                               }`}
+                              onClick={(e) => {
+                                if (candidate.linkedin) {
+                                  e.stopPropagation()
+                                  window.open(candidate.linkedin, '_blank', 'noopener,noreferrer')
+                                }
+                              }}
                             >
                               <span className="text-white font-bold text-[10px] leading-none">in</span>
                             </div>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>{candidate.linkedin ? "LinkedIn Profile Available" : "No LinkedIn Profile"}</p>
+                            <p>{candidate.linkedin ? "Click to open LinkedIn profile" : "No LinkedIn Profile"}</p>
                           </TooltipContent>
                         </Tooltip>
 

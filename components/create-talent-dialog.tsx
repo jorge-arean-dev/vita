@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -11,8 +11,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Upload, Link, ChevronDown, UserPlus, Info } from "lucide-react"
 import ToggleSlider from "@/components/ui/toggle-slider"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { toast } from "sonner"
-import { searchCountries } from "@/app/actions/candidates"
+import { searchCountries, createCandidate } from "@/app/actions/candidates"
 
 interface Country {
   iso_code: string
@@ -26,6 +27,7 @@ interface CandidateFormData {
   country: string
   linkedin: string
   github: string
+  yearsExperience: string
 }
 
 interface CreateTalentDialogProps {
@@ -60,8 +62,13 @@ export default function CreateTalentDialog({
     email: "",
     country: "",
     linkedin: "",
-    github: ""
+    github: "",
+    yearsExperience: ""
   })
+  
+  // Track if form has been modified
+  const [isDirty, setIsDirty] = useState(false)
+  const [showUnsavedChangesDialog, setShowUnsavedChangesDialog] = useState(false)
 
   // Countries combobox state
   const [countries, setCountries] = useState<Country[]>([])
@@ -71,26 +78,44 @@ export default function CreateTalentDialog({
   // Reset dialog state when closed
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
-      // Reset all state when dialog closes
-      setCurrentStep("data-source")
-      setInputMethod("auto")
-      setDataSource("linkedin")
-      setLinkedinUrl("")
-      setUploadedFile(null)
-      setFileUploadError("")
-      setIsProcessing(false)
-      setFormData({
-        firstName: "",
-        lastName: "",
-        email: "",
-        country: "",
-        linkedin: "",
-        github: ""
-      })
-      setCountries([])
-      setCountrySearchValue("")
+      // Check if there are unsaved changes
+      if (isDirty) {
+        setShowUnsavedChangesDialog(true)
+        return
+      }
+      resetForm()
     }
     onOpenChange(newOpen)
+  }
+
+  // Reset form to initial state
+  const resetForm = () => {
+    setCurrentStep("data-source")
+    setInputMethod("auto")
+    setDataSource("linkedin")
+    setLinkedinUrl("")
+    setUploadedFile(null)
+    setFileUploadError("")
+    setIsProcessing(false)
+    setFormData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      country: "",
+      linkedin: "",
+      github: "",
+      yearsExperience: ""
+    })
+    setCountries([])
+    setCountrySearchValue("")
+    setIsDirty(false)
+  }
+
+  // Confirm close with unsaved changes
+  const handleConfirmClose = () => {
+    setShowUnsavedChangesDialog(false)
+    resetForm()
+    onOpenChange(false)
   }
 
   // Handle method selection (auto vs manual)
@@ -158,8 +183,10 @@ export default function CreateTalentDialog({
         email: "john.doe@example.com",
         country: "US",
         linkedin: dataSource === "linkedin" ? linkedinUrl : "https://linkedin.com/in/john-doe",
-        github: "https://github.com/johndoe"
+        github: "https://github.com/johndoe",
+        yearsExperience: "5"
       })
+      setIsDirty(true)
       
       setCurrentStep("review-form")
       toast.success("Data extracted successfully!")
@@ -192,6 +219,7 @@ export default function CreateTalentDialog({
     setFormData(prev => ({ ...prev, country: countryCode }))
     setCountrySearchValue(countryName)
     setIsCountriesOpen(false)
+    setIsDirty(true)
   }
 
   // Handle form submission
@@ -211,18 +239,32 @@ export default function CreateTalentDialog({
       toast.error("Email is required")
       return
     }
+    
+    if (!formData.country) {
+      toast.error("Country is required")
+      return
+    }
 
     startTransition(async () => {
       try {
-        // TODO: Replace with actual API call to create candidate
-        console.log("Creating candidate:", formData)
+        const result = await createCandidate({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          country: formData.country || undefined,
+          linkedin: formData.linkedin || undefined,
+          github: formData.github || undefined,
+          yearsExperience: formData.yearsExperience ? parseFloat(formData.yearsExperience) : undefined
+        })
         
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        
-        toast.success("Candidate created successfully!")
-        handleOpenChange(false)
-        onCandidateCreated?.()
+        if (result.success) {
+          toast.success("Candidate created successfully!")
+          resetForm() // Reset form and clear dirty state
+          onOpenChange(false) // Bypass unsaved changes check
+          onCandidateCreated?.()
+        } else {
+          toast.error(result.error || "Failed to create candidate")
+        }
       } catch (error) {
         console.error("Error creating candidate:", error)
         toast.error("Failed to create candidate")
@@ -268,11 +310,13 @@ export default function CreateTalentDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{getDialogTitle()}</DialogTitle>
-        </DialogHeader>
+    <>
+      <Dialog open={open} onOpenChange={handleOpenChange}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{getDialogTitle()}</DialogTitle>
+           
+          </DialogHeader>
 
         <div className="space-y-6">
           {/* Always show toggle - visible on all steps except review-form */}
@@ -373,35 +417,44 @@ export default function CreateTalentDialog({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name *</Label>
+                  <Label htmlFor="firstName">First Name <span className="text-red-500">*</span></Label>
                   <Input
                     id="firstName"
                     value={formData.firstName}
-                    onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
+                    onChange={(e) => {
+                      setFormData(prev => ({ ...prev, firstName: e.target.value }))
+                      setIsDirty(true)
+                    }}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name *</Label>
+                  <Label htmlFor="lastName">Last Name <span className="text-red-500">*</span></Label>
                   <Input
                     id="lastName"
                     value={formData.lastName}
-                    onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
+                    onChange={(e) => {
+                      setFormData(prev => ({ ...prev, lastName: e.target.value }))
+                      setIsDirty(true)
+                    }}
                   />
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="email">Email *</Label>
+                  <Label htmlFor="email">Email <span className="text-red-500">*</span></Label>
                   <Input
                     id="email"
                     type="email"
                     value={formData.email}
-                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                    onChange={(e) => {
+                      setFormData(prev => ({ ...prev, email: e.target.value }))
+                      setIsDirty(true)
+                    }}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Country</Label>
+                  <Label>Country <span className="text-red-500">*</span></Label>
                   <Popover open={isCountriesOpen} onOpenChange={setIsCountriesOpen}>
                     <PopoverTrigger asChild>
                       <Button
@@ -450,17 +503,42 @@ export default function CreateTalentDialog({
                   <Label htmlFor="linkedin">LinkedIn</Label>
                   <Input
                     id="linkedin"
+                    placeholder="https://linkedin.com/in/username"
                     value={formData.linkedin}
-                    onChange={(e) => setFormData(prev => ({ ...prev, linkedin: e.target.value }))}
+                    onChange={(e) => {
+                      setFormData(prev => ({ ...prev, linkedin: e.target.value }))
+                      setIsDirty(true)
+                    }}
                   />
                 </div>
 
-                <div className="space-y-2 md:col-span-2">
+                <div className="space-y-2">
                   <Label htmlFor="github">GitHub</Label>
                   <Input
                     id="github"
+                    placeholder="https://github.com/username"
                     value={formData.github}
-                    onChange={(e) => setFormData(prev => ({ ...prev, github: e.target.value }))}
+                    onChange={(e) => {
+                      setFormData(prev => ({ ...prev, github: e.target.value }))
+                      setIsDirty(true)
+                    }}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="yearsExperience">Years of Experience</Label>
+                  <Input
+                    id="yearsExperience"
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="50"
+                    placeholder="e.g., 3.5"
+                    value={formData.yearsExperience}
+                    onChange={(e) => {
+                      setFormData(prev => ({ ...prev, yearsExperience: e.target.value }))
+                      setIsDirty(true)
+                    }}
                   />
                 </div>
               </div>
@@ -472,35 +550,44 @@ export default function CreateTalentDialog({
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name *</Label>
+                  <Label htmlFor="firstName">First Name <span className="text-red-500">*</span></Label>
                   <Input
                     id="firstName"
                     value={formData.firstName}
-                    onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
+                    onChange={(e) => {
+                      setFormData(prev => ({ ...prev, firstName: e.target.value }))
+                      setIsDirty(true)
+                    }}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name *</Label>
+                  <Label htmlFor="lastName">Last Name <span className="text-red-500">*</span></Label>
                   <Input
                     id="lastName"
                     value={formData.lastName}
-                    onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
+                    onChange={(e) => {
+                      setFormData(prev => ({ ...prev, lastName: e.target.value }))
+                      setIsDirty(true)
+                    }}
                   />
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="email">Email *</Label>
+                  <Label htmlFor="email">Email <span className="text-red-500">*</span></Label>
                   <Input
                     id="email"
                     type="email"
                     value={formData.email}
-                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                    onChange={(e) => {
+                      setFormData(prev => ({ ...prev, email: e.target.value }))
+                      setIsDirty(true)
+                    }}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Country</Label>
+                  <Label>Country <span className="text-red-500">*</span></Label>
                   <Popover open={isCountriesOpen} onOpenChange={setIsCountriesOpen}>
                     <PopoverTrigger asChild>
                       <Button
@@ -549,17 +636,42 @@ export default function CreateTalentDialog({
                   <Label htmlFor="linkedin">LinkedIn</Label>
                   <Input
                     id="linkedin"
+                    placeholder="https://linkedin.com/in/username"
                     value={formData.linkedin}
-                    onChange={(e) => setFormData(prev => ({ ...prev, linkedin: e.target.value }))}
+                    onChange={(e) => {
+                      setFormData(prev => ({ ...prev, linkedin: e.target.value }))
+                      setIsDirty(true)
+                    }}
                   />
                 </div>
 
-                <div className="space-y-2 md:col-span-2">
+                <div className="space-y-2">
                   <Label htmlFor="github">GitHub</Label>
                   <Input
                     id="github"
+                    placeholder="https://github.com/username"
                     value={formData.github}
-                    onChange={(e) => setFormData(prev => ({ ...prev, github: e.target.value }))}
+                    onChange={(e) => {
+                      setFormData(prev => ({ ...prev, github: e.target.value }))
+                      setIsDirty(true)
+                    }}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="yearsExperience">Years of Experience</Label>
+                  <Input
+                    id="yearsExperience"
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="50"
+                    placeholder="e.g., 3.5"
+                    value={formData.yearsExperience}
+                    onChange={(e) => {
+                      setFormData(prev => ({ ...prev, yearsExperience: e.target.value }))
+                      setIsDirty(true)
+                    }}
                   />
                 </div>
               </div>
@@ -627,5 +739,26 @@ export default function CreateTalentDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+
+    {/* Unsaved Changes Confirmation Dialog */}
+    <AlertDialog open={showUnsavedChangesDialog} onOpenChange={setShowUnsavedChangesDialog}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+          <AlertDialogDescription>
+            The data you are adding will be lost. Are you sure you want to close?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={() => setShowUnsavedChangesDialog(false)}>
+            Continue Editing
+          </AlertDialogCancel>
+          <AlertDialogAction onClick={handleConfirmClose}>
+            Discard Changes
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   )
 }

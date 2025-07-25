@@ -10,8 +10,10 @@ export interface CandidateData {
   last_name: string | null
   email: string | null
   linkedin: string | null
+  github: string | null
   resume_url: string | null
   country: string | null
+  years_experience: number | null
   created_at: string
   updated_at: string
   country_name?: string
@@ -52,8 +54,10 @@ export async function getCandidates(): Promise<CandidateData[]> {
       last_name,
       email,
       linkedin,
+      github,
       resume_url,
       country,
+      years_experience,
       created_at,
       updated_at
     `)
@@ -205,8 +209,10 @@ export async function getCandidateById(candidateId: string): Promise<CandidateDe
         last_name,
         email,
         linkedin,
+        github,
         resume_url,
         country,
+        years_experience,
         created_at,
         updated_at
       `)
@@ -324,7 +330,7 @@ export async function getCandidateSkills(candidateId: string): Promise<Candidate
 
 export async function updateCandidatePersonalInfo(
   candidateId: string, 
-  updates: Partial<Pick<CandidateDetailData, 'first_name' | 'last_name' | 'email' | 'country' | 'linkedin'>>
+  updates: Partial<Pick<CandidateDetailData, 'first_name' | 'last_name' | 'email' | 'country' | 'linkedin' | 'github' | 'years_experience'>>
 ): Promise<void> {
   const supabase = await createClient()
   
@@ -357,5 +363,108 @@ export async function updateCandidatePersonalInfo(
   } catch (error) {
     console.error("Error updating candidate:", error)
     throw error
+  }
+}
+
+// Create a new candidate
+export async function createCandidate(data: {
+  firstName: string
+  lastName: string
+  email: string
+  country?: string
+  linkedin?: string
+  github?: string
+  yearsExperience?: number
+}): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient()
+  
+  // Get the current user
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) {
+    return { success: false, error: "User not authenticated" }
+  }
+
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(data.email)) {
+    return { success: false, error: "Invalid email format" }
+  }
+
+  // Validate and normalize LinkedIn URL
+  let linkedinUrl = data.linkedin
+  if (linkedinUrl) {
+    // Remove trailing slashes
+    linkedinUrl = linkedinUrl.trim().replace(/\/+$/, '')
+    
+    // Check if it's a valid LinkedIn profile URL
+    const linkedinPatterns = [
+      /^https?:\/\/(www\.)?linkedin\.com\/in\/[\w-]+$/,
+      /^(www\.)?linkedin\.com\/in\/[\w-]+$/,
+      /^linkedin\.com\/in\/[\w-]+$/
+    ]
+    
+    const isValidLinkedIn = linkedinPatterns.some(pattern => pattern.test(linkedinUrl!))
+    if (!isValidLinkedIn) {
+      return { success: false, error: "Invalid LinkedIn URL format. Expected format: linkedin.com/in/username" }
+    }
+    
+    // Normalize to full URL if not already
+    if (!linkedinUrl.startsWith("http")) {
+      linkedinUrl = `https://${linkedinUrl.startsWith("www.") ? linkedinUrl : `www.${linkedinUrl}`}`
+    }
+  }
+
+  // Validate and normalize GitHub URL
+  let githubUrl = data.github
+  if (githubUrl) {
+    // Remove trailing slashes
+    githubUrl = githubUrl.trim().replace(/\/+$/, '')
+    
+    // Check if it's a valid GitHub profile URL
+    const githubPatterns = [
+      /^https?:\/\/(www\.)?github\.com\/[\w-]+$/,
+      /^(www\.)?github\.com\/[\w-]+$/,
+      /^github\.com\/[\w-]+$/
+    ]
+    
+    const isValidGitHub = githubPatterns.some(pattern => pattern.test(githubUrl!))
+    if (!isValidGitHub) {
+      return { success: false, error: "Invalid GitHub URL format. Expected format: github.com/username" }
+    }
+    
+    // Normalize to full URL if not already
+    if (!githubUrl.startsWith("http")) {
+      githubUrl = `https://${githubUrl}`
+    }
+  }
+
+  try {
+    // Insert the new candidate
+    const { error } = await supabase
+      .from("candidates")
+      .insert({
+        user_id: user.id,
+        first_name: data.firstName.trim(),
+        last_name: data.lastName.trim(),
+        email: data.email.trim().toLowerCase(),
+        country: data.country || null,
+        linkedin: linkedinUrl || null,
+        github: githubUrl || null,
+        years_experience: data.yearsExperience || null
+      })
+
+    if (error) {
+      console.error("Error creating candidate:", error)
+      return { success: false, error: "Failed to create candidate. Please try again." }
+    }
+
+    // Revalidate the candidates page
+    revalidatePath("/protected/candidates")
+    
+    return { success: true }
+  } catch (error) {
+    console.error("Error creating candidate:", error)
+    return { success: false, error: "An unexpected error occurred. Please try again." }
   }
 }

@@ -31,6 +31,12 @@ This file contains essential guidelines and best practices for AI assistants wor
 - **Point out potential security issues** and suggest solutions
 - **Maintain code quality** through modular, reusable patterns
 
+### Implementation Patterns
+- **Reference pattern documentation** in `/docs/patterns/` for common UI/UX implementations
+- **Use established patterns** for consistency across the application
+- **Available patterns**: Unsaved changes protection, form validation, dialog management
+- **Apply patterns contextually** - not every component needs every pattern
+
 ## Core Development Rules
 
 ### TypeScript Standards
