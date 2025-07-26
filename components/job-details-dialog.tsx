@@ -14,6 +14,8 @@ import { Edit, Sparkles, Check, X, ChevronDown, Plus } from "lucide-react"
 import { cn } from "@/lib/utils"
 import AttributesSection from "@/components/sample-job-attributes"
 import RequirementsSection from "@/components/requirements-section"
+import { updateJobBasicInfo, updateJobRoleAnalysis } from "@/app/actions/job-management"
+import { useToast } from "@/components/ui/use-toast"
 
 interface JobDetailsDialogProps {
   open: boolean
@@ -70,6 +72,7 @@ const mockCompanies = [
 
 export default function JobDetailsDialog({ open, onOpenChange, jobData }: JobDetailsDialogProps) {
   const [activeTab, setActiveTab] = useState("initial-data")
+  const { toast } = useToast()
   
   // Initial Data state
   const [isInitialDataEditMode, setIsInitialDataEditMode] = useState(false)
@@ -206,15 +209,33 @@ export default function JobDetailsDialog({ open, onOpenChange, jobData }: JobDet
 
     setIsSaving(true)
     try {
-      // TODO: Implement actual save to database
-      console.log("Saving initial data:", formData)
-      await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate API call
+      const result = await updateJobBasicInfo(jobData.id, {
+        title: formData.title,
+        companyName: formData.companyName,
+        initialNotes: formData.initialNotes
+      })
       
-      setOriginalFormData({ ...formData })
-      setIsInitialDataEditMode(false)
+      if (result.success) {
+        setOriginalFormData({ ...formData })
+        setIsInitialDataEditMode(false)
+        toast({
+          title: "Success",
+          description: "Job information updated successfully",
+        })
+      } else {
+        toast({
+          title: "Error",
+          description: result.error || "Failed to update job information",
+          variant: "destructive",
+        })
+      }
     } catch (error) {
       console.error("Error saving initial data:", error)
-      // TODO: Show error toast
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      })
     } finally {
       setIsSaving(false)
     }
@@ -245,16 +266,33 @@ export default function JobDetailsDialog({ open, onOpenChange, jobData }: JobDet
 
     setIsSaving(true)
     try {
-      // TODO: Implement actual save to database
-      console.log("Saving role analysis:", { attributes: attributesData, requirements: requirementsData })
-      await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate API call
+      const result = await updateJobRoleAnalysis(jobData.id, {
+        attributes: attributesData,
+        requirements: requirementsData
+      })
       
-      setOriginalAttributesData({ ...attributesData })
-      setOriginalRequirementsData([...requirementsData])
-      setIsRoleAnalysisEditMode(false)
+      if (result.success) {
+        setOriginalAttributesData({ ...attributesData })
+        setOriginalRequirementsData([...requirementsData])
+        setIsRoleAnalysisEditMode(false)
+        toast({
+          title: "Success",
+          description: "Role analysis updated successfully",
+        })
+      } else {
+        toast({
+          title: "Error",
+          description: result.error || "Failed to update role analysis",
+          variant: "destructive",
+        })
+      }
     } catch (error) {
       console.error("Error saving role analysis:", error)
-      // TODO: Show error toast
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      })
     } finally {
       setIsSaving(false)
     }

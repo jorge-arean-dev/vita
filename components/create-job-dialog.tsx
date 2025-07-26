@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Check, ChevronDown, Plus, X } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -13,18 +13,11 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
-import { createJob } from "@/app/actions/job-management"
+import { createClient } from "@/lib/supabase/client"
+import { useToast } from "@/components/ui/use-toast"
 import AttributesSection from "@/components/sample-job-attributes"
 import RequirementsSection from "@/components/requirements-section"
 
-// Mock companies data - TODO: Replace with real data from Supabase
-const mockCompanies = [
-  { id: "1", name: "TechCorp Inc.", website: "techcorp.com", industry: "Technology" },
-  { id: "2", name: "StartupXYZ", website: "startupxyz.com", industry: "Software" },
-  { id: "3", name: "Design Studio", website: "designstudio.com", industry: "Design" },
-  { id: "4", name: "Analytics Pro", website: "analyticspro.com", industry: "Data Analytics" },
-  { id: "5", name: "CloudTech Solutions", website: "cloudtech.com", industry: "Cloud Computing" },
-]
 
 interface CreateJobDialogProps {
   open: boolean
@@ -35,8 +28,9 @@ interface CreateJobDialogProps {
 interface Company {
   id: string
   name: string
-  website: string
-  industry: string
+  website: string | null
+  culture: string | null
+  industry: string | null
 }
 
 interface AttributesData {
@@ -81,6 +75,7 @@ interface ApiResponse {
 
 export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: CreateJobDialogProps) {
   const router = useRouter()
+  const { toast } = useToast()
   const [step, setStep] = useState(1)
   const [jobTitle, setJobTitle] = useState("")
   const [needHelpWithTitle, setNeedHelpWithTitle] = useState(false)
@@ -91,6 +86,7 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
   const [comboOpen, setComboOpen] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
   const [isProcessingStep1, setIsProcessingStep1] = useState(false)
+  const [processingStatus, setProcessingStatus] = useState("")
   const [apiResponse, setApiResponse] = useState<ApiResponse | null>(null)
   const [attributesData, setAttributesData] = useState<AttributesData>({
     rate: { value: null, freq: "hourly" },
@@ -99,14 +95,66 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
     location: { category: "", regions: [], countries: [] }
   })
   const [requirementsData, setRequirementsData] = useState<Requirement[]>([])
+  
+  // Company data state
+  const [companies, setCompanies] = useState<Company[]>([])
+  const [isLoadingCompanies, setIsLoadingCompanies] = useState(false)
 
   // New company form fields
   const [newCompanyName, setNewCompanyName] = useState("")
   const [newCompanyWebsite, setNewCompanyWebsite] = useState("")
   const [newCompanyIndustry, setNewCompanyIndustry] = useState("")
 
+  // Fetch companies from database
+  const fetchCompanies = async () => {
+    setIsLoadingCompanies(true)
+    try {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from('companies')
+        .select(`
+          id,
+          name,
+          website,
+          culture,
+          industries (
+            display_name
+          )
+        `)
+        .order('name')
+
+      if (error) {
+        console.error('Error fetching companies:', error)
+        return
+      }
+
+      const formattedCompanies: Company[] = data.map(company => ({
+        id: company.id,
+        name: company.name,
+        website: company.website,
+        culture: company.culture,
+        industry: Array.isArray(company.industries) 
+          ? company.industries[0]?.display_name || null
+          : (company.industries as { display_name: string } | null)?.display_name || null
+      }))
+
+      setCompanies(formattedCompanies)
+    } catch (error) {
+      console.error('Error fetching companies:', error)
+    } finally {
+      setIsLoadingCompanies(false)
+    }
+  }
+
+  // Load companies when dialog opens
+  useEffect(() => {
+    if (open) {
+      fetchCompanies()
+    }
+  }, [open])
+
   // Filter companies based on search
-  const filteredCompanies = mockCompanies.filter((company) =>
+  const filteredCompanies = companies.filter((company) =>
     company.name.toLowerCase().includes(companySearch.toLowerCase()),
   )
 
@@ -122,6 +170,7 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
     setNewCompanyWebsite("")
     setNewCompanyIndustry("")
     setIsProcessingStep1(false)
+    setProcessingStatus("")
     setApiResponse(null)
     setAttributesData({
       rate: { value: null, freq: "hourly" },
@@ -130,14 +179,49 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
       location: { category: "", regions: [], countries: [] }
     })
     setRequirementsData([])
+    setCompanies([])
+    setIsLoadingCompanies(false)
   }
 
   const handleClose = () => {
+    if (isProcessingStep1) {
+      toast({
+        title: "Processing in progress",
+        description: "Please wait until the job analysis is complete before closing.",
+        variant: "default"
+      })
+      return
+    }
     resetForm()
     onOpenChange(false)
   }
 
+  const handleDialogOpenChange = (newOpen: boolean) => {
+    if (!newOpen && isProcessingStep1) {
+      toast({
+        title: "Processing in progress",
+        description: "Please wait until the job analysis is complete before closing.",
+        variant: "default"
+      })
+      return
+    }
+    if (!newOpen) {
+      handleClose()
+    } else {
+      onOpenChange(newOpen)
+    }
+  }
+
   const handleCancel = () => {
+    if (isProcessingStep1) {
+      toast({
+        title: "Processing in progress",
+        description: "Please wait until the job analysis is complete before canceling.",
+        variant: "default"
+      })
+      return
+    }
+    
     if (showCompanyForm) {
       setShowCompanyForm(false)
       setNewCompanyName("")
@@ -159,6 +243,7 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
       id: `new-${Date.now()}`,
       name: newCompanyName,
       website: newCompanyWebsite,
+      culture: null,
       industry: newCompanyIndustry,
     }
 
@@ -175,113 +260,126 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
 
   const handleNext = async () => {
     if (step === 1) {
+      if (!selectedCompany) {
+        console.error("No company selected")
+        return
+      }
+
       setIsProcessingStep1(true)
       
       try {
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 2000))
+        const supabase = createClient()
         
-        // Mock API response based on the sample
-        const mockResponse: ApiResponse = {
-          attributes: {
-            title: "Senior Full-Stack Developer",
-            rate: {
-              value: 50,
-              freq: "hourly"
-            },
-            commitment: "full_time",
-            duration: "permanent",
-            location: {
-              category: "remote_region_specific",
-              regions: ["south_america"],
-              countries: []
-            }
-          },
-          requirements: [
-            {
-              requirement: "React.js",
-              type: "technical",
-              is_mandatory: true,
-              proficiency_level: "expert",
-              weight: 1
-            },
-            {
-              requirement: "Node.js",
-              type: "technical",
-              is_mandatory: true,
-              proficiency_level: "advanced",
-              weight: 0.75
-            },
-            {
-              requirement: "PostgreSQL",
-              type: "technical",
-              is_mandatory: true,
-              proficiency_level: "advanced",
-              weight: 0.75
-            },
-            {
-              requirement: "TypeScript",
-              type: "technical",
-              is_mandatory: true,
-              proficiency_level: "expert",
-              weight: 1
-            },
-            {
-              requirement: "AWS",
-              type: "technology_domain",
-              is_mandatory: false,
-              proficiency_level: "beginner",
-              weight: 0.5
-            },
-            {
-              requirement: "Communication",
-              type: "soft_skill",
-              is_mandatory: true,
-              proficiency_level: null,
-              weight: 0.75
-            },
-            {
-              requirement: "Team collaboration",
-              type: "soft_skill",
-              is_mandatory: true,
-              proficiency_level: null,
-              weight: 0.75
-            },
-            {
-              requirement: "Full-stack development",
-              type: "role",
-              is_mandatory: true,
-              proficiency_level: "expert",
-              weight: 1
-            },
-            {
-              requirement: "Cloud computing",
-              type: "technology_domain",
-              is_mandatory: false,
-              proficiency_level: "beginner",
-              weight: 0.5
-            }
-          ]
+        // Progressive status updates
+        setProcessingStatus("Analyzing...")
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        setProcessingStatus("Extracting...")
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        setProcessingStatus("Processing...")
+        
+        // Call the job-details-extractor API
+        const requestBody = {
+          content: initialNotes,
+          company_name: selectedCompany.name,
+          industry: selectedCompany.industry || '',
+          culture: selectedCompany.culture || ''
         }
         
-        setApiResponse(mockResponse)
-        setAttributesData({
-          rate: {
-            value: mockResponse.attributes.rate.value,
-            freq: mockResponse.attributes.rate.freq
-          },
-          commitment: mockResponse.attributes.commitment,
-          duration: mockResponse.attributes.duration,
-          location: mockResponse.attributes.location
+        console.log("🚀 API Request Body:", requestBody)
+        console.log("📝 Content length:", initialNotes?.length || 0)
+        console.log("🏢 Company name:", selectedCompany.name)
+        console.log("🏭 Industry:", selectedCompany.industry)
+        console.log("🎭 Culture:", selectedCompany.culture)
+        
+        // Validate required fields
+        if (!initialNotes?.trim()) {
+          throw new Error("Initial notes are required but empty")
+        }
+        if (!selectedCompany.name?.trim()) {
+          throw new Error("Company name is required but empty")
+        }
+        
+        const { data, error } = await supabase.functions.invoke('job-details-extractor', {
+          body: requestBody
         })
-        setRequirementsData(mockResponse.requirements)
+
+        console.log("🔴 Raw API Response:", { data, error })
+        
+        if (error) {
+          console.error("🚨 Full API Error Details:", error)
+          console.error("🚨 Error name:", error.name)
+          console.error("🚨 Error message:", error.message)
+          console.error("🚨 Error stack:", error.stack)
+          console.error("🚨 Error context:", error.context)
+          
+          // Try to extract the actual error response from the server
+          if (error.context && error.context.status === 500) {
+            try {
+              const errorText = await error.context.text()
+              console.error("🚨 Server Error Response Body:", errorText)
+              
+              // Parse error response for better user messaging
+              try {
+                const errorJson = JSON.parse(errorText)
+                if (errorJson.details?.includes("429 Too Many Requests")) {
+                  throw new Error("AI service is temporarily busy due to high demand. Please wait a moment and try again.")
+                }
+                if (errorJson.details?.includes("OpenAI API error")) {
+                  throw new Error(`AI service error: ${errorJson.details}. Please try again in a few minutes.`)
+                }
+              } catch {
+                // If we can't parse, fall back to generic message
+              }
+            } catch (textError) {
+              console.error("🚨 Could not read error response body:", textError)
+            }
+          }
+          
+          throw new Error(error.message || "Failed to extract job details")
+        }
+
+        if (!data) {
+          throw new Error("No data returned from API")
+        }
+
+        console.log("🔍 Full API Response:", JSON.stringify(data, null, 2))
+        console.log("📋 API Response attributes:", data.attributes)
+        console.log("🎯 API Response requirements:", data.requirements)
+        console.log("🎯 Requirements type check:", typeof data.requirements, Array.isArray(data.requirements))
+        
+        setApiResponse(data)
+        
+        const processedAttributes = {
+          rate: {
+            value: data.attributes.rate?.value || null,
+            freq: data.attributes.rate?.freq || "hourly"
+          },
+          commitment: data.attributes.commitment || "",
+          duration: data.attributes.duration || "",
+          location: data.attributes.location || { category: "", regions: [], countries: [] }
+        }
+        console.log("⚙️ Processed attributes:", processedAttributes)
+        
+        // Fix: Access nested requirements array
+        const rawRequirements = data.requirements?.requirements || data.requirements || []
+        const processedRequirements = Array.isArray(rawRequirements) ? rawRequirements : []
+        console.log("🔧 Raw requirements extracted:", rawRequirements)
+        console.log("📝 Processed requirements:", processedRequirements)
+        console.log("📝 Requirements count:", processedRequirements.length)
+        
+        setAttributesData(processedAttributes)
+        setRequirementsData(processedRequirements)
         
         setStep(2)
       } catch (error) {
         console.error("Error processing step 1:", error)
-        // TODO: Show error to user
+        // TODO: Show error to user in a toast or alert
+        alert(`Failed to process job details: ${error instanceof Error ? error.message : 'Unknown error'}`)
       } finally {
         setIsProcessingStep1(false)
+        setProcessingStatus("")
       }
     }
   }
@@ -294,35 +392,85 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
   }
 
   const handleCreateJob = async () => {
+    if (!selectedCompany) {
+      console.error("No company selected")
+      return
+    }
+
     setIsCreating(true)
     
     try {
-      // Prepare data for job creation - combining step 1 and step 2 data
-      const jobData = {
-        // Step 1 data
-        title: needHelpWithTitle ? apiResponse?.attributes.title || "Job Title TBD" : jobTitle,
-        companyId: selectedCompany?.id || "",
-        initialNotes: initialNotes,
-        // Step 2 data
-        attributes: attributesData,
-        requirements: requirementsData,
-        apiGeneratedTitle: apiResponse?.attributes.title
+      const supabase = createClient()
+      
+      // Get current user
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      if (userError || !user) {
+        throw new Error("User not authenticated")
       }
 
-      const result = await createJob(jobData)
+      // Prepare job data with proper field mapping
+      const finalTitle = needHelpWithTitle ? (apiResponse?.attributes.title || "Job Title TBD") : jobTitle
       
-      if (result.success) {
-        handleClose()
-        onJobCreated(result)
-        // Navigate to new job detail page
-        router.push(`/protected/jobs/${result.jobId}`)
-      } else {
-        console.error("Failed to create job:", result.error)
-        // TODO: Show error to user
+      const jobInsertData = {
+        user_id: user.id,
+        company_id: selectedCompany.id,
+        title: finalTitle,
+        initial_notes: initialNotes,
+        // Map API response to database fields
+        rate: attributesData.rate.value,
+        pay_freq: attributesData.rate.freq,
+        commitment: attributesData.commitment || null,
+        duration: attributesData.duration || null,
+        location_reqs: attributesData.location.category || null,
+        regions: attributesData.location.regions.length > 0 ? attributesData.location.regions : null,
+        countries: attributesData.location.countries.length > 0 ? attributesData.location.countries : null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       }
+
+      // Create the job
+      const { data: jobData, error: jobError } = await supabase
+        .from("jobs")
+        .insert(jobInsertData)
+        .select("id")
+        .single()
+
+      if (jobError) {
+        console.error("Job creation error:", jobError)
+        throw new Error("Failed to create job")
+      }
+
+      // Create requirements if any exist
+      const safeRequirements = requirementsData || []
+      if (safeRequirements.length > 0) {
+        const requirementsInsertData = safeRequirements.map(req => ({
+          job_id: jobData.id,
+          requirement: req.requirement,
+          type: req.type,
+          is_mandatory: req.is_mandatory,
+          proficiency_level: req.proficiency_level,
+          weight: req.weight
+        }))
+
+        const { error: reqError } = await supabase
+          .from("job_requirements")
+          .insert(requirementsInsertData)
+
+        if (reqError) {
+          console.error("Requirements creation error:", reqError)
+          // Don't fail the entire operation if requirements fail
+          console.warn("Job created but requirements failed to save")
+        }
+      }
+
+      handleClose()
+      onJobCreated({ success: true, jobId: jobData.id })
+      // Navigate to new job detail page
+      router.push(`/protected/jobs/${jobData.id}`)
+      
     } catch (error) {
       console.error("Error creating job:", error)
-      // TODO: Show error to user
+      alert(`Failed to create job: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setIsCreating(false)
     }
@@ -331,16 +479,13 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
   // Updated validation: can proceed if either job title is filled OR help is requested
   const canProceedStep1 = (jobTitle.trim() || needHelpWithTitle) && selectedCompany && initialNotes.trim()
   const canSaveNewCompany = newCompanyName.trim() && newCompanyWebsite.trim() && newCompanyIndustry.trim()
-  const canCreateJob = attributesData.commitment && attributesData.duration && attributesData.location.category
+  
+  // Step 2 validation: only require title and at least 1 requirement
+  const finalTitle = needHelpWithTitle ? (apiResponse?.attributes.title || "") : jobTitle
+  const canCreateJob = finalTitle.trim() && (requirementsData || []).length > 0
 
   return (
-    <Dialog open={open} onOpenChange={(newOpen) => {
-      if (!newOpen) {
-        handleClose()
-      } else {
-        onOpenChange(newOpen)
-      }
-    }}>
+    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent className="sm:max-w-[800px] max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="mb-6">Create Job</DialogTitle>
@@ -406,9 +551,11 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
                           onValueChange={setCompanySearch}
                         />
                         <CommandList>
-                          {filteredCompanies.length === 0 && companySearch && (
+                          {isLoadingCompanies ? (
+                            <CommandEmpty>Loading companies...</CommandEmpty>
+                          ) : filteredCompanies.length === 0 && companySearch ? (
                             <CommandEmpty>Company not found</CommandEmpty>
-                          )}
+                          ) : null}
 
                           <CommandGroup>
                             <CommandItem onSelect={handleCreateNewCompany} className="cursor-pointer">
@@ -434,7 +581,9 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
                                 />
                                 <div>
                                   <div className="font-medium">{company.name}</div>
-                                  <div className="text-sm text-muted-foreground">{company.industry}</div>
+                                  <div className="text-sm text-muted-foreground">
+                                    {company.industry || "No industry specified"}
+                                  </div>
                                 </div>
                               </CommandItem>
                             ))}
@@ -519,18 +668,36 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
             <div className="info-indicator">
               <span>Here&apos;s a preview of the information we&apos;ve extracted from your notes. You can review and edit this information later.</span>
             </div>
+            {/* Debug logging for Step 2 rendering */}
+            {(() => {
+              console.log("🎬 Step 2 Rendering - Current State:")
+              console.log("  📝 apiResponse:", apiResponse)
+              console.log("  ⚙️ attributesData:", attributesData)
+              console.log("  📋 requirementsData:", requirementsData)
+              console.log("  🔤 jobTitle:", jobTitle)
+              console.log("  ✅ needHelpWithTitle:", needHelpWithTitle)
+              console.log("  🏢 selectedCompany:", selectedCompany)
+              return null
+            })()}
             <div className="space-y-4">
               <div>
                 <h3 className="text-lg font-semibold mb-4">Job Attributes</h3>
                 <div className="space-y-2 mb-4">
-                  <Label htmlFor="generated-title" className="text-sm font-medium">Job Title</Label>
+                  <Label htmlFor="final-title" className="text-sm font-medium">Job Title</Label>
                   <Input
-                    id="generated-title"
-                    value={apiResponse?.attributes.title || ""}
-                    readOnly
-                    className="bg-muted cursor-default"
+                    id="final-title"
+                    value={needHelpWithTitle ? (apiResponse?.attributes.title || "") : jobTitle}
+                    onChange={(e) => {
+                      if (!needHelpWithTitle) {
+                        setJobTitle(e.target.value)
+                      }
+                    }}
+                    disabled={needHelpWithTitle}
+                    className={cn(needHelpWithTitle && "bg-muted cursor-default")}
                   />
-                  <p className="text-xs text-muted-foreground">Generated based on your input</p>
+                  {needHelpWithTitle && (
+                    <p className="text-xs text-muted-foreground">Generated based on your input</p>
+                  )}
                 </div>
                 <AttributesSection
                   data={attributesData}
@@ -542,7 +709,7 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
               <div>
                 <h3 className="text-lg font-semibold mb-4">Job Requirements</h3>
                 <RequirementsSection
-                  requirements={requirementsData}
+                  requirements={requirementsData || []}
                   isEditMode={true}
                   onChange={setRequirementsData}
                 />
@@ -555,11 +722,11 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
         <div className="flex justify-between pt-4">
           {step === 1 && (
             <>
-              <Button variant="outline" onClick={handleCancel}>
+              <Button variant="outline" onClick={handleCancel} disabled={isProcessingStep1}>
                 Cancel
               </Button>
               <Button onClick={handleNext} disabled={!canProceedStep1 || isProcessingStep1}>
-                {isProcessingStep1 ? "Processing..." : "Next"}
+                {isProcessingStep1 ? (processingStatus || "Processing...") : "Next"}
               </Button>
             </>
           )}

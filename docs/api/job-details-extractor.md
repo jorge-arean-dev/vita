@@ -53,10 +53,10 @@ This API endpoint extracts and structures job details from job descriptions and 
   "attributes": {
     "title": "string",
     "rate": {
-      "value": "number",
-      "freq": "hourly | weekly | monthly"
+      "value": "number | string (may be empty)",
+      "freq": "hourly | weekly | monthly | string (may be empty)"
     },
-    "commitment": "full_time | part_time | hourly",
+    "commitment": "full_time | part_time | hourly | string (may be empty)",
     "duration": "2_4_weeks | 4_8_weeks | 3_6_months | 6_12_months | 12_plus_months | permanent",
     "location": {
       "category": "remote_global | remote_region_specific | remote_country_specific | hybrid | on_site",
@@ -64,15 +64,17 @@ This API endpoint extracts and structures job details from job descriptions and 
       "countries": ["string (ISO country codes)"]
     }
   },
-  "requirements": [
-    {
-      "requirement": "string",
-      "type": "technical_skill | technology_domain | soft_skill | role | certification | industry",
-      "is_mandatory": "boolean",
-      "proficiency_level": "beginner | advanced | expert",
-      "weight": "number (0.00-1.00)"
-    }
-  ]
+  "requirements": {
+    "requirements": [
+      {
+        "requirement": "string",
+        "type": "technical_skill | technology_domain | soft_skill | role | certification | industry",
+        "is_mandatory": "boolean",
+        "proficiency_level": "beginner | advanced | expert | null",
+        "weight": "number (0.00-1.00)"
+      }
+    ]
+  }
 }
 ```
 
@@ -93,50 +95,90 @@ This API endpoint extracts and structures job details from job descriptions and 
       "countries": []
     }
   },
-  "requirements": [
-    {
-      "requirement": "React",
-      "type": "technical_skill",
-      "is_mandatory": true,
-      "proficiency_level": "advanced",
-      "weight": 1.00
+  "requirements": {
+    "requirements": [
+      {
+        "requirement": "React",
+        "type": "technical_skill",
+        "is_mandatory": true,
+        "proficiency_level": "advanced",
+        "weight": 1.00
+      },
+      {
+        "requirement": "Node.js",
+        "type": "technical_skill",
+        "is_mandatory": true,
+        "proficiency_level": "advanced",
+        "weight": 1.00
+      },
+      {
+        "requirement": "AWS",
+        "type": "technical_skill",
+        "is_mandatory": true,
+        "proficiency_level": "advanced",
+        "weight": 0.75
+      },
+      {
+        "requirement": "Problem Solving",
+        "type": "soft_skill",
+        "is_mandatory": true,
+        "proficiency_level": null,
+        "weight": 0.50
+      },
+      {
+        "requirement": "Mentoring",
+        "type": "soft_skill",
+        "is_mandatory": true,
+        "proficiency_level": null,
+        "weight": 0.75
+      },
+      {
+        "requirement": "Teamwork",
+        "type": "soft_skill",
+        "is_mandatory": true,
+        "proficiency_level": null,
+        "weight": 0.75
+      }
+    ]
+  }
+}
+```
+
+### Response Example with Empty Values
+```json
+{
+  "attributes": {
+    "title": "eCommerce Developer",
+    "rate": {
+      "value": "",
+      "freq": ""
     },
-    {
-      "requirement": "Node.js",
-      "type": "technical_skill",
-      "is_mandatory": true,
-      "proficiency_level": "advanced",
-      "weight": 1.00
-    },
-    {
-      "requirement": "AWS",
-      "type": "technical_skill",
-      "is_mandatory": true,
-      "proficiency_level": "advanced",
-      "weight": 0.75
-    },
-    {
-      "requirement": "Problem Solving",
-      "type": "soft_skill",
-      "is_mandatory": true,
-      "proficiency_level": "advanced",
-      "weight": 0.50
-    },
-    {
-      "requirement": "Mentoring",
-      "type": "soft_skill",
-      "is_mandatory": true,
-      "proficiency_level": "advanced",
-      "weight": 0.75
-    },
-    {
-      "requirement": "Teamwork",
-      "type": "soft_skill",
-      "is_mandatory": true,
-      "proficiency_level": "advanced",
-      "weight": 0.75
+    "commitment": "",
+    "duration": "4_8_weeks",
+    "location": {
+      "category": "remote_global",
+      "regions": [],
+      "countries": []
     }
-  ]
+  },
+  "requirements": {
+    "requirements": [
+      {
+        "requirement": "React",
+        "type": "technical_skill",
+        "is_mandatory": true,
+        "proficiency_level": "advanced",
+        "weight": 1
+      },
+      {
+        "requirement": "Teamwork",
+        "type": "soft_skill",
+        "is_mandatory": true,
+        "proficiency_level": null,
+        "weight": 0.75
+      }
+    ]
+  }
 }
 ```
 
@@ -178,9 +220,9 @@ This API endpoint extracts and structures job details from job descriptions and 
 - **location**: Work arrangement with geographic specifications
 
 ### Rate Object
-- **value**: Numerical salary/hourly rate amount
-- **freq**: Payment frequency (hourly, weekly, monthly)
-- Empty object if no compensation info provided
+- **value**: Numerical salary/hourly rate amount (may be empty string if not determinable)
+- **freq**: Payment frequency (hourly, weekly, monthly) (may be empty string if not determinable)
+- May contain empty values when compensation information cannot be extracted from input
 
 ### Location Object
 - **category**: Work arrangement type
@@ -200,12 +242,23 @@ This API endpoint extracts and structures job details from job descriptions and 
 - africa, middle_east, oceania
 - americas, asia, europe
 
-### Requirements Array Structure
+### Requirements Object Structure
+The requirements are returned as a nested object:
+```json
+{
+  "requirements": {
+    "requirements": [
+      // Array of requirement objects
+    ]
+  }
+}
+```
+
 Each requirement object contains:
 - **requirement**: Skill or qualification name (Title Case)
 - **type**: Skill category classification
 - **is_mandatory**: Required vs. preferred (boolean)
-- **proficiency_level**: Expected skill level
+- **proficiency_level**: Expected skill level (may be null for soft skills)
 - **weight**: Importance score (0.00-1.00)
 
 ### Skill Type Classifications
@@ -310,7 +363,7 @@ async function handleJobDetailsExtraction(jobInput) {
     setJobTitle(extractedDetails.attributes.title);
     setSalaryInfo(extractedDetails.attributes.rate);
     setLocationRequirements(extractedDetails.attributes.location);
-    setSkillRequirements(extractedDetails.requirements);
+    setSkillRequirements(extractedDetails.requirements.requirements || []);
     
     // Store extracted data for review
     setExtractedData(extractedDetails);
@@ -352,10 +405,11 @@ async function createJobWithExtraction(jobInput) {
     if (jobError) throw jobError;
     
     // Step 3: Save extracted requirements
+    const requirements = extractedDetails.requirements.requirements || []
     const { error: reqError } = await supabase
       .from('job_requirements')
       .insert(
-        extractedDetails.requirements.map(req => ({
+        requirements.map(req => ({
           job_id: job.id,
           requirement: req.requirement,
           type: req.type,

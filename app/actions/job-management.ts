@@ -138,7 +138,7 @@ export async function getJobData(jobId: string) {
       return null
     }
 
-    // Fetch job with company information
+    // Fetch job with company information and requirements
     const { data: jobData, error: jobError } = await supabase
       .from("jobs")
       .select(`
@@ -148,9 +148,24 @@ export async function getJobData(jobId: string) {
         created_at,
         updated_at,
         company_id,
+        rate,
+        pay_freq,
+        duration,
+        commitment,
+        location_reqs,
+        regions,
+        countries,
         companies (
           id,
           name
+        ),
+        job_requirements (
+          id,
+          requirement,
+          type,
+          is_mandatory,
+          proficiency_level,
+          weight
         )
       `)
       .eq("id", jobId)
@@ -171,7 +186,23 @@ export async function getJobData(jobId: string) {
         : (jobData.companies as { name: string } | null)?.name || null,
       initialNotes: jobData.initial_notes,
       createdAt: jobData.created_at,
-      updatedAt: jobData.updated_at
+      updatedAt: jobData.updated_at,
+      // Add attributes for Role Analysis
+      attributes: {
+        rate: {
+          value: jobData.rate || null,
+          freq: jobData.pay_freq || "hourly"
+        },
+        commitment: jobData.commitment || "",
+        duration: jobData.duration || "",
+        location: {
+          category: jobData.location_reqs || "",
+          regions: jobData.regions || [],
+          countries: jobData.countries || []
+        }
+      },
+      // Add requirements for Role Analysis
+      requirements: jobData.job_requirements || []
     }
     
   } catch (error) {
@@ -180,6 +211,106 @@ export async function getJobData(jobId: string) {
   }
 }
 
+
+/**
+ * Update job attributes and requirements (Role Analysis tab)
+ * 
+ * @param jobId - Job ID to update
+ * @param data - Job attributes and requirements data
+ * @returns Object with success status or error message
+ */
+export async function updateJobRoleAnalysis(
+  jobId: string, 
+  data: {
+    attributes: {
+      rate: { value: number | null; freq: string }
+      commitment: string
+      duration: string
+      location: { category: string; regions: string[]; countries: string[] }
+    }
+    requirements: Array<{
+      requirement: string
+      type: string
+      is_mandatory: boolean
+      proficiency_level: string | null
+      weight: number
+    }>
+  }
+) {
+  try {
+    const supabase = await createClient()
+    
+    // Get the current authenticated user
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    
+    if (userError || !user) {
+      return { success: false, error: "User not authenticated" }
+    }
+
+    // Start a transaction-like operation
+    // First, update job attributes
+    const { error: jobUpdateError } = await supabase
+      .from("jobs")
+      .update({
+        rate: data.attributes.rate.value,
+        pay_freq: data.attributes.rate.freq,
+        commitment: data.attributes.commitment,
+        duration: data.attributes.duration,
+        location_reqs: data.attributes.location.category,
+        regions: data.attributes.location.regions,
+        countries: data.attributes.location.countries,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", jobId)
+      .eq("user_id", user.id)
+
+    if (jobUpdateError) {
+      console.error("Job update error:", jobUpdateError)
+      return { success: false, error: "Failed to update job attributes" }
+    }
+
+    // Delete existing requirements
+    const { error: deleteError } = await supabase
+      .from("job_requirements")
+      .delete()
+      .eq("job_id", jobId)
+
+    if (deleteError) {
+      console.error("Requirements delete error:", deleteError)
+      return { success: false, error: "Failed to update requirements" }
+    }
+
+    // Insert new requirements if any
+    if (data.requirements.length > 0) {
+      const requirementsData = data.requirements.map(req => ({
+        job_id: jobId,
+        requirement: req.requirement,
+        type: req.type,
+        is_mandatory: req.is_mandatory,
+        proficiency_level: req.proficiency_level,
+        weight: req.weight
+      }))
+
+      const { error: insertError } = await supabase
+        .from("job_requirements")
+        .insert(requirementsData)
+
+      if (insertError) {
+        console.error("Requirements insert error:", insertError)
+        return { success: false, error: "Failed to save requirements" }
+      }
+    }
+
+    // Revalidate the current job page
+    revalidatePath(`/protected/jobs/${jobId}`)
+    
+    return { success: true }
+    
+  } catch (error) {
+    console.error("Role analysis update error:", error)
+    return { success: false, error: "Failed to update role analysis" }
+  }
+}
 
 /**
  * Generate AI content for various job phases

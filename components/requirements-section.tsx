@@ -6,8 +6,10 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { SkillBadge } from "@/components/ui/skill-badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
 import { X, Plus, ChevronUp } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuLabel } from "@/components/ui/dropdown-menu"
 
 interface Requirement {
   requirement: string
@@ -38,6 +40,7 @@ export default function RequirementsSection({ requirements, isEditMode, onChange
   const [newRequirements, setNewRequirements] = useState("")
   const [newRequirementType, setNewRequirementType] = useState("")
   const [newProficiencyLevel, setNewProficiencyLevel] = useState<string>("")
+  const [newIsMandatory, setNewIsMandatory] = useState(true)
   const [isAddSectionOpen, setIsAddSectionOpen] = useState(false)
 
   // Group requirements by type
@@ -61,6 +64,15 @@ export default function RequirementsSection({ requirements, isEditMode, onChange
     onChange(updatedRequirements)
   }
 
+  const handleChangeMandatory = (index: number, isMandatory: boolean) => {
+    const updatedRequirements = requirements.map((req, i) => 
+      i === index 
+        ? { ...req, is_mandatory: isMandatory }
+        : req
+    )
+    onChange(updatedRequirements)
+  }
+
   const handleAddRequirements = () => {
     if (!newRequirements.trim() || !newRequirementType) return
 
@@ -72,8 +84,11 @@ export default function RequirementsSection({ requirements, isEditMode, onChange
     const newReqs: Requirement[] = requirementsList.map(req => ({
       requirement: req,
       type: newRequirementType,
-      is_mandatory: true,
-      proficiency_level: newProficiencyLevel === "null" ? null : newProficiencyLevel as "expert" | "advanced" | "beginner",
+      is_mandatory: newIsMandatory,
+      // Soft skills and certifications always have null proficiency
+      proficiency_level: (newRequirementType === "soft_skill" || newRequirementType === "certification") 
+        ? null 
+        : (newProficiencyLevel || "beginner") as "expert" | "advanced" | "beginner",
       weight: newProficiencyLevel === "expert" ? 1 : newProficiencyLevel === "advanced" ? 0.75 : 0.5
     }))
 
@@ -81,6 +96,7 @@ export default function RequirementsSection({ requirements, isEditMode, onChange
     setNewRequirements("")
     setNewRequirementType("")
     setNewProficiencyLevel("")
+    setNewIsMandatory(true)
     setIsAddSectionOpen(false)
   }
 
@@ -98,31 +114,57 @@ export default function RequirementsSection({ requirements, isEditMode, onChange
               return (
                 <div key={reqIndex} className="relative group">
                   {isEditMode ? (
-                    <div className="relative inline-block">
-                      <SkillBadge
-                        skill={req.requirement}
-                        level={req.proficiency_level as "beginner" | "advanced" | "expert" | null}
-                        type={req.type as "technical_skill" | "soft_skill" | "role" | "certification" | "technology_domain" | "industry"}
-                        isMandatory={req.is_mandatory}
-                        isEditMode={true}
-                        onRemove={() => handleDeleteRequirement(reqIndex)}
-                        className="cursor-pointer"
-                      />
-                      <Select
-                        value={req.proficiency_level || "null"}
-                        onValueChange={(value) => handleChangeProficiency(reqIndex, value === "null" ? null : value)}
-                      >
-                        <SelectTrigger className="absolute inset-0 opacity-0 cursor-pointer">
-                          <span></span>
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="expert">Expert</SelectItem>
-                          <SelectItem value="advanced">Advanced</SelectItem>
-                          <SelectItem value="beginner">Beginner</SelectItem>
-                          <SelectItem value="null">No level</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    <div className="relative inline-flex">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <div className="inline-block">
+                            <SkillBadge
+                              skill={req.requirement}
+                              level={req.proficiency_level as "beginner" | "advanced" | "expert" | null}
+                              type={req.type as "technical_skill" | "soft_skill" | "role" | "certification" | "technology_domain" | "industry"}
+                              isMandatory={req.is_mandatory}
+                              isEditMode={false}  // Don't show the built-in X button
+                              className="cursor-pointer pr-8"  // Add padding for external X button
+                            />
+                          </div>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="text-sm">
+                        {/* Proficiency Level section - only show for applicable types */}
+                        {req.type !== "soft_skill" && req.type !== "certification" && (
+                          <>
+                            <DropdownMenuLabel className="text-xs">Proficiency Level</DropdownMenuLabel>
+                            <DropdownMenuItem onClick={() => handleChangeProficiency(reqIndex, "expert")}>
+                              {req.proficiency_level === "expert" ? "✓ " : ""}Expert
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleChangeProficiency(reqIndex, "advanced")}>
+                              {req.proficiency_level === "advanced" ? "✓ " : ""}Advanced
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleChangeProficiency(reqIndex, "beginner")}>
+                              {req.proficiency_level === "beginner" ? "✓ " : ""}Beginner
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                          </>
+                        )}
+                        
+                        {/* Requirement Type section */}
+                        <DropdownMenuLabel className="text-xs">Requirement Type</DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => handleChangeMandatory(reqIndex, true)}>
+                          {req.is_mandatory ? "✓ " : ""}Required
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleChangeMandatory(reqIndex, false)}>
+                          {!req.is_mandatory ? "✓ " : ""}Nice to have
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    {/* External X button positioned over the badge */}
+                    <button
+                      onClick={() => handleDeleteRequirement(reqIndex)}
+                      className="absolute right-1 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-[var(--skill-badge-remove-background-hover)] text-[var(--skill-badge-remove-icon)] hover:text-[var(--skill-badge-remove-icon-hover)] transition-colors z-10"
+                      aria-label={`Remove ${req.requirement}`}
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
                   ) : (
                     <SkillBadge
                       skill={req.requirement}
@@ -219,7 +261,6 @@ export default function RequirementsSection({ requirements, isEditMode, onChange
                         <SelectValue placeholder="Select level" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="null">No level</SelectItem>
                         <SelectItem value="expert">
                           <div className="flex flex-col">
                             <span>Expert</span>
@@ -241,6 +282,20 @@ export default function RequirementsSection({ requirements, isEditMode, onChange
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="new-mandatory"
+                    checked={newIsMandatory}
+                    onCheckedChange={(checked) => setNewIsMandatory(checked as boolean)}
+                  />
+                  <Label 
+                    htmlFor="new-mandatory" 
+                    className="text-sm font-normal cursor-pointer"
+                  >
+                    This is a mandatory requirement
+                  </Label>
                 </div>
 
                 <Button 

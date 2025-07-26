@@ -14,6 +14,27 @@ interface JobData {
   companyId?: string
   companyName?: string
   initialNotes?: string
+  attributes?: {
+    rate: {
+      value: number | null
+      freq: string
+    }
+    commitment: string
+    duration: string
+    location: {
+      category: string
+      regions: string[]
+      countries: string[]
+    }
+  }
+  requirements?: Array<{
+    id: string
+    requirement: string
+    type: string
+    is_mandatory: boolean
+    proficiency_level: "expert" | "advanced" | "beginner" | null
+    weight: number
+  }>
 }
 
 interface JobLayoutProps {
