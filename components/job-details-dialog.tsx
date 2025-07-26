@@ -310,28 +310,28 @@ export default function JobDetailsDialog({ open, onOpenChange, jobData }: JobDet
         requirements: [
           {
             requirement: "React.js",
-            type: "technical",
+            type: "technical_skill",
             is_mandatory: true,
             proficiency_level: "expert" as const,
             weight: 1
           },
           {
             requirement: "Node.js",
-            type: "technical",
+            type: "technical_skill",
             is_mandatory: true,
             proficiency_level: "advanced" as const,
             weight: 0.75
           },
           {
             requirement: "PostgreSQL",
-            type: "technical",
+            type: "technical_skill",
             is_mandatory: true,
             proficiency_level: "advanced" as const,
             weight: 0.75
           },
           {
             requirement: "TypeScript",
-            type: "technical",
+            type: "technical_skill",
             is_mandatory: true,
             proficiency_level: "expert" as const,
             weight: 1

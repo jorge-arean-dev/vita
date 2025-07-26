@@ -25,12 +25,12 @@ interface RequirementsSectionProps {
 
 // Requirement types mapping
 const REQUIREMENT_TYPES = [
-  { name: "technical", display_name: "Technical" },
-  { name: "soft_skill", display_name: "Soft skill" },
+  { name: "technical_skill", display_name: "Technical Skills" },
+  { name: "soft_skill", display_name: "Soft Skills" },
   { name: "role", display_name: "Role" },
   { name: "certification", display_name: "Certification" },
   { name: "industry", display_name: "Industry" },
-  { name: "technology_domain", display_name: "Technology domain" }
+  { name: "technology_domain", display_name: "Technology Domain" }
 ]
 
 
