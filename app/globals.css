@@ -50,6 +50,9 @@
     --skill-badge-background: transparent;
     --skill-badge-text: hsl(var(--primary));
     --skill-badge-text-filled: hsl(var(--primary-foreground));
+    --skill-badge-remove-icon: hsl(0 84% 60%);
+    --skill-badge-remove-icon-hover: hsl(0 84% 40%);
+    --skill-badge-remove-background-hover: hsl(0 84% 95%);
   }
   
   .dark {
@@ -96,6 +99,9 @@
     --skill-badge-background: transparent;
     --skill-badge-text: hsl(var(--primary));
     --skill-badge-text-filled: hsl(var(--primary-foreground));
+    --skill-badge-remove-icon: hsl(0 84% 60%);
+    --skill-badge-remove-icon-hover: hsl(0 84% 70%);
+    --skill-badge-remove-background-hover: hsl(0 84% 15%);
   }
   
   /* Global element styles */

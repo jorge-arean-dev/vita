@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { Star, X } from "lucide-react"
 
 type ProficiencyLevel = "beginner" | "advanced" | "expert"
 type SkillType = "technical_skill" | "soft_skill" | "role" | "certification" | "technology_domain" | "industry"
@@ -12,6 +13,9 @@ interface SkillBadgeProps {
   type?: SkillType | null
   className?: string
   showPercentage?: boolean
+  isMandatory?: boolean
+  isEditMode?: boolean
+  onRemove?: () => void
 }
 
 export function SkillBadge({ 
@@ -19,7 +23,10 @@ export function SkillBadge({
   level, 
   type, 
   className, 
-  showPercentage = false 
+  showPercentage = false,
+  isMandatory = false,
+  isEditMode = false,
+  onRemove
 }: SkillBadgeProps) {
   // Determine if this skill type should show progress fill
   const showProgressFill = type && ["technical_skill", "role", "technology_domain", "industry"].includes(type)
@@ -29,12 +36,35 @@ export function SkillBadge({
     return (
       <Badge
         className={cn(
-          "transition-all duration-300",
+          "transition-all duration-300 relative",
           getBadgeClassName(level),
           className
         )}
       >
-        {skill}
+        <span className="flex items-center">
+          {/* Star icon for mandatory requirements */}
+          {isMandatory && <Star className="w-3 h-3 text-yellow-500 fill-yellow-500 mr-2" />}
+          
+          {/* Skill name */}
+          {skill}
+          
+          {/* Optional percentage display */}
+          {showPercentage && <span className="text-xs opacity-75 ml-1">(N/A)</span>}
+          
+          {/* Remove button (only in edit mode) */}
+          {isEditMode && onRemove && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onRemove()
+              }}
+              className="ml-2 p-0.5 rounded-full hover:bg-[var(--skill-badge-remove-background-hover)] text-[var(--skill-badge-remove-icon)] hover:text-[var(--skill-badge-remove-icon-hover)] transition-colors"
+              aria-label={`Remove ${skill}`}
+            >
+              <X className="w-3 h-3" />
+            </button>
+          )}
+        </span>
       </Badge>
     )
   }
@@ -93,9 +123,29 @@ export function SkillBadge({
       />
 
       {/* Content */}
-      <span className="relative z-10 flex items-center gap-1">
+      <span className="relative z-10 flex items-center">
+        {/* Star icon for mandatory requirements */}
+        {isMandatory && <Star className="w-3 h-3 text-yellow-500 fill-yellow-500 mr-2" />}
+        
+        {/* Skill name */}
         {skill}
-        {showPercentage && <span className="text-xs opacity-75">({fillPercentage}%)</span>}
+        
+        {/* Optional percentage display */}
+        {showPercentage && <span className="text-xs opacity-75 ml-1">({fillPercentage}%)</span>}
+        
+        {/* Remove button (only in edit mode) */}
+        {isEditMode && onRemove && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onRemove()
+            }}
+            className="ml-2 p-0.5 rounded-full hover:bg-[var(--skill-badge-remove-background-hover)] text-[var(--skill-badge-remove-icon)] hover:text-[var(--skill-badge-remove-icon-hover)] transition-colors"
+            aria-label={`Remove ${skill}`}
+          >
+            <X className="w-3 h-3" />
+          </button>
+        )}
       </span>
     </Badge>
   )

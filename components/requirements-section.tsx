@@ -103,7 +103,10 @@ export default function RequirementsSection({ requirements, isEditMode, onChange
                         skill={req.requirement}
                         level={req.proficiency_level as "beginner" | "advanced" | "expert" | null}
                         type={req.type as "technical_skill" | "soft_skill" | "role" | "certification" | "technology_domain" | "industry"}
-                        className="cursor-pointer pr-8"
+                        isMandatory={req.is_mandatory}
+                        isEditMode={true}
+                        onRemove={() => handleDeleteRequirement(reqIndex)}
+                        className="cursor-pointer"
                       />
                       <Select
                         value={req.proficiency_level || "null"}
@@ -119,21 +122,13 @@ export default function RequirementsSection({ requirements, isEditMode, onChange
                           <SelectItem value="null">No level</SelectItem>
                         </SelectContent>
                       </Select>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleDeleteRequirement(reqIndex)
-                        }}
-                        className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 w-4 h-4 flex items-center justify-center text-xs z-10"
-                      >
-                        <X className="h-2 w-2" />
-                      </button>
                     </div>
                   ) : (
                     <SkillBadge
                       skill={req.requirement}
                       level={req.proficiency_level as "beginner" | "advanced" | "expert" | null}
                       type={req.type as "technical_skill" | "soft_skill" | "role" | "certification" | "technology_domain" | "industry"}
+                      isMandatory={req.is_mandatory}
                     />
                   )}
                 </div>

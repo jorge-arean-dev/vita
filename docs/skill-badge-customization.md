@@ -24,9 +24,14 @@ The following CSS variables control the skill badge appearance:
 --skill-badge-background: transparent;                   /* Background (usually transparent) */
 --skill-badge-text: hsl(var(--primary));                /* Text color - primary color */
 --skill-badge-text-filled: hsl(var(--primary-foreground)); /* Text when fill reaches it */
+--skill-badge-remove-icon: hsl(0 84% 60%);              /* Remove button icon color */
+--skill-badge-remove-icon-hover: hsl(0 84% 40%);        /* Remove button icon hover color */
+--skill-badge-remove-background-hover: hsl(0 84% 95%);  /* Remove button background hover */
 
 /* Dark mode */
-/* Same variables with slightly different opacity values */
+/* Same variables with adjusted values for dark theme */
+--skill-badge-remove-icon-hover: hsl(0 84% 70%);        /* Lighter hover in dark mode */
+--skill-badge-remove-background-hover: hsl(0 84% 15%);  /* Dark background hover */
 ```
 
 ### Current Default Values
@@ -97,6 +102,19 @@ Override the skill badge variables directly for independent control:
 --skill-badge-text: hsl(140 70% 25%);
 ```
 
+### Custom Remove Button Colors
+```css
+/* Orange remove button theme */
+--skill-badge-remove-icon: hsl(30 90% 50%);
+--skill-badge-remove-icon-hover: hsl(30 90% 40%);
+--skill-badge-remove-background-hover: hsl(30 90% 95%);
+
+/* Purple remove button theme */
+--skill-badge-remove-icon: hsl(270 70% 50%);
+--skill-badge-remove-icon-hover: hsl(270 70% 40%);
+--skill-badge-remove-background-hover: hsl(270 70% 95%);
+```
+
 ## Skill Types Reference
 
 Skills that display with progress fill:
@@ -109,6 +127,20 @@ Skills that display as simple badges:
 - `soft_skill` - Soft skills (Communication, Leadership, etc.)
 - `certification` - Professional certifications
 
+## Feature Support
+
+### Mandatory Indicators
+Job requirements can display a ⭐ star icon when `isMandatory=true`:
+- Visible for job requirements marked as mandatory
+- Not displayed for candidate skills (candidate skills don't have mandatory status)
+- Star color is fixed at `text-yellow-500 fill-yellow-500` for visibility
+
+### Edit Mode Functionality
+In edit mode, badges display an ❌ removal button:
+- Enabled when `isEditMode=true` and `onRemove` callback is provided
+- Allows users to remove requirements/skills in editing contexts
+- Button styling: `text-red-500 hover:text-red-700` with hover effects
+
 ## Implementation Location
 
 The skill badge component is located at `/components/ui/skill-badge.tsx` and uses these CSS variables to style the badges dynamically based on proficiency levels:
@@ -116,8 +148,24 @@ The skill badge component is located at `/components/ui/skill-badge.tsx` and use
 - `advanced` - 66% fill
 - `expert` - 100% fill
 
+### Component Props
+```typescript
+interface SkillBadgeProps {
+  skill: string
+  level?: ProficiencyLevel | null
+  type?: SkillType | null
+  className?: string
+  showPercentage?: boolean
+  isMandatory?: boolean      // Shows star icon
+  isEditMode?: boolean       // Shows remove button
+  onRemove?: () => void      // Remove callback
+}
+```
+
 ## Notes
 
 - The `technical` type is deprecated and should not be used. Use `technical_skill` instead.
 - Changes to CSS variables will affect all skill badges across the application.
+- Star and X icons are fixed colors for consistency and accessibility.
+- All new props are optional to maintain backward compatibility.
 - Consider maintaining sufficient contrast ratios for accessibility when customizing colors.
