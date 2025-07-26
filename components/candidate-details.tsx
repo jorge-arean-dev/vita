@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
+import { SkillBadge } from "@/components/ui/skill-badge"
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Edit, Check, X, ChevronDown, Download, Sparkles, Info, Trash2 } from "lucide-react"
@@ -242,7 +242,7 @@ export default function CandidateDetails({ candidate }: CandidateDetailsProps) {
           id: "1",
           candidate_id: candidate.id,
           skill: "React",
-          type: "technical",
+          type: "technical_skill",
           proficiency_level: "advanced",
           source: "linkedin",
           created_at: new Date().toISOString(),
@@ -253,7 +253,7 @@ export default function CandidateDetails({ candidate }: CandidateDetailsProps) {
           id: "2",
           candidate_id: candidate.id,
           skill: "TypeScript",
-          type: "technical",
+          type: "technical_skill",
           proficiency_level: "advanced",
           source: "linkedin",
           created_at: new Date().toISOString(),
@@ -264,7 +264,7 @@ export default function CandidateDetails({ candidate }: CandidateDetailsProps) {
           id: "3",
           candidate_id: candidate.id,
           skill: "Team Leadership",
-          type: "soft",
+          type: "soft_skill",
           proficiency_level: "expert",
           source: "linkedin",
           created_at: new Date().toISOString(),
@@ -294,19 +294,6 @@ export default function CandidateDetails({ candidate }: CandidateDetailsProps) {
     return acc
   }, {} as Record<string, CandidateSkill[]>)
 
-  // Get badge color based on proficiency level (same as job-details-dialog)
-  const getBadgeClassName = (proficiencyLevel: string | null) => {
-    switch (proficiencyLevel) {
-      case "expert":
-        return "bg-black text-white border-black hover:bg-gray-800"
-      case "advanced":
-        return "bg-gray-500 text-white border-gray-500 hover:bg-gray-600"
-      case "beginner":
-        return "bg-gray-300 text-gray-700 border-gray-300 hover:bg-gray-400"
-      default:
-        return "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-    }
-  }
 
   return (
     <div className="space-y-6">
@@ -624,15 +611,12 @@ export default function CandidateDetails({ candidate }: CandidateDetailsProps) {
                       <Label className="text-sm font-medium">{skillType}</Label>
                       <div className="flex flex-wrap gap-2">
                         {skillsInType.map((skill) => (
-                          <Badge 
-                            key={skill.id} 
-                            className={cn(
-                              "border",
-                              getBadgeClassName(skill.proficiency_level)
-                            )}
-                          >
-                            {skill.skill}
-                          </Badge>
+                          <SkillBadge 
+                            key={skill.id}
+                            skill={skill.skill}
+                            level={skill.proficiency_level as "beginner" | "advanced" | "expert" | null}
+                            type={skill.type as "technical_skill" | "soft_skill" | "role" | "certification" | "technology_domain" | "industry"}
+                          />
                         ))}
                       </div>
                     </div>

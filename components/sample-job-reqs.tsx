@@ -4,10 +4,9 @@ import { useState } from "react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { SkillBadge } from "@/components/ui/skill-badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { X, Plus } from "lucide-react"
-import { cn } from "@/lib/utils"
 
 interface Requirement {
   requirement: string
@@ -33,11 +32,6 @@ const REQUIREMENT_TYPES = [
   { name: "technology_domain", display_name: "Technology domain" }
 ]
 
-const PROFICIENCY_LEVELS = [
-  { name: "expert", display_name: "Expert" },
-  { name: "advanced", display_name: "Advanced" },
-  { name: "beginner", display_name: "Beginner" }
-]
 
 export default function RequirementsSection({ requirements, isEditMode, onChange }: RequirementsSectionProps) {
   const [newRequirements, setNewRequirements] = useState("")
@@ -50,19 +44,6 @@ export default function RequirementsSection({ requirements, isEditMode, onChange
     requirements: requirements.filter(req => req.type === type.name)
   })).filter(group => group.requirements.length > 0)
 
-  // Get badge color based on proficiency level
-  const getBadgeClassName = (proficiencyLevel: string | null) => {
-    switch (proficiencyLevel) {
-      case "expert":
-        return "bg-black text-white border-black hover:bg-gray-800"
-      case "advanced":
-        return "bg-gray-500 text-white border-gray-500 hover:bg-gray-600"
-      case "beginner":
-        return "bg-gray-300 text-gray-700 border-gray-300 hover:bg-gray-400"
-      default:
-        return "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-    }
-  }
 
   const handleDeleteRequirement = (index: number) => {
     const newRequirements = requirements.filter((_, i) => i !== index)
@@ -101,10 +82,6 @@ export default function RequirementsSection({ requirements, isEditMode, onChange
   }
 
 
-  const getProficiencyDisplayName = (proficiency: string | null) => {
-    if (!proficiency) return "No level"
-    return PROFICIENCY_LEVELS.find(level => level.name === proficiency)?.display_name || proficiency
-  }
 
   return (
     <div className="space-y-6">
@@ -119,18 +96,12 @@ export default function RequirementsSection({ requirements, isEditMode, onChange
                 <div key={reqIndex} className="relative group">
                   {isEditMode ? (
                     <div className="relative inline-block">
-                      <Badge
-                        className={cn(
-                          "border cursor-pointer pr-8",
-                          getBadgeClassName(req.proficiency_level)
-                        )}
-                        onClick={(e) => {
-                          e.preventDefault()
-                          // We'll handle the click to open the select
-                        }}
-                      >
-                        {req.requirement}
-                      </Badge>
+                      <SkillBadge
+                        skill={req.requirement}
+                        level={req.proficiency_level as "beginner" | "advanced" | "expert" | null}
+                        type={req.type as "technical_skill" | "soft_skill" | "role" | "certification" | "technology_domain" | "industry"}
+                        className="cursor-pointer pr-8"
+                      />
                       <Select
                         value={req.proficiency_level || "null"}
                         onValueChange={(value) => handleChangeProficiency(reqIndex, value === "null" ? null : value)}
@@ -156,15 +127,11 @@ export default function RequirementsSection({ requirements, isEditMode, onChange
                       </button>
                     </div>
                   ) : (
-                    <Badge
-                      className={cn(
-                        "border",
-                        getBadgeClassName(req.proficiency_level)
-                      )}
-                      title={`${req.requirement} - ${getProficiencyDisplayName(req.proficiency_level)}`}
-                    >
-                      {req.requirement}
-                    </Badge>
+                    <SkillBadge
+                      skill={req.requirement}
+                      level={req.proficiency_level as "beginner" | "advanced" | "expert" | null}
+                      type={req.type as "technical_skill" | "soft_skill" | "role" | "certification" | "technology_domain" | "industry"}
+                    />
                   )}
                 </div>
               )
