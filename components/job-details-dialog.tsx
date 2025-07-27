@@ -125,6 +125,8 @@ export default function JobDetailsDialog({ open, onOpenChange, jobData }: JobDet
   // Initialize data from jobData prop
   useEffect(() => {
     if (jobData) {
+      console.log("JobDetailsDialog received jobData:", jobData)
+      
       const initialData = {
         title: jobData.title || "",
         companyName: jobData.companyName || "",
@@ -141,10 +143,12 @@ export default function JobDetailsDialog({ open, onOpenChange, jobData }: JobDet
       
       // Initialize attributes and requirements if available
       if (jobData.attributes) {
+        console.log("Setting attributes data:", jobData.attributes)
         setAttributesData(jobData.attributes)
         setOriginalAttributesData(jobData.attributes)
       }
       if (jobData.requirements) {
+        console.log("Setting requirements data:", jobData.requirements)
         setRequirementsData(jobData.requirements)
         setOriginalRequirementsData(jobData.requirements)
       }

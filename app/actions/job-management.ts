@@ -177,7 +177,9 @@ export async function getJobData(jobId: string) {
       return null
     }
 
-    return {
+    console.log("Raw job data from database:", jobData)
+
+    const formattedData = {
       id: jobData.id,
       title: jobData.title,
       companyId: jobData.company_id,
@@ -204,6 +206,10 @@ export async function getJobData(jobId: string) {
       // Add requirements for Role Analysis
       requirements: jobData.job_requirements || []
     }
+
+    console.log("Formatted job data being returned:", formattedData)
+    
+    return formattedData
     
   } catch (error) {
     console.error("Job fetch error:", error)
@@ -249,14 +255,15 @@ export async function updateJobRoleAnalysis(
 
     // Start a transaction-like operation
     // First, update job attributes
+    // Convert empty strings to null for fields that reference lookup tables
     const { error: jobUpdateError } = await supabase
       .from("jobs")
       .update({
         rate: data.attributes.rate.value,
-        pay_freq: data.attributes.rate.freq,
-        commitment: data.attributes.commitment,
-        duration: data.attributes.duration,
-        location_reqs: data.attributes.location.category,
+        pay_freq: data.attributes.rate.freq || null,
+        commitment: data.attributes.commitment || null,
+        duration: data.attributes.duration || null,
+        location_reqs: data.attributes.location.category || null,
         regions: data.attributes.location.regions,
         countries: data.attributes.location.countries,
         updated_at: new Date().toISOString()
