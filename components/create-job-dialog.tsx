@@ -354,9 +354,8 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
         location: data.attributes.location || { category: "", regions: [], countries: [] }
       }
       
-      // Fix: Access nested requirements array
-      const rawRequirements = data.requirements?.requirements || data.requirements || []
-      const processedRequirements = Array.isArray(rawRequirements) ? rawRequirements : []
+      // Process requirements array (now flat structure from API)
+      const processedRequirements = Array.isArray(data.requirements) ? data.requirements : []
       
       setAttributesData(processedAttributes)
       setRequirementsData(processedRequirements)

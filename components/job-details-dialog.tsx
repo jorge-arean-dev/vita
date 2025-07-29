@@ -16,6 +16,7 @@ import AttributesSection from "@/components/sample-job-attributes"
 import RequirementsSection from "@/components/requirements-section"
 import { updateJobBasicInfo, updateJobRoleAnalysis } from "@/app/actions/job-management"
 import { useToast } from "@/components/ui/use-toast"
+import { createClient } from "@/lib/supabase/client"
 
 interface JobDetailsDialogProps {
   open: boolean
@@ -325,87 +326,99 @@ export default function JobDetailsDialog({ open, onOpenChange, jobData }: JobDet
     setIsGenerating(true)
     
     try {
-      // Simulate API call using database values (not form values)
-      console.log("Generating from database values:", {
-        title: originalFormData.title,
-        companyName: originalFormData.companyName,
-        initialNotes: originalFormData.initialNotes
-      })
+      const supabase = createClient()
       
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // Get the company details for the API call
+      const company = mockCompanies.find(c => c.name === originalFormData.companyName)
       
-      // Mock API response
-      const mockResponse = {
-        attributes: {
-          rate: {
-            value: 50,
-            freq: "hourly"
-          },
-          commitment: "full_time",
-          duration: "permanent",
-          location: {
-            category: "remote_region_specific",
-            regions: ["south_america"],
-            countries: []
-          }
-        },
-        requirements: [
-          {
-            requirement: "React.js",
-            type: "technical_skill",
-            is_mandatory: true,
-            proficiency_level: "expert" as const,
-            weight: 1
-          },
-          {
-            requirement: "Node.js",
-            type: "technical_skill",
-            is_mandatory: true,
-            proficiency_level: "advanced" as const,
-            weight: 0.75
-          },
-          {
-            requirement: "PostgreSQL",
-            type: "technical_skill",
-            is_mandatory: true,
-            proficiency_level: "advanced" as const,
-            weight: 0.75
-          },
-          {
-            requirement: "TypeScript",
-            type: "technical_skill",
-            is_mandatory: true,
-            proficiency_level: "expert" as const,
-            weight: 1
-          },
-          {
-            requirement: "Communication",
-            type: "soft_skill",
-            is_mandatory: true,
-            proficiency_level: null,
-            weight: 0.75
-          },
-          {
-            requirement: "Team collaboration",
-            type: "soft_skill",
-            is_mandatory: true,
-            proficiency_level: null,
-            weight: 0.75
-          }
-        ]
+      // Call the job-details-extractor API
+      const requestBody = {
+        content: originalFormData.initialNotes,
+        company_name: originalFormData.companyName,
+        industry: company?.industry || '',
+        culture: '' // Company culture not available in mock data
       }
       
-      setAttributesData(mockResponse.attributes)
-      setRequirementsData(mockResponse.requirements)
+      console.log("🚀 API Request Body:", requestBody)
+      
+      // Validate required fields
+      if (!originalFormData.initialNotes?.trim()) {
+        throw new Error("Initial notes are required but empty")
+      }
+      if (!originalFormData.companyName?.trim()) {
+        throw new Error("Company name is required but empty")
+      }
+      
+      const { data, error } = await supabase.functions.invoke('job-details-extractor', {
+        body: requestBody
+      })
+
+      console.log("🔴 Raw API Response:", { data, error })
+      
+      if (error) {
+        console.error("🚨 Full API Error Details:", error)
+        
+        // Try to extract the actual error response from the server
+        if (error.context && error.context.status === 500) {
+          try {
+            const errorText = await error.context.text()
+            console.error("🚨 Server Error Response Body:", errorText)
+            
+            // Parse error response for better user messaging
+            try {
+              const errorJson = JSON.parse(errorText)
+              if (errorJson.details?.includes("429 Too Many Requests")) {
+                throw new Error("AI service is temporarily busy due to high demand. Please wait a moment and try again.")
+              }
+              if (errorJson.details?.includes("OpenAI API error")) {
+                throw new Error(`AI service error: ${errorJson.details}. Please try again in a few minutes.`)
+              }
+            } catch {
+              // If we can't parse, fall back to generic message
+            }
+          } catch (textError) {
+            console.error("🚨 Could not read error response body:", textError)
+          }
+        }
+        
+        throw new Error(error.message || "Failed to extract job details")
+      }
+
+      if (!data) {
+        throw new Error("No data returned from API")
+      }
+
+      console.log("🔍 Full API Response:", JSON.stringify(data, null, 2))
+      
+      // Process the API response
+      const processedAttributes = {
+        rate: {
+          value: data.attributes.rate?.value || null,
+          freq: data.attributes.rate?.freq || "hourly"
+        },
+        commitment: data.attributes.commitment || "",
+        duration: data.attributes.duration || "",
+        location: data.attributes.location || { category: "", regions: [], countries: [] }
+      }
+      
+      // Process requirements array (now flat structure from API)
+      const processedRequirements = Array.isArray(data.requirements) ? data.requirements : []
+      
+      setAttributesData(processedAttributes)
+      setRequirementsData(processedRequirements)
       
       // Auto-enter edit mode after generation
-      setOriginalAttributesData({ ...attributesData })
-      setOriginalRequirementsData([...requirementsData])
+      setOriginalAttributesData(processedAttributes)
+      setOriginalRequirementsData(processedRequirements)
       setIsRoleAnalysisEditMode(true)
       
     } catch (error) {
-      console.error("Generation error:", error)
-      // TODO: Show error toast
+      console.error("Error generating content:", error)
+      toast({
+        title: "Generation Failed",
+        description: error instanceof Error ? error.message : 'Unknown error',
+        variant: "destructive"
+      })
     } finally {
       setIsGenerating(false)
     }

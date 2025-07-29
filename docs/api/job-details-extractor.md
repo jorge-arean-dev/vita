@@ -1,7 +1,7 @@
 # Job Details Extractor API Integration Documentation
 
 ## Overview
-This API endpoint extracts and structures job details from job descriptions and hiring requirements using AI. It analyzes job content to identify role attributes, compensation details, location requirements, and comprehensive skill requirements with proficiency levels and importance weights.
+This API endpoint extracts and structures job details from job descriptions and hiring requirements using AI. It analyzes job content to identify role attributes, compensation details, location requirements, and comprehensive skill requirements with proficiency levels and importance weights. This enhanced version uses GPT-4o for improved accuracy and cultural awareness.
 
 ## API Details
 
@@ -32,10 +32,10 @@ This API endpoint extracts and structures job details from job descriptions and 
 ### Input Example
 ```json
 {
-  "content": "We need a Senior Full Stack Developer with 4+ years experience in React and Node.js. Must have AWS experience and strong problem-solving skills. The position offers $110,000-130,000 annually with remote work flexibility within Europe. Looking for someone who can mentor junior developers and work in agile teams.",
-  "company_name": "InnovaTech Solutions",
-  "industry": "Technology",
-  "culture": "Collaborative environment that values innovation, continuous learning, and work-life balance. We encourage mentorship and team collaboration in a fast-paced agile setting."
+  "content": "python developer.",
+  "company_name": "Lower",
+  "industry": "Financial Services",
+  "culture": "fast paced environment, resilience, incluison"
 }
 ```
 
@@ -53,28 +53,26 @@ This API endpoint extracts and structures job details from job descriptions and 
   "attributes": {
     "title": "string",
     "rate": {
-      "value": "number | string (may be empty)",
-      "freq": "hourly | weekly | monthly | string (may be empty)"
+      "value": "number | null",
+      "freq": "string (hourly | weekly | monthly)"
     },
-    "commitment": "full_time | part_time | hourly | string (may be empty)",
-    "duration": "2_4_weeks | 4_8_weeks | 3_6_months | 6_12_months | 12_plus_months | permanent",
+    "commitment": "string (full_time | part_time | hourly)",
+    "duration": "string (2_4_weeks | 4_8_weeks | 3_6_months | 6_12_months | 12_plus_months | permanent)",
     "location": {
-      "category": "remote_global | remote_region_specific | remote_country_specific | hybrid | on_site",
+      "category": "string (remote_global | remote_region_specific | remote_country_specific | hybrid | on_site)",
       "regions": ["string (region codes)"],
       "countries": ["string (ISO country codes)"]
     }
   },
-  "requirements": {
-    "requirements": [
-      {
-        "requirement": "string",
-        "type": "technical_skill | technology_domain | soft_skill | role | certification | industry",
-        "is_mandatory": "boolean",
-        "proficiency_level": "beginner | advanced | expert | null",
-        "weight": "number (0.00-1.00)"
-      }
-    ]
-  }
+  "requirements": [
+    {
+      "requirement": "string",
+      "type": "string (technical_skill | technology_domain | soft_skill | role | certification | industry)",
+      "is_mandatory": "boolean",
+      "proficiency_level": "string (beginner | advanced | expert) | null",
+      "weight": "number (0.00-1.00)"
+    }
+  ]
 }
 ```
 
@@ -82,103 +80,63 @@ This API endpoint extracts and structures job details from job descriptions and 
 ```json
 {
   "attributes": {
-    "title": "Senior Full Stack Developer",
+    "title": "Python Developer",
     "rate": {
-      "value": 120000,
-      "freq": "monthly"
-    },
-    "commitment": "full_time",
-    "duration": "permanent",
-    "location": {
-      "category": "remote_region_specific",
-      "regions": ["europe"],
-      "countries": []
-    }
-  },
-  "requirements": {
-    "requirements": [
-      {
-        "requirement": "React",
-        "type": "technical_skill",
-        "is_mandatory": true,
-        "proficiency_level": "advanced",
-        "weight": 1.00
-      },
-      {
-        "requirement": "Node.js",
-        "type": "technical_skill",
-        "is_mandatory": true,
-        "proficiency_level": "advanced",
-        "weight": 1.00
-      },
-      {
-        "requirement": "AWS",
-        "type": "technical_skill",
-        "is_mandatory": true,
-        "proficiency_level": "advanced",
-        "weight": 0.75
-      },
-      {
-        "requirement": "Problem Solving",
-        "type": "soft_skill",
-        "is_mandatory": true,
-        "proficiency_level": null,
-        "weight": 0.50
-      },
-      {
-        "requirement": "Mentoring",
-        "type": "soft_skill",
-        "is_mandatory": true,
-        "proficiency_level": null,
-        "weight": 0.75
-      },
-      {
-        "requirement": "Teamwork",
-        "type": "soft_skill",
-        "is_mandatory": true,
-        "proficiency_level": null,
-        "weight": 0.75
-      }
-    ]
-  }
-}
-```
-
-### Response Example with Empty Values
-```json
-{
-  "attributes": {
-    "title": "eCommerce Developer",
-    "rate": {
-      "value": "",
+      "value": null,
       "freq": ""
     },
     "commitment": "",
-    "duration": "4_8_weeks",
+    "duration": "",
     "location": {
       "category": "remote_global",
       "regions": [],
       "countries": []
     }
   },
-  "requirements": {
-    "requirements": [
-      {
-        "requirement": "React",
-        "type": "technical_skill",
-        "is_mandatory": true,
-        "proficiency_level": "advanced",
-        "weight": 1
-      },
-      {
-        "requirement": "Teamwork",
-        "type": "soft_skill",
-        "is_mandatory": true,
-        "proficiency_level": null,
-        "weight": 0.75
-      }
-    ]
-  }
+  "requirements": [
+    {
+      "requirement": "Python",
+      "type": "technical_skill",
+      "is_mandatory": true,
+      "proficiency_level": "advanced",
+      "weight": 0.75
+    },
+    {
+      "requirement": "Financial Services",
+      "type": "industry",
+      "is_mandatory": true,
+      "proficiency_level": "advanced",
+      "weight": 0.5
+    },
+    {
+      "requirement": "Adaptability",
+      "type": "soft_skill",
+      "is_mandatory": true,
+      "proficiency_level": null,
+      "weight": 0.75
+    },
+    {
+      "requirement": "Time Management",
+      "type": "soft_skill",
+      "is_mandatory": true,
+      "proficiency_level": null,
+      "weight": 0.75
+    },
+    {
+      "requirement": "Resilience",
+      "type": "soft_skill",
+      "is_mandatory": true,
+      "proficiency_level": null,
+      "weight": 1.0
+    },
+    {
+      "requirement": "Inclusion",
+      "type": "soft_skill",
+      "is_mandatory": true,
+      "proficiency_level": null,
+      "weight": 0.5
+    }
+  ]
 }
 ```
 
@@ -213,24 +171,23 @@ This API endpoint extracts and structures job details from job descriptions and 
 ## Data Structure Details
 
 ### Job Attributes Object
-- **title**: Job position title (AI-generated if not provided)
+- **title**: Job position title (AI-generated from content)
 - **rate**: Compensation information with value and payment frequency
 - **commitment**: Employment type classification
 - **duration**: Project/contract duration or permanent position
 - **location**: Work arrangement with geographic specifications
 
 ### Rate Object
-- **value**: Numerical salary/hourly rate amount (may be empty string if not determinable)
-- **freq**: Payment frequency (hourly, weekly, monthly) (may be empty string if not determinable)
-- May contain empty values when compensation information cannot be extracted from input
+- **value**: Numerical salary/hourly rate amount (null if not specified)
+- **freq**: Payment frequency (empty string if not specified)
 
 ### Location Object
-- **category**: Work arrangement type
-- **regions**: Allowed geographic regions (array)
-- **countries**: Allowed countries as ISO codes (array)
+- **category**: Work arrangement type (defaults to "remote_global" if not specified)
+- **regions**: Allowed geographic regions (empty array for global/country-specific)
+- **countries**: Allowed countries as ISO codes (empty array for global/region-specific)
 
 ### Location Categories
-- **remote_global**: 100% remote, worldwide
+- **remote_global**: 100% remote, worldwide access
 - **remote_region_specific**: Remote within specific regions
 - **remote_country_specific**: Remote within specific countries
 - **hybrid**: Mix of remote and office work
@@ -242,38 +199,27 @@ This API endpoint extracts and structures job details from job descriptions and 
 - africa, middle_east, oceania
 - americas, asia, europe
 
-### Requirements Object Structure
-The requirements are returned as a nested object:
-```json
-{
-  "requirements": {
-    "requirements": [
-      // Array of requirement objects
-    ]
-  }
-}
-```
-
+### Requirements Array Structure
 Each requirement object contains:
 - **requirement**: Skill or qualification name (Title Case)
 - **type**: Skill category classification
 - **is_mandatory**: Required vs. preferred (boolean)
-- **proficiency_level**: Expected skill level (may be null for soft skills)
+- **proficiency_level**: Expected skill level (null for soft_skill and certification types)
 - **weight**: Importance score (0.00-1.00)
 
 ### Skill Type Classifications
-- **technical_skill**: Programming languages, frameworks, tools (React, AWS, JavaScript)
-- **technology_domain**: Broad technical areas (Machine Learning, Data Engineering, DevOps)
-- **soft_skill**: Interpersonal skills (Communication, Leadership, Problem Solving)
+- **technical_skill**: Programming languages, frameworks, tools (Python, React, AWS)
+- **technology_domain**: Broad technical areas (Machine Learning, Data Engineering)
+- **soft_skill**: Interpersonal skills (Adaptability, Time Management, Resilience)
 - **role**: Job titles/functions (Software Architect, Team Lead)
 - **certification**: Official credentials (AWS Solutions Architect, PMP)
-- **industry**: Sector experience (Banking, Healthcare, Finance)
+- **industry**: Sector experience (Financial Services, Healthcare, Banking)
 
 ### Proficiency Level Guidelines
 - **beginner**: 0-2 years experience (0 < yoe ≤ 2.0)
 - **advanced**: 2-5 years experience (2.0 < yoe ≤ 5.0)
 - **expert**: 5+ years experience (yoe > 5.0)
-- **Note**: Soft skills and certifications use contextual proficiency assessment
+- **null**: Always used for soft_skill and certification types
 
 ### Weight Scale System
 - **1.00**: Critical/Must-have requirement
@@ -281,6 +227,25 @@ Each requirement object contains:
 - **0.50**: Medium importance (default)
 - **0.25**: Low importance
 - **0.10**: Optional/Nice-to-have
+
+## Cultural Intelligence Features
+
+### Culture-Driven Soft Skills Detection
+The API analyzes company culture descriptions to extract relevant soft skills:
+
+**Culture Keywords → Soft Skills Mapping:**
+- "fast paced" → Adaptability, Time Management
+- "resilience" → Resilience
+- "team work" → Teamwork, Collaboration
+- "low ego" → Collaboration, Teamwork
+- "innovation" → Creative Thinking, Innovation
+- "inclusion" → Inclusion (custom soft skill)
+- "continuous learning" → Continuous Learning
+
+### Enhanced Analysis
+- **Contextual Understanding**: Interprets culture descriptions beyond exact keyword matching
+- **Priority Weighting**: Assigns higher weights to culture-emphasized skills
+- **Comprehensive Coverage**: Extracts both explicit and implicit cultural requirements
 
 ## Integration Guide for Vita App
 
@@ -363,7 +328,7 @@ async function handleJobDetailsExtraction(jobInput) {
     setJobTitle(extractedDetails.attributes.title);
     setSalaryInfo(extractedDetails.attributes.rate);
     setLocationRequirements(extractedDetails.attributes.location);
-    setSkillRequirements(extractedDetails.requirements.requirements || []);
+    setSkillRequirements(extractedDetails.requirements);
     
     // Store extracted data for review
     setExtractedData(extractedDetails);
@@ -378,11 +343,16 @@ async function handleJobDetailsExtraction(jobInput) {
 
 ### Integration with Job Creation Flow
 ```javascript
-// Complete job creation workflow
-async function createJobWithExtraction(jobInput) {
+// Complete job creation workflow with culture analysis
+async function createJobWithCulturalAnalysis(jobInput) {
   try {
-    // Step 1: Extract job details
-    const extractedDetails = await extractJobDetails(jobInput);
+    // Step 1: Extract job details with cultural intelligence
+    const extractedDetails = await extractJobDetails({
+      content: jobInput.description,
+      companyName: jobInput.company,
+      industry: jobInput.industry,
+      culture: jobInput.culture
+    });
     
     // Step 2: Save job with extracted attributes
     const { data: job, error: jobError } = await supabase
@@ -391,9 +361,9 @@ async function createJobWithExtraction(jobInput) {
         title: extractedDetails.attributes.title,
         company_id: jobInput.companyId,
         rate_value: extractedDetails.attributes.rate?.value,
-        rate_frequency: extractedDetails.attributes.rate?.freq,
-        commitment: extractedDetails.attributes.commitment,
-        duration: extractedDetails.attributes.duration,
+        rate_frequency: extractedDetails.attributes.rate?.freq || null,
+        commitment: extractedDetails.attributes.commitment || null,
+        duration: extractedDetails.attributes.duration || null,
         location_category: extractedDetails.attributes.location?.category,
         location_regions: extractedDetails.attributes.location?.regions,
         location_countries: extractedDetails.attributes.location?.countries,
@@ -405,11 +375,10 @@ async function createJobWithExtraction(jobInput) {
     if (jobError) throw jobError;
     
     // Step 3: Save extracted requirements
-    const requirements = extractedDetails.requirements.requirements || []
     const { error: reqError } = await supabase
       .from('job_requirements')
       .insert(
-        requirements.map(req => ({
+        extractedDetails.requirements.map(req => ({
           job_id: job.id,
           requirement: req.requirement,
           type: req.type,
@@ -428,21 +397,24 @@ async function createJobWithExtraction(jobInput) {
 }
 ```
 
-### Culture-Enhanced Extraction
+### Culture-Enhanced Extraction Patterns
 ```javascript
-// Leverage company culture for better soft skills extraction
-async function extractJobDetailsWithCulture(jobDescription, companyInfo) {
-  const culturePrompts = {
-    startup: "Fast-paced, innovative environment with emphasis on adaptability and initiative",
-    enterprise: "Structured environment focusing on collaboration, process adherence, and stakeholder management",
-    consulting: "Client-focused culture emphasizing communication, problem-solving, and relationship building"
-  };
+// Leverage different culture types for enhanced extraction
+const culturePatterns = {
+  startup: "Fast-paced, innovative, adaptable, resilient, low ego, collaborative environment",
+  enterprise: "Structured, process-oriented, stakeholder management, cross-functional collaboration",
+  consulting: "Client-focused, communication, problem-solving, relationship building, analytical thinking",
+  financial: "Risk management, attention to detail, compliance, analytical thinking, time management"
+};
+
+async function extractWithIndustryContext(jobDescription, companyInfo) {
+  const enhancedCulture = companyInfo.culture || culturePatterns[companyInfo.sector] || '';
   
   return await extractJobDetails({
     content: jobDescription,
     companyName: companyInfo.name,
     industry: companyInfo.industry,
-    culture: companyInfo.culture || culturePrompts[companyInfo.type] || ''
+    culture: enhancedCulture
   });
 }
 ```
@@ -485,37 +457,36 @@ function getJobExtractionErrorMessage(error) {
 ## Usage in Vita App Context
 
 ### Integration Points
-1. **Job Creation Workflow**: Extract structured data from raw job descriptions
-2. **Client Notes Processing**: Convert unstructured hiring requirements into actionable data
-3. **Requirement Analysis**: Identify and categorize all job requirements automatically
-4. **Compensation Intelligence**: Parse salary/rate information with frequency detection
-5. **Location Processing**: Understand remote work policies and geographic constraints
-6. **Culture Integration**: Enhance soft skills detection using company culture context
+1. **Job Creation Workflow**: Extract structured data from minimal job descriptions
+2. **Client Notes Processing**: Convert brief hiring requirements into comprehensive data
+3. **Cultural Requirement Analysis**: Identify culture-specific soft skill requirements
+4. **Industry Intelligence**: Apply industry context to requirement extraction
+5. **Requirement Prioritization**: Assign importance weights based on content emphasis
+6. **Default Value Handling**: Provide sensible defaults for missing information
 
 ### User Experience Flow
-1. User enters job description or client call notes
-2. User provides company information and optional culture details
+1. User enters basic job description and company information
+2. User optionally provides company culture details
 3. App calls job-details-extractor API for AI analysis
-4. Display loading state during processing (10-30 seconds)
+4. Display loading state during processing (5-15 seconds for GPT-4o)
 5. Show extracted job attributes and requirements for review and editing
 6. Allow user to modify AI-extracted information before saving
 7. Save structured job data for candidate matching and analysis
 
-### Data Processing Features
-- **Intelligent Content Analysis**: Understands various job description formats
-- **Culture-Aware Extraction**: Uses company culture to identify relevant soft skills
-- **Compensation Parsing**: Extracts salary ranges with frequency detection
-- **Location Intelligence**: Handles complex remote work arrangements
-- **Requirement Prioritization**: Assigns importance weights based on content emphasis
-- **Skill Classification**: Categorizes requirements into 6 distinct types
-- **Proficiency Assessment**: Determines expected skill levels from context
+### Advanced Features
+- **Minimal Input Processing**: Works effectively with brief job descriptions
+- **Cultural Intelligence**: Extracts soft skills from culture descriptions
+- **Industry Awareness**: Applies industry context to requirement analysis
+- **Smart Defaults**: Provides logical defaults for missing attributes
+- **Flexible Output**: Handles varying levels of input detail gracefully
 
 ## Performance Considerations
-- AI processing typically takes 10-30 seconds for complex job descriptions
-- Uses GPT-4 model for high-quality, nuanced analysis
+- AI processing typically takes 5-15 seconds with GPT-4o model
+- Enhanced accuracy and cultural understanding compared to GPT-4
 - Requires OpenAI API key configuration in Supabase environment
 - Temperature set to 0.2 for consistent, focused extraction results
+- Maximum 1500 tokens for optimal response speed and cost efficiency
 - Implements robust JSON cleaning and validation for reliable parsing
 - Supabase authentication required for secure access
 - Memory efficient with optimized prompt engineering
-- Handles various input formats and job description styles
+- Handles minimal input gracefully while providing comprehensive output
