@@ -2,8 +2,15 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { MoreVertical, Trash2 } from "lucide-react"
 import { JobBreadcrumb } from "@/components/job-breadcrumb"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import JobDetailsDialog from "@/components/job-details-dialog"
 import { deleteJob } from "@/app/actions/jobs"
@@ -80,7 +87,22 @@ export default function JobLayout({ jobId, jobData, children }: JobLayoutProps) 
             <p className="text-xl text-muted-foreground">{jobData.companyName}</p>
             <div className="flex items-center gap-2">
               <Button variant="secondary" onClick={() => setIsJobDetailsOpen(true)}>Job Details</Button>
-              <Button variant="destructive" onClick={() => setIsDeleteDialogOpen(true)}>Delete Job</Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => setIsDeleteDialogOpen(true)}
+                    className="text-destructive focus:text-destructive cursor-pointer"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>

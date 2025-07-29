@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { Suspense } from "react"
 import JobDescriptionBuilder from "@/components/job-description-builder"
-import { getJobData } from "@/app/actions/job-management"
+import { getJobData, getJobDescriptions } from "@/app/actions/job-management"
 import { Skeleton } from "@/components/ui/skeleton"
 
 interface JobDescriptionBuilderPageProps {
@@ -66,12 +66,15 @@ export default async function JobDescriptionBuilderPage({ params }: JobDescripti
  * Container component that fetches job data and renders the Job Description Builder
  */
 async function JobDescriptionBuilderContainer({ jobId }: { jobId: string }) {
-  // Fetch job data
-  const jobData = await getJobData(jobId)
+  // Fetch job data and existing descriptions in parallel
+  const [jobData, existingDescriptions] = await Promise.all([
+    getJobData(jobId),
+    getJobDescriptions(jobId)
+  ])
 
   if (!jobData) {
     redirect("/protected/jobs")
   }
 
-  return <JobDescriptionBuilder />
+  return <JobDescriptionBuilder jobData={jobData} existingDescriptions={existingDescriptions} />
 }
