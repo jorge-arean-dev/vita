@@ -103,3 +103,87 @@ export async function deleteJob(jobId: string): Promise<void> {
   // Revalidate the jobs page to reflect the changes
   revalidatePath("/protected/jobs")
 }
+
+// Interface for job data needed for LinkedIn query generation
+export interface JobForLinkedInQuery {
+  id: string
+  title: string
+  location_reqs: string | null
+  regions: string[] | null
+  countries: string[] | null
+  job_requirements: {
+    requirement: string
+    type: string
+    is_mandatory: boolean
+    proficiency_level: string | null
+  }[]
+}
+
+// Get job data with requirements for LinkedIn query generation
+export async function getJobForLinkedInQuery(jobId: string): Promise<JobForLinkedInQuery> {
+  console.log('=== getJobForLinkedInQuery START ===')
+  console.log('jobId parameter:', jobId)
+  
+  const supabase = await createClient()
+  console.log('Supabase client created')
+  
+  // Get the current user
+  const { data: { user } } = await supabase.auth.getUser()
+  console.log('User:', user?.id || 'not authenticated')
+  
+  if (!user) {
+    throw new Error("User not authenticated")
+  }
+
+  console.log('Fetching job data for LinkedIn query generation, jobId:', jobId)
+  
+  // First, let's try to fetch just the job data to see if that works
+  const { data: jobOnly, error: jobError } = await supabase
+    .from("jobs")
+    .select(`
+      id,
+      title,
+      location_reqs,
+      regions,
+      countries
+    `)
+    .eq("id", jobId)
+    .eq("user_id", user.id)
+    .single()
+    
+  console.log('Job only query result:', { jobOnly, jobError })
+  
+  if (jobError) {
+    throw new Error(`Failed to fetch job data: ${jobError.message}`)
+  }
+  
+  if (!jobOnly) {
+    throw new Error("Job not found or access denied")
+  }
+  
+  // Now fetch requirements separately
+  const { data: requirements, error: reqError } = await supabase
+    .from("job_requirements")
+    .select(`
+      requirement,
+      type,
+      is_mandatory,
+      proficiency_level
+    `)
+    .eq("job_id", jobId)
+    
+  console.log('Requirements query result:', { requirements, reqError })
+  
+  if (reqError) {
+    console.error('Error fetching requirements:', reqError)
+    // Don't throw error - continue with empty requirements
+  }
+  
+  // Combine the data
+  const job = {
+    ...jobOnly,
+    job_requirements: requirements || []
+  }
+
+  return job as JobForLinkedInQuery
+}
