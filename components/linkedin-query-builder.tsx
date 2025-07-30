@@ -210,8 +210,11 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
       setShowGenerationBanner(false)
       setOriginalEditingData(null)
       
-      // TODO: Show success toast
-      console.log("LinkedIn queries saved successfully")
+      // Show success toast
+      toast({
+        title: "Success",
+        description: "LinkedIn queries saved successfully.",
+      })
       
     } catch (error) {
       console.error("Error saving LinkedIn queries:", error)
