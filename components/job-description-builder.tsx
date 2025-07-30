@@ -61,19 +61,72 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
   const [unsavedChanges, setUnsavedChanges] = useState<Set<string>>(new Set())
   const [mounted, setMounted] = useState(false)
   const { toast } = useToast()
+  
+  // Storage key for expanded states
+  const expandedStateKey = jobData?.id ? `job-desc-expanded-${jobData.id}` : null
 
 
-  // Initialize after mount to prevent hydration mismatch
+  // Initialize only once on mount
   useEffect(() => {
     setMounted(true)
+    // Try to restore expanded states from sessionStorage
+    let savedExpandedStates: { [key: string]: boolean } = {}
+    if (expandedStateKey && typeof window !== 'undefined') {
+      try {
+        const saved = sessionStorage.getItem(expandedStateKey)
+        if (saved) {
+          savedExpandedStates = JSON.parse(saved)
+        }
+      } catch (e) {
+        console.error('Error loading expanded states:', e)
+      }
+    }
+    
     // Initialize with existing descriptions
     const descriptionsWithState = existingDescriptions.map(desc => ({
       ...desc,
-      isExpanded: false,
+      isExpanded: savedExpandedStates[desc.id] ?? false,
       isEditing: false
     }))
     setJobDescriptions(descriptionsWithState)
-  }, [existingDescriptions])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Empty dependency array - only run once on mount
+  
+  // Update job descriptions when existingDescriptions changes, but preserve expanded state
+  useEffect(() => {
+    if (!mounted) return
+    
+    setJobDescriptions(prev => {
+      // Create a map of current expanded states
+      const expandedStates = new Map(prev.map(jd => [jd.id, jd.isExpanded]))
+      const editingStates = new Map(prev.map(jd => [jd.id, jd.isEditing]))
+      
+      // Map new descriptions with preserved states
+      return existingDescriptions.map(desc => ({
+        ...desc,
+        isExpanded: expandedStates.get(desc.id) ?? false,
+        isEditing: editingStates.get(desc.id) ?? false
+      }))
+    })
+  }, [existingDescriptions, mounted])
+
+  // Save expanded states to sessionStorage whenever they change
+  useEffect(() => {
+    if (!expandedStateKey || !mounted || typeof window === 'undefined') return
+    
+    const expandedStates: { [key: string]: boolean } = {}
+    jobDescriptions.forEach(jd => {
+      if (jd.isExpanded) {
+        expandedStates[jd.id] = true
+      }
+    })
+    
+    try {
+      sessionStorage.setItem(expandedStateKey, JSON.stringify(expandedStates))
+    } catch (e) {
+      console.error('Error saving expanded states:', e)
+    }
+  }, [jobDescriptions, expandedStateKey, mounted])
 
   // Get next counter for job description title
   const getNextDescriptionCounter = () => {
@@ -114,23 +167,25 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
   }
 
   const handleToggleExpand = (id: string) => {
+    const jobDesc = jobDescriptions.find(jd => jd.id === id)
+    if (!jobDesc) return
+    
     // Check for unsaved changes before collapsing
-    if (unsavedChanges.has(id) && jobDescriptions.find(jd => jd.id === id)?.isExpanded) {
+    if (unsavedChanges.has(id) && jobDesc.isExpanded && jobDesc.isEditing) {
       const confirmed = window.confirm(
         "You have unsaved changes. Are you sure you want to collapse without saving?"
       )
       if (!confirmed) return
     }
 
-    setJobDescriptions(
-      jobDescriptions.map((jd) => 
+    setJobDescriptions(prevDescriptions => 
+      prevDescriptions.map((jd) => 
         jd.id === id ? { ...jd, isExpanded: !jd.isExpanded, isEditing: false } : jd
-      ),
+      )
     )
     
     // Clear editing values and unsaved changes when collapsing
-    const jobDesc = jobDescriptions.find(jd => jd.id === id)
-    if (jobDesc?.isExpanded) {
+    if (jobDesc.isExpanded) {
       if (editingValues[id]) {
         const newEditingValues = { ...editingValues }
         delete newEditingValues[id]
@@ -224,8 +279,15 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
     setIsGenerating({ ...isGenerating, [id]: true })
     
     try {
+      console.log("proceedWithGeneration - jobData:", jobData)
+      
       if (!jobData?.id) {
         console.error("No job data available for generation")
+        toast({
+          title: "Error",
+          description: "No job data available. Please refresh the page.",
+          variant: "destructive",
+        })
         return
       }
 
@@ -257,7 +319,7 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
         // Enter edit mode
         setJobDescriptions(
           jobDescriptions.map((jd) =>
-            jd.id === id ? { ...jd, isEditing: true } : jd
+            jd.id === id ? { ...jd, isEditing: true, isExpanded: true } : jd
           )
         )
         
@@ -292,7 +354,7 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
       })
       // Set editing mode
       setJobDescriptions(
-        jobDescriptions.map((jd) => (jd.id === id ? { ...jd, isEditing: true } : jd))
+        jobDescriptions.map((jd) => (jd.id === id ? { ...jd, isEditing: true, isExpanded: true } : jd))
       )
     }
   }
@@ -327,6 +389,7 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
                     title: editingValue.title,
                     description: editingValue.content,
                     isEditing: false,
+                    isExpanded: jd.isExpanded, // Preserve expanded state
                     updated_at: new Date().toISOString(),
                   }
                 : jd,
@@ -356,6 +419,7 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
                     title: editingValue.title,
                     description: editingValue.content,
                     isEditing: false,
+                    isExpanded: jd.isExpanded, // Preserve expanded state
                     updated_at: new Date().toISOString(),
                   }
                 : jd,
@@ -413,7 +477,7 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
     } else {
       // Cancel editing without saving
       setJobDescriptions(
-        jobDescriptions.map((jd) => (jd.id === id ? { ...jd, isEditing: false } : jd))
+        jobDescriptions.map((jd) => (jd.id === id ? { ...jd, isEditing: false, isExpanded: jd.isExpanded } : jd))
       )
     }
     
@@ -603,7 +667,12 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
                           onClick={() => handleSave(jobDescription.id)}
                           size="sm"
                           className="gap-2"
-                          disabled={isSaving[jobDescription.id] || isGenerating[jobDescription.id]}
+                          disabled={
+                            isSaving[jobDescription.id] || 
+                            isGenerating[jobDescription.id] ||
+                            !editingValues[jobDescription.id]?.title?.trim() ||
+                            !editingValues[jobDescription.id]?.content?.trim()
+                          }
                         >
                           {isSaving[jobDescription.id] ? (
                             <>
@@ -697,7 +766,7 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
                             handleEditingContentChange(jobDescription.id, e.target.value)
                           }
                         }}
-                        className="min-h-[300px] resize-none"
+                        className="min-h-[500px] resize-none"
                         placeholder="Enter job description content or click Generate to create one with AI..."
                         readOnly={!jobDescription.isEditing}
                       />

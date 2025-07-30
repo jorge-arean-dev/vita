@@ -639,50 +639,128 @@ export async function deleteJobDescription(jobDescriptionId: string) {
  */
 export async function generateJobDescription(jobId: string) {
   try {
+    console.log("generateJobDescription called with jobId:", jobId)
+    
     const supabase = await createClient()
     
     // Get the current authenticated user
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     
     if (userError || !user) {
+      console.error("User authentication error:", userError)
       return { success: false, error: "User not authenticated" }
     }
 
-    // Get job data for AI generation
-    const jobData = await getJobData(jobId)
-    if (!jobData) {
+    console.log("Authenticated user:", user.id)
+
+    // First, fetch just the job data
+    const { data: jobData, error: jobError } = await supabase
+      .from("jobs")
+      .select("*")
+      .eq("id", jobId)
+      .eq("user_id", user.id)
+      .single()
+
+    if (jobError || !jobData) {
+      console.error("Error fetching job data:", jobError)
+      console.error("Query details - jobId:", jobId, "userId:", user.id)
       return { success: false, error: "Job not found or access denied" }
     }
 
-    // TODO: Implement actual AI API call
-    // For now, simulate API call with mock data
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    console.log("Fetched job data:", jobData)
+
+    // Fetch company and industry information separately
+    const { data: companyData, error: companyError } = await supabase
+      .from("companies")
+      .select(`
+        name,
+        industry_id,
+        industries (
+          display_name
+        )
+      `)
+      .eq("id", jobData.company_id)
+      .single()
+
+    if (companyError) {
+      console.error("Error fetching company data:", companyError)
+      return { success: false, error: "Failed to fetch company information" }
+    }
+
+    console.log("Fetched company data:", companyData)
+
+    // Fetch job requirements
+    const { data: requirements, error: reqError } = await supabase
+      .from("job_requirements")
+      .select("*")
+      .eq("job_id", jobId)
+      .order("is_mandatory", { ascending: false })
+      .order("weight", { ascending: false })
+
+    if (reqError) {
+      console.error("Error fetching job requirements:", reqError)
+      return { success: false, error: "Failed to fetch job requirements" }
+    }
+
+    // Prepare API payload
+    const apiPayload = {
+      initial_notes: jobData.initial_notes || "",
+      company_name: companyData.name,
+      industry: Array.isArray(companyData.industries) && companyData.industries.length > 0
+        ? companyData.industries[0].display_name 
+        : "General",
+      attributes: {
+        title: jobData.title,
+        rate: {
+          value: jobData.rate ? Number(jobData.rate) : null,
+          freq: jobData.pay_freq || ""
+        },
+        commitment: jobData.commitment || "",
+        duration: jobData.duration || "",
+        location: {
+          category: jobData.location_reqs || "",
+          regions: jobData.regions || [],
+          countries: jobData.countries || []
+        }
+      },
+      requirements: requirements?.map(req => ({
+        requirement: req.requirement,
+        type: req.type,
+        is_mandatory: req.is_mandatory,
+        proficiency_level: req.proficiency_level,
+        weight: Number(req.weight) || 0.5
+      })) || []
+    }
+
+    console.log("API Payload:", JSON.stringify(apiPayload, null, 2))
+
+    // Call the Supabase edge function
+    const { data, error } = await supabase.functions.invoke('generate-job-description', {
+      body: apiPayload
+    })
+
+    if (error) {
+      console.error("Error calling generate-job-description function:", error)
+      return { 
+        success: false, 
+        error: error.message || "Failed to generate job description" 
+      }
+    }
+
+    if (!data?.job_description) {
+      console.error("Invalid response from generate-job-description:", data)
+      return { 
+        success: false, 
+        error: "Invalid response from AI service" 
+      }
+    }
+
+    // Convert escaped newlines to actual newlines for proper display
+    const formattedDescription = data.job_description.replace(/\\n\\n/g, '\n\n')
     
-    const generatedDescription = `We are seeking a talented ${jobData.title} to join our dynamic team. The ideal candidate will have strong technical skills and a passion for delivering high-quality solutions.
-
-Key Responsibilities:
-• Design and implement scalable solutions
-• Collaborate with cross-functional teams  
-• Contribute to code reviews and best practices
-• Mentor junior team members
-
-Requirements:
-• 5+ years of relevant experience
-• Strong problem-solving skills
-• Excellent communication abilities
-• Passion for continuous learning
-
-What We Offer:
-• Competitive compensation package
-• Flexible work arrangements
-• Professional development opportunities
-• Collaborative and innovative work environment
-
-${jobData.initialNotes ? `\nAdditional Notes:\n${jobData.initialNotes}` : ''}`
-
     return { 
       success: true, 
-      description: generatedDescription 
+      description: formattedDescription 
     }
     
   } catch (error) {
