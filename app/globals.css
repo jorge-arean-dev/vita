@@ -53,6 +53,31 @@
     --skill-badge-remove-icon: hsl(0 84% 60%);
     --skill-badge-remove-icon-hover: hsl(0 84% 40%);
     --skill-badge-remove-background-hover: hsl(0 84% 95%);
+    
+    /* MATCH ANALYSIS COLOR SYSTEM - 4-level performance scale */
+    /* Strong performance (>=75%) - Green */
+    --match-strong: 142 76% 36%;
+    --match-strong-bg: 142 76% 95%;
+    --match-strong-border: 142 76% 85%;
+    --match-strong-text: 142 76% 20%;
+    
+    /* Adequate performance (>=50%) - Yellow/Amber */
+    --match-adequate: 45 93% 47%;
+    --match-adequate-bg: 45 93% 95%;
+    --match-adequate-border: 45 93% 85%;
+    --match-adequate-text: 45 93% 25%;
+    
+    /* Weak performance (>=25%) - Orange */
+    --match-weak: 25 95% 53%;
+    --match-weak-bg: 25 95% 95%;
+    --match-weak-border: 25 95% 85%;
+    --match-weak-text: 25 95% 25%;
+    
+    /* Missing/Poor performance (<25%) - Red */
+    --match-missing: 0 72% 51%;
+    --match-missing-bg: 0 72% 95%;
+    --match-missing-border: 0 72% 85%;
+    --match-missing-text: 0 72% 25%;
   }
   
   .dark {
@@ -102,6 +127,31 @@
     --skill-badge-remove-icon: hsl(0 84% 60%);
     --skill-badge-remove-icon-hover: hsl(0 84% 70%);
     --skill-badge-remove-background-hover: hsl(0 84% 15%);
+    
+    /* MATCH ANALYSIS COLOR SYSTEM - Dark mode */
+    /* Strong performance (>=75%) - Green */
+    --match-strong: 142 76% 50%;
+    --match-strong-bg: 142 76% 10%;
+    --match-strong-border: 142 76% 20%;
+    --match-strong-text: 142 76% 80%;
+    
+    /* Adequate performance (>=50%) - Yellow/Amber */
+    --match-adequate: 45 93% 60%;
+    --match-adequate-bg: 45 93% 10%;
+    --match-adequate-border: 45 93% 20%;
+    --match-adequate-text: 45 93% 80%;
+    
+    /* Weak performance (>=25%) - Orange */
+    --match-weak: 25 95% 65%;
+    --match-weak-bg: 25 95% 10%;
+    --match-weak-border: 25 95% 20%;
+    --match-weak-text: 25 95% 80%;
+    
+    /* Missing/Poor performance (<25%) - Red */
+    --match-missing: 0 72% 65%;
+    --match-missing-bg: 0 72% 10%;
+    --match-missing-border: 0 72% 20%;
+    --match-missing-text: 0 72% 80%;
   }
   
   /* Global element styles */

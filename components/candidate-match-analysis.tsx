@@ -8,7 +8,9 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { ChevronDown, ChevronRight, Plus, Sparkles, Save, X, User, UserPlus, Trash2 } from "lucide-react"
+import { ChevronDown, ChevronRight, Plus, Sparkles, Save, X, User, UserPlus, Trash2, Info } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { CardTitle } from "@/components/ui/card"
 import ToggleSlider from "@/components/ui/toggle-slider"
 import {
   AlertDialog,
@@ -22,22 +24,51 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useToast } from "@/components/ui/use-toast"
 
+// Mock requirement names lookup - will be replaced with actual DB lookup
+const mockRequirementNames: { [key: string]: string } = {
+  "req_1": "TypeScript",
+  "req_2": "React", 
+  "req_3": "Node.js",
+  "req_4": "PostgreSQL",
+  "req_5": "MongoDB",
+  "req_6": "AWS",
+  "req_7": "Financial Services Experience"
+}
+
 interface Candidate {
   id: string
   name: string
   email?: string
 }
 
+interface RequirementEvaluation {
+  job_requirement_id: string
+  score: number
+  status: "strong" | "adequate" | "weak" | "missing"
+  feedback: string
+}
+
 interface AnalysisResults {
-  candidateInfo: {
-    name: string
-    source?: string
+  match_analysis: {
+    overall_score: number
+    status: "strong" | "adequate" | "weak" | "missing"
+    overall_feedback: string
+    matched_mandatory_requirements: number
+    total_mandatory_requirements: number
   }
-  overallMatch: number
-  strengths: string[]
-  concerns: string[]
-  recommendation: string
-  nextSteps: string[]
+  requirement_evaluations: RequirementEvaluation[]
+  summary: {
+    strengths: string[]
+    gaps: string[]
+  }
+  recruiter_recommendations: {
+    interview_strategy: string[]
+    other_options: string[]
+  }
+  candidate: {
+    first_name: string
+    last_name: string
+  }
 }
 
 interface MatchAnalysis {
@@ -52,6 +83,90 @@ interface MatchAnalysis {
   created_at: string
   isExpanded?: boolean
   isNew?: boolean
+}
+
+// Circular Progress Component
+interface CircularProgressProps {
+  value: number
+  size?: number
+  strokeWidth?: number
+  className?: string
+  status: "strong" | "adequate" | "weak" | "missing"
+}
+
+function CircularProgress({ value, size = 120, strokeWidth = 8, className = "", status }: CircularProgressProps) {
+  const radius = (size - strokeWidth) / 2
+  const circumference = radius * 2 * Math.PI
+  const strokeDasharray = circumference
+  const strokeDashoffset = circumference - (value / 100) * circumference
+
+  const getColor = (status: string) => {
+    if (status === "strong") return "stroke-[hsl(var(--match-strong))]"
+    if (status === "adequate") return "stroke-[hsl(var(--match-adequate))]"
+    if (status === "weak") return "stroke-[hsl(var(--match-weak))]"
+    if (status === "missing") return "stroke-[hsl(var(--match-missing))]"
+    return "stroke-gray-500"
+  }
+
+  return (
+    <div className={`relative inline-flex items-center justify-center ${className}`}>
+      <svg width={size} height={size} className="transform -rotate-90">
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          fill="transparent"
+          className="text-muted-foreground/20"
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          fill="transparent"
+          strokeDasharray={strokeDasharray}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          className={`transition-all duration-1000 ease-out ${getColor(status)}`}
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="text-2xl font-bold">{value}%</span>
+      </div>
+    </div>
+  )
+}
+
+// Utility functions for styling
+function getStatusBadge(score: number) {
+  if (score >= 75) {
+    return <Badge className="bg-[hsl(var(--match-strong-bg))] text-[hsl(var(--match-strong-text))] hover:bg-[hsl(var(--match-strong-bg))] border-[hsl(var(--match-strong-border))]">Strong</Badge>
+  }
+  if (score >= 50) {
+    return <Badge className="bg-[hsl(var(--match-adequate-bg))] text-[hsl(var(--match-adequate-text))] hover:bg-[hsl(var(--match-adequate-bg))] border-[hsl(var(--match-adequate-border))]">Adequate</Badge>
+  }
+  if (score >= 25) {
+    return <Badge className="bg-[hsl(var(--match-weak-bg))] text-[hsl(var(--match-weak-text))] hover:bg-[hsl(var(--match-weak-bg))] border-[hsl(var(--match-weak-border))]">Weak</Badge>
+  }
+  return <Badge className="bg-[hsl(var(--match-missing-bg))] text-[hsl(var(--match-missing-text))] hover:bg-[hsl(var(--match-missing-bg))] border-[hsl(var(--match-missing-border))]">Missing</Badge>
+}
+
+function getProgressBarColor(score: number) {
+  if (score >= 75) return "bg-[hsl(var(--match-strong))]"
+  if (score >= 50) return "bg-[hsl(var(--match-adequate))]"
+  if (score >= 25) return "bg-[hsl(var(--match-weak))]"
+  return "bg-[hsl(var(--match-missing))]"
+}
+
+function getBannerColor(status: string) {
+  if (status === "strong") return "bg-[hsl(var(--match-strong-bg))] text-[hsl(var(--match-strong-text))] border-[hsl(var(--match-strong-border))]"
+  if (status === "adequate") return "bg-[hsl(var(--match-adequate-bg))] text-[hsl(var(--match-adequate-text))] border-[hsl(var(--match-adequate-border))]"
+  if (status === "weak") return "bg-[hsl(var(--match-weak-bg))] text-[hsl(var(--match-weak-text))] border-[hsl(var(--match-weak-border))]"
+  if (status === "missing") return "bg-[hsl(var(--match-missing-bg))] text-[hsl(var(--match-missing-text))] border-[hsl(var(--match-missing-border))]"
+  return "bg-gray-100 text-gray-800 border-gray-200"
 }
 
 export default function CandidateMatchAnalysis() {
@@ -71,6 +186,11 @@ export default function CandidateMatchAnalysis() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [isRunningAnalysis, setIsRunningAnalysis] = useState<{ [key: string]: boolean }>({})
   const [isSaving, setIsSaving] = useState<{ [key: string]: boolean }>({})
+  
+  // Animation states for each analysis
+  const [visibleSections, setVisibleSections] = useState<{ [key: string]: string[] }>({})
+  const [visibleRequirementCards, setVisibleRequirementCards] = useState<{ [key: string]: number }>({})
+  const [visibleProgressBars, setVisibleProgressBars] = useState<{ [key: string]: number }>({})
 
   // Mock candidates data - in real implementation, this would come from API
   const candidates: Candidate[] = [
@@ -220,30 +340,75 @@ export default function CandidateMatchAnalysis() {
           : uploadedFile?.name.replace('.pdf', '') || "Resume Candidate"
       }
 
-      // Mock analysis results
+      // Mock analysis results matching API structure
       const results: AnalysisResults = {
-        candidateInfo: {
-          name: candidateName,
-          source: candidateType === "new" ? newCandidateMethod : undefined
+        match_analysis: {
+          overall_score: 18,
+          status: "missing",
+          overall_feedback: "This candidate shows potential but has significant skill gaps for the senior role requirements.",
+          matched_mandatory_requirements: 0,
+          total_mandatory_requirements: 5
         },
-        overallMatch: 85,
-        strengths: [
-          "Strong technical background in React and TypeScript",
-          "5+ years of frontend development experience", 
-          "Experience with modern development tools and practices",
-          "Good communication skills based on profile"
+        requirement_evaluations: [
+          {
+            job_requirement_id: "req_1",
+            score: 6,
+            status: "missing",
+            feedback: "Candidate has beginner-level TypeScript (1 year) but expert level required (5+ years). Significant skill gap identified for senior role."
+          },
+          {
+            job_requirement_id: "req_2",
+            score: 39,
+            status: "weak",
+            feedback: "Candidate demonstrates advanced proficiency in React with 3.5 years of experience, but the expert level is required."
+          },
+          {
+            job_requirement_id: "req_3",
+            score: 39,
+            status: "weak",
+            feedback: "Similar to React, the candidate has advanced experience in Node (3.5 years), yet the role demands expert-level skills."
+          },
+          {
+            job_requirement_id: "req_4",
+            score: 11,
+            status: "missing",
+            feedback: "Candidate has beginner-level experience with PostgreSQL (1 year), while the role requires advanced proficiency."
+          },
+          {
+            job_requirement_id: "req_5",
+            score: 11,
+            status: "missing",
+            feedback: "With only beginner-level experience in MongoDB (1 year), the candidate does not meet the advanced requirement."
+          }
         ],
-        concerns: [
-          "Limited experience with specific industry domain",
-          "No mention of team leadership experience",
-          "Location may require relocation discussion"
-        ],
-        recommendation: "Strong candidate for interview. Recommend technical screening followed by culture fit assessment.",
-        nextSteps: [
-          "Schedule initial phone screening",
-          "Prepare technical assessment", 
-          "Review portfolio/GitHub if available"
-        ]
+        summary: {
+          strengths: [
+            "Strong React and Node.js foundation with 3.5 years experience each",
+            "5 years of experience in software engineering, demonstrating solid full-stack development background",
+            "Advanced skills in Agile methodologies, Scrum, and Test Driven Development"
+          ],
+          gaps: [
+            "TypeScript proficiency significantly below senior level requirements",
+            "Missing advanced skills in PostgreSQL and MongoDB, which are critical for the role",
+            "Overall experience level doesn't match senior role expectations"
+          ]
+        },
+        recruiter_recommendations: {
+          interview_strategy: [
+            "Dig deeper into TypeScript projects during technical interview to assess potential for growth",
+            "Explore candidate's understanding of advanced React and Node concepts",
+            "Discuss past experiences with databases to evaluate problem-solving skills"
+          ],
+          other_options: [
+            "Consider 'Mid-Level with Senior Potential' positioning instead, focusing on growth mindset",
+            "Explore opportunities for mentorship or training in TypeScript and databases",
+            "Look for roles that allow gradual upskilling while leveraging existing strengths"
+          ]
+        },
+        candidate: {
+          first_name: candidateName.split(' ')[0] || "Unknown",
+          last_name: candidateName.split(' ')[1] || "Candidate"
+        }
       }
 
       // Update the analysis with results
@@ -258,11 +423,16 @@ export default function CandidateMatchAnalysis() {
                   type: candidateType,
                   source: candidateType === "new" ? newCandidateMethod : undefined
                 },
-                title: `Match Analysis for ${candidateName}`
+                title: `Match Analysis for ${results.candidate.first_name} ${results.candidate.last_name}`
               }
             : ma
         )
       )
+
+      // Trigger animations for the new results
+      setTimeout(() => {
+        triggerAnimationsForAnalysis(analysisId, results.requirement_evaluations.length)
+      }, 100)
     } catch (error) {
       console.error("Error running analysis:", error)
       toast({
@@ -317,10 +487,98 @@ export default function CandidateMatchAnalysis() {
   // Handle discarding analysis
   const handleDiscardAnalysis = (analysisId: string) => {
     setMatchAnalyses(matchAnalyses.filter(ma => ma.id !== analysisId))
+    // Clean up animation states
+    setVisibleSections(prev => {
+      const newState = { ...prev }
+      delete newState[analysisId]
+      return newState
+    })
+    setVisibleRequirementCards(prev => {
+      const newState = { ...prev }
+      delete newState[analysisId]
+      return newState
+    })
+    setVisibleProgressBars(prev => {
+      const newState = { ...prev }
+      delete newState[analysisId]
+      return newState
+    })
     toast({
       title: "Analysis discarded",
       description: "The match analysis has been discarded.",
     })
+  }
+
+  // Trigger animations for analysis results
+  const triggerAnimationsForAnalysis = (analysisId: string, requirementCount: number) => {
+    // Reset animation states for this analysis
+    setVisibleSections(prev => ({ ...prev, [analysisId]: [] }))
+    setVisibleRequirementCards(prev => ({ ...prev, [analysisId]: 0 }))
+    setVisibleProgressBars(prev => ({ ...prev, [analysisId]: 0 }))
+
+    // Sequential section reveal
+    const timeline = [
+      { section: "combined-card", delay: 0 },
+      { section: "requirements-header", delay: 800 },
+    ]
+
+    timeline.forEach(({ section, delay }) => {
+      setTimeout(() => {
+        setVisibleSections((prev) => ({
+          ...prev,
+          [analysisId]: [...(prev[analysisId] || []), section]
+        }))
+      }, delay)
+    })
+
+    // Start progress bars animation after combined card appears
+    setTimeout(() => {
+      const progressInterval = setInterval(() => {
+        setVisibleProgressBars((prev) => {
+          const current = prev[analysisId] || 0
+          if (current < requirementCount) {
+            return { ...prev, [analysisId]: current + 1 }
+          } else {
+            clearInterval(progressInterval)
+            return prev
+          }
+        })
+      }, 200)
+    }, 800)
+
+    // Start requirement cards animation after requirements header appears
+    setTimeout(() => {
+      const cardInterval = setInterval(() => {
+        setVisibleRequirementCards((prev) => {
+          const current = prev[analysisId] || 0
+          if (current < requirementCount) {
+            return { ...prev, [analysisId]: current + 1 }
+          } else {
+            clearInterval(cardInterval)
+            // After all requirement cards are shown, show remaining sections
+            setTimeout(() => {
+              setVisibleSections((prevSections) => ({
+                ...prevSections,
+                [analysisId]: [...(prevSections[analysisId] || []), "summary", "recommendations"]
+              }))
+            }, 500)
+            return prev
+          }
+        })
+      }, 400)
+    }, 1600)
+  }
+
+  // Check if section is visible for specific analysis
+  const isVisible = (analysisId: string, section: string) => 
+    (visibleSections[analysisId] || []).includes(section)
+
+  // Scroll to requirement evaluation card
+  const scrollToRequirement = (requirementId: string) => {
+    const element = document.getElementById(`requirement-${requirementId}`)
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
   }
 
   // Prevent hydration mismatch - return skeleton instead of null
@@ -418,6 +676,40 @@ export default function CandidateMatchAnalysis() {
                           <Trash2 className="h-4 w-4" />
                         )}
                       </Button>
+                    )}
+                    
+                    {/* Save/Discard buttons for new analyses with results */}
+                    {analysis.isExpanded && analysis.isNew && analysis.results && (
+                      <>
+                        <Button 
+                          onClick={() => handleDiscardAnalysis(analysis.id)} 
+                          variant="outline"
+                          size="sm"
+                          disabled={isSaving[analysis.id]}
+                          className="gap-2"
+                        >
+                          <X className="h-4 w-4" />
+                          Discard
+                        </Button>
+                        <Button 
+                          onClick={() => handleSaveAnalysis(analysis.id)}
+                          size="sm"
+                          disabled={isSaving[analysis.id]}
+                          className="gap-2"
+                        >
+                          {isSaving[analysis.id] ? (
+                            <>
+                              <Save className="h-4 w-4 animate-spin" />
+                              Saving...
+                            </>
+                          ) : (
+                            <>
+                              <Save className="h-4 w-4" />
+                              Save
+                            </>
+                          )}
+                        </Button>
+                      </>
                     )}
                   </div>
                 </div>
@@ -562,89 +854,209 @@ export default function CandidateMatchAnalysis() {
                       </div>
                     </div>
                   ) : analysis.results ? (
-                    // Results View
-                    <div className="space-y-6">
-                      {/* Analysis Results */}
-                      <div className="space-y-4">
-                        <div className="p-4 bg-muted/50 rounded-lg">
-                          <h4 className="font-semibold mb-2">Overall Match: {analysis.results.overallMatch}%</h4>
-                          <p className="text-sm text-muted-foreground">
-                            Candidate: {analysis.results.candidateInfo.name}
+                    // Advanced Results View - Matching sample-match-analysis-report UI
+                    <div className="space-y-8">
+                      {/* Combined Card - Overall Match Score + Requirement Analysis */}
+                      <div
+                        className={`transition-all duration-1000 ${isVisible(analysis.id, "combined-card") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+                      >
+                        <Card className="w-full">
+                          <CardContent className="p-6">
+                            {/* Row Container */}
+                            <div className="flex flex-col lg:flex-row gap-8">
+                              {/* Element 1: Column Container */}
+                              <div className="flex flex-col space-y-6 lg:w-1/2">
+                                {/* Element 1.1: Overall Match Score */}
+                                <div className="space-y-4">
+                                  <h2 className="text-2xl font-bold text-left">Overall Match Score</h2>
+                                  <div className="flex justify-center">
+                                    <CircularProgress 
+                                      value={analysis.results.match_analysis.overall_score} 
+                                      status={analysis.results.match_analysis.status} 
+                                    />
+                                  </div>
+                                </div>
+
+                                {/* Element 1.2: Informative Banner */}
+                                <div className={`p-4 rounded-lg border ${getBannerColor(analysis.results.match_analysis.status)}`}>
+                                  <p className="text-sm font-medium">
+                                    {analysis.results.candidate.first_name} {analysis.results.candidate.last_name} meets {analysis.results.match_analysis.matched_mandatory_requirements} out of{" "}
+                                    {analysis.results.match_analysis.total_mandatory_requirements} requirements.
+                                  </p>
+                                  <p className="text-sm text-muted-foreground mt-1">{analysis.results.match_analysis.overall_feedback}</p>
+                                </div>
+                              </div>
+
+                              {/* Element 2: Requirement Analysis */}
+                              <div className="flex flex-col space-y-4 lg:w-1/2">
+                                <h2 className="text-2xl font-bold">Requirement Analysis</h2>
+                                <div className="space-y-4">
+                                  {analysis.results.requirement_evaluations.map((req, index) => (
+                                    <div
+                                      key={req.job_requirement_id}
+                                      className={`space-y-2 transition-all duration-500 ${
+                                        index < (visibleProgressBars[analysis.id] || 0) ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4"
+                                      }`}
+                                      style={{ transitionDelay: `${index * 100}ms` }}
+                                    >
+                                      <div className="flex justify-between items-center">
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-sm font-medium">{mockRequirementNames[req.job_requirement_id] || req.job_requirement_id}</span>
+                                          <button
+                                            onClick={() => scrollToRequirement(req.job_requirement_id)}
+                                            className="p-1 rounded-sm hover:bg-muted/50 transition-colors opacity-60 hover:opacity-100"
+                                            title="View detailed evaluation"
+                                          >
+                                            <Info className="h-3 w-3" />
+                                          </button>
+                                        </div>
+                                      </div>
+                                      <div className="relative">
+                                        <div className="w-full bg-muted rounded-full h-2">
+                                          <div
+                                            className={`h-2 rounded-full transition-all duration-1000 ease-out ${getProgressBarColor(req.score)}`}
+                                            style={{
+                                              width: index < (visibleProgressBars[analysis.id] || 0) ? `${req.score}%` : "0%",
+                                              transitionDelay: `${index * 100 + 200}ms`,
+                                            }}
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+
+                      {/* Requirement Evaluations Section */}
+                      <div
+                        className={`space-y-6 transition-all duration-1000 ${isVisible(analysis.id, "requirements-header") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+                      >
+                        <div>
+                          <h2 className="text-2xl font-bold mb-2">Per Requirement Analysis</h2>
+                          <p className="text-lg text-muted-foreground">
+                            See below for a detailed analysis of each requirement.
                           </p>
                         </div>
-                        
-                        <div className="grid md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <h5 className="font-medium text-green-700">Key Strengths</h5>
-                            <ul className="space-y-1">
-                              {analysis.results.strengths.map((strength: string, idx: number) => (
-                                <li key={idx} className="text-sm text-muted-foreground flex items-start">
-                                  <span className="text-green-600 mr-2">•</span>
-                                  {strength}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <h5 className="font-medium text-amber-700">Areas of Concern</h5>
-                            <ul className="space-y-1">
-                              {analysis.results.concerns.map((concern: string, idx: number) => (
-                                <li key={idx} className="text-sm text-muted-foreground flex items-start">
-                                  <span className="text-amber-600 mr-2">•</span>
-                                  {concern}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        </div>
-                        
-                        <div className="p-4 border rounded-lg">
-                          <h5 className="font-medium mb-2">Recommendation</h5>
-                          <p className="text-sm text-muted-foreground mb-3">
-                            {analysis.results.recommendation}
-                          </p>
-                          <h6 className="font-medium text-sm mb-1">Next Steps:</h6>
-                          <ul className="space-y-1">
-                            {analysis.results.nextSteps.map((step: string, idx: number) => (
-                              <li key={idx} className="text-sm text-muted-foreground flex items-start">
-                                <span className="text-primary mr-2">•</span>
-                                {step}
-                              </li>
-                            ))}
-                          </ul>
+
+                        {/* Requirement Cards - Table-style Layout */}
+                        <div className="space-y-4">
+                          {analysis.results.requirement_evaluations.slice(0, visibleRequirementCards[analysis.id] || 0).map((req, index) => (
+                            <Card
+                              key={req.job_requirement_id}
+                              id={`requirement-${req.job_requirement_id}`}
+                              className="w-full transition-all duration-500 animate-in slide-in-from-left hover:shadow-md"
+                              style={{ animationDelay: `${index * 100}ms` }}
+                            >
+                              <CardContent className="p-6">
+                                <div className="flex items-center justify-between">
+                                  {/* Left Section - Requirement Name and Score Info */}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-4 mb-3">
+                                      <h3 className="text-xl font-semibold">{mockRequirementNames[req.job_requirement_id] || req.job_requirement_id}</h3>
+                                      <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-sm text-muted-foreground">Score:</span>
+                                          <span className="font-bold text-lg">{req.score}%</span>
+                                        </div>
+                                        {getStatusBadge(req.score)}
+                                      </div>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground leading-relaxed pr-4">{req.feedback}</p>
+                                  </div>
+
+                                  {/* Right Section - Circular Progress */}
+                                  <div className="flex-shrink-0 ml-6">
+                                    <CircularProgress value={req.score} size={80} strokeWidth={6} status={req.status} />
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
                         </div>
                       </div>
 
-                      {/* Save/Discard Buttons - Only show for new analyses */}
-                      {analysis.isNew && (
-                        <div className="pt-4 border-t flex justify-end gap-2">
-                          <Button 
-                            onClick={() => handleDiscardAnalysis(analysis.id)} 
-                            variant="outline"
-                            disabled={isSaving[analysis.id]}
-                          >
-                            <X className="mr-2 h-4 w-4" />
-                            Discard
-                          </Button>
-                          <Button 
-                            onClick={() => handleSaveAnalysis(analysis.id)}
-                            disabled={isSaving[analysis.id]}
-                          >
-                            {isSaving[analysis.id] ? (
-                              <>
-                                <Save className="mr-2 h-4 w-4 animate-spin" />
-                                Saving...
-                              </>
-                            ) : (
-                              <>
-                                <Save className="mr-2 h-4 w-4" />
-                                Save Analysis
-                              </>
-                            )}
-                          </Button>
+                      {/* Summary */}
+                      <div
+                        className={`grid grid-cols-1 lg:grid-cols-2 gap-6 transition-all duration-1000 ${isVisible(analysis.id, "summary") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+                      >
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="text-[hsl(var(--match-strong-text))]">Strengths</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <ul className="space-y-3">
+                              {analysis.results.summary.strengths.map((strength, index) => (
+                                <li key={index} className="flex items-start gap-2">
+                                  <div className="w-2 h-2 rounded-full bg-[hsl(var(--match-strong))] mt-2 flex-shrink-0" />
+                                  <span className="text-sm leading-relaxed">{strength}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </CardContent>
+                        </Card>
+
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="text-[hsl(var(--match-missing-text))]">Gaps</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <ul className="space-y-3">
+                              {analysis.results.summary.gaps.map((gap, index) => (
+                                <li key={index} className="flex items-start gap-2">
+                                  <div className="w-2 h-2 rounded-full bg-[hsl(var(--match-missing))] mt-2 flex-shrink-0" />
+                                  <span className="text-sm leading-relaxed">{gap}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </CardContent>
+                        </Card>
+                      </div>
+
+                      {/* Recommendations */}
+                      <div
+                        className={`space-y-6 transition-all duration-1000 ${isVisible(analysis.id, "recommendations") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+                      >
+                        <h2 className="text-2xl font-bold">Recruiter Recommendations</h2>
+
+                        <div className="space-y-4">
+                          <Card>
+                            <CardHeader>
+                              <CardTitle className="text-blue-700">Assessment Strategy</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <ul className="space-y-3">
+                                {analysis.results.recruiter_recommendations.interview_strategy.map((item, index) => (
+                                  <li key={index} className="flex items-start gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
+                                    <span className="text-sm leading-relaxed">{item}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </CardContent>
+                          </Card>
+
+                          <Card>
+                            <CardHeader>
+                              <CardTitle className="text-purple-700">Other Options</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <ul className="space-y-3">
+                                {analysis.results.recruiter_recommendations.other_options.map((item, index) => (
+                                  <li key={index} className="flex items-start gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-purple-500 mt-2 flex-shrink-0" />
+                                    <span className="text-sm leading-relaxed">{item}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </CardContent>
+                          </Card>
                         </div>
-                      )}
+                      </div>
+
                     </div>
                   ) : null}
                 </CardContent>
