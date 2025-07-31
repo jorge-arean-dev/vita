@@ -33,7 +33,7 @@ export default function CandidateMatchAnalysis() {
   const [mounted, setMounted] = useState(false)
   
   // Candidate selection state
-  const [candidateType, setCandidateType] = useState<"existing" | "new">("existing")
+  const [candidateType, setCandidateType] = useState<"existing" | "new">("new")
   const [selectedExistingCandidate, setSelectedExistingCandidate] = useState<string>("")
   const [isCandidateDropdownOpen, setIsCandidateDropdownOpen] = useState(false)
   const [candidateSearchValue, setCandidateSearchValue] = useState("")
@@ -180,12 +180,12 @@ export default function CandidateMatchAnalysis() {
               {/* Candidate Type Selection */}
               <div className="flex justify-center">
                 <ToggleSlider
-                  option1="Existing Candidate"
-                  option2="New Candidate"
-                  icon1={<User className="h-4 w-4" />}
-                  icon2={<UserPlus className="h-4 w-4" />}
-                  defaultOption={candidateType === "existing" ? 1 : 2}
-                  onChange={(option) => setCandidateType(option === 1 ? "existing" : "new")}
+                  option1="New Candidate"
+                  option2="Existing Candidate"
+                  icon1={<UserPlus className="h-4 w-4" />}
+                  icon2={<User className="h-4 w-4" />}
+                  defaultOption={candidateType === "new" ? 1 : 2}
+                  onChange={(option) => setCandidateType(option === 1 ? "new" : "existing")}
                 />
               </div>
 
