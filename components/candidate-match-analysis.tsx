@@ -134,7 +134,7 @@ function CircularProgress({ value, size = 120, strokeWidth = 8, className = "", 
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-2xl font-bold">{value}%</span>
+        <span className="text-xl font-bold">{value}%</span>
       </div>
     </div>
   )
@@ -191,6 +191,9 @@ export default function CandidateMatchAnalysis() {
   const [visibleSections, setVisibleSections] = useState<{ [key: string]: string[] }>({})
   const [visibleRequirementCards, setVisibleRequirementCards] = useState<{ [key: string]: number }>({})
   const [visibleProgressBars, setVisibleProgressBars] = useState<{ [key: string]: number }>({})
+  
+  // Collapsible sections state
+  const [collapsedSections, setCollapsedSections] = useState<{ [key: string]: { requirements: boolean; recommendations: boolean } }>({})
 
   // Mock candidates data - in real implementation, this would come from API
   const candidates: Candidate[] = [
@@ -519,7 +522,9 @@ export default function CandidateMatchAnalysis() {
     // Sequential section reveal
     const timeline = [
       { section: "combined-card", delay: 0 },
-      { section: "requirements-header", delay: 800 },
+      { section: "summary", delay: 800 },
+      { section: "requirements-header", delay: 1600 },
+      { section: "recommendations", delay: 2400 },
     ]
 
     timeline.forEach(({ section, delay }) => {
@@ -544,28 +549,14 @@ export default function CandidateMatchAnalysis() {
           }
         })
       }, 200)
-    }, 800)
+    }, 0)
 
-    // Start requirement cards animation after requirements header appears
+    // Show all requirement cards immediately when requirements section appears
     setTimeout(() => {
-      const cardInterval = setInterval(() => {
-        setVisibleRequirementCards((prev) => {
-          const current = prev[analysisId] || 0
-          if (current < requirementCount) {
-            return { ...prev, [analysisId]: current + 1 }
-          } else {
-            clearInterval(cardInterval)
-            // After all requirement cards are shown, show remaining sections
-            setTimeout(() => {
-              setVisibleSections((prevSections) => ({
-                ...prevSections,
-                [analysisId]: [...(prevSections[analysisId] || []), "summary", "recommendations"]
-              }))
-            }, 500)
-            return prev
-          }
-        })
-      }, 400)
+      setVisibleRequirementCards((prev) => ({
+        ...prev,
+        [analysisId]: requirementCount
+      }))
     }, 1600)
   }
 
@@ -579,6 +570,22 @@ export default function CandidateMatchAnalysis() {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
+  }
+
+  // Toggle collapsible sections
+  const toggleSection = (analysisId: string, section: 'requirements' | 'recommendations') => {
+    setCollapsedSections(prev => ({
+      ...prev,
+      [analysisId]: {
+        ...prev[analysisId],
+        [section]: !prev[analysisId]?.[section]
+      }
+    }))
+  }
+
+  // Check if section is collapsed
+  const isSectionCollapsed = (analysisId: string, section: 'requirements' | 'recommendations') => {
+    return collapsedSections[analysisId]?.[section] || false
   }
 
   // Prevent hydration mismatch - return skeleton instead of null
@@ -855,174 +862,204 @@ export default function CandidateMatchAnalysis() {
                     </div>
                   ) : analysis.results ? (
                     // Advanced Results View - Matching sample-match-analysis-report UI
-                    <div className="space-y-8">
-                      {/* Combined Card - Overall Match Score + Requirement Analysis */}
+                    <div className="space-y-12">
+                      {/* Element 1: Combined Section - Overall Match Score + Requirement Analysis */}
                       <div
                         className={`transition-all duration-1000 ${isVisible(analysis.id, "combined-card") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
                       >
-                        <Card className="w-full">
-                          <CardContent className="p-6">
-                            {/* Row Container */}
-                            <div className="flex flex-col lg:flex-row gap-8">
-                              {/* Element 1: Column Container */}
-                              <div className="flex flex-col space-y-6 lg:w-1/2">
-                                {/* Element 1.1: Overall Match Score */}
-                                <div className="space-y-4">
-                                  <h2 className="text-2xl font-bold text-left">Overall Match Score</h2>
-                                  <div className="flex justify-center">
-                                    <CircularProgress 
-                                      value={analysis.results.match_analysis.overall_score} 
-                                      status={analysis.results.match_analysis.status} 
-                                    />
-                                  </div>
-                                </div>
-
-                                {/* Element 1.2: Informative Banner */}
-                                <div className={`p-4 rounded-lg border ${getBannerColor(analysis.results.match_analysis.status)}`}>
-                                  <p className="text-sm font-medium">
-                                    {analysis.results.candidate.first_name} {analysis.results.candidate.last_name} meets {analysis.results.match_analysis.matched_mandatory_requirements} out of{" "}
-                                    {analysis.results.match_analysis.total_mandatory_requirements} requirements.
-                                  </p>
-                                  <p className="text-sm text-muted-foreground mt-1">{analysis.results.match_analysis.overall_feedback}</p>
-                                </div>
-                              </div>
-
-                              {/* Element 2: Requirement Analysis */}
-                              <div className="flex flex-col space-y-4 lg:w-1/2">
-                                <h2 className="text-2xl font-bold">Requirement Analysis</h2>
-                                <div className="space-y-4">
-                                  {analysis.results.requirement_evaluations.map((req, index) => (
-                                    <div
-                                      key={req.job_requirement_id}
-                                      className={`space-y-2 transition-all duration-500 ${
-                                        index < (visibleProgressBars[analysis.id] || 0) ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4"
-                                      }`}
-                                      style={{ transitionDelay: `${index * 100}ms` }}
-                                    >
-                                      <div className="flex justify-between items-center">
-                                        <div className="flex items-center gap-2">
-                                          <span className="text-sm font-medium">{mockRequirementNames[req.job_requirement_id] || req.job_requirement_id}</span>
-                                          <button
-                                            onClick={() => scrollToRequirement(req.job_requirement_id)}
-                                            className="p-1 rounded-sm hover:bg-muted/50 transition-colors opacity-60 hover:opacity-100"
-                                            title="View detailed evaluation"
-                                          >
-                                            <Info className="h-3 w-3" />
-                                          </button>
-                                        </div>
-                                      </div>
-                                      <div className="relative">
-                                        <div className="w-full bg-muted rounded-full h-2">
-                                          <div
-                                            className={`h-2 rounded-full transition-all duration-1000 ease-out ${getProgressBarColor(req.score)}`}
-                                            style={{
-                                              width: index < (visibleProgressBars[analysis.id] || 0) ? `${req.score}%` : "0%",
-                                              transitionDelay: `${index * 100 + 200}ms`,
-                                            }}
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
+                        {/* Row Container */}
+                        <div className="flex flex-col lg:flex-row gap-8">
+                          {/* Element 1: Column Container */}
+                          <div className="flex flex-col space-y-6 lg:w-1/2">
+                            {/* Element 1.1: Overall Match Score */}
+                            <div className="space-y-4">
+                              <h2 className="text-2xl font-bold text-left">Overall Match Score</h2>
+                              <div className="flex justify-center">
+                                <CircularProgress 
+                                  value={analysis.results.match_analysis.overall_score} 
+                                  status={analysis.results.match_analysis.status} 
+                                />
                               </div>
                             </div>
-                          </CardContent>
-                        </Card>
+
+                            {/* Element 1.2: Informative Banner */}
+                            <div className={`p-4 rounded-lg border ${getBannerColor(analysis.results.match_analysis.status)}`}>
+                              <p className="text-sm font-medium">
+                                {analysis.results.candidate.first_name} {analysis.results.candidate.last_name} meets {analysis.results.match_analysis.matched_mandatory_requirements} out of{" "}
+                                {analysis.results.match_analysis.total_mandatory_requirements} requirements.
+                              </p>
+                              <p className="text-sm text-muted-foreground mt-1">{analysis.results.match_analysis.overall_feedback}</p>
+                            </div>
+                          </div>
+
+                          {/* Element 2: Requirement Analysis */}
+                          <div className="flex flex-col space-y-6 lg:w-1/2">
+                            <h2 className="text-2xl font-bold">Requirement Analysis</h2>
+                            <div className="space-y-6">
+                              {analysis.results.requirement_evaluations.map((req, index) => (
+                                <div
+                                  key={req.job_requirement_id}
+                                  className={`space-y-2 transition-all duration-500 ${
+                                    index < (visibleProgressBars[analysis.id] || 0) ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4"
+                                  }`}
+                                  style={{ transitionDelay: `${index * 100}ms` }}
+                                >
+                                  <div className="flex justify-between items-center">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-sm font-medium">{mockRequirementNames[req.job_requirement_id] || req.job_requirement_id}</span>
+                                      <button
+                                        onClick={() => scrollToRequirement(req.job_requirement_id)}
+                                        className="p-1 rounded-sm hover:bg-muted/50 transition-colors opacity-60 hover:opacity-100"
+                                        title="View detailed evaluation"
+                                      >
+                                        <Info className="h-3 w-3" />
+                                      </button>
+                                    </div>
+                                  </div>
+                                  <div className="relative">
+                                    <div className="w-full bg-muted rounded-full h-2">
+                                      <div
+                                        className={`h-2 rounded-full transition-all duration-1000 ease-out ${getProgressBarColor(req.score)}`}
+                                        style={{
+                                          width: index < (visibleProgressBars[analysis.id] || 0) ? `${req.score}%` : "0%",
+                                          transitionDelay: `${index * 100 + 200}ms`,
+                                        }}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                      </div>
+
+                      {/* Element 2: Candidate Summary */}
+                      <div
+                        className={`transition-all duration-1000 ${isVisible(analysis.id, "summary") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+                      >
+                        <div className="space-y-6">
+                          <h2 className="text-2xl font-bold">Candidate Summary</h2>
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <Card>
+                              <CardHeader>
+                                <CardTitle className="text-[hsl(var(--match-strong-text))]">Strengths</CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <ul className="space-y-3">
+                                  {analysis.results.summary.strengths.map((strength, index) => (
+                                    <li key={index} className="flex items-start gap-2">
+                                      <div className="w-2 h-2 rounded-full bg-[hsl(var(--match-strong))] mt-2 flex-shrink-0" />
+                                      <span className="text-sm leading-relaxed">{strength}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </CardContent>
+                            </Card>
+
+                            <Card>
+                              <CardHeader>
+                                <CardTitle className="text-[hsl(var(--match-missing-text))]">Gaps</CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <ul className="space-y-3">
+                                  {analysis.results.summary.gaps.map((gap, index) => (
+                                    <li key={index} className="flex items-start gap-2">
+                                      <div className="w-2 h-2 rounded-full bg-[hsl(var(--match-missing))] mt-2 flex-shrink-0" />
+                                      <span className="text-sm leading-relaxed">{gap}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        </div>
                       </div>
 
                       {/* Requirement Evaluations Section */}
                       <div
-                        className={`space-y-6 transition-all duration-1000 ${isVisible(analysis.id, "requirements-header") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+                        className={`space-y-8 mt-8 transition-all duration-1000 ${isVisible(analysis.id, "requirements-header") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
                       >
-                        <div>
-                          <h2 className="text-2xl font-bold mb-2">Per Requirement Analysis</h2>
-                          <p className="text-lg text-muted-foreground">
-                            See below for a detailed analysis of each requirement.
-                          </p>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h2 className="text-2xl font-bold mb-2">Per Requirement Analysis</h2>
+                            <p className="text-lg text-muted-foreground">
+                              See below for a detailed analysis of each requirement.
+                            </p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => toggleSection(analysis.id, 'requirements')}
+                            className="h-8 w-8 p-0"
+                            aria-label={isSectionCollapsed(analysis.id, 'requirements') ? "Expand requirements" : "Collapse requirements"}
+                          >
+                            {isSectionCollapsed(analysis.id, 'requirements') ? (
+                              <ChevronRight className="h-4 w-4" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4" />
+                            )}
+                          </Button>
                         </div>
 
                         {/* Requirement Cards - Table-style Layout */}
-                        <div className="space-y-4">
-                          {analysis.results.requirement_evaluations.slice(0, visibleRequirementCards[analysis.id] || 0).map((req, index) => (
-                            <Card
-                              key={req.job_requirement_id}
-                              id={`requirement-${req.job_requirement_id}`}
-                              className="w-full transition-all duration-500 animate-in slide-in-from-left hover:shadow-md"
-                              style={{ animationDelay: `${index * 100}ms` }}
-                            >
-                              <CardContent className="p-6">
-                                <div className="flex items-center justify-between">
-                                  {/* Left Section - Requirement Name and Score Info */}
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-4 mb-3">
-                                      <h3 className="text-xl font-semibold">{mockRequirementNames[req.job_requirement_id] || req.job_requirement_id}</h3>
-                                      <div className="flex items-center gap-3">
-                                        <div className="flex items-center gap-2">
-                                          <span className="text-sm text-muted-foreground">Score:</span>
-                                          <span className="font-bold text-lg">{req.score}%</span>
+                        {!isSectionCollapsed(analysis.id, 'requirements') && (
+                          <div className="space-y-4 mt-8">
+                            {analysis.results.requirement_evaluations.map((req, index) => (
+                              <Card
+                                key={req.job_requirement_id}
+                                id={`requirement-${req.job_requirement_id}`}
+                                className="w-full transition-all duration-500 animate-in slide-in-from-left hover:shadow-md"
+                                style={{ animationDelay: `${index * 100}ms` }}
+                              >
+                                <CardContent className="p-6">
+                                  <div className="flex items-center justify-between">
+                                    {/* Left Section - Requirement Name and Score Info */}
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-4 mb-3">
+                                        <h3 className="text-xl font-semibold">{mockRequirementNames[req.job_requirement_id] || req.job_requirement_id}</h3>
+                                        <div className="flex items-center gap-3">
+                                          {getStatusBadge(req.score)}
                                         </div>
-                                        {getStatusBadge(req.score)}
                                       </div>
+                                      <p className="text-sm text-muted-foreground leading-relaxed pr-4">{req.feedback}</p>
                                     </div>
-                                    <p className="text-sm text-muted-foreground leading-relaxed pr-4">{req.feedback}</p>
-                                  </div>
 
-                                  {/* Right Section - Circular Progress */}
-                                  <div className="flex-shrink-0 ml-6">
-                                    <CircularProgress value={req.score} size={80} strokeWidth={6} status={req.status} />
+                                    {/* Right Section - Circular Progress */}
+                                    <div className="flex-shrink-0 ml-6">
+                                      <CircularProgress value={req.score} size={80} strokeWidth={6} status={req.status} />
+                                    </div>
                                   </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
-                        </div>
+                                </CardContent>
+                              </Card>
+                            ))}
+                          </div>
+                        )}
                       </div>
 
-                      {/* Summary */}
-                      <div
-                        className={`grid grid-cols-1 lg:grid-cols-2 gap-6 transition-all duration-1000 ${isVisible(analysis.id, "summary") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-                      >
-                        <Card>
-                          <CardHeader>
-                            <CardTitle className="text-[hsl(var(--match-strong-text))]">Strengths</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <ul className="space-y-3">
-                              {analysis.results.summary.strengths.map((strength, index) => (
-                                <li key={index} className="flex items-start gap-2">
-                                  <div className="w-2 h-2 rounded-full bg-[hsl(var(--match-strong))] mt-2 flex-shrink-0" />
-                                  <span className="text-sm leading-relaxed">{strength}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </CardContent>
-                        </Card>
-
-                        <Card>
-                          <CardHeader>
-                            <CardTitle className="text-[hsl(var(--match-missing-text))]">Gaps</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <ul className="space-y-3">
-                              {analysis.results.summary.gaps.map((gap, index) => (
-                                <li key={index} className="flex items-start gap-2">
-                                  <div className="w-2 h-2 rounded-full bg-[hsl(var(--match-missing))] mt-2 flex-shrink-0" />
-                                  <span className="text-sm leading-relaxed">{gap}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </CardContent>
-                        </Card>
-                      </div>
 
                       {/* Recommendations */}
                       <div
-                        className={`space-y-6 transition-all duration-1000 ${isVisible(analysis.id, "recommendations") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+                        className={`space-y-6 mt-8 transition-all duration-1000 ${isVisible(analysis.id, "recommendations") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
                       >
-                        <h2 className="text-2xl font-bold">Recruiter Recommendations</h2>
+                        <div className="flex items-center justify-between">
+                          <h2 className="text-2xl font-bold">Recruiter Recommendations</h2>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => toggleSection(analysis.id, 'recommendations')}
+                            className="h-8 w-8 p-0"
+                            aria-label={isSectionCollapsed(analysis.id, 'recommendations') ? "Expand recommendations" : "Collapse recommendations"}
+                          >
+                            {isSectionCollapsed(analysis.id, 'recommendations') ? (
+                              <ChevronRight className="h-4 w-4" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
 
-                        <div className="space-y-4">
+                        {!isSectionCollapsed(analysis.id, 'recommendations') && (
+                          <div className="space-y-4">
                           <Card>
                             <CardHeader>
                               <CardTitle className="text-blue-700">Assessment Strategy</CardTitle>
@@ -1054,9 +1091,11 @@ export default function CandidateMatchAnalysis() {
                               </ul>
                             </CardContent>
                           </Card>
-                        </div>
+                          </div>
+                        )}
                       </div>
 
+                    </div>
                     </div>
                   ) : null}
                 </CardContent>
