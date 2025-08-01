@@ -18,8 +18,11 @@ import {
   runMatchAnalysis,
   saveCandidate,
   saveMatchAnalysis,
+  parseResumeSkills,
+  savePDFCandidateWithResume,
   type ParsedCandidate
 } from "@/app/actions/match-analysis"
+import { uploadTemporaryResume } from "@/app/actions/candidates"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -85,6 +88,8 @@ interface MatchAnalysis {
   isNew?: boolean
   progressMessage?: string
   parsedCandidate?: ParsedCandidate // Store the parsed candidate data
+  tempFilePath?: string // Store temp file path for PDF candidates
+  uploadedFile?: File // Store uploaded file reference
 }
 
 // Circular Progress Component
@@ -363,12 +368,41 @@ export default function CandidateMatchAnalysis({ jobId }: CandidateMatchAnalysis
         })
         return
       } else if (candidateType === "new" && newCandidateMethod === "pdf") {
-        // TODO: Implement PDF parsing flow
-        toast({
-          title: "Coming soon",
-          description: "PDF resume analysis will be implemented next.",
-        })
-        return
+        // PDF parsing flow
+        if (!uploadedFile) {
+          throw new Error("No PDF file uploaded")
+        }
+        
+        updateProgress("Uploading your resume...")
+        const uploadResult = await uploadTemporaryResume(uploadedFile)
+        
+        if (!uploadResult.success || !uploadResult.tempUrl) {
+          throw new Error(uploadResult.error || "Failed to upload resume")
+        }
+        
+        updateProgress("Analyzing your resume with AI...")
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        parsedCandidate = await parseResumeSkills(uploadResult.tempUrl)
+        candidateName = `${parsedCandidate.main.first_name} ${parsedCandidate.main.last_name}`.trim()
+        
+        updateProgress("Extracting skills and experience...")
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        updateProgress("Comparing against job requirements...")
+        
+        // Store temp file path for later use
+        setMatchAnalyses(prevAnalyses =>
+          prevAnalyses.map(ma => 
+            ma.id === analysisId 
+              ? { 
+                  ...ma, 
+                  tempFilePath: uploadResult.tempPath,
+                  uploadedFile: uploadedFile
+                }
+              : ma
+          )
+        )
       }
       
       // Fetch job data
@@ -425,8 +459,21 @@ export default function CandidateMatchAnalysis({ jobId }: CandidateMatchAnalysis
 
   // Handle saving analysis
   const handleSaveAnalysis = async (analysisId: string) => {
+    console.log("=== HANDLE SAVE ANALYSIS CALLED ===")
+    console.log("Analysis ID:", analysisId)
+    
     const analysis = matchAnalyses.find(ma => ma.id === analysisId)
-    if (!analysis || !analysis.results || !analysis.parsedCandidate) return
+    console.log("Found analysis:", !!analysis)
+    console.log("Has results:", !!analysis?.results)
+    console.log("Has parsed candidate:", !!analysis?.parsedCandidate)
+    
+    if (!analysis || !analysis.results || !analysis.parsedCandidate) {
+      console.log("Early return - missing required data")
+      return
+    }
+
+    console.log("Analysis candidate info:", analysis.candidateInfo)
+    console.log("Parsed candidate data:", analysis.parsedCandidate)
 
     setIsSaving({ ...isSaving, [analysisId]: true })
     
@@ -435,17 +482,36 @@ export default function CandidateMatchAnalysis({ jobId }: CandidateMatchAnalysis
       
       // Save new candidate if needed
       if (analysis.candidateInfo.type === "new") {
-        candidateId = await saveCandidate(
-          analysis.parsedCandidate,
-          analysis.candidateInfo.source === "linkedin" ? linkedinUrl : undefined
-        )
+        console.log("Saving new candidate...")
+        if (analysis.candidateInfo.source === "pdf" && analysis.tempFilePath) {
+          console.log("PDF candidate path - calling savePDFCandidateWithResume")
+          // PDF candidate - use special function that handles resume moving
+          candidateId = await savePDFCandidateWithResume(
+            analysis.parsedCandidate,
+            analysis.tempFilePath,
+            jobId,
+            analysis.results
+          )
+        } else {
+          console.log("LinkedIn candidate path - calling saveCandidate")
+          // LinkedIn candidate - use regular save
+          candidateId = await saveCandidate(
+            analysis.parsedCandidate,
+            analysis.candidateInfo.source === "linkedin" ? linkedinUrl : undefined,
+            "linkedin"
+          )
+          console.log("Candidate saved with ID:", candidateId)
+          // Save the match analysis separately for LinkedIn
+          console.log("Saving match analysis...")
+          await saveMatchAnalysis(jobId, candidateId, analysis.results)
+        }
       } else {
         // For existing candidates, we already have the ID
         candidateId = selectedExistingCandidate
+        await saveMatchAnalysis(jobId, candidateId, analysis.results)
       }
       
-      // Save the match analysis
-      await saveMatchAnalysis(jobId, candidateId, analysis.results)
+      console.log("Save operation completed successfully")
       
       // Update the analysis to mark it as saved
       setMatchAnalyses(prevAnalyses =>
@@ -456,11 +522,15 @@ export default function CandidateMatchAnalysis({ jobId }: CandidateMatchAnalysis
         )
       )
       
+      const successMessage = analysis.candidateInfo.type === "new" 
+        ? analysis.candidateInfo.source === "pdf"
+          ? "Candidate created with resume, and match analysis saved successfully."
+          : "Candidate created and match analysis saved successfully."
+        : "Match analysis saved successfully."
+      
       toast({
         title: "Success",
-        description: analysis.candidateInfo.type === "new" 
-          ? "Candidate created and match analysis saved successfully."
-          : "Match analysis saved successfully.",
+        description: successMessage,
       })
     } catch (error) {
       console.error("Error saving analysis:", error)

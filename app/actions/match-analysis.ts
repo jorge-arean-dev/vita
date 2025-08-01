@@ -1,6 +1,11 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { 
+  uploadTemporaryResume, 
+  moveTempResumeToCandidate, 
+  updateCandidateResumeUrl 
+} from "./candidates"
 
 // Types for API responses
 interface LinkedInProfileData {
@@ -355,7 +360,8 @@ export async function runMatchAnalysis(
  */
 export async function saveCandidate(
   candidateData: ParsedCandidate,
-  linkedinUrl?: string
+  linkedinUrl?: string,
+  source: "linkedin" | "resume" = "linkedin"
 ): Promise<string> {
   try {
     const supabase = await createClient()
@@ -363,6 +369,33 @@ export async function saveCandidate(
     
     if (!user) {
       throw new Error("User not authenticated")
+    }
+
+    // Log the candidate data for debugging
+    console.log("=== SAVING CANDIDATE ===")
+    console.log("Main data:", candidateData.main)
+    console.log("Skills data:", candidateData.skills)
+    console.log("Number of skills:", candidateData.skills?.length || 0)
+    console.log("Source:", source)
+    
+    // Handle country - if it's not a valid ISO code, set to null
+    let countryCode = candidateData.main.country || null
+    if (countryCode && countryCode.trim() === "") {
+      countryCode = null
+    }
+    
+    // If country is provided, validate it exists in the countries table
+    if (countryCode) {
+      const { data: countryExists } = await supabase
+        .from("countries")
+        .select("iso_code")
+        .eq("iso_code", countryCode)
+        .single()
+      
+      if (!countryExists) {
+        console.log(`Country code "${countryCode}" not found in countries table, setting to null`)
+        countryCode = null
+      }
     }
 
     // Insert candidate
@@ -373,7 +406,7 @@ export async function saveCandidate(
         first_name: candidateData.main.first_name,
         last_name: candidateData.main.last_name,
         email: candidateData.main.email || "",
-        country: candidateData.main.country || "",
+        country: countryCode,
         linkedin: linkedinUrl || candidateData.main.linkedin || "",
         github: candidateData.main.github || "",
         years_experience: candidateData.years_of_experience
@@ -388,14 +421,18 @@ export async function saveCandidate(
 
     // Insert candidate skills
     if (candidateData.skills && candidateData.skills.length > 0) {
+      console.log(`Inserting ${candidateData.skills.length} skills for candidate ${candidate.id}`)
+      
       const skillsToInsert = candidateData.skills.map(skill => ({
         candidate_id: candidate.id,
         skill: skill.name,
         type: skill.type || "technical_skill",
-        source: "linkedin",
+        source: source,
         proficiency_level: skill.proficiency_level,
-        years_of_experience: skill.yoe
+        years_of_experience: skill.yoe || null
       }))
+
+      console.log("Skills to insert:", skillsToInsert)
 
       const { error: skillsError } = await supabase
         .from("candidates_skills")
@@ -404,7 +441,11 @@ export async function saveCandidate(
       if (skillsError) {
         console.error("Error inserting candidate skills:", skillsError)
         // Don't throw here - candidate was created successfully
+      } else {
+        console.log(`Successfully inserted ${skillsToInsert.length} skills`)
       }
+    } else {
+      console.log("No skills to insert for candidate")
     }
 
     return candidate.id
@@ -501,7 +542,7 @@ export async function analyzeLinkedInCandidate(
     
     // Save if requested
     if (saveResults) {
-      const candidateId = await saveCandidate(candidate, linkedinUrl)
+      const candidateId = await saveCandidate(candidate, linkedinUrl, "linkedin")
       await saveMatchAnalysis(jobId, candidateId, analysis)
       
       return { candidate, analysis, candidateId }
@@ -510,6 +551,159 @@ export async function analyzeLinkedInCandidate(
     return { candidate, analysis }
   } catch (error) {
     console.error("Error in analyzeLinkedInCandidate:", error)
+    throw error
+  }
+}
+
+/**
+ * Parse PDF resume using parse-resume-skill API
+ */
+export async function parseResumeSkills(pdfUrl: string): Promise<ParsedCandidate> {
+  try {
+    console.log("=== PARSE-RESUME-SKILL API CALL ===")
+    console.log("PDF URL:", pdfUrl)
+    console.log("API URL:", "https://parse-resume-skill-709637652952.europe-west1.run.app")
+    
+    const response = await fetch(
+      "https://parse-resume-skill-709637652952.europe-west1.run.app",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ pdf_url: pdfUrl }),
+        signal: AbortSignal.timeout(35000) // 35 second timeout
+      }
+    )
+
+    console.log("Response status:", response.status)
+    console.log("Response headers:", response.headers)
+
+    if (!response.ok) {
+      let errorData
+      try {
+        errorData = await response.json()
+      } catch (e) {
+        errorData = { error: "Failed to parse error response" }
+      }
+      console.error("Resume parsing failed:", errorData)
+      console.error("Full response:", {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries())
+      })
+      
+      if (response.status === 400) {
+        throw new Error("Invalid PDF format or content. Please try a different resume.")
+      }
+      if (response.status === 500 && errorData.error?.includes("OpenAI")) {
+        throw new Error("AI analysis service is temporarily unavailable. Please try again later.")
+      }
+      throw new Error(errorData.error || "Failed to parse resume. Please try again.")
+    }
+
+    const parsedData = await response.json()
+    
+    // Validate the parsed data has required fields
+    if (!parsedData.main || (!parsedData.main.first_name && !parsedData.main.last_name)) {
+      throw new Error("Could not extract name from resume. Please check the file and try again.")
+    }
+
+    return parsedData
+  } catch (error) {
+    console.error("Error parsing resume skills:", error)
+    throw error
+  }
+}
+
+/**
+ * Complete PDF parsing and analysis flow
+ */
+export async function analyzePDFCandidate(
+  file: File,
+  jobId: string,
+  saveResults: boolean = false
+): Promise<{
+  candidate: ParsedCandidate
+  analysis: MatchAnalysisResponse
+  candidateId?: string
+  tempFilePath?: string
+}> {
+  try {
+    // Step 1: Upload PDF to temp_resumes (public bucket)
+    const uploadResult = await uploadTemporaryResume(file)
+    if (!uploadResult.success || !uploadResult.tempUrl) {
+      throw new Error(uploadResult.error || "Failed to upload resume")
+    }
+
+    // Step 2: Parse resume using public URL
+    const candidate = await parseResumeSkills(uploadResult.tempUrl)
+    
+    // Step 3: Get job data
+    const jobData = await fetchJobDataForAnalysis(jobId)
+    if (!jobData) {
+      throw new Error("Job not found")
+    }
+
+    // Step 4: Run match analysis
+    const analysis = await runMatchAnalysis(candidate, jobData)
+    
+    // Step 5: Save if requested
+    if (saveResults) {
+      // Create candidate
+      const candidateId = await saveCandidate(candidate, undefined, "resume")
+      
+      // Move resume from temp to final location
+      if (uploadResult.tempPath) {
+        const moveResult = await moveTempResumeToCandidate(uploadResult.tempPath, candidateId)
+        if (moveResult.success && moveResult.finalUrl) {
+          // Update candidate with final resume URL
+          await updateCandidateResumeUrl(candidateId, moveResult.finalUrl)
+        }
+      }
+      
+      // Save match analysis
+      await saveMatchAnalysis(jobId, candidateId, analysis)
+      
+      return { candidate, analysis, candidateId }
+    }
+    
+    return { candidate, analysis, tempFilePath: uploadResult.tempPath }
+  } catch (error) {
+    console.error("Error in analyzePDFCandidate:", error)
+    throw error
+  }
+}
+
+/**
+ * Save PDF candidate with resume file management
+ */
+export async function savePDFCandidateWithResume(
+  candidateData: ParsedCandidate,
+  tempFilePath: string,
+  jobId: string,
+  analysisResults: MatchAnalysisResponse
+): Promise<string> {
+  try {
+    // Step 1: Create candidate
+    const candidateId = await saveCandidate(candidateData, undefined, "resume")
+    
+    // Step 2: Move resume from temp to final location
+    const moveResult = await moveTempResumeToCandidate(tempFilePath, candidateId)
+    if (moveResult.success && moveResult.finalUrl) {
+      // Step 3: Update candidate with final resume URL
+      await updateCandidateResumeUrl(candidateId, moveResult.finalUrl)
+    } else {
+      console.error("Failed to move resume file:", moveResult.error)
+      // Don't fail the entire operation, but log the error
+    }
+    
+    // Step 4: Save match analysis
+    await saveMatchAnalysis(jobId, candidateId, analysisResults)
+    
+    return candidateId
+  } catch (error) {
+    console.error("Error saving PDF candidate with resume:", error)
     throw error
   }
 }
