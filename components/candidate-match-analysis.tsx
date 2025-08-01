@@ -410,7 +410,7 @@ export default function CandidateMatchAnalysis() {
         },
         candidate: {
           first_name: candidateName.split(' ')[0] || "Unknown",
-          last_name: candidateName.split(' ')[1] || "Candidate"
+          last_name: candidateName.split(' ')[1] || ""
         }
       }
 
@@ -426,7 +426,7 @@ export default function CandidateMatchAnalysis() {
                   type: candidateType,
                   source: candidateType === "new" ? newCandidateMethod : undefined
                 },
-                title: `Match Analysis for ${results.candidate.first_name} ${results.candidate.last_name}`
+                title: `Match Analysis for ${results.candidate.first_name}${results.candidate.last_name ? ` ${results.candidate.last_name}` : ""}`
               }
             : ma
         )
@@ -685,6 +685,29 @@ export default function CandidateMatchAnalysis() {
                       </Button>
                     )}
                     
+                    {/* Delete button for saved analyses in expanded view */}
+                    {analysis.isExpanded && !analysis.isNew && (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDelete(analysis.id)}
+                        className="gap-2"
+                        disabled={isDeleting[analysis.id]}
+                      >
+                        {isDeleting[analysis.id] ? (
+                          <>
+                            <Trash2 className="h-4 w-4 animate-spin" />
+                            Deleting...
+                          </>
+                        ) : (
+                          <>
+                            <Trash2 className="h-4 w-4" />
+                            Delete
+                          </>
+                        )}
+                      </Button>
+                    )}
+                    
                     {/* Save/Discard buttons for new analyses with results */}
                     {analysis.isExpanded && analysis.isNew && analysis.results && (
                       <>
@@ -885,7 +908,7 @@ export default function CandidateMatchAnalysis() {
                             {/* Element 1.2: Informative Banner */}
                             <div className={`p-4 rounded-lg border ${getBannerColor(analysis.results.match_analysis.status)}`}>
                               <p className="text-sm font-medium">
-                                {analysis.results.candidate.first_name} {analysis.results.candidate.last_name} meets {analysis.results.match_analysis.matched_mandatory_requirements} out of{" "}
+                                {analysis.results.candidate.first_name}{analysis.results.candidate.last_name ? ` ${analysis.results.candidate.last_name}` : ""} meets {analysis.results.match_analysis.matched_mandatory_requirements} out of{" "}
                                 {analysis.results.match_analysis.total_mandatory_requirements} requirements.
                               </p>
                               <p className="text-sm text-muted-foreground mt-1">{analysis.results.match_analysis.overall_feedback}</p>
@@ -979,30 +1002,14 @@ export default function CandidateMatchAnalysis() {
                       <div
                         className={`space-y-8 mt-8 transition-all duration-1000 ${isVisible(analysis.id, "requirements-header") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
                       >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h2 className="text-2xl font-bold mb-2">Per Requirement Analysis</h2>
-                            <p className="text-lg text-muted-foreground">
-                              See below for a detailed analysis of each requirement.
-                            </p>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => toggleSection(analysis.id, 'requirements')}
-                            className="h-8 w-8 p-0"
-                            aria-label={isSectionCollapsed(analysis.id, 'requirements') ? "Expand requirements" : "Collapse requirements"}
-                          >
-                            {isSectionCollapsed(analysis.id, 'requirements') ? (
-                              <ChevronRight className="h-4 w-4" />
-                            ) : (
-                              <ChevronDown className="h-4 w-4" />
-                            )}
-                          </Button>
+                        <div>
+                          <h2 className="text-2xl font-bold mb-2">Per Requirement Analysis</h2>
+                          <p className="text-lg text-muted-foreground">
+                            See below for a detailed analysis of each requirement.
+                          </p>
                         </div>
 
                         {/* Requirement Cards - Table-style Layout */}
-                        {!isSectionCollapsed(analysis.id, 'requirements') && (
                           <div className="space-y-4 mt-8">
                             {analysis.results.requirement_evaluations.map((req, index) => (
                               <Card
@@ -1011,7 +1018,7 @@ export default function CandidateMatchAnalysis() {
                                 className="w-full transition-all duration-500 animate-in slide-in-from-left hover:shadow-md"
                                 style={{ animationDelay: `${index * 100}ms` }}
                               >
-                                <CardContent className="p-6">
+                                <CardContent className="px-8 py-2">
                                   <div className="flex items-center justify-between">
                                     {/* Left Section - Requirement Name and Score Info */}
                                     <div className="flex-1 min-w-0">
@@ -1033,7 +1040,6 @@ export default function CandidateMatchAnalysis() {
                               </Card>
                             ))}
                           </div>
-                        )}
                       </div>
 
 
@@ -1041,24 +1047,12 @@ export default function CandidateMatchAnalysis() {
                       <div
                         className={`space-y-6 mt-8 transition-all duration-1000 ${isVisible(analysis.id, "recommendations") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
                       >
-                        <div className="flex items-center justify-between">
-                          <h2 className="text-2xl font-bold">Recruiter Recommendations</h2>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => toggleSection(analysis.id, 'recommendations')}
-                            className="h-8 w-8 p-0"
-                            aria-label={isSectionCollapsed(analysis.id, 'recommendations') ? "Expand recommendations" : "Collapse recommendations"}
-                          >
-                            {isSectionCollapsed(analysis.id, 'recommendations') ? (
-                              <ChevronRight className="h-4 w-4" />
-                            ) : (
-                              <ChevronDown className="h-4 w-4" />
-                            )}
-                          </Button>
+                        <div>
+                          <h2 className="text-2xl font-bold mb-2">Recruiter Recommendations</h2>
+                          <p className="text-lg text-muted-foreground">
+                            Here's what to consider next
+                          </p>
                         </div>
-
-                        {!isSectionCollapsed(analysis.id, 'recommendations') && (
                           <div className="space-y-4">
                           <Card>
                             <CardHeader>
@@ -1092,7 +1086,6 @@ export default function CandidateMatchAnalysis() {
                             </CardContent>
                           </Card>
                           </div>
-                        )}
                       </div>
 
                     </div>
