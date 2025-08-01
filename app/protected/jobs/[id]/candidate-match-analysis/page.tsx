@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { Suspense } from "react"
 import CandidateMatchAnalysis from "@/components/candidate-match-analysis"
 import { getJobData } from "@/app/actions/job-management"
+import { getExistingMatchAnalyses } from "@/app/actions/match-analysis"
 import { Skeleton } from "@/components/ui/skeleton"
 
 interface CandidateMatchAnalysisPageProps {
@@ -74,12 +75,15 @@ export default async function CandidateMatchAnalysisPage({ params }: CandidateMa
  * Container component that fetches job data and renders the Candidate Match Analysis
  */
 async function CandidateMatchAnalysisContainer({ jobId }: { jobId: string }) {
-  // Fetch job data
-  const jobData = await getJobData(jobId)
+  // Fetch job data and existing analyses in parallel
+  const [jobData, existingAnalyses] = await Promise.all([
+    getJobData(jobId),
+    getExistingMatchAnalyses(jobId)
+  ])
 
   if (!jobData) {
     redirect("/protected/jobs")
   }
 
-  return <CandidateMatchAnalysis jobId={jobId} />
+  return <CandidateMatchAnalysis jobId={jobId} existingAnalyses={existingAnalyses} />
 }

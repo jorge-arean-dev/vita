@@ -257,6 +257,108 @@ When working on this project:
 - ❌ Bypassing RLS policies for data access
 - ❌ Code duplication instead of modular, reusable patterns
 
+## TypeScript Error Prevention Guidelines
+
+### 🔍 Interface and Type Safety Rules
+
+**CRITICAL**: Always verify interface definitions before accessing properties
+
+#### Before Writing Any Property Access:
+1. **Read the interface definition first** - Use `Read` or `Grep` to find the exact interface
+2. **Check all property names** - Ensure exact spelling and existence
+3. **Verify property types** - Confirm the property type matches expected usage
+4. **Use optional chaining** - Always use `?.` for potentially undefined properties
+
+#### Interface Definition Verification Process:
+```typescript
+// ❌ WRONG - Assuming properties exist
+analysis.candidateInfo.firstName  // firstName might not exist
+
+// ✅ CORRECT - Verify interface first, then access safely
+interface CandidateInfo {
+  name: string
+  type: "existing" | "new"
+  source?: string
+  // firstName does NOT exist!
+}
+analysis.candidateInfo?.name || "Unknown"
+```
+
+### 🏗️ Type Architecture Rules
+
+#### Separate Type Handling:
+1. **Never mix different types in the same section** - Each component section should handle one type
+2. **Use type guards properly** - Check for distinguishing properties before casting
+3. **Avoid unsafe type casting** - Never cast between unrelated types
+4. **Create helper functions** - Use helpers to abstract type differences
+
+#### Union Type Handling:
+```typescript
+// ❌ WRONG - Unsafe casting between unrelated types
+(analysis as ExistingMatchAnalysis).match_analysis
+
+// ✅ CORRECT - Use type guards or helper functions
+const getAnalysisData = (analysis: MatchAnalysis | ExistingMatchAnalysis) => {
+  if ('results' in analysis) {
+    return analysis.results.match_analysis
+  } else {
+    return analysis.match_analysis
+  }
+}
+```
+
+### 🔧 Code Structure Rules
+
+#### State Management:
+1. **Define intersection types properly** - Use `&` for extending interfaces
+2. **Initialize state with all required properties** - Don't leave properties undefined
+3. **Use literal types for constants** - `as const` for immutable values
+
+#### Property Access Patterns:
+```typescript
+// ❌ WRONG - Accessing non-existent properties
+analysis.candidateInfo.firstName
+
+// ✅ CORRECT - Access only defined properties
+analysis.candidateInfo.name
+
+// ❌ WRONG - Mixed type access in same section
+analysis.candidateInfo?.name || analysis.candidates?.first_name
+
+// ✅ CORRECT - Separate sections for different types
+// Section 1: Handle MatchAnalysis
+analysis.candidateInfo?.name
+// Section 2: Handle ExistingMatchAnalysis  
+analysis.candidates?.first_name
+```
+
+### 🛠️ Error Prevention Checklist
+
+Before making any component changes:
+
+- [ ] **Read all relevant interface definitions**
+- [ ] **Verify every property access matches the interface**
+- [ ] **Check for type mixing in single sections**
+- [ ] **Use helper functions for cross-type operations**
+- [ ] **Test with `pnpm build` before claiming completion**
+- [ ] **Search for similar patterns that might have same issues**
+
+### 🚨 Red Flag Patterns to Avoid
+
+1. **Property Access Without Verification**: Accessing `.someProperty` without checking interface
+2. **Unsafe Type Casting**: `(object as DifferentType)` between unrelated types  
+3. **Mixed Type Handling**: One section trying to handle multiple unrelated types
+4. **Assumed Properties**: Assuming properties exist based on similar objects
+5. **Missing Optional Chaining**: Accessing nested properties without `?.`
+
+### 📋 Pre-Commit Verification
+
+Always run before claiming a task is complete:
+1. `pnpm build` - Must pass without TypeScript errors
+2. Check all property accesses match their interfaces
+3. Verify no unsafe type casting exists
+4. Confirm separation of concerns between different types
+
 ---
 
 *This file serves as the single source of truth for development standards. Always reference these guidelines when making code changes.*

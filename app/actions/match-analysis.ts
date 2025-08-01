@@ -446,6 +446,76 @@ export async function saveCandidate(
 /**
  * Save match analysis results to the database
  */
+/**
+ * Fetch existing match analyses for a job
+ */
+export async function getExistingMatchAnalyses(jobId: string) {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      throw new Error("User not authenticated")
+    }
+
+    // Query match analyses with candidate data
+    const { data: analyses, error } = await supabase
+      .from("job_candidate_match_analysis")
+      .select(`
+        id,
+        job_id,
+        candidate_id,
+        match_analysis,
+        requirement_evaluations,
+        summary,
+        recruiter_recommendations,
+        created_at,
+        updated_at,
+        candidates (
+          id,
+          first_name,
+          last_name,
+          email,
+          linkedin,
+          country
+        )
+      `)
+      .eq("job_id", jobId)
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      console.error("Error fetching match analyses:", error)
+      console.error("Job ID:", jobId)
+      console.error("User ID:", user.id)
+      throw new Error("Failed to fetch existing match analyses")
+    }
+
+    console.log("Fetched analyses:", analyses?.length || 0)
+    
+    // Transform the data to handle Supabase's array response for joined data
+    const transformedAnalyses = (analyses || []).map(analysis => ({
+      ...analysis,
+      // Convert candidates array to single object since it's a one-to-one relationship
+      candidates: Array.isArray(analysis.candidates) && analysis.candidates.length > 0 
+        ? analysis.candidates[0] 
+        : null
+    }))
+    
+    // Filter out any analyses where candidate data failed to load
+    const validAnalyses = transformedAnalyses.filter(analysis => analysis.candidates)
+    
+    if (validAnalyses.length !== transformedAnalyses.length) {
+      console.warn(`Filtered out ${transformedAnalyses.length - validAnalyses.length} analyses with missing candidate data`)
+    }
+
+    return validAnalyses
+  } catch (error) {
+    console.error("Error in getExistingMatchAnalyses:", error)
+    throw error
+  }
+}
+
 export async function saveMatchAnalysis(
   jobId: string,
   candidateId: string,
@@ -565,7 +635,7 @@ export async function parseResumeSkills(pdfUrl: string): Promise<ParsedCandidate
       let errorData
       try {
         errorData = await response.json()
-      } catch (e) {
+      } catch {
         errorData = { error: "Failed to parse error response" }
       }
       console.error("Resume parsing failed:", errorData)
@@ -683,5 +753,35 @@ export async function savePDFCandidateWithResume(
   } catch (error) {
     console.error("Error saving PDF candidate with resume:", error)
     throw error
+  }
+}
+
+/**
+ * Delete a match analysis
+ */
+export async function deleteMatchAnalysis(analysisId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      throw new Error("User not authenticated")
+    }
+
+    const { error } = await supabase
+      .from("job_candidate_match_analysis")
+      .delete()
+      .eq("id", analysisId)
+      .eq("user_id", user.id) // Security: only delete own analyses
+
+    if (error) {
+      console.error("Error deleting match analysis:", error)
+      return { success: false, error: "Failed to delete match analysis" }
+    }
+
+    return { success: true }
+  } catch (error) {
+    console.error("Error in deleteMatchAnalysis:", error)
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
   }
 }

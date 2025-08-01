@@ -20,6 +20,7 @@ import {
   saveMatchAnalysis,
   parseResumeSkills,
   savePDFCandidateWithResume,
+  deleteMatchAnalysis,
   type ParsedCandidate
 } from "@/app/actions/match-analysis"
 import { uploadTemporaryResume } from "@/app/actions/candidates"
@@ -147,6 +148,55 @@ function CircularProgress({ value, size = 120, strokeWidth = 8, className = "", 
   )
 }
 
+// Small circular progress component for collapsed cards
+function SmallCircularProgress({ value, status }: { value: number; status: string }) {
+  const size = 32
+  const strokeWidth = 3
+  const radius = (size - strokeWidth) / 2
+  const circumference = radius * 2 * Math.PI
+  const strokeDasharray = circumference
+  const strokeDashoffset = circumference - (value / 100) * circumference
+
+  const getColor = (status: string) => {
+    if (status === "strong") return "stroke-green-500"
+    if (status === "adequate") return "stroke-blue-500"
+    if (status === "weak") return "stroke-orange-500"
+    if (status === "missing") return "stroke-red-500"
+    return "stroke-gray-500"
+  }
+
+  return (
+    <div className="relative inline-flex items-center justify-center">
+      <svg width={size} height={size} className="transform -rotate-90">
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          fill="transparent"
+          className="text-muted-foreground/20"
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          fill="transparent"
+          strokeDasharray={strokeDasharray}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          className={`transition-all duration-1000 ease-out ${getColor(status)}`}
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="text-xs font-semibold">{value}</span>
+      </div>
+    </div>
+  )
+}
+
 // Utility functions for styling
 function getStatusBadge(score: number) {
   if (score >= 75) {
@@ -176,13 +226,52 @@ function getBannerColor(status: string) {
   return "bg-gray-100 text-gray-800 border-gray-200"
 }
 
-interface CandidateMatchAnalysisProps {
-  jobId: string
+interface ExistingMatchAnalysis {
+  id: string
+  job_id: string
+  candidate_id: string
+  match_analysis: {
+    overall_score: number
+    status: "strong" | "adequate" | "weak" | "missing"
+    overall_feedback: string
+    matched_mandatory_requirements: number
+    total_mandatory_requirements: number
+  }
+  requirement_evaluations: Array<{
+    requirement_name: string
+    score: number
+    status: "strong" | "adequate" | "weak" | "missing"
+    feedback: string
+  }>
+  summary: {
+    strengths: string[]
+    gaps: string[]
+  }
+  recruiter_recommendations: {
+    interview_strategy: string[]
+    other_options: string[]
+  }
+  created_at: string
+  updated_at: string
+  candidates: {
+    id: string
+    first_name: string
+    last_name: string
+    email: string
+    linkedin: string
+    country: string
+  } | null
 }
 
-export default function CandidateMatchAnalysis({ jobId }: CandidateMatchAnalysisProps) {
+interface CandidateMatchAnalysisProps {
+  jobId: string
+  existingAnalyses?: ExistingMatchAnalysis[]
+}
+
+export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }: CandidateMatchAnalysisProps) {
   const [mounted, setMounted] = useState(false)
   const [matchAnalyses, setMatchAnalyses] = useState<MatchAnalysis[]>([])
+  const [existingAnalysesState, setExistingAnalysesState] = useState<(ExistingMatchAnalysis & { isExpanded?: boolean; isNew: false })[]>([])
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState<{ [key: string]: boolean }>({})
   const { toast } = useToast()
@@ -215,6 +304,18 @@ export default function CandidateMatchAnalysis({ jobId }: CandidateMatchAnalysis
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Initialize existing analyses
+  useEffect(() => {
+    if (mounted && existingAnalyses.length > 0) {
+      const analysesWithState = existingAnalyses.map(analysis => ({
+        ...analysis,
+        isExpanded: false,
+        isNew: false as const
+      }))
+      setExistingAnalysesState(analysesWithState)
+    }
+  }, [mounted, existingAnalyses])
 
   // Filter candidates based on search input
   const filteredCandidates = candidates.filter(candidate =>
@@ -275,19 +376,42 @@ export default function CandidateMatchAnalysis({ jobId }: CandidateMatchAnalysis
     setIsDeleting({ ...isDeleting, [deleteConfirmId]: true })
     
     try {
-      // TODO: Implement API call to delete from database
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Check if it's an existing analysis (from database) or new analysis (local only)
+      const isExistingAnalysis = existingAnalysesState.some(analysis => analysis.id === deleteConfirmId)
       
-      setMatchAnalyses(matchAnalyses.filter((ma) => ma.id !== deleteConfirmId))
-      
-      toast({
-        title: "Success",
-        description: "Match analysis deleted successfully.",
-      })
+      if (isExistingAnalysis) {
+        // Delete from database
+        const result = await deleteMatchAnalysis(deleteConfirmId)
+        if (!result.success) {
+          console.error("Failed to delete match analysis:", result.error)
+          toast({
+            title: "Error",
+            description: "Failed to delete analysis. Please try again.",
+            variant: "destructive",
+          })
+          return
+        }
+        
+        // Remove from existing analyses state
+        setExistingAnalysesState(existingAnalysesState.filter(analysis => analysis.id !== deleteConfirmId))
+        
+        toast({
+          title: "Success",
+          description: "Analysis deleted successfully.",
+        })
+      } else {
+        // Remove from new analyses state (local only)
+        setMatchAnalyses(matchAnalyses.filter((ma) => ma.id !== deleteConfirmId))
+        
+        toast({
+          title: "Success",
+          description: "Analysis deleted successfully.",
+        })
+      }
       
       setDeleteConfirmId(null)
     } catch (error) {
-      console.error("Error deleting match analysis:", error)
+      console.error("Error deleting analysis:", error)
       toast({
         title: "Error",
         description: "An unexpected error occurred while deleting.",
@@ -312,6 +436,17 @@ export default function CandidateMatchAnalysis({ jobId }: CandidateMatchAnalysis
     setSelectedExistingCandidate(candidateId)
     setIsCandidateDropdownOpen(false)
     setCandidateSearchValue("")
+  }
+
+  // Handle expanding existing analyses
+  const handleToggleExistingAnalysis = (analysisId: string) => {
+    setExistingAnalysesState(prevAnalyses =>
+      prevAnalyses.map(analysis =>
+        analysis.id === analysisId 
+          ? { ...analysis, isExpanded: !analysis.isExpanded }
+          : analysis
+      )
+    )
   }
 
   // Handle file upload
@@ -600,6 +735,28 @@ export default function CandidateMatchAnalysis({ jobId }: CandidateMatchAnalysis
   const isVisible = (analysisId: string, section: string) => 
     (visibleSections[analysisId] || []).includes(section)
 
+  // Helper functions to access data consistently for both new and existing analyses
+  const getAnalysisData = (analysis: MatchAnalysis | ExistingMatchAnalysis) => {
+    if ('results' in analysis && analysis.results) {
+      // New analysis structure
+      return {
+        match_analysis: analysis.results.match_analysis,
+        requirement_evaluations: analysis.results.requirement_evaluations,
+        summary: analysis.results.summary,
+        recruiter_recommendations: analysis.results.recruiter_recommendations
+      }
+    } else {
+      // Existing analysis structure
+      const existingAnalysis = analysis as ExistingMatchAnalysis
+      return {
+        match_analysis: existingAnalysis.match_analysis,
+        requirement_evaluations: existingAnalysis.requirement_evaluations,
+        summary: existingAnalysis.summary,
+        recruiter_recommendations: existingAnalysis.recruiter_recommendations
+      }
+    }
+  }
+
   // Scroll to requirement evaluation card
   const scrollToRequirement = (requirementId: string) => {
     const element = document.getElementById(`requirement-${requirementId}`)
@@ -645,7 +802,268 @@ export default function CandidateMatchAnalysis({ jobId }: CandidateMatchAnalysis
 
       {/* Match Analyses List */}
       <div className="space-y-4">
-        {matchAnalyses.length === 0 ? (
+        {/* Existing Analyses */}
+        {existingAnalysesState.map((analysis) => (
+          <Card key={analysis.id} className="w-full">
+            <CardHeader className={analysis.isExpanded ? "pb-3" : "py-0"}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3 flex-1">
+                  {/* Collapse/Expand Toggle */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleToggleExistingAnalysis(analysis.id)}
+                    className="h-8 w-8 p-0"
+                    aria-label={analysis.isExpanded ? "Collapse" : "Expand"}
+                  >
+                    {analysis.isExpanded ? (
+                      <ChevronDown className="h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4" />
+                    )}
+                  </Button>
+
+                  {/* Analysis Title */}
+                  <h3 className="text-lg font-semibold">
+                    Match analysis for {analysis.candidates?.first_name || "Unknown"} {analysis.candidates?.last_name || "Candidate"}
+                  </h3>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {/* Small Circular Progress - hidden when expanded */}
+                  {!analysis.isExpanded && (
+                    <SmallCircularProgress 
+                      value={analysis.match_analysis?.overall_score || 0} 
+                      status={
+                        (analysis.match_analysis?.overall_score || 0) >= 75 ? "strong" : 
+                        (analysis.match_analysis?.overall_score || 0) >= 50 ? "adequate" : 
+                        (analysis.match_analysis?.overall_score || 0) >= 25 ? "weak" : "missing"
+                      } 
+                    />
+                  )}
+                  
+                  {/* Delete Button */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setDeleteConfirmId(analysis.id)}
+                    className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+                    aria-label="Delete analysis"
+                    disabled={isDeleting[analysis.id]}
+                  >
+                    {isDeleting[analysis.id] ? (
+                      <Trash2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+
+            {/* Expanded Content for Existing Analysis */}
+            {analysis.isExpanded && (
+              <CardContent className="pt-0">
+                <div className="space-y-12">
+                  {/* Element 1: Combined Section - Overall Match Score + Requirement Analysis */}
+                  <div className="transition-all duration-1000 opacity-100 translate-y-0">
+                    {/* Row Container */}
+                    <div className="flex flex-col lg:flex-row gap-8">
+                      {/* Element 1: Column Container */}
+                      <div className="flex flex-col space-y-6 lg:w-1/2">
+                        {/* Element 1.1: Overall Match Score */}
+                        <div className="space-y-4">
+                          <h2 className="text-2xl font-bold text-left">Overall Match Score</h2>
+                          <div className="flex justify-center">
+                            <CircularProgress 
+                              value={getAnalysisData(analysis).match_analysis.overall_score} 
+                              status={getAnalysisData(analysis).match_analysis.status} 
+                            />
+                          </div>
+                        </div>
+
+                        {/* Element 1.2: Informative Banner */}
+                        <div className={`p-4 rounded-lg border ${getBannerColor(getAnalysisData(analysis).match_analysis.status)}`}>
+                          <p className="text-sm font-medium">
+                            {`${analysis.candidates?.first_name || "Unknown"} ${analysis.candidates?.last_name || "Candidate"}`} meets {getAnalysisData(analysis).match_analysis.matched_mandatory_requirements} out of{" "}
+                            {getAnalysisData(analysis).match_analysis.total_mandatory_requirements} requirements.
+                          </p>
+                          <p className="text-sm text-muted-foreground mt-1">{getAnalysisData(analysis).match_analysis.overall_feedback}</p>
+                        </div>
+                      </div>
+
+                      {/* Element 2: Requirement Analysis */}
+                      <div className="flex flex-col space-y-6 lg:w-1/2">
+                        <h2 className="text-2xl font-bold">Requirement Analysis</h2>
+                        <div className="space-y-6">
+                          {getAnalysisData(analysis).requirement_evaluations.map((req) => (
+                            <div
+                              key={req.requirement_name}
+                              className="space-y-2 transition-all duration-500 opacity-100 translate-x-0"
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <span className="text-sm font-medium">{req.requirement_name}</span>
+                                  <button
+                                    onClick={() => scrollToRequirement(req.requirement_name)}
+                                    className="p-1 rounded-sm hover:bg-muted/50 transition-colors opacity-60 hover:opacity-100"
+                                    title="View detailed evaluation"
+                                  >
+                                    <Info className="h-3 w-3" />
+                                  </button>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  {getStatusBadge(req.score)}
+                                </div>
+                              </div>
+                              <div className="relative">
+                                <div className="w-full bg-muted rounded-full h-2">
+                                  <div
+                                    className={`h-2 rounded-full transition-all duration-1000 ease-out ${getProgressBarColor(req.score)}`}
+                                    style={{ width: `${req.score}%` }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Element 2: Candidate Summary */}
+                  <div className="transition-all duration-1000 opacity-100 translate-y-0">
+                    <div className="space-y-6">
+                      <h2 className="text-2xl font-bold">Candidate Summary</h2>
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="text-[hsl(var(--match-strong-text))]">Strengths</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <ul className="space-y-3">
+                              {getAnalysisData(analysis).summary.strengths.map((strength, index) => (
+                                <li key={index} className="flex items-start gap-2">
+                                  <div className="w-2 h-2 rounded-full bg-[hsl(var(--match-strong))] mt-2 flex-shrink-0" />
+                                  <span className="text-sm leading-relaxed">{strength}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </CardContent>
+                        </Card>
+
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="text-[hsl(var(--match-missing-text))]">Gaps</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <ul className="space-y-3">
+                              {getAnalysisData(analysis).summary.gaps.map((gap, index) => (
+                                <li key={index} className="flex items-start gap-2">
+                                  <div className="w-2 h-2 rounded-full bg-[hsl(var(--match-missing))] mt-2 flex-shrink-0" />
+                                  <span className="text-sm leading-relaxed">{gap}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Requirement Evaluations Section */}
+                  <div className="space-y-8 mt-8 transition-all duration-1000 opacity-100 translate-y-0">
+                    <div>
+                      <h2 className="text-2xl font-bold mb-2">Per Requirement Analysis</h2>
+                      <p className="text-lg text-muted-foreground">
+                        See below for a detailed analysis of each requirement.
+                      </p>
+                    </div>
+
+                    {/* Requirement Cards - Table-style Layout */}
+                      <div className="space-y-4 mt-8">
+                        {getAnalysisData(analysis).requirement_evaluations.map((req, index) => (
+                          <Card
+                            key={req.requirement_name}
+                            id={`requirement-${req.requirement_name}`}
+                            className="w-full transition-all duration-500 animate-in slide-in-from-left hover:shadow-md"
+                            style={{ animationDelay: `${index * 100}ms` }}
+                          >
+                            <CardContent className="px-8 py-2">
+                              <div className="flex items-center justify-between">
+                                {/* Left Section - Requirement Name and Score Info */}
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-4 mb-3">
+                                    <h3 className="text-xl font-semibold">{req.requirement_name}</h3>
+                                    <div className="flex items-center gap-3">
+                                      {getStatusBadge(req.score)}
+                                    </div>
+                                  </div>
+                                  <p className="text-sm text-muted-foreground leading-relaxed pr-4">{req.feedback}</p>
+                                </div>
+
+                                {/* Right Section - Circular Progress */}
+                                <div className="flex-shrink-0 ml-6">
+                                  <CircularProgress value={req.score} size={80} strokeWidth={6} status={req.status} />
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                  </div>
+
+                  {/* Recommendations */}
+                  <div className="space-y-6 mt-8 transition-all duration-1000 opacity-100 translate-y-0">
+                    <div>
+                      <h2 className="text-2xl font-bold mb-2">Recruiter Recommendations</h2>
+                      <p className="text-lg text-muted-foreground">
+                        Here&apos;s what to consider next
+                      </p>
+                    </div>
+                      <div className="space-y-4">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-blue-700">Assessment Strategy</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <ul className="space-y-3">
+                            {getAnalysisData(analysis).recruiter_recommendations.interview_strategy.map((item, index) => (
+                              <li key={index} className="flex items-start gap-2">
+                                <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
+                                <span className="text-sm leading-relaxed">{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-purple-700">Other Options</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <ul className="space-y-3">
+                            {getAnalysisData(analysis).recruiter_recommendations.other_options.map((item, index) => (
+                              <li key={index} className="flex items-start gap-2">
+                                <div className="w-2 h-2 rounded-full bg-purple-500 mt-2 flex-shrink-0" />
+                                <span className="text-sm leading-relaxed">{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            )}
+
+          </Card>
+        ))}
+
+        {/* New Analyses and Empty State */}
+        {matchAnalyses.length === 0 && existingAnalysesState.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12 text-center">
               <div className="rounded-full bg-muted p-3 mb-4">
@@ -934,19 +1352,19 @@ export default function CandidateMatchAnalysis({ jobId }: CandidateMatchAnalysis
                               <h2 className="text-2xl font-bold text-left">Overall Match Score</h2>
                               <div className="flex justify-center">
                                 <CircularProgress 
-                                  value={analysis.results.match_analysis.overall_score} 
-                                  status={analysis.results.match_analysis.status} 
+                                  value={getAnalysisData(analysis).match_analysis.overall_score} 
+                                  status={getAnalysisData(analysis).match_analysis.status} 
                                 />
                               </div>
                             </div>
 
                             {/* Element 1.2: Informative Banner */}
-                            <div className={`p-4 rounded-lg border ${getBannerColor(analysis.results.match_analysis.status)}`}>
+                            <div className={`p-4 rounded-lg border ${getBannerColor(getAnalysisData(analysis).match_analysis.status)}`}>
                               <p className="text-sm font-medium">
-                                {analysis.candidateInfo.name} meets {analysis.results.match_analysis.matched_mandatory_requirements} out of{" "}
-                                {analysis.results.match_analysis.total_mandatory_requirements} requirements.
+                                {analysis.candidateInfo?.name || "Unknown Candidate"} meets {getAnalysisData(analysis).match_analysis.matched_mandatory_requirements} out of{" "}
+                                {getAnalysisData(analysis).match_analysis.total_mandatory_requirements} requirements.
                               </p>
-                              <p className="text-sm text-muted-foreground mt-1">{analysis.results.match_analysis.overall_feedback}</p>
+                              <p className="text-sm text-muted-foreground mt-1">{getAnalysisData(analysis).match_analysis.overall_feedback}</p>
                             </div>
                           </div>
 
@@ -954,7 +1372,7 @@ export default function CandidateMatchAnalysis({ jobId }: CandidateMatchAnalysis
                           <div className="flex flex-col space-y-6 lg:w-1/2">
                             <h2 className="text-2xl font-bold">Requirement Analysis</h2>
                             <div className="space-y-6">
-                              {analysis.results.requirement_evaluations.map((req, index) => (
+                              {getAnalysisData(analysis).requirement_evaluations.map((req, index) => (
                                 <div
                                   key={req.requirement_name}
                                   className={`space-y-2 transition-all duration-500 ${
@@ -1004,7 +1422,7 @@ export default function CandidateMatchAnalysis({ jobId }: CandidateMatchAnalysis
                               </CardHeader>
                               <CardContent>
                                 <ul className="space-y-3">
-                                  {analysis.results.summary.strengths.map((strength, index) => (
+                                  {getAnalysisData(analysis).summary.strengths.map((strength, index) => (
                                     <li key={index} className="flex items-start gap-2">
                                       <div className="w-2 h-2 rounded-full bg-[hsl(var(--match-strong))] mt-2 flex-shrink-0" />
                                       <span className="text-sm leading-relaxed">{strength}</span>
@@ -1020,7 +1438,7 @@ export default function CandidateMatchAnalysis({ jobId }: CandidateMatchAnalysis
                               </CardHeader>
                               <CardContent>
                                 <ul className="space-y-3">
-                                  {analysis.results.summary.gaps.map((gap, index) => (
+                                  {getAnalysisData(analysis).summary.gaps.map((gap, index) => (
                                     <li key={index} className="flex items-start gap-2">
                                       <div className="w-2 h-2 rounded-full bg-[hsl(var(--match-missing))] mt-2 flex-shrink-0" />
                                       <span className="text-sm leading-relaxed">{gap}</span>
@@ -1046,7 +1464,7 @@ export default function CandidateMatchAnalysis({ jobId }: CandidateMatchAnalysis
 
                         {/* Requirement Cards - Table-style Layout */}
                           <div className="space-y-4 mt-8">
-                            {analysis.results.requirement_evaluations.map((req, index) => (
+                            {getAnalysisData(analysis).requirement_evaluations.map((req, index) => (
                               <Card
                                 key={req.requirement_name}
                                 id={`requirement-${req.requirement_name}`}
@@ -1095,7 +1513,7 @@ export default function CandidateMatchAnalysis({ jobId }: CandidateMatchAnalysis
                             </CardHeader>
                             <CardContent>
                               <ul className="space-y-3">
-                                {analysis.results.recruiter_recommendations.interview_strategy.map((item, index) => (
+                                {getAnalysisData(analysis).recruiter_recommendations.interview_strategy.map((item, index) => (
                                   <li key={index} className="flex items-start gap-2">
                                     <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
                                     <span className="text-sm leading-relaxed">{item}</span>
@@ -1111,7 +1529,7 @@ export default function CandidateMatchAnalysis({ jobId }: CandidateMatchAnalysis
                             </CardHeader>
                             <CardContent>
                               <ul className="space-y-3">
-                                {analysis.results.recruiter_recommendations.other_options.map((item, index) => (
+                                {getAnalysisData(analysis).recruiter_recommendations.other_options.map((item, index) => (
                                   <li key={index} className="flex items-start gap-2">
                                     <div className="w-2 h-2 rounded-full bg-purple-500 mt-2 flex-shrink-0" />
                                     <span className="text-sm leading-relaxed">{item}</span>
