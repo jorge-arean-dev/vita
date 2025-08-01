@@ -6,8 +6,6 @@ import { jobCreationSchema, jobBasicInfoSchema, type JobCreationFormData, type J
 import type { Database } from "@/types/database.types"
 
 type JobDescription = Database["public"]["Tables"]["job_descriptions"]["Row"]
-type JobDescriptionInsert = Database["public"]["Tables"]["job_descriptions"]["Insert"]
-type JobDescriptionUpdate = Database["public"]["Tables"]["job_descriptions"]["Update"]
 
 /**
  * Server actions for job management operations.

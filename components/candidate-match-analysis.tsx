@@ -13,6 +13,14 @@ import { Badge } from "@/components/ui/badge"
 import { CardTitle } from "@/components/ui/card"
 import ToggleSlider from "@/components/ui/toggle-slider"
 import {
+  parseLinkedInProfile,
+  fetchJobDataForAnalysis,
+  runMatchAnalysis,
+  saveCandidate,
+  saveMatchAnalysis,
+  type ParsedCandidate
+} from "@/app/actions/match-analysis"
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -24,17 +32,6 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useToast } from "@/components/ui/use-toast"
 
-// Mock requirement names lookup - will be replaced with actual DB lookup
-const mockRequirementNames: { [key: string]: string } = {
-  "req_1": "TypeScript",
-  "req_2": "React", 
-  "req_3": "Node.js",
-  "req_4": "PostgreSQL",
-  "req_5": "MongoDB",
-  "req_6": "AWS",
-  "req_7": "Financial Services Experience"
-}
-
 interface Candidate {
   id: string
   name: string
@@ -42,7 +39,7 @@ interface Candidate {
 }
 
 interface RequirementEvaluation {
-  job_requirement_id: string
+  requirement_name: string
   score: number
   status: "strong" | "adequate" | "weak" | "missing"
   feedback: string
@@ -65,9 +62,12 @@ interface AnalysisResults {
     interview_strategy: string[]
     other_options: string[]
   }
-  candidate: {
-    first_name: string
-    last_name: string
+  metadata: {
+    analysis_timestamp: string
+    job_id: string
+    candidate_id: string
+    algorithm_version: string
+    total_processing_time_ms: number
   }
 }
 
@@ -83,6 +83,8 @@ interface MatchAnalysis {
   created_at: string
   isExpanded?: boolean
   isNew?: boolean
+  progressMessage?: string
+  parsedCandidate?: ParsedCandidate // Store the parsed candidate data
 }
 
 // Circular Progress Component
@@ -169,7 +171,11 @@ function getBannerColor(status: string) {
   return "bg-gray-100 text-gray-800 border-gray-200"
 }
 
-export default function CandidateMatchAnalysis() {
+interface CandidateMatchAnalysisProps {
+  jobId: string
+}
+
+export default function CandidateMatchAnalysis({ jobId }: CandidateMatchAnalysisProps) {
   const [mounted, setMounted] = useState(false)
   const [matchAnalyses, setMatchAnalyses] = useState<MatchAnalysis[]>([])
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
@@ -189,12 +195,8 @@ export default function CandidateMatchAnalysis() {
   
   // Animation states for each analysis
   const [visibleSections, setVisibleSections] = useState<{ [key: string]: string[] }>({})
-  const [visibleRequirementCards, setVisibleRequirementCards] = useState<{ [key: string]: number }>({})
   const [visibleProgressBars, setVisibleProgressBars] = useState<{ [key: string]: number }>({})
   
-  // Collapsible sections state
-  const [collapsedSections, setCollapsedSections] = useState<{ [key: string]: { requirements: boolean; recommendations: boolean } }>({})
-
   // Mock candidates data - in real implementation, this would come from API
   const candidates: Candidate[] = [
     { id: "1", name: "John Doe", email: "john@example.com" },
@@ -292,7 +294,7 @@ export default function CandidateMatchAnalysis() {
   }
 
   // Check if we can run analysis
-  const canRunAnalysis = (analysisId: string) => {
+  const canRunAnalysis = () => {
     if (candidateType === "existing") {
       return selectedExistingCandidate !== ""
     } else {
@@ -317,116 +319,85 @@ export default function CandidateMatchAnalysis() {
 
   // Handle running analysis
   const handleRunAnalysis = async (analysisId: string) => {
-    if (!canRunAnalysis(analysisId)) return
+    if (!canRunAnalysis()) return
 
     setIsRunningAnalysis({ ...isRunningAnalysis, [analysisId]: true })
+    
+    // Helper to update progress message
+    const updateProgress = (message: string) => {
+      setMatchAnalyses(prevAnalyses =>
+        prevAnalyses.map(ma => 
+          ma.id === analysisId 
+            ? { ...ma, progressMessage: message }
+            : ma
+        )
+      )
+    }
+    
     try {
-      // TODO: Implement API call to analyze candidate
-      console.log("Running analysis for:", candidateType, {
-        existingCandidate: selectedExistingCandidate,
-        newCandidateMethod,
-        linkedinUrl,
-        uploadedFile: uploadedFile?.name
-      })
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 3000))
-      
-      // Get candidate name for the analysis
+      let parsedCandidate: ParsedCandidate | null = null
       let candidateName = "Unknown Candidate"
-      if (candidateType === "existing") {
+      
+      if (candidateType === "new" && newCandidateMethod === "linkedin") {
+        // LinkedIn parsing flow
+        updateProgress("Reviewing LinkedIn profile...")
+        parsedCandidate = await parseLinkedInProfile(linkedinUrl)
+        
+        candidateName = `${parsedCandidate.main.first_name} ${parsedCandidate.main.last_name}`.trim()
+        
+        updateProgress("Extracting information...")
+        await new Promise(resolve => setTimeout(resolve, 500)) // Brief pause for UX
+        
+        updateProgress("Analyzing skills and experience...")
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        updateProgress("Comparing against job requirements...")
+      } else if (candidateType === "existing") {
+        // TODO: Implement existing candidate flow
         const existingCandidate = candidates.find(c => c.id === selectedExistingCandidate)
         candidateName = existingCandidate?.name || "Unknown Candidate"
-      } else {
-        candidateName = newCandidateMethod === "linkedin" 
-          ? linkedinUrl.split('/').pop() || "LinkedIn Candidate"
-          : uploadedFile?.name.replace('.pdf', '') || "Resume Candidate"
+        
+        toast({
+          title: "Coming soon",
+          description: "Existing candidate analysis will be implemented next.",
+        })
+        return
+      } else if (candidateType === "new" && newCandidateMethod === "pdf") {
+        // TODO: Implement PDF parsing flow
+        toast({
+          title: "Coming soon",
+          description: "PDF resume analysis will be implemented next.",
+        })
+        return
       }
-
-      // Mock analysis results matching API structure
-      const results: AnalysisResults = {
-        match_analysis: {
-          overall_score: 18,
-          status: "missing",
-          overall_feedback: "This candidate shows potential but has significant skill gaps for the senior role requirements.",
-          matched_mandatory_requirements: 0,
-          total_mandatory_requirements: 5
-        },
-        requirement_evaluations: [
-          {
-            job_requirement_id: "req_1",
-            score: 6,
-            status: "missing",
-            feedback: "Candidate has beginner-level TypeScript (1 year) but expert level required (5+ years). Significant skill gap identified for senior role."
-          },
-          {
-            job_requirement_id: "req_2",
-            score: 39,
-            status: "weak",
-            feedback: "Candidate demonstrates advanced proficiency in React with 3.5 years of experience, but the expert level is required."
-          },
-          {
-            job_requirement_id: "req_3",
-            score: 39,
-            status: "weak",
-            feedback: "Similar to React, the candidate has advanced experience in Node (3.5 years), yet the role demands expert-level skills."
-          },
-          {
-            job_requirement_id: "req_4",
-            score: 11,
-            status: "missing",
-            feedback: "Candidate has beginner-level experience with PostgreSQL (1 year), while the role requires advanced proficiency."
-          },
-          {
-            job_requirement_id: "req_5",
-            score: 11,
-            status: "missing",
-            feedback: "With only beginner-level experience in MongoDB (1 year), the candidate does not meet the advanced requirement."
-          }
-        ],
-        summary: {
-          strengths: [
-            "Strong React and Node.js foundation with 3.5 years experience each",
-            "5 years of experience in software engineering, demonstrating solid full-stack development background",
-            "Advanced skills in Agile methodologies, Scrum, and Test Driven Development"
-          ],
-          gaps: [
-            "TypeScript proficiency significantly below senior level requirements",
-            "Missing advanced skills in PostgreSQL and MongoDB, which are critical for the role",
-            "Overall experience level doesn't match senior role expectations"
-          ]
-        },
-        recruiter_recommendations: {
-          interview_strategy: [
-            "Dig deeper into TypeScript projects during technical interview to assess potential for growth",
-            "Explore candidate's understanding of advanced React and Node concepts",
-            "Discuss past experiences with databases to evaluate problem-solving skills"
-          ],
-          other_options: [
-            "Consider 'Mid-Level with Senior Potential' positioning instead, focusing on growth mindset",
-            "Explore opportunities for mentorship or training in TypeScript and databases",
-            "Look for roles that allow gradual upskilling while leveraging existing strengths"
-          ]
-        },
-        candidate: {
-          first_name: candidateName.split(' ')[0] || "Unknown",
-          last_name: candidateName.split(' ')[1] || ""
-        }
+      
+      // Fetch job data
+      const jobData = await fetchJobDataForAnalysis(jobId)
+      if (!jobData) {
+        throw new Error("Failed to fetch job data")
       }
-
+      
+      // Run match analysis
+      if (!parsedCandidate) {
+        throw new Error("Failed to parse candidate data")
+      }
+      const analysisResults = await runMatchAnalysis(parsedCandidate, jobData)
+      
       // Update the analysis with results
       setMatchAnalyses(prevAnalyses =>
         prevAnalyses.map(ma => 
           ma.id === analysisId 
             ? { 
                 ...ma, 
-                results,
+                results: analysisResults,
+                parsedCandidate, // Store for later saving
                 candidateInfo: {
                   name: candidateName,
                   type: candidateType,
                   source: candidateType === "new" ? newCandidateMethod : undefined
                 },
-                title: `Match Analysis for ${results.candidate.first_name}${results.candidate.last_name ? ` ${results.candidate.last_name}` : ""}`
+                title: `Match Analysis for ${candidateName}`,
+                progressMessage: undefined
               }
             : ma
         )
@@ -434,15 +405,19 @@ export default function CandidateMatchAnalysis() {
 
       // Trigger animations for the new results
       setTimeout(() => {
-        triggerAnimationsForAnalysis(analysisId, results.requirement_evaluations.length)
+        triggerAnimationsForAnalysis(analysisId, analysisResults.requirement_evaluations.length)
       }, 100)
     } catch (error) {
       console.error("Error running analysis:", error)
+      const errorMessage = error instanceof Error ? error.message : "Failed to run analysis"
       toast({
         title: "Error",
-        description: "Failed to run analysis. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       })
+      
+      // Clear progress message on error
+      updateProgress("")
     } finally {
       setIsRunningAnalysis({ ...isRunningAnalysis, [analysisId]: false })
     }
@@ -451,16 +426,26 @@ export default function CandidateMatchAnalysis() {
   // Handle saving analysis
   const handleSaveAnalysis = async (analysisId: string) => {
     const analysis = matchAnalyses.find(ma => ma.id === analysisId)
-    if (!analysis || !analysis.results) return
+    if (!analysis || !analysis.results || !analysis.parsedCandidate) return
 
     setIsSaving({ ...isSaving, [analysisId]: true })
     
     try {
-      // TODO: Implement API call to save analysis
-      console.log("Saving analysis:", analysis)
+      let candidateId: string
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      // Save new candidate if needed
+      if (analysis.candidateInfo.type === "new") {
+        candidateId = await saveCandidate(
+          analysis.parsedCandidate,
+          analysis.candidateInfo.source === "linkedin" ? linkedinUrl : undefined
+        )
+      } else {
+        // For existing candidates, we already have the ID
+        candidateId = selectedExistingCandidate
+      }
+      
+      // Save the match analysis
+      await saveMatchAnalysis(jobId, candidateId, analysis.results)
       
       // Update the analysis to mark it as saved
       setMatchAnalyses(prevAnalyses =>
@@ -473,13 +458,16 @@ export default function CandidateMatchAnalysis() {
       
       toast({
         title: "Success",
-        description: "Match analysis saved successfully.",
+        description: analysis.candidateInfo.type === "new" 
+          ? "Candidate created and match analysis saved successfully."
+          : "Match analysis saved successfully.",
       })
     } catch (error) {
       console.error("Error saving analysis:", error)
+      const errorMessage = error instanceof Error ? error.message : "Failed to save analysis"
       toast({
         title: "Error",
-        description: "Failed to save analysis. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {
@@ -492,11 +480,6 @@ export default function CandidateMatchAnalysis() {
     setMatchAnalyses(matchAnalyses.filter(ma => ma.id !== analysisId))
     // Clean up animation states
     setVisibleSections(prev => {
-      const newState = { ...prev }
-      delete newState[analysisId]
-      return newState
-    })
-    setVisibleRequirementCards(prev => {
       const newState = { ...prev }
       delete newState[analysisId]
       return newState
@@ -516,7 +499,6 @@ export default function CandidateMatchAnalysis() {
   const triggerAnimationsForAnalysis = (analysisId: string, requirementCount: number) => {
     // Reset animation states for this analysis
     setVisibleSections(prev => ({ ...prev, [analysisId]: [] }))
-    setVisibleRequirementCards(prev => ({ ...prev, [analysisId]: 0 }))
     setVisibleProgressBars(prev => ({ ...prev, [analysisId]: 0 }))
 
     // Sequential section reveal
@@ -552,12 +534,7 @@ export default function CandidateMatchAnalysis() {
     }, 0)
 
     // Show all requirement cards immediately when requirements section appears
-    setTimeout(() => {
-      setVisibleRequirementCards((prev) => ({
-        ...prev,
-        [analysisId]: requirementCount
-      }))
-    }, 1600)
+    // Note: Currently not animating individual requirement cards
   }
 
   // Check if section is visible for specific analysis
@@ -572,21 +549,6 @@ export default function CandidateMatchAnalysis() {
     }
   }
 
-  // Toggle collapsible sections
-  const toggleSection = (analysisId: string, section: 'requirements' | 'recommendations') => {
-    setCollapsedSections(prev => ({
-      ...prev,
-      [analysisId]: {
-        ...prev[analysisId],
-        [section]: !prev[analysisId]?.[section]
-      }
-    }))
-  }
-
-  // Check if section is collapsed
-  const isSectionCollapsed = (analysisId: string, section: 'requirements' | 'recommendations') => {
-    return collapsedSections[analysisId]?.[section] || false
-  }
 
   // Prevent hydration mismatch - return skeleton instead of null
   if (!mounted) {
@@ -875,12 +837,18 @@ export default function CandidateMatchAnalysis() {
                       <div className="pt-4 border-t">
                         <Button
                           onClick={() => handleRunAnalysis(analysis.id)}
-                          disabled={!canRunAnalysis(analysis.id) || isRunningAnalysis[analysis.id]}
+                          disabled={!canRunAnalysis() || isRunningAnalysis[analysis.id]}
                           className="w-full"
                         >
-                          <Sparkles className="mr-2 h-4 w-4" />
+                          <Sparkles className={`mr-2 h-4 w-4 ${isRunningAnalysis[analysis.id] ? "animate-spin" : ""}`} />
                           {isRunningAnalysis[analysis.id] ? "Analyzing candidate..." : "Run Analysis"}
                         </Button>
+                        {/* Progress Message */}
+                        {analysis.progressMessage && (
+                          <p className="text-sm text-muted-foreground text-center mt-2 animate-pulse">
+                            {analysis.progressMessage}
+                          </p>
+                        )}
                       </div>
                     </div>
                   ) : analysis.results ? (
@@ -916,7 +884,7 @@ export default function CandidateMatchAnalysis() {
                             {/* Element 1.2: Informative Banner */}
                             <div className={`p-4 rounded-lg border ${getBannerColor(analysis.results.match_analysis.status)}`}>
                               <p className="text-sm font-medium">
-                                {analysis.results.candidate.first_name}{analysis.results.candidate.last_name ? ` ${analysis.results.candidate.last_name}` : ""} meets {analysis.results.match_analysis.matched_mandatory_requirements} out of{" "}
+                                {analysis.candidateInfo.name} meets {analysis.results.match_analysis.matched_mandatory_requirements} out of{" "}
                                 {analysis.results.match_analysis.total_mandatory_requirements} requirements.
                               </p>
                               <p className="text-sm text-muted-foreground mt-1">{analysis.results.match_analysis.overall_feedback}</p>
@@ -929,7 +897,7 @@ export default function CandidateMatchAnalysis() {
                             <div className="space-y-6">
                               {analysis.results.requirement_evaluations.map((req, index) => (
                                 <div
-                                  key={req.job_requirement_id}
+                                  key={req.requirement_name}
                                   className={`space-y-2 transition-all duration-500 ${
                                     index < (visibleProgressBars[analysis.id] || 0) ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4"
                                   }`}
@@ -937,9 +905,9 @@ export default function CandidateMatchAnalysis() {
                                 >
                                   <div className="flex justify-between items-center">
                                     <div className="flex items-center gap-2">
-                                      <span className="text-sm font-medium">{mockRequirementNames[req.job_requirement_id] || req.job_requirement_id}</span>
+                                      <span className="text-sm font-medium">{req.requirement_name}</span>
                                       <button
-                                        onClick={() => scrollToRequirement(req.job_requirement_id)}
+                                        onClick={() => scrollToRequirement(req.requirement_name)}
                                         className="p-1 rounded-sm hover:bg-muted/50 transition-colors opacity-60 hover:opacity-100"
                                         title="View detailed evaluation"
                                       >
@@ -1021,8 +989,8 @@ export default function CandidateMatchAnalysis() {
                           <div className="space-y-4 mt-8">
                             {analysis.results.requirement_evaluations.map((req, index) => (
                               <Card
-                                key={req.job_requirement_id}
-                                id={`requirement-${req.job_requirement_id}`}
+                                key={req.requirement_name}
+                                id={`requirement-${req.requirement_name}`}
                                 className="w-full transition-all duration-500 animate-in slide-in-from-left hover:shadow-md"
                                 style={{ animationDelay: `${index * 100}ms` }}
                               >
@@ -1031,7 +999,7 @@ export default function CandidateMatchAnalysis() {
                                     {/* Left Section - Requirement Name and Score Info */}
                                     <div className="flex-1 min-w-0">
                                       <div className="flex items-center gap-4 mb-3">
-                                        <h3 className="text-xl font-semibold">{mockRequirementNames[req.job_requirement_id] || req.job_requirement_id}</h3>
+                                        <h3 className="text-xl font-semibold">{req.requirement_name}</h3>
                                         <div className="flex items-center gap-3">
                                           {getStatusBadge(req.score)}
                                         </div>
@@ -1058,7 +1026,7 @@ export default function CandidateMatchAnalysis() {
                         <div>
                           <h2 className="text-2xl font-bold mb-2">Recruiter Recommendations</h2>
                           <p className="text-lg text-muted-foreground">
-                            Here's what to consider next
+                            Here&apos;s what to consider next
                           </p>
                         </div>
                           <div className="space-y-4">
