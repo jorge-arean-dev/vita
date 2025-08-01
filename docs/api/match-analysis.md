@@ -126,12 +126,6 @@ This API endpoint performs comprehensive candidate-job matching analysis using A
         "type": "soft_skill",
         "yoe": null,
         "proficiency_level": null
-      },
-      {
-        "name": "Team Leadership",
-        "type": "soft_skill",
-        "yoe": null,
-        "proficiency_level": null
       }
     ],
     "years_of_experience": 5
@@ -202,7 +196,7 @@ This API endpoint performs comprehensive candidate-job matching analysis using A
         "weight": 0.5
       }
     ],
-    "job_description": "Senior Full-Stack Developer role requiring expert TypeScript, React, and Node skills with advanced database knowledge..."
+    "job_description": "Senior Full-Stack Developer role requiring expert TypeScript, React, and Node skills..."
   }
 }
 ```
@@ -227,7 +221,7 @@ This API endpoint performs comprehensive candidate-job matching analysis using A
   },
   "requirement_evaluations": [
     {
-      "job_requirement_id": "string",
+      "requirement_name": "string",
       "score": "number (0-100)",
       "status": "string (strong | adequate | weak | missing)",
       "feedback": "string"
@@ -263,78 +257,78 @@ This API endpoint performs comprehensive candidate-job matching analysis using A
   },
   "requirement_evaluations": [
     {
-      "job_requirement_id": "req_1",
+      "requirement_name": "TypeScript",
       "score": 6,
       "status": "missing",
       "feedback": "Candidate has beginner-level TypeScript (1 year) but expert level required (5+ years). Significant skill gap identified for senior role."
     },
     {
-      "job_requirement_id": "req_2",
+      "requirement_name": "React",
       "score": 39,
       "status": "weak",
-      "feedback": "Candidate demonstrates advanced proficiency in React with 3.5 years of experience, but the expert level is required. This indicates a potential for growth but may not meet immediate expectations for a senior role."
+      "feedback": "Candidate demonstrates advanced proficiency in React with 3.5 years of experience, but the expert level required indicates a need for deeper knowledge and experience in complex projects."
     },
     {
-      "job_requirement_id": "req_3",
+      "requirement_name": "Node",
       "score": 39,
       "status": "weak",
-      "feedback": "Similar to React, the candidate has advanced experience in Node (3.5 years), yet the role demands expert-level skills. This suggests a solid foundation but a need for further development to meet senior expectations."
+      "feedback": "Similar to React, the candidate has advanced Node.js skills with 3.5 years of experience, but the expert level required suggests a gap in handling more sophisticated backend challenges."
     },
     {
-      "job_requirement_id": "req_4",
+      "requirement_name": "Postgres",
       "score": 11,
       "status": "missing",
-      "feedback": "Candidate has beginner-level experience with Postgres (1 year), while the role requires advanced proficiency. This gap could hinder the candidate's ability to handle complex database tasks effectively."
+      "feedback": "Candidate has only beginner-level experience with Postgres (1 year) while the role requires advanced proficiency, indicating a significant gap in database management skills."
     },
     {
-      "job_requirement_id": "req_5",
+      "requirement_name": "Mongo",
       "score": 11,
       "status": "missing",
-      "feedback": "With only beginner-level experience in MongoDB (1 year), the candidate does not meet the advanced requirement for this role. This could limit their effectiveness in projects that rely heavily on NoSQL databases."
+      "feedback": "The candidate's beginner-level experience with MongoDB (1 year) falls short of the advanced proficiency required for this position, highlighting a crucial area for development."
     },
     {
-      "job_requirement_id": "req_6",
+      "requirement_name": "AWS",
       "score": 0,
       "status": "missing",
-      "feedback": "Candidate lacks any experience with AWS, while advanced skills are preferred. This could be a significant drawback, especially for roles that involve cloud services."
+      "feedback": "Candidate lacks AWS experience, which is not mandatory but would enhance their profile for the role, especially in cloud-based applications."
     },
     {
-      "job_requirement_id": "req_7",
+      "requirement_name": "Financial Services",
       "score": 0,
       "status": "missing",
-      "feedback": "Candidate has no experience in the financial services industry, which is not mandatory but would be beneficial. This could affect their understanding of domain-specific challenges."
+      "feedback": "No experience in the financial services industry was noted, which is not mandatory but could be beneficial for understanding the domain-specific challenges."
     }
   ],
   "summary": {
     "strengths": [
       "Strong React and Node.js foundation with 3.5 years experience each",
-      "5 years of experience in software engineering, demonstrating a solid background in full-stack development",
-      "Advanced skills in Agile methodologies, Scrum, and Test Driven Development, indicating strong project management capabilities"
+      "Advanced proficiency in JavaScript and Python, both with 5 years of experience",
+      "Solid background in Agile methodologies, Scrum, and Test Driven Development"
     ],
     "gaps": [
       "TypeScript proficiency significantly below senior level requirements",
-      "Missing advanced skills in Postgres and MongoDB, which are critical for the role",
-      "Lack of experience with AWS, which may limit cloud-based project contributions"
+      "Missing advanced skills in Postgres and MongoDB, both critical for the role",
+      "Limited experience with AWS and financial services, which could enhance the candidate's fit"
     ]
   },
   "recruiter_recommendations": {
     "interview_strategy": [
-      "Dig deeper into TypeScript projects during the technical interview to assess potential for growth",
-      "Explore candidate's understanding of advanced React and Node concepts to gauge readiness for senior responsibilities",
-      "Discuss past experiences with databases to evaluate problem-solving skills in relation to Postgres and MongoDB"
+      "Dig deeper into TypeScript projects during the technical interview to assess potential for growth.",
+      "Explore the candidate's experience with complex React and Node.js applications to gauge depth of knowledge.",
+      "Assess problem-solving skills through practical coding challenges that require database interactions."
     ],
     "other_options": [
-      "Consider 'Mid-Level with Senior Potential' positioning instead, focusing on the candidate's strong foundation and growth mindset",
-      "Explore opportunities for mentorship or training in TypeScript and AWS to bridge skill gaps",
-      "Look for roles that may allow for gradual upskilling in the required technologies while leveraging existing strengths"
+      "Consider 'Mid-Level with Senior Potential' positioning instead, focusing on growth opportunities.",
+      "Explore roles that emphasize JavaScript and Python skills while allowing for development in TypeScript and database technologies.",
+      "Suggest a mentorship program or training in TypeScript and database management to bridge skill gaps."
     ]
   },
   "metadata": {
-    "analysis_timestamp": "2025-07-31T16:45:13.471Z",
+    "analysis_timestamp": "2025-08-01T02:55:13.407Z",
     "job_id": "placeholder_job_id",
     "candidate_id": "placeholder_candidate_id",
     "algorithm_version": "1.0",
-    "total_processing_time_ms": 12612
+    "total_processing_time_ms": 15278
   }
 }
 ```
@@ -670,9 +664,9 @@ function MatchAnalysisDisplay({ analysisResults }) {
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center space-x-3">
                   <span className="font-medium text-gray-700 bg-gray-100 px-3 py-1 rounded-md text-sm">
-                    {req.job_requirement_id}
+                    {req.requirement_name}
                   </span>
-                  <span className="text-gray-900 font-medium">Requirement {index + 1}</span>
+                  <span className="text-gray-500 text-sm">Requirement {index + 1}</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <span className={`text-xl font-bold ${getScoreColor(req.score)}`}>

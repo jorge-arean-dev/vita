@@ -1,0 +1,11 @@
+column,type,description
+id,uuid,Primary key
+user_id,uuid,Foreign key to profiles table - profiles.user_id
+candidate_id,uuid,Foreign key to companies table - candidates.id
+job_id,uuid,Foreign key to companies table - jobs.id
+match_analysis,jsonb,json containing match_analysis element
+requirement_evaluations,jsonb,json containing requirement_analysis element
+summary,jsonb,json containing summary element
+recruiter_recommendations,jsonb,json containing recruiter_recommendations element
+created_at,timestampz,Record creation timestamp
+updated_at,timestampz,Record update timestamp
