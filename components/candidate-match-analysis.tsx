@@ -596,7 +596,7 @@ export default function CandidateMatchAnalysis() {
           <div className="flex items-center justify-between">
             <div className="space-y-2">
               <h2 className="text-2xl font-bold tracking-tight">Candidate Match Analysis</h2>
-              <p className="text-muted-foreground">Upload resumes or LinkedIn profiles to instantly assess how well candidates match your job requirements with AI-powered analysis.</p>
+              <p className="text-muted-foreground">Instantly assess how well candidates match your job requirements with AI-powered analysis.</p>
             </div>
           </div>
         </div>
@@ -886,6 +886,14 @@ export default function CandidateMatchAnalysis() {
                   ) : analysis.results ? (
                     // Advanced Results View - Matching sample-match-analysis-report UI
                     <div className="space-y-12">
+                      {/* Info Banner for New Candidates */}
+                      {analysis.isNew && analysis.candidateInfo.type === "new" && (
+                        <div className="info-indicator">
+                          <Info className="h-4 w-4 flex-shrink-0" />
+                          <span>When you save this analysis, the candidate will also be created in the database.</span>
+                        </div>
+                      )}
+                      
                       {/* Element 1: Combined Section - Overall Match Score + Requirement Analysis */}
                       <div
                         className={`transition-all duration-1000 ${isVisible(analysis.id, "combined-card") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
