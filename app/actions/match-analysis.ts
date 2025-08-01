@@ -270,7 +270,7 @@ export async function parseLinkedInSkills(reducedData: Record<string, unknown>):
 
     if (!response.ok) {
       const parseErrorData = await response.json()
-      console.error("Parse failed:", parseErrorData)
+      console.error("LinkedIn skills parsing failed:", parseErrorData)
       const errorData = parseErrorData
       
       if (response.status === 400) {
@@ -289,6 +289,7 @@ export async function parseLinkedInSkills(reducedData: Record<string, unknown>):
       throw new Error("Could not extract name from LinkedIn profile. Please check the profile URL.")
     }
 
+    console.log("✅ Successfully parsed LinkedIn skills")
     return parsedData
   } catch (error) {
     console.error("Error parsing LinkedIn skills:", error)
@@ -304,21 +305,8 @@ export async function runMatchAnalysis(
   job: JobData
 ): Promise<MatchAnalysisResponse> {
   try {
-    // Log the input data for match-analysis API
     const requestBody = { candidate, job }
-    console.log("=== MATCH-ANALYSIS API INPUT ===")
-    console.log("Full request body:", JSON.stringify(requestBody, null, 2))
-    console.log("Candidate summary:", {
-      name: `${candidate.main.first_name} ${candidate.main.last_name}`,
-      skills_count: candidate.skills.length,
-      years_experience: candidate.years_of_experience
-    })
-    console.log("Job summary:", {
-      title: job.attributes.title,
-      requirements_count: job.requirements.length,
-      location: job.attributes.location.category
-    })
-    console.log("================================")
+    console.log("✅ Successfully completed match analysis")
     
     const response = await fetch(
       "https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/match-analysis",
@@ -429,7 +417,7 @@ export async function saveCandidate(
         type: skill.type || "technical_skill",
         source: source,
         proficiency_level: skill.proficiency_level,
-        years_of_experience: skill.yoe || null
+        years_of_experience: skill.yoe ? parseFloat(skill.yoe.toString()) : null
       }))
 
       console.log("Skills to insert:", skillsToInsert)
@@ -560,9 +548,6 @@ export async function analyzeLinkedInCandidate(
  */
 export async function parseResumeSkills(pdfUrl: string): Promise<ParsedCandidate> {
   try {
-    console.log("=== PARSE-RESUME-SKILL API CALL ===")
-    console.log("PDF URL:", pdfUrl)
-    console.log("API URL:", "https://parse-resume-skill-709637652952.europe-west1.run.app")
     
     const response = await fetch(
       "https://parse-resume-skill-709637652952.europe-west1.run.app",
@@ -576,9 +561,6 @@ export async function parseResumeSkills(pdfUrl: string): Promise<ParsedCandidate
       }
     )
 
-    console.log("Response status:", response.status)
-    console.log("Response headers:", response.headers)
-
     if (!response.ok) {
       let errorData
       try {
@@ -587,11 +569,6 @@ export async function parseResumeSkills(pdfUrl: string): Promise<ParsedCandidate
         errorData = { error: "Failed to parse error response" }
       }
       console.error("Resume parsing failed:", errorData)
-      console.error("Full response:", {
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries())
-      })
       
       if (response.status === 400) {
         throw new Error("Invalid PDF format or content. Please try a different resume.")
@@ -609,6 +586,7 @@ export async function parseResumeSkills(pdfUrl: string): Promise<ParsedCandidate
       throw new Error("Could not extract name from resume. Please check the file and try again.")
     }
 
+    console.log("✅ Successfully parsed PDF resume skills")
     return parsedData
   } catch (error) {
     console.error("Error parsing resume skills:", error)

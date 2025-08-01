@@ -459,21 +459,14 @@ export default function CandidateMatchAnalysis({ jobId }: CandidateMatchAnalysis
 
   // Handle saving analysis
   const handleSaveAnalysis = async (analysisId: string) => {
-    console.log("=== HANDLE SAVE ANALYSIS CALLED ===")
-    console.log("Analysis ID:", analysisId)
+    console.log("🔄 Starting save analysis...")
     
     const analysis = matchAnalyses.find(ma => ma.id === analysisId)
-    console.log("Found analysis:", !!analysis)
-    console.log("Has results:", !!analysis?.results)
-    console.log("Has parsed candidate:", !!analysis?.parsedCandidate)
     
     if (!analysis || !analysis.results || !analysis.parsedCandidate) {
-      console.log("Early return - missing required data")
+      console.log("❌ Missing required data for save")
       return
     }
-
-    console.log("Analysis candidate info:", analysis.candidateInfo)
-    console.log("Parsed candidate data:", analysis.parsedCandidate)
 
     setIsSaving({ ...isSaving, [analysisId]: true })
     
@@ -482,9 +475,8 @@ export default function CandidateMatchAnalysis({ jobId }: CandidateMatchAnalysis
       
       // Save new candidate if needed
       if (analysis.candidateInfo.type === "new") {
-        console.log("Saving new candidate...")
+        console.log(`📝 Saving ${analysis.candidateInfo.source} candidate...`)
         if (analysis.candidateInfo.source === "pdf" && analysis.tempFilePath) {
-          console.log("PDF candidate path - calling savePDFCandidateWithResume")
           // PDF candidate - use special function that handles resume moving
           candidateId = await savePDFCandidateWithResume(
             analysis.parsedCandidate,
@@ -493,16 +485,13 @@ export default function CandidateMatchAnalysis({ jobId }: CandidateMatchAnalysis
             analysis.results
           )
         } else {
-          console.log("LinkedIn candidate path - calling saveCandidate")
           // LinkedIn candidate - use regular save
           candidateId = await saveCandidate(
             analysis.parsedCandidate,
             analysis.candidateInfo.source === "linkedin" ? linkedinUrl : undefined,
             "linkedin"
           )
-          console.log("Candidate saved with ID:", candidateId)
           // Save the match analysis separately for LinkedIn
-          console.log("Saving match analysis...")
           await saveMatchAnalysis(jobId, candidateId, analysis.results)
         }
       } else {
@@ -511,7 +500,7 @@ export default function CandidateMatchAnalysis({ jobId }: CandidateMatchAnalysis
         await saveMatchAnalysis(jobId, candidateId, analysis.results)
       }
       
-      console.log("Save operation completed successfully")
+      console.log("✅ Save operation completed successfully")
       
       // Update the analysis to mark it as saved
       setMatchAnalyses(prevAnalyses =>
