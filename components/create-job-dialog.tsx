@@ -83,7 +83,6 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
   const [showCompanyForm, setShowCompanyForm] = useState(false)
   const [comboOpen, setComboOpen] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
-  const [apiResponse, setApiResponse] = useState<ApiResponse | null>(null)
   const [attributesData, setAttributesData] = useState<AttributesData>({
     rate: { value: null, freq: "hourly" },
     commitment: "",
@@ -166,7 +165,6 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
     setNewCompanyName("")
     setNewCompanyWebsite("")
     setNewCompanyIndustry("")
-    setApiResponse(null)
     setAttributesData({
       rate: { value: null, freq: "hourly" },
       commitment: "",
@@ -336,8 +334,6 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
       }
 
       console.log("🔍 Full API Response:", JSON.stringify(data, null, 2))
-      
-      setApiResponse(data)
       
       // Set the job title from API response
       if (data.attributes.title) {

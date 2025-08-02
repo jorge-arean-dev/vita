@@ -359,6 +359,124 @@ Always run before claiming a task is complete:
 3. Verify no unsafe type casting exists
 4. Confirm separation of concerns between different types
 
+## Build Error Prevention Guidelines
+
+### 🚨 Critical Type Safety Rules
+
+Based on analysis of common build failures, follow these mandatory rules:
+
+#### Database Query Return Type Handling
+1. **Array vs Object Disambiguation**: When Supabase returns joined data, explicitly handle array/object ambiguity
+   ```typescript
+   // ❌ WRONG - Assumes consistent structure
+   candidates: analysis.candidates[0]
+   
+   // ✅ CORRECT - Handle both cases
+   candidates: Array.isArray(analysis.candidates) && analysis.candidates.length > 0 
+     ? analysis.candidates[0] 
+     : (analysis.candidates && !Array.isArray(analysis.candidates)) 
+       ? analysis.candidates 
+       : null
+   ```
+
+2. **Interface Alignment**: Ensure function return types match interface expectations exactly
+   - Read target interface BEFORE writing data transformation code
+   - Test with actual database queries, not mocked data
+   - Use type guards for union types
+
+#### Unused Code Elimination Rules
+1. **Variable Declaration Audit**: Before committing, check for unused:
+   - State variables (`const [foo, setFoo] = useState()`)
+   - Function parameters
+   - Imported components/functions
+   - Defined but uncalled functions
+
+2. **Import Cleanup**: Remove unused imports immediately after refactoring
+   ```typescript
+   // ❌ WRONG - Importing unused components
+   import { Alert, AlertDescription } from "@/components/ui/alert"
+   
+   // ✅ CORRECT - Only import what's used
+   import { AlertCircle } from "lucide-react"
+   ```
+
+3. **State Management Hygiene**: 
+   - Remove state that's only set but never read
+   - Remove setters that are never called
+   - Remove effect dependencies that don't affect the effect
+
+#### Function Parameter Validation
+1. **Required vs Optional**: Match interface definitions exactly
+   ```typescript
+   // ❌ WRONG - Parameter in function but not used
+   function MyComponent({ jobId, existingAnalyses, jobData }: Props) {
+   
+   // ✅ CORRECT - Remove unused parameters
+   function MyComponent({ jobId, existingAnalyses }: Props) {
+   ```
+
+2. **Error Handling Variables**: Only capture errors you actually handle
+   ```typescript
+   // ❌ WRONG - Error captured but ignored
+   const { data, error: checkError } = await supabase.from()...
+   
+   // ✅ CORRECT - Don't capture unused errors
+   const { data } = await supabase.from()...
+   ```
+
+### 🔧 Mandatory Pre-Commit Checklist
+
+Run these checks EVERY time before committing:
+
+1. **Build Verification**: `pnpm build` must pass with zero warnings
+2. **ESLint Clean**: Address all linting warnings, especially:
+   - `@typescript-eslint/no-unused-vars`
+   - `@typescript-eslint/no-unused-imports`
+3. **Type Safety Check**: Verify all property accesses match interfaces
+4. **Database Query Validation**: Test actual database queries, not mock data
+
+### 🎯 Code Quality Patterns
+
+#### Type-Safe Database Queries
+```typescript
+// Pattern for handling Supabase joins that might return arrays
+const transformAnalyses = (analyses: RawAnalysis[]) => {
+  return analyses.map(analysis => ({
+    ...analysis,
+    candidates: normalizeToSingleObject(analysis.candidates)
+  }))
+}
+
+const normalizeToSingleObject = (candidates: unknown) => {
+  if (Array.isArray(candidates) && candidates.length > 0) {
+    return candidates[0]
+  }
+  if (candidates && !Array.isArray(candidates)) {
+    return candidates
+  }
+  return null
+}
+```
+
+#### Unused Variable Prevention
+```typescript
+// ✅ GOOD - Destructure only what you need
+const { data } = await supabase.from('table').select()
+
+// ✅ GOOD - Use underscore for intentionally unused
+const { data, error: _ } = await supabase.from('table').select()
+
+// ❌ BAD - Capturing unused variables
+const { data, error: unusedError } = await supabase.from('table').select()
+```
+
+### 🚫 Anti-Patterns to Avoid
+
+1. **Blind Type Casting**: Never cast between unrelated types without validation
+2. **Assumption-Based Property Access**: Always verify interface before accessing properties
+3. **Leftover Development Code**: Remove debug variables and unused state after development
+4. **Copy-Paste Type Errors**: When copying code, verify types match the new context
+
 ---
 
 *This file serves as the single source of truth for development standards. Always reference these guidelines when making code changes.*

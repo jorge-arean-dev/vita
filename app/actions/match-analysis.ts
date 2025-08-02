@@ -471,7 +471,7 @@ export async function getExistingMatchAnalyses(jobId: string) {
         recruiter_recommendations,
         created_at,
         updated_at,
-        candidates (
+        candidates!candidate_id (
           id,
           first_name,
           last_name,
@@ -499,7 +499,9 @@ export async function getExistingMatchAnalyses(jobId: string) {
       // Convert candidates array to single object since it's a one-to-one relationship
       candidates: Array.isArray(analysis.candidates) && analysis.candidates.length > 0 
         ? analysis.candidates[0] 
-        : null
+        : (analysis.candidates && !Array.isArray(analysis.candidates)) 
+          ? analysis.candidates 
+          : null
     }))
     
     // Filter out any analyses where candidate data failed to load

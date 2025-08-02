@@ -143,7 +143,7 @@ export async function saveLinkedInQueries(
   
   try {
     // Check if a record already exists for this job
-    const { data: existing, error: checkError } = await supabase
+    const { data: existing } = await supabase
       .from('job_linkedin_queries')
       .select('id')
       .eq('job_id', jobId)
