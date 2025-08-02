@@ -12,7 +12,6 @@ interface CandidateSelectionFormProps {
   candidateType: "existing" | "new"
   setCandidateType: (type: "existing" | "new") => void
   selectedExistingCandidate: string
-  setSelectedExistingCandidate: (id: string) => void
   isCandidateDropdownOpen: boolean
   setIsCandidateDropdownOpen: (open: boolean) => void
   candidateSearchValue: string
@@ -23,6 +22,7 @@ interface CandidateSelectionFormProps {
   setLinkedinUrl: (url: string) => void
   uploadedFile: File | null
   candidates: Candidate[]
+  candidatesLoading: boolean
   onCandidateSelect: (candidateId: string) => void
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void
   onRunAnalysis: () => void
@@ -35,7 +35,6 @@ export function CandidateSelectionForm({
   candidateType,
   setCandidateType,
   selectedExistingCandidate,
-  setSelectedExistingCandidate,
   isCandidateDropdownOpen,
   setIsCandidateDropdownOpen,
   candidateSearchValue,
@@ -46,6 +45,7 @@ export function CandidateSelectionForm({
   setLinkedinUrl,
   uploadedFile,
   candidates,
+  candidatesLoading,
   onCandidateSelect,
   onFileUpload,
   onRunAnalysis,
@@ -85,10 +85,15 @@ export function CandidateSelectionForm({
                   role="combobox"
                   aria-expanded={isCandidateDropdownOpen}
                   className="w-full justify-between"
+                  disabled={candidatesLoading}
                 >
-                  {selectedExistingCandidate 
-                    ? candidates.find(c => c.id === selectedExistingCandidate)?.name
-                    : "Select candidate..."
+                  {candidatesLoading 
+                    ? "Loading candidates..."
+                    : selectedExistingCandidate 
+                      ? candidates.find(c => c.id === selectedExistingCandidate)?.name
+                      : candidates.length === 0
+                        ? "No candidates found"
+                        : "Select candidate..."
                   }
                   <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
@@ -103,22 +108,37 @@ export function CandidateSelectionForm({
                   />
                   <CommandList>
                     <CommandGroup>
-                      {candidateSearchValue.trim().length > 0 && filteredCandidates.map((candidate) => (
-                        <CommandItem
-                          key={candidate.id}
-                          value={candidate.name}
-                          onSelect={() => onCandidateSelect(candidate.id)}
-                        >
-                          <User className="mr-2 h-4 w-4" />
-                          {candidate.name}
-                          {candidate.email && (
-                            <span className="ml-2 text-sm text-muted-foreground">
-                              ({candidate.email})
-                            </span>
-                          )}
-                        </CommandItem>
-                      ))}
-                      {candidateSearchValue.trim().length === 0 && (
+                      {candidatesLoading ? (
+                        <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                          Loading candidates...
+                        </div>
+                      ) : candidates.length === 0 ? (
+                        <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                          No candidates found. Create candidates first.
+                        </div>
+                      ) : candidateSearchValue.trim().length > 0 ? (
+                        filteredCandidates.length > 0 ? (
+                          filteredCandidates.map((candidate) => (
+                            <CommandItem
+                              key={candidate.id}
+                              value={candidate.name}
+                              onSelect={() => onCandidateSelect(candidate.id)}
+                            >
+                              <User className="mr-2 h-4 w-4" />
+                              {candidate.name}
+                              {candidate.email && (
+                                <span className="ml-2 text-sm text-muted-foreground">
+                                  ({candidate.email})
+                                </span>
+                              )}
+                            </CommandItem>
+                          ))
+                        ) : (
+                          <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                            No candidates match your search.
+                          </div>
+                        )
+                      ) : (
                         <div className="px-2 py-1.5 text-sm text-muted-foreground">
                           Start typing to search candidates...
                         </div>

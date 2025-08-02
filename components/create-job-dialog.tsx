@@ -54,7 +54,8 @@ interface Requirement {
   weight: number
 }
 
-interface ApiResponse {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+interface _ApiResponse {
   attributes: {
     title: string
     rate: {

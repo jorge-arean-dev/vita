@@ -447,6 +447,106 @@ export async function saveCandidate(
  * Save match analysis results to the database
  */
 /**
+ * Fetch candidates for the current user
+ */
+export async function fetchCandidatesForUser(): Promise<Array<{ id: string; name: string; email?: string }>> {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      throw new Error("User not authenticated")
+    }
+
+    const { data: candidates, error } = await supabase
+      .from("candidates")
+      .select("id, first_name, last_name, email")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      console.error("Error fetching candidates:", error)
+      throw new Error("Failed to fetch candidates")
+    }
+
+    // Transform to match expected format
+    return (candidates || []).map(candidate => ({
+      id: candidate.id,
+      name: `${candidate.first_name} ${candidate.last_name}`.trim(),
+      email: candidate.email || undefined
+    }))
+  } catch (error) {
+    console.error("Error in fetchCandidatesForUser:", error)
+    throw error
+  }
+}
+
+/**
+ * Fetch candidate data formatted for match analysis API
+ */
+export async function fetchCandidateForAnalysis(candidateId: string): Promise<ParsedCandidate> {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      throw new Error("User not authenticated")
+    }
+
+    // Fetch candidate with skills
+    const { data: candidate, error: candidateError } = await supabase
+      .from("candidates")
+      .select(`
+        *,
+        candidates_skills (
+          skill,
+          type,
+          proficiency_level,
+          years_of_experience
+        )
+      `)
+      .eq("id", candidateId)
+      .eq("user_id", user.id)
+      .single()
+
+    if (candidateError || !candidate) {
+      console.error("Error fetching candidate:", candidateError)
+      throw new Error("Candidate not found or access denied")
+    }
+
+    // Transform to ParsedCandidate format
+    const parsedCandidate: ParsedCandidate = {
+      main: {
+        first_name: candidate.first_name || "",
+        last_name: candidate.last_name || "",
+        country: candidate.country || "",
+        email: candidate.email || "",
+        phone: "", // Not stored in current schema
+        linkedin: candidate.linkedin || "",
+        github: candidate.github || ""
+      },
+      skills: (candidate.candidates_skills || []).map((skill: {
+        skill: string
+        type: string
+        proficiency_level: string | null
+        years_of_experience: number | null
+      }) => ({
+        name: skill.skill,
+        type: skill.type || "technical_skill",
+        yoe: skill.years_of_experience ? parseFloat(skill.years_of_experience.toString()) : null,
+        proficiency_level: skill.proficiency_level || null
+      })),
+      years_of_experience: candidate.years_experience || 0
+    }
+
+    return parsedCandidate
+  } catch (error) {
+    console.error("Error in fetchCandidateForAnalysis:", error)
+    throw error
+  }
+}
+
+/**
  * Fetch existing match analyses for a job
  */
 export async function getExistingMatchAnalyses(jobId: string) {

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Plus, Sparkles } from "lucide-react"
@@ -15,7 +15,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { useToast } from "@/components/ui/use-toast"
-import { deleteMatchAnalysis } from "@/app/actions/match-analysis"
+import { deleteMatchAnalysis, fetchCandidatesForUser, getExistingMatchAnalyses } from "@/app/actions/match-analysis"
 
 // Import refactored components
 import { AnalysisCard } from "./analysis-card"
@@ -48,15 +48,36 @@ export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }:
   const [newCandidateMethod, setNewCandidateMethod] = useState<"linkedin" | "pdf">("linkedin")
   const [linkedinUrl, setLinkedinUrl] = useState("")
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
-  
-  // Mock candidates data - in real implementation, this would come from API
-  const candidates: Candidate[] = [
-    { id: "1", name: "John Doe", email: "john@example.com" },
-    { id: "2", name: "Jane Smith", email: "jane@example.com" },
-    { id: "3", name: "Mike Johnson", email: "mike@example.com" },
-    { id: "4", name: "Sarah Wilson", email: "sarah@example.com" },
-    { id: "5", name: "David Brown", email: "david@example.com" }
-  ]
+  const [candidates, setCandidates] = useState<Candidate[]>([])
+  const [candidatesLoading, setCandidatesLoading] = useState(false)
+
+  // Define the callback for when analysis is saved
+  const handleAnalysisSaved = useCallback(async (analysisId: string) => {
+    try {
+      // Remove the saved analysis from new analyses
+      setMatchAnalyses(prev => prev.filter(ma => ma.id !== analysisId))
+      
+      // Add a small delay to ensure database has committed the changes
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      // Reload existing analyses from the server
+      const updatedAnalyses = await getExistingMatchAnalyses(jobId)
+      console.log("Reloaded analyses after save:", updatedAnalyses.length)
+      
+      const analysesWithState = updatedAnalyses.map(analysis => ({
+        ...analysis,
+        isExpanded: false,
+        isNew: false as const
+      }))
+      setExistingAnalysesState(analysesWithState)
+    } catch (error) {
+      console.error("Error reloading analyses:", error)
+      toast({
+        title: "Note",
+        description: "Analysis saved successfully. Please refresh to see it in the list.",
+      })
+    }
+  }, [jobId, toast])
 
   // Use custom hooks
   const { triggerAnimationsForAnalysis, cleanupAnimationState } = useAnimations()
@@ -66,12 +87,30 @@ export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }:
     canRunAnalysis, 
     handleRunAnalysis, 
     handleSaveAnalysis 
-  } = useMatchAnalysis(jobId, candidates)
+  } = useMatchAnalysis(jobId, candidates, handleAnalysisSaved)
 
   // Initialize after mount to prevent hydration mismatch
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Define loadCandidates function
+  const loadCandidates = useCallback(async () => {
+    setCandidatesLoading(true)
+    try {
+      const fetchedCandidates = await fetchCandidatesForUser()
+      setCandidates(fetchedCandidates)
+    } catch (error) {
+      console.error("Error loading candidates:", error)
+      toast({
+        title: "Error",
+        description: "Failed to load candidates. Please refresh the page.",
+        variant: "destructive",
+      })
+    } finally {
+      setCandidatesLoading(false)
+    }
+  }, [toast])
 
   // Initialize existing analyses
   useEffect(() => {
@@ -84,6 +123,13 @@ export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }:
       setExistingAnalysesState(analysesWithState)
     }
   }, [mounted, existingAnalyses])
+
+  // Load candidates when component mounts
+  useEffect(() => {
+    if (mounted) {
+      loadCandidates()
+    }
+  }, [mounted, loadCandidates])
 
   // Get next counter for analysis title
   const getNextAnalysisCounter = () => {
@@ -101,7 +147,7 @@ export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }:
     const counter = getNextAnalysisCounter()
     const newAnalysis: MatchAnalysis = {
       id: `new-${Date.now()}`,
-      title: `Match Analysis #${counter}`,
+      title: `New Match Analysis #${counter}`,
       candidateInfo: {
         name: "Not Selected",
         type: "new"
@@ -326,7 +372,6 @@ export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }:
                     candidateType={candidateType}
                     setCandidateType={setCandidateType}
                     selectedExistingCandidate={selectedExistingCandidate}
-                    setSelectedExistingCandidate={setSelectedExistingCandidate}
                     isCandidateDropdownOpen={isCandidateDropdownOpen}
                     setIsCandidateDropdownOpen={setIsCandidateDropdownOpen}
                     candidateSearchValue={candidateSearchValue}
@@ -337,6 +382,7 @@ export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }:
                     setLinkedinUrl={setLinkedinUrl}
                     uploadedFile={uploadedFile}
                     candidates={candidates}
+                    candidatesLoading={candidatesLoading}
                     onCandidateSelect={handleCandidateSelect}
                     onFileUpload={handleFileUpload}
                     onRunAnalysis={() => runAnalysis(analysis.id)}
@@ -349,6 +395,7 @@ export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }:
                   <AnalysisResultsDisplay
                     analysis={analysis}
                     candidateName={analysis.candidateInfo.name}
+                    isNewCandidate={analysis.isNew && analysis.candidateInfo.type === "new"}
                   />
                 ) : null}
               </AnalysisCard>

@@ -4,7 +4,8 @@ export function useAnimations() {
   const [visibleSections, setVisibleSections] = useState<{ [key: string]: string[] }>({})
 
   // Trigger animations for analysis results
-  const triggerAnimationsForAnalysis = (analysisId: string, requirementCount: number) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const triggerAnimationsForAnalysis = (analysisId: string, _requirementCount: number) => {
     // Reset animation states for this analysis
     setVisibleSections(prev => ({ ...prev, [analysisId]: [] }))
 

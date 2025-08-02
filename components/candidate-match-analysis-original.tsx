@@ -240,7 +240,8 @@ export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }:
   const [isSaving, setIsSaving] = useState<{ [key: string]: boolean }>({})
   
   // Animation states for each analysis
-  const [visibleSections, setVisibleSections] = useState<{ [key: string]: string[] }>({})
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_visibleSections, setVisibleSections] = useState<{ [key: string]: string[] }>({})
   
   // Mock candidates data - in real implementation, this would come from API
   const candidates: Candidate[] = [
@@ -633,7 +634,8 @@ export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }:
   }
 
   // Trigger animations for analysis results
-  const triggerAnimationsForAnalysis = (analysisId: string, requirementCount: number) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const triggerAnimationsForAnalysis = (analysisId: string, _requirementCount: number) => {
     // Reset animation states for this analysis
     setVisibleSections(prev => ({ ...prev, [analysisId]: [] }))
 

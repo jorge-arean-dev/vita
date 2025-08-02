@@ -8,13 +8,18 @@ import {
   saveMatchAnalysis,
   parseResumeSkills,
   savePDFCandidateWithResume,
-  deleteMatchAnalysis,
+  fetchCandidateForAnalysis,
+  getExistingMatchAnalyses,
   type ParsedCandidate
 } from "@/app/actions/match-analysis"
 import { uploadTemporaryResume } from "@/app/actions/candidates"
 import { MatchAnalysis, Candidate } from "../types"
 
-export function useMatchAnalysis(jobId: string, candidates: Candidate[]) {
+export function useMatchAnalysis(
+  jobId: string, 
+  candidates: Candidate[],
+  onAnalysisSaved?: (analysisId: string) => Promise<void>
+) {
   const [isRunningAnalysis, setIsRunningAnalysis] = useState<{ [key: string]: boolean }>({})
   const [isSaving, setIsSaving] = useState<{ [key: string]: boolean }>({})
   const { toast } = useToast()
@@ -79,15 +84,18 @@ export function useMatchAnalysis(jobId: string, candidates: Candidate[]) {
         
         updateProgress("Comparing against job requirements...")
       } else if (candidateType === "existing") {
-        // TODO: Implement existing candidate flow
+        // Existing candidate flow
         const existingCandidate = candidates.find(c => c.id === selectedExistingCandidate)
         candidateName = existingCandidate?.name || "Unknown Candidate"
         
-        toast({
-          title: "Coming soon",
-          description: "Existing candidate analysis will be implemented next.",
-        })
-        return
+        updateProgress("Fetching candidate data...")
+        parsedCandidate = await fetchCandidateForAnalysis(selectedExistingCandidate)
+        
+        updateProgress("Analyzing skills and experience...")
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        updateProgress("Comparing against job requirements...")
+        await new Promise(resolve => setTimeout(resolve, 500))
       } else if (candidateType === "new" && newCandidateMethod === "pdf") {
         // PDF parsing flow
         if (!uploadedFile) {
@@ -229,15 +237,6 @@ export function useMatchAnalysis(jobId: string, candidates: Candidate[]) {
       
       console.log("✅ Save operation completed successfully")
       
-      // Update the analysis to mark it as saved
-      setMatchAnalyses(prevAnalyses =>
-        prevAnalyses.map(ma => 
-          ma.id === analysisId 
-            ? { ...ma, isNew: false, isExpanded: false }
-            : ma
-        )
-      )
-      
       const successMessage = analysis.candidateInfo.type === "new" 
         ? analysis.candidateInfo.source === "pdf"
           ? "Candidate created with resume, and match analysis saved successfully."
@@ -248,6 +247,11 @@ export function useMatchAnalysis(jobId: string, candidates: Candidate[]) {
         title: "Success",
         description: successMessage,
       })
+
+      // Call the callback to handle post-save logic (e.g., reload analyses)
+      if (onAnalysisSaved) {
+        await onAnalysisSaved(analysisId)
+      }
     } catch (error) {
       console.error("Error saving analysis:", error)
       const errorMessage = error instanceof Error ? error.message : "Failed to save analysis"

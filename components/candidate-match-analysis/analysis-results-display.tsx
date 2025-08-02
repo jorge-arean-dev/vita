@@ -7,9 +7,10 @@ import { MatchAnalysis, ExistingMatchAnalysis } from "./types"
 interface AnalysisResultsDisplayProps {
   analysis: MatchAnalysis | ExistingMatchAnalysis
   candidateName?: string
+  isNewCandidate?: boolean
 }
 
-export function AnalysisResultsDisplay({ analysis, candidateName }: AnalysisResultsDisplayProps) {
+export function AnalysisResultsDisplay({ analysis, candidateName, isNewCandidate = false }: AnalysisResultsDisplayProps) {
   const data = getAnalysisData(analysis)
   
   // Get candidate name from different sources
@@ -20,6 +21,23 @@ export function AnalysisResultsDisplay({ analysis, candidateName }: AnalysisResu
 
   return (
     <div className="space-y-8">
+      {/* Blue informative banner for new candidates */}
+      {isNewCandidate && (
+        <div className="p-4 rounded-lg border bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">
+          <div className="flex items-start gap-3">
+            <Info className="h-5 w-5 mt-0.5 flex-shrink-0" />
+            <div className="space-y-1">
+              <p className="text-sm font-medium">
+                This candidate will be saved to your database
+              </p>
+              <p className="text-sm text-blue-600 dark:text-blue-400">
+                When you click Save, this candidate's information and match analysis will be permanently stored for future reference.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Element 1: Combined Section - Overall Match Score + Requirement Analysis */}
       <div className="transition-all duration-1000 opacity-100 translate-y-0">
         {/* Row Container */}
