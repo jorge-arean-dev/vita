@@ -156,6 +156,74 @@ Portal-based components (DropdownMenu, Dialog, Tooltip, etc.) require special CS
 }
 ```
 
+### Toast System Guidelines
+
+#### **CRITICAL**: Use Only ShadCN Toast System
+- **NEVER use `import { toast } from "sonner"`** - This will not display properly
+- **ALWAYS use `import { useToast } from "@/components/ui/use-toast"`** - This is the configured system
+- **Only one toast system** is set up in the app layout (`<Toaster />` from shadcn/ui)
+
+#### Correct Toast Implementation
+```typescript
+// ✅ CORRECT - Use ShadCN toast system
+import { useToast } from "@/components/ui/use-toast"
+
+function MyComponent() {
+  const { toast } = useToast()
+  
+  // Success toast
+  toast({
+    title: "Success",
+    description: "Operation completed successfully!",
+  })
+  
+  // Error toast
+  toast({
+    title: "Error", 
+    description: "Something went wrong. Please try again.",
+    variant: "destructive",
+  })
+  
+  // Warning toast
+  toast({
+    title: "Warning",
+    description: "Please review your input.",
+    variant: "destructive", // Use destructive for warnings too
+  })
+  
+  // Validation error toast
+  toast({
+    title: "Validation Error",
+    description: "Email is required",
+    variant: "destructive",
+  })
+}
+```
+
+#### Toast Anti-Patterns
+```typescript
+// ❌ WRONG - Will not display
+import { toast } from "sonner"
+toast.success("This won't show")
+toast.error("This won't show either")
+
+// ❌ WRONG - Missing hook
+function BadComponent() {
+  // No useToast hook
+  toast({ title: "Error" }) // This will fail
+}
+
+// ❌ WRONG - Incorrect format
+const { toast } = useToast()
+toast.success("Wrong format") // toast.success doesn't exist in shadcn
+```
+
+#### Toast Troubleshooting
+- **Toast not showing?** Check if you're using `useToast()` hook and shadcn format
+- **Page refreshing too quickly?** Use proper state management instead of `window.location.reload()`
+- **Multiple toast systems?** Remove all `sonner` imports and use only shadcn
+- **Check layout setup:** Ensure `<Toaster />` from shadcn is in root layout
+
 ## Performance Optimization
 
 ### React Best Practices
@@ -251,6 +319,8 @@ When working on this project:
 - ❌ Using `@supabase/auth-helpers-nextjs` (deprecated)
 - ❌ Using `get`, `set`, or `remove` for cookie management
 - ❌ Modifying component fonts directly instead of using FontProvider
+- ❌ **Using `import { toast } from "sonner"` - Will not display toasts**
+- ❌ **Using `toast.success()` or `toast.error()` format - Wrong toast system**
 - ❌ Generic cache keys that could cause user data collisions
 - ❌ Missing `noStore()` on user-specific pages
 - ❌ Exposing secrets in client-side code

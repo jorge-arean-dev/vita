@@ -7,7 +7,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { toast } from "sonner"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
+import { useToast } from "@/components/ui/use-toast"
 import { deleteCandidate, createSampleCandidates, CandidateData } from "@/app/actions/candidates"
 import CreateTalentDialog from "@/components/create-talent-dialog"
 
@@ -19,20 +20,39 @@ export default function CandidatesView({ candidates: initialCandidates }: Candid
   const [candidates, setCandidates] = useState(initialCandidates)
   const [isPending, startTransition] = useTransition()
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [candidateToDelete, setCandidateToDelete] = useState<{ id: string; name: string } | null>(null)
+  const { toast } = useToast()
   const router = useRouter()
 
   const handleOpen = (candidate: CandidateData) => {
     router.push(`/protected/candidates/${candidate.id}`)
   }
 
-  const handleDelete = (candidateId: string) => {
+  const handleDeleteClick = (candidateId: string, candidateName: string) => {
+    setCandidateToDelete({ id: candidateId, name: candidateName })
+    setDeleteDialogOpen(true)
+  }
+
+  const handleConfirmDelete = () => {
+    if (!candidateToDelete) return
+
     startTransition(async () => {
       try {
-        await deleteCandidate(candidateId)
-        setCandidates(candidates.filter((candidate) => candidate.id !== candidateId))
-        toast.success("Candidate deleted successfully")
+        await deleteCandidate(candidateToDelete.id)
+        setCandidates(candidates.filter((candidate) => candidate.id !== candidateToDelete.id))
+        toast({
+          title: "Success",
+          description: "Candidate deleted successfully",
+        })
+        setDeleteDialogOpen(false)
+        setCandidateToDelete(null)
       } catch (error) {
-        toast.error("Failed to delete candidate")
+        toast({
+          title: "Error",
+          description: "Failed to delete candidate",
+          variant: "destructive",
+        })
         console.error("Error deleting candidate:", error)
       }
     })
@@ -42,19 +62,26 @@ export default function CandidatesView({ candidates: initialCandidates }: Candid
     startTransition(async () => {
       try {
         await createSampleCandidates()
-        toast.success("Sample candidates created successfully")
-        // Refresh the page to show new candidates
-        window.location.reload()
+        toast({
+          title: "Success",
+          description: "Sample candidates created successfully",
+        })
+        // Refresh the server component data
+        router.refresh()
       } catch (error) {
-        toast.error("Failed to create sample candidates")
+        toast({
+          title: "Error",
+          description: "Failed to create sample candidates",
+          variant: "destructive",
+        })
         console.error("Error creating sample candidates:", error)
       }
     })
   }
 
-  const handleCandidateCreated = () => {
-    // Refresh the page to show the new candidate
-    window.location.reload()
+  const handleCandidateCreated = (newCandidate: CandidateData) => {
+    // Add the new candidate to the state for immediate UI update
+    setCandidates(prev => [newCandidate, ...prev])
   }
 
   const getInitials = (firstName: string | null, lastName: string | null) => {
@@ -262,7 +289,7 @@ export default function CandidatesView({ candidates: initialCandidates }: Candid
                             <DropdownMenuItem
                               onClick={(e) => {
                                 e.stopPropagation()
-                                handleDelete(candidate.id)
+                                handleDeleteClick(candidate.id, fullName)
                               }}
                               className="cursor-pointer text-destructive focus:text-destructive"
                               disabled={isPending}
@@ -288,6 +315,29 @@ export default function CandidatesView({ candidates: initialCandidates }: Candid
         onOpenChange={setIsCreateDialogOpen}
         onCandidateCreated={handleCandidateCreated}
       />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Candidate</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {candidateToDelete?.name}? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setCandidateToDelete(null)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={isPending}
+            >
+              {isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </TooltipProvider>
   )
 }

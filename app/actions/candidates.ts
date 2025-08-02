@@ -687,7 +687,8 @@ export async function insertCandidateSkills(
       skill: skill.name,
       type: skill.type, // Direct mapping - no conversion needed
       source: skill.source || "resume", // Use provided source or default to resume
-      proficiency_level: skill.proficiency_level || null
+      proficiency_level: skill.proficiency_level || null,
+      years_of_experience: skill.yoe ? Math.round(Number(skill.yoe)) : null
     }))
 
     // Insert skills
@@ -755,7 +756,7 @@ export async function createCandidate(data: {
   linkedin?: string
   github?: string
   yearsExperience?: number
-}): Promise<{ success: boolean; error?: string; candidateId?: string }> {
+}): Promise<{ success: boolean; error?: string; candidateId?: string; candidate?: CandidateData }> {
   const supabase = await createClient()
   
   // Get the current user
@@ -841,10 +842,45 @@ export async function createCandidate(data: {
       return { success: false, error: "Failed to create candidate. Please try again." }
     }
 
+    // Get country name if we have a country code
+    let countryName = data.country
+    if (data.country) {
+      const { data: countryData, error: countryError } = await supabase
+        .from("countries")
+        .select("display_name")
+        .eq("iso_code", data.country)
+        .single()
+      
+      if (!countryError && countryData) {
+        countryName = countryData.display_name
+      }
+    }
+
+    // Create the candidate data in the format expected by CandidateData
+    const candidateForReturn: CandidateData = {
+      id: candidateData.id,
+      user_id: user.id,
+      first_name: data.firstName.trim(),
+      last_name: data.lastName.trim(),
+      email: data.email.trim().toLowerCase(),
+      linkedin: linkedinUrl || null,
+      github: githubUrl || null,
+      resume_url: null, // Will be updated later if file is uploaded
+      country: data.country || null,
+      country_name: countryName,
+      years_experience: data.yearsExperience || null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+    
     // Revalidate the candidates page
     revalidatePath("/protected/candidates")
     
-    return { success: true, candidateId: candidateData.id }
+    return { 
+      success: true, 
+      candidateId: candidateData.id,
+      candidate: candidateForReturn 
+    }
   } catch (error) {
     console.error("Error creating candidate:", error)
     return { success: false, error: "An unexpected error occurred. Please try again." }

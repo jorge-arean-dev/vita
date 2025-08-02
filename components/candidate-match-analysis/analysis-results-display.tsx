@@ -31,7 +31,7 @@ export function AnalysisResultsDisplay({ analysis, candidateName, isNewCandidate
                 This candidate will be saved to your database
               </p>
               <p className="text-sm text-blue-600 dark:text-blue-400">
-                When you click Save, this candidate's information and match analysis will be permanently stored for future reference.
+                When you click Save, this candidate&apos;s information and match analysis will be permanently stored for future reference.
               </p>
             </div>
           </div>

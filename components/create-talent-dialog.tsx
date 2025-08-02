@@ -12,8 +12,8 @@ import { Upload, Link, ChevronDown, UserPlus, Info } from "lucide-react"
 import ToggleSlider from "@/components/ui/toggle-slider"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
-import { toast } from "sonner"
-import { searchCountries, createCandidate, uploadTemporaryResume, moveTempResumeToCandidate, insertCandidateSkills, updateCandidateResumeUrl } from "@/app/actions/candidates"
+import { useToast } from "@/components/ui/use-toast"
+import { searchCountries, createCandidate, uploadTemporaryResume, moveTempResumeToCandidate, insertCandidateSkills, updateCandidateResumeUrl, CandidateData } from "@/app/actions/candidates"
 
 interface Country {
   iso_code: string
@@ -41,7 +41,7 @@ interface ParsedSkill {
 interface CreateTalentDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onCandidateCreated?: () => void
+  onCandidateCreated?: (candidate: CandidateData) => void
 }
 
 type InputMethod = "auto" | "manual"
@@ -53,6 +53,9 @@ export default function CreateTalentDialog({
   onOpenChange, 
   onCandidateCreated 
 }: CreateTalentDialogProps) {
+  // Toast hook
+  const { toast } = useToast()
+  
   // State management
   const [currentStep, setCurrentStep] = useState<Step>("data-source")
   const [inputMethod, setInputMethod] = useState<InputMethod>("auto")
@@ -172,12 +175,20 @@ export default function CreateTalentDialog({
   // Process data source (API call)
   const handleProcessDataSource = async () => {
     if (dataSource === "linkedin" && !linkedinUrl.trim()) {
-      toast.error("Please enter a LinkedIn URL")
+      toast({
+        title: "Error",
+        description: "Please enter a LinkedIn URL",
+        variant: "destructive",
+      })
       return
     }
     
     if (dataSource === "pdf" && !uploadedFile) {
-      toast.error("Please upload a PDF file")
+      toast({
+        title: "Error", 
+        description: "Please upload a PDF file",
+        variant: "destructive",
+      })
       return
     }
 
@@ -193,7 +204,11 @@ export default function CreateTalentDialog({
         console.log("Upload result:", uploadResult)
         if (!uploadResult.success) {
           console.error("Upload failed:", uploadResult.error)
-          toast.error(uploadResult.error || "Failed to upload file")
+          toast({
+            title: "Error",
+            description: uploadResult.error || "Failed to upload file",
+            variant: "destructive",
+          })
           return
         }
         
@@ -219,7 +234,11 @@ export default function CreateTalentDialog({
         
         if (!parseResponse.ok) {
           console.error("Parse failed:", parseData.error)
-          toast.error(parseData.error || "Failed to parse resume")
+          toast({
+            title: "Error",
+            description: parseData.error || "Failed to parse resume",
+            variant: "destructive",
+          })
           return
         }
         
@@ -268,7 +287,10 @@ export default function CreateTalentDialog({
         
         console.log("Moving to review form step...")
         setCurrentStep("review-form")
-        toast.success("Resume data extracted successfully!")
+        toast({
+          title: "Success",
+          description: "Resume data extracted successfully!",
+        })
       } else {
         // LinkedIn URL processing (3-step API flow)
         console.log("Processing LinkedIn URL:", linkedinUrl)
@@ -440,12 +462,19 @@ export default function CreateTalentDialog({
         
         console.log("Moving to review form step...")
         setCurrentStep("review-form")
-        toast.success("LinkedIn profile analyzed successfully!")
+        toast({
+          title: "Success",
+          description: "LinkedIn profile analyzed successfully!",
+        })
       }
     } catch (error) {
       console.error("Error processing data source:", error)
       const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred"
-      toast.error(errorMessage)
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      })
     } finally {
       setIsProcessing(false)
       setUploadProgress("")
@@ -482,22 +511,38 @@ export default function CreateTalentDialog({
   const handleSubmit = () => {
     // Validate required fields
     if (!formData.firstName.trim()) {
-      toast.error("First name is required")
+      toast({
+        title: "Validation Error",
+        description: "First name is required",
+        variant: "destructive",
+      })
       return
     }
     
     if (!formData.lastName.trim()) {
-      toast.error("Last name is required")
+      toast({
+        title: "Validation Error",
+        description: "Last name is required",
+        variant: "destructive",
+      })
       return
     }
     
     if (!formData.email.trim()) {
-      toast.error("Email is required")
+      toast({
+        title: "Validation Error",
+        description: "Email is required",
+        variant: "destructive",
+      })
       return
     }
     
     if (!formData.country) {
-      toast.error("Country is required")
+      toast({
+        title: "Validation Error",
+        description: "Country is required",
+        variant: "destructive",
+      })
       return
     }
 
@@ -515,17 +560,23 @@ export default function CreateTalentDialog({
         })
         
         if (!result.success) {
-          toast.error(result.error || "Failed to create candidate")
+          toast({
+            title: "Error",
+            description: result.error || "Failed to create candidate",
+            variant: "destructive",
+          })
           return
         }
 
-        // We need the candidate ID for the next steps
-        // Since createCandidate doesn't return it, we'll need to modify it
-        // For now, let's assume we get it from a modified response
         const candidateId = result.candidateId
+        const createdCandidate = result.candidate
         
-        if (!candidateId) {
-          toast.error("Failed to get candidate ID")
+        if (!candidateId || !createdCandidate) {
+          toast({
+            title: "Error",
+            description: "Failed to get candidate data",
+            variant: "destructive",
+          })
           return
         }
 
@@ -534,13 +585,21 @@ export default function CreateTalentDialog({
           const moveResult = await moveTempResumeToCandidate(tempFilePath, candidateId)
           if (!moveResult.success) {
             console.error("Failed to move resume file:", moveResult.error)
-            toast.error("Failed to move resume file, but candidate was created")
+            toast({
+              title: "Warning",
+              description: "Failed to move resume file, but candidate was created",
+              variant: "destructive",
+            })
           } else if (moveResult.finalUrl) {
             // Step 2a: Update candidate with resume URL
             const updateResult = await updateCandidateResumeUrl(candidateId, moveResult.finalUrl)
             if (!updateResult.success) {
               console.error("Failed to update resume URL:", updateResult.error)
-              toast.error("Resume uploaded but URL not saved to candidate")
+              toast({
+                title: "Warning",
+                description: "Resume uploaded but URL not saved to candidate",
+                variant: "destructive",
+              })
             }
           }
         }
@@ -554,13 +613,20 @@ export default function CreateTalentDialog({
           }
         }
 
-        toast.success("Candidate created successfully!")
+        toast({
+          title: "Success",
+          description: "Candidate created successfully!",
+        })
         resetForm() // Reset form and clear dirty state
         onOpenChange(false) // Bypass unsaved changes check
-        onCandidateCreated?.()
+        onCandidateCreated?.(createdCandidate)
       } catch (error) {
         console.error("Error creating candidate:", error)
-        toast.error("Failed to create candidate")
+        toast({
+          title: "Error",
+          description: "Failed to create candidate",
+          variant: "destructive",
+        })
       }
     })
   }
