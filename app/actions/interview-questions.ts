@@ -100,7 +100,7 @@ export async function saveInterviewQuestions(
   }
 
   // Insert new questions
-  const questionsToInsert = questions.map((q, index) => ({
+  const questionsToInsert = questions.map((q) => ({
     job_id: jobId,
     content: q.question, // Map question to content
     type: q.type
