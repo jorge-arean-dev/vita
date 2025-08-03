@@ -1,184 +1,464 @@
 # Vita - Virtual Interface for Talent Acquisition
+## Technical Implementation Details
 
 This document provides a comprehensive overview of the Vita application's code structure, architecture, and functionality to help developers and AI tools understand how the application works.
 
 ## Project Overview
 
-Vita is a lightweight application designed to help recruiters streamline and speed up their workflows. The app revolves around a central object: the **Job**, which is structured into six sections reflecting the key stages of a typical recruiting process.
+Vita is an AI-powered recruitment platform built with modern web technologies. The application revolves around the **Job** object, providing a suite of intelligent tools that automate recruiting workflows and deliver data-driven insights.
 
 ## Technology Stack
 
-- **Frontend Framework**: Next.js (App Router)
-- **UI Components**: Shadcn UI + Radix UI
-- **Styling**: Tailwind CSS
-- **Authentication & Database**: Supabase
-- **Language**: TypeScript
-- **Package Manager**: pnpm
+### Frontend
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript (Strict Mode)
+- **UI Components**: ShadCN UI + Radix UI primitives
+- **Styling**: Tailwind CSS with CSS variables
+- **State Management**: React Server Components + Server Actions
+- **Form Validation**: Zod schemas
+
+### Backend
+- **Database**: Supabase (PostgreSQL)
+- **Authentication**: Supabase Auth with SSR
+- **File Storage**: Supabase Storage (resumes, avatars)
+- **API Integration**: Multiple AI/LLM services
+- **Edge Functions**: Vercel Edge Runtime
+
+### Development
+- **Package Manager**: pnpm (exclusively)
+- **Deployment**: Vercel
+- **Version Control**: Git
+- **Development Server**: Port 3000
 
 ## Directory Structure
 
 ```
 /
-├── app/                      # Next.js App Router directory
-│   ├── about/                # About page
-│   ├── auth/                 # Authentication pages
-│   ├── protected/            # Protected routes requiring authentication
-│   ├── globals.css          # Global CSS styles
-│   ├── layout.tsx           # Root layout component
-│   └── page.tsx             # Home page component
-├── components/               # Reusable React components
-│   ├── ui/                  # UI components (shadcn/ui)
-│   │   ├── badge.tsx
+├── app/                         # Next.js App Router
+│   ├── about/                   # Public about page
+│   ├── auth/                    # Authentication pages
+│   │   ├── login/
+│   │   ├── sign-up/
+│   │   ├── forgot-password/
+│   │   └── update-password/
+│   ├── protected/               # Authenticated routes
+│   │   ├── layout.tsx          # Protected layout wrapper
+│   │   ├── layout-with-sidebar.tsx  # Sidebar navigation
+│   │   ├── page.tsx            # Jobs dashboard
+│   │   ├── candidates/         # Candidate management
+│   │   │   ├── page.tsx        # Candidates list
+│   │   │   └── [candidateId]/  # Candidate details
+│   │   ├── companies/          # Company management
+│   │   ├── jobs/               # Job-specific tools
+│   │   │   └── [id]/           # Individual job pages
+│   │   │       ├── page.tsx    # Job details
+│   │   │       ├── job-description-builder/
+│   │   │       ├── linkedin-query-builder/
+│   │   │       ├── candidate-match-analysis/
+│   │   │       ├── email-builder/
+│   │   │       ├── interview-questions-generator/
+│   │   │       └── interview-analysis/
+│   │   └── settings/           # User settings
+│   ├── api/                    # API routes
+│   │   └── parse-resume/       # Resume parsing endpoint
+│   ├── actions/                # Server actions
+│   │   ├── candidates.ts       # Candidate CRUD operations
+│   │   ├── companies.ts        # Company management
+│   │   ├── jobs.ts            # Job operations
+│   │   ├── job-management.ts  # Job-specific actions
+│   │   ├── match-analysis.ts   # AI matching logic
+│   │   └── profile.ts         # User profile actions
+│   ├── globals.css            # Global styles
+│   ├── layout.tsx             # Root layout
+│   └── page.tsx               # Landing page
+├── components/                 # React components
+│   ├── ui/                    # ShadCN UI components
 │   │   ├── button.tsx
 │   │   ├── card.tsx
-│   │   ├── checkbox.tsx
-│   │   ├── dropdown-menu.tsx
+│   │   ├── dialog.tsx
+│   │   ├── form.tsx
 │   │   ├── input.tsx
-│   │   └── label.tsx
-│   ├── tutorial/            # Tutorial-related components
-│   ├── auth-button.tsx      # Authentication button component
-│   ├── hero.tsx             # Hero section component
-│   └── theme-switcher.tsx   # Theme switcher component
-├── docs/                     # Documentation
-│   ├── code-details.md      # This file - code documentation
-│   └── prd.md               # Product Requirements Document
-├── lib/                      # Utility functions and shared code
-│   ├── supabase/            # Supabase integration
-│   │   ├── client.ts        # Client-side Supabase client
-│   │   ├── middleware.ts    # Supabase middleware for auth
-│   │   └── server.ts        # Server-side Supabase client
-│   └── utils.ts             # Utility functions
-├── middleware.ts            # Next.js middleware (auth protection)
+│   │   ├── select.tsx
+│   │   ├── sidebar.tsx        # App sidebar
+│   │   ├── toast.tsx          # Toast notifications
+│   │   └── ...                # Other UI primitives
+│   ├── candidate-match-analysis/  # Match analysis feature
+│   │   ├── index.tsx
+│   │   ├── analysis-card.tsx
+│   │   ├── candidate-selection-form.tsx
+│   │   ├── analysis-results-display.tsx
+│   │   └── types.ts
+│   ├── auth-button.tsx        # Authentication controls
+│   ├── create-job-dialog.tsx  # Job creation wizard
+│   ├── job-tools-grid.tsx     # Job tools navigation
+│   ├── site-header.tsx        # App header
+│   └── ...                    # Other components
+├── lib/                       # Utilities and helpers
+│   ├── supabase/             # Supabase clients
+│   │   ├── client.ts         # Browser client
+│   │   ├── server.ts         # Server client
+│   │   └── middleware.ts     # Auth middleware
+│   ├── api/                  # API integrations
+│   │   └── linkedin-queries.ts
+│   ├── constants/            # App constants
+│   ├── helpers/              # Helper functions
+│   ├── validations/          # Zod schemas
+│   └── utils.ts              # Utility functions
+├── hooks/                     # Custom React hooks
+│   ├── use-auth-state.ts     # Auth state management
+│   ├── use-mobile.ts         # Responsive detection
+│   └── use-toast.ts          # Toast notifications
+├── types/                     # TypeScript definitions
+│   ├── database.types.ts     # Supabase schema types
+│   ├── job.ts               # Job-related types
+│   └── index.ts             # Common types
+├── docs/                      # Documentation
+│   ├── api/                  # API documentation
+│   ├── db-schema/           # Database schema
+│   └── patterns/            # Code patterns
+├── supabase/                 # Supabase configuration
+│   ├── migrations/          # Database migrations
+│   └── config.toml          # Local config
 ├── public/                   # Static assets
-├── .env.local               # Environment variables (not in repo)
-├── components.json          # shadcn/ui configuration
+├── middleware.ts            # Next.js middleware
 ├── next.config.ts           # Next.js configuration
-├── package.json             # Project dependencies
-├── tailwind.config.ts       # Tailwind CSS configuration
-└── tsconfig.json            # TypeScript configuration
+├── tailwind.config.ts       # Tailwind configuration
+├── components.json          # ShadCN UI config
+└── package.json            # Dependencies
 ```
 
-## Key Components and Architecture
+## Core Architecture
 
 ### Authentication Flow
 
-The application uses Supabase for authentication with a cookie-based session management approach:
+1. **Middleware Protection** (`middleware.ts`):
+   - Intercepts all requests to `/protected/*` routes
+   - Validates authentication using Supabase session
+   - Redirects unauthenticated users to login
 
-1. **Middleware**: `middleware.ts` intercepts all requests to check for authentication status using `lib/supabase/middleware.ts`
-2. **Server-side Auth**: `lib/supabase/server.ts` provides server-side authentication checks
-3. **Client-side Auth**: `lib/supabase/client.ts` handles client-side authentication
-4. **Auth Components**: Components like `auth-button.tsx`, `login-form.tsx`, and `sign-up-form.tsx` provide the UI for authentication
+2. **Session Management**:
+   - Server-side: `lib/supabase/server.ts` with cookie management
+   - Client-side: `lib/supabase/client.ts` for browser operations
+   - Uses `@supabase/ssr` for secure cookie handling
 
-Protected routes are enforced by the middleware, which redirects unauthenticated users to the login page.
+3. **Auth Components**:
+   - Login/signup forms with validation
+   - Password reset flow
+   - Session persistence across tabs
 
-### UI Framework
+### Data Architecture
 
-The application uses a combination of:
+#### Primary Entities
 
-- **Shadcn UI**: A collection of reusable components built on top of Radix UI
-- **Radix UI**: Unstyled, accessible components
-- **Tailwind CSS**: For styling and responsive design
-- **Next Themes**: For dark/light mode support
+1. **Jobs** (`jobs` table):
+   - Core object with comprehensive attributes
+   - Linked to companies, requirements, candidates
+   - Supports multiple location types and pay structures
 
-Components are organized in the `/components` directory, with UI primitives in `/components/ui`.
+2. **Candidates** (`candidates` table):
+   - Profile information and contact details
+   - Skills tracking with proficiency levels
+   - Resume storage and LinkedIn data
+   - Source tracking (LinkedIn/Resume/Manual)
 
-### Data Model
+3. **Companies** (`companies` table):
+   - Reusable across multiple jobs
+   - Industry classification
+   - Contact and website information
 
-The core data model revolves around these main entities:
+4. **Match Analysis** (`job_candidate_match_analysis` table):
+   - AI-generated matching scores
+   - Requirement-by-requirement evaluation
+   - Recommendations and feedback storage
 
-1. **Jobs**: The central object in the app with structured attributes for each recruiting stage
-2. **Candidates**: Profiles that include resume data, LinkedIn analysis, and interview evaluations
-3. **Companies**: Company data that can be linked to multiple jobs
-4. **Assessments**: AI-generated evaluations from interview answers
+#### Supporting Tables
+- **Lookup Tables**: 15+ tables for countries, industries, skills, etc.
+- **Job Requirements**: Detailed skill/experience requirements
+- **Candidate Skills**: Skill proficiency and experience tracking
+- **Interview Data**: Questions, transcripts, evaluations
 
-### Application Flow
+### AI Integration Architecture
 
-The application follows a typical recruiting workflow with six key stages:
+#### Job Description Builder
+1. **Input**: Raw notes from client conversations
+2. **Processing**: 
+   - Extract job details via AI API
+   - Structure requirements and attributes
+   - Generate professional description
+3. **Output**: Formatted job description with copy functionality
 
-1. **Define**: Tools to capture and organize job information
-2. **Source**: Tools to help find potential candidates
-3. **Review**: Tools to evaluate candidate profiles
-4. **Reach**: Tools for contacting and following up with candidates
-5. **Assess**: Tools for conducting and evaluating interviews
-6. **Submit**: Tools for presenting candidates to clients
+#### LinkedIn Query Builder
+1. **Input**: Job requirements and preferences
+2. **Processing**: AI generates Boolean search strings
+3. **Output**: Multiple query variations for comprehensive search
 
-## Key Files and Their Functions
+#### Candidate Match Analysis
+1. **Input Sources**:
+   - LinkedIn URL → Apify scraper → Profile reducer → Skill parser
+   - PDF Resume → OCR/parsing → Skill extraction
+   - Manual candidate entry
+2. **Matching Algorithm**:
+   - Requirement-by-requirement scoring
+   - Weighted importance calculation
+   - Status classification (Strong/Adequate/Weak/Missing)
+3. **Output**: Comprehensive analysis report with recommendations
 
-### Core Configuration
+### Component Architecture
 
-- `app/layout.tsx`: Root layout with ThemeProvider setup
-- `middleware.ts`: Authentication middleware
-- `next.config.ts`: Next.js configuration
-- `tailwind.config.ts`: Tailwind CSS configuration
+#### Layout Structure
+- **Root Layout** (`app/layout.tsx`): Theme provider, fonts, toaster
+- **Protected Layout**: Authentication wrapper
+- **Sidebar Layout**: Navigation for authenticated users
+- **Page Layouts**: Tool-specific layouts with breadcrumbs
+
+#### Component Patterns
+1. **Server Components** (default):
+   - Data fetching and rendering
+   - SEO optimization
+   - Reduced client bundle
+
+2. **Client Components** (marked with 'use client'):
+   - Interactive elements
+   - Form handling
+   - Real-time updates
+
+3. **Server Actions**:
+   - Form submissions
+   - Database mutations
+   - File uploads
+
+#### UI Component System
+- **Base**: ShadCN UI components built on Radix
+- **Styling**: Tailwind utilities with CSS variables
+- **Themes**: Light/dark mode with system detection
+- **Icons**: Lucide React icon library
+
+### State Management
+
+1. **Server State**:
+   - React Server Components for initial data
+   - Server Actions for mutations
+   - Automatic revalidation
+
+2. **Client State**:
+   - React hooks for local state
+   - Form state with react-hook-form
+   - Optimistic updates where appropriate
+
+3. **Global State**:
+   - Authentication state via context
+   - Theme state via next-themes
+   - Toast notifications via global provider
+
+## Key Features Implementation
+
+### Job Management
+- **Creation**: Multi-step wizard with validation
+- **Editing**: In-place editing with auto-save
+- **Requirements**: Dynamic skill/requirement management
+- **Status Tracking**: Active/archived states
+
+### Candidate Management
+- **Import**: LinkedIn scraping or resume upload
+- **Profile Creation**: Automatic skill extraction
+- **Search/Filter**: By skills, experience, location
+- **Bulk Operations**: Multi-select actions
+
+### AI-Powered Tools
+1. **Job Description Builder**:
+   - Natural language processing
+   - Consistent formatting
+   - Industry-specific language
+
+2. **Match Analysis**:
+   - Multi-factor scoring
+   - Gap analysis
+   - Strategic recommendations
+
+3. **LinkedIn Integration**:
+   - Profile scraping via Apify
+   - Structured data extraction
+   - Skill normalization
+
+### File Management
+- **Resume Upload**: Drag-and-drop with validation
+- **Temporary Storage**: For processing
+- **Permanent Storage**: Linked to candidates
+- **Avatar Management**: User profile pictures
+
+## Security Implementation
 
 ### Authentication
+- Supabase Auth with email/password
+- Session-based authentication
+- Secure cookie management
+- Password reset flow
 
-- `lib/supabase/server.ts`: Server-side Supabase client
-- `lib/supabase/client.ts`: Client-side Supabase client
-- `lib/supabase/middleware.ts`: Middleware for authentication
-- `components/login-form.tsx`: Login form component
-- `components/sign-up-form.tsx`: Sign-up form component
+### Authorization
+- Row Level Security (RLS) policies
+- User data isolation
+- Role-based access (future)
 
-### Main Pages
+### Data Protection
+- Input validation with Zod
+- SQL injection prevention
+- XSS protection
+- CSRF protection via SameSite cookies
 
-- `app/page.tsx`: Home page
-- `app/about/page.tsx`: About page
-- `app/auth/login/page.tsx`: Login page
-- `app/auth/sign-up/page.tsx`: Sign-up page
-- `app/protected/page.tsx`: Protected page example
+## Performance Optimizations
+
+### Frontend
+- React Server Components by default
+- Code splitting at route level
+- Image optimization with Next.js
+- Lazy loading for heavy components
+
+### Backend
+- Efficient database queries
+- Proper indexing strategy
+- Connection pooling
+- Edge function deployment
+
+### Caching
+- Static asset caching
+- API response caching
+- User-specific cache isolation
+- Cache invalidation on updates
 
 ## Development Workflow
 
-1. **Local Development**: Run `pnpm dev` to start the development server on port 3000
-2. **Authentication**: Supabase handles authentication with cookie-based sessions
-3. **Database Access**: Server components use server-side Supabase client, client components use client-side Supabase client
-4. **Styling**: Use Tailwind CSS for styling with shadcn/ui components
+### Local Development
+```bash
+# Install dependencies
+pnpm install
 
-## Best Practices
+# Set up environment variables
+cp .env.example .env.local
 
-### Security
+# Run development server
+pnpm dev
 
-- Environment variables are used for Supabase URL and API keys
-- Authentication is enforced via middleware
-- Protected routes require authentication
-- Row Level Security (RLS) should be implemented in Supabase
+# Build for production
+pnpm build
 
-### Performance
+# Run type checking
+pnpm type-check
 
-- Use React Server Components when possible
-- Minimize client-side JavaScript
-- Optimize images and assets
+# Run linting
+pnpm lint
+```
 
-### Code Organization
+### Environment Variables
+```env
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
 
-- Group files by domain when possible
-- Use `/components/ui` for UI components
-- Place components in the app directory `/components` and combine by usecase in subdirectories
+# AI APIs
+OPENAI_API_KEY=
+APIFY_API_KEY=
 
-## Integrations
+# App Configuration
+NEXT_PUBLIC_APP_URL=
+```
 
-### Supabase
+### Database Migrations
+- Located in `supabase/migrations/`
+- Run via Supabase CLI
+- Version controlled
+- RLS policies included
 
-The application uses Supabase for:
+## Testing Strategy
 
-1. **Authentication**: User sign-up, login, password reset
-2. **Database**: Storage for jobs, candidates, companies, and assessments
-3. **Row Level Security**: For data protection
+### Type Safety
+- TypeScript strict mode
+- Comprehensive type definitions
+- Runtime validation with Zod
 
-## Future Enhancements
+### Manual Testing
+- Multi-user scenarios
+- Cross-browser compatibility
+- Mobile responsiveness
+- Error scenarios
 
-Based on the PRD, future enhancements may include:
+### Future Testing
+- Unit tests with Jest
+- Integration tests
+- E2E tests with Playwright
+- Performance testing
 
-1. **Email Integration**: Direct email sending from the app
-2. **Premium Features**: Request for pre-vetted available candidates
-3. **Advanced Analytics**: Reporting and insights on recruiting process
+## Deployment
+
+### Production Environment
+- Hosted on Vercel
+- Edge functions for API routes
+- Automatic deployments from main branch
+- Environment variable management
+
+### Monitoring
+- Error tracking (to be implemented)
+- Performance monitoring
+- User analytics (privacy-first)
+- Database metrics via Supabase
+
+## API Documentation
+
+### External APIs
+1. **OpenAI**: Text generation and analysis
+2. **Apify**: LinkedIn profile scraping
+3. **Custom AI APIs**: Job-specific processing
+
+### Internal APIs
+- Server Actions for data mutations
+- API routes for file processing
+- Edge functions for performance
+
+## Common Patterns
+
+### Form Handling
+```typescript
+// Server Action pattern
+export async function createJob(formData: FormData) {
+  'use server'
+  // Validation
+  // Database operation
+  // Revalidation
+}
+```
+
+### Data Fetching
+```typescript
+// Server Component pattern
+export default async function JobsPage() {
+  const supabase = createClient()
+  const { data: jobs } = await supabase
+    .from('jobs')
+    .select('*')
+  
+  return <JobsList jobs={jobs} />
+}
+```
+
+### Error Handling
+- Try-catch blocks in Server Actions
+- Error boundaries for UI errors
+- Toast notifications for user feedback
+- Graceful degradation
 
 ## Troubleshooting
 
-- **Authentication Issues**: Check Supabase configuration and environment variables
-- **UI Issues**: Verify Tailwind and shadcn/ui setup
-- **API Errors**: Check Supabase logs and console for errors
+### Common Issues
+1. **Auth Issues**: Check Supabase configuration
+2. **Type Errors**: Regenerate database types
+3. **Build Errors**: Clear .next directory
+4. **API Errors**: Verify environment variables
+
+### Debug Tools
+- Browser DevTools
+- Supabase Dashboard
+- Vercel Functions logs
+- TypeScript compiler
 
 ---
 
-This documentation will be updated as the project evolves.
+*This documentation reflects the current implementation as of January 2025.*
