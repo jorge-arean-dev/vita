@@ -1,11 +1,21 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { Sparkles, Edit, Save, X, Copy } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
+import {
+  getJobDescriptions,
+  getExistingQuestions,
+  saveInterviewQuestions,
+  updateInterviewQuestion,
+  getJobDataForQuestions,
+  type JobDescription
+} from "@/app/actions/interview-questions"
 
 interface InterviewQuestion {
   id: string
@@ -44,8 +54,70 @@ const QUESTION_TYPE_MAPPING: Record<string, string> = {
 export default function InterviewQuestionsGenerator({ jobData }: InterviewQuestionsGeneratorProps) {
   const [questionGroups, setQuestionGroups] = useState<QuestionGroup[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
+  const [jobDescriptions, setJobDescriptions] = useState<JobDescription[]>([])
+  const [selectedJobDescription, setSelectedJobDescription] = useState<string>("")
+  const [isLoadingData, setIsLoadingData] = useState(true)
+  const [showOverwriteDialog, setShowOverwriteDialog] = useState(false)
+  const [showUnsavedChangesDialog, setShowUnsavedChangesDialog] = useState(false)
+  const [pendingEdit, setPendingEdit] = useState<{ groupType: string; questionId: string } | null>(null)
   const { toast } = useToast()
 
+
+  // Load data on mount
+  useEffect(() => {
+    if (!jobData?.id) return
+    
+    const loadData = async () => {
+      try {
+        const [descriptions, existingQuestions] = await Promise.all([
+          getJobDescriptions(jobData.id),
+          getExistingQuestions(jobData.id)
+        ])
+        
+        setJobDescriptions(descriptions)
+        
+        // Auto-select if only one description
+        if (descriptions.length === 1) {
+          setSelectedJobDescription(descriptions[0].id)
+        }
+        
+        // Convert existing questions to UI format
+        if (existingQuestions.length > 0) {
+          const groupedQuestions: Record<string, InterviewQuestion[]> = {}
+          
+          existingQuestions.forEach((q) => {
+            if (!groupedQuestions[q.type]) {
+              groupedQuestions[q.type] = []
+            }
+            groupedQuestions[q.type].push({
+              id: q.id,
+              question: q.question,
+              isEditing: false
+            })
+          })
+          
+          const newQuestionGroups: QuestionGroup[] = Object.entries(groupedQuestions).map(([type, questions]) => ({
+            type,
+            displayName: QUESTION_TYPE_MAPPING[type] || type,
+            questions
+          }))
+          
+          setQuestionGroups(newQuestionGroups)
+        }
+      } catch (error) {
+        console.error("Error loading data:", error)
+        toast({
+          title: "Error",
+          description: "Failed to load job descriptions and existing questions",
+          variant: "destructive",
+        })
+      } finally {
+        setIsLoadingData(false)
+      }
+    }
+    
+    loadData()
+  }, [jobData?.id, toast])
 
   // Check if any questions exist
   const hasExistingQuestions = () => {
@@ -99,85 +171,67 @@ export default function InterviewQuestionsGenerator({ jobData }: InterviewQuesti
   }
 
   const handleGenerateQuestions = async () => {
+    if (!jobData?.id || !selectedJobDescription) {
+      toast({
+        title: "Error",
+        description: "Please select a job description first",
+        variant: "destructive",
+      })
+      return
+    }
+
     // Check for existing content and show confirmation if needed
     if (hasExistingQuestions()) {
-      const confirmed = window.confirm(
-        "This will overwrite your existing questions. Are you sure you want to continue?"
-      )
-      if (!confirmed) return
+      setShowOverwriteDialog(true)
+      return
     }
+
+    await generateQuestions()
+  }
+
+  const generateQuestions = async () => {
+    if (!jobData?.id || !selectedJobDescription) return
 
     setIsGenerating(true)
     try {
-      // TODO: Implement API call to generate interview questions
-      console.log("Generating interview questions for job:", jobData)
+      // Get job data for API call
+      const jobDataForAPI = await getJobDataForQuestions(jobData.id, selectedJobDescription)
+      console.log('Sending to API:', jobDataForAPI)
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      // Mock API response - matching the provided format
-      const mockApiResponse = {
-        questions: [
-          {
-            type: "technical",
-            question: "Can you describe your experience with React.js and how you've used it in complex applications?"
+      // Call the API directly
+      const response = await fetch(
+        "https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/generate-interview-questions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`
           },
-          {
-            type: "technical", 
-            question: "How have you implemented TypeScript in your React projects, and what benefits have you seen?"
-          },
-          {
-            type: "problem_solving",
-            question: "Tell me about a time you faced an unexpected technical challenge and how you solved it."
-          },
-          {
-            type: "problem_solving",
-            question: "Can you walk me through how you approach debugging a complex issue in a React application?"
-          },
-          {
-            type: "communication",
-            question: "How do you ensure your technical ideas are clearly communicated when working with non-technical stakeholders?"
-          },
-          {
-            type: "communication",
-            question: "Tell me about a time you had to explain a complex technical concept to someone without your background."
-          },
-          {
-            type: "leadership",
-            question: "Describe a situation where you took initiative to improve a development process or mentor a teammate."
-          },
-          {
-            type: "leadership",
-            question: "How do you approach code reviews and providing constructive feedback to junior developers?"
-          },
-          {
-            type: "learning",
-            question: "Tell me about a time you had to quickly learn a new technology or framework for a project."
-          },
-          {
-            type: "learning",
-            question: "How do you stay up to date with the rapidly changing React ecosystem and web development trends?"
-          },
-          {
-            type: "cultural",
-            question: "How do you thrive in an agile, collaborative environment with flexible schedules?"
-          },
-          {
-            type: "cultural",
-            question: "What does continuous learning mean to you, and how do you incorporate it into your daily work?"
-          }
-        ]
+          body: JSON.stringify(jobDataForAPI)
+        }
+      )
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        console.error('API Error Response:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorData
+        })
+        throw new Error(errorData.error || errorData.details || `API Error: ${response.status} ${response.statusText}`)
       }
+
+      const apiResponse = await response.json()
       
       // Process API response and group questions
       const groupedQuestions: Record<string, InterviewQuestion[]> = {}
       
-      mockApiResponse.questions.forEach((q, index) => {
+      apiResponse.questions.forEach((q: { type: string; question: string }, index: number) => {
         if (!groupedQuestions[q.type]) {
           groupedQuestions[q.type] = []
         }
         groupedQuestions[q.type].push({
-          id: `${q.type}-${index}`,
+          id: `${q.type}-${index}-${Date.now()}`, // Unique ID with timestamp
           question: q.question,
           isEditing: false
         })
@@ -192,8 +246,25 @@ export default function InterviewQuestionsGenerator({ jobData }: InterviewQuesti
       
       setQuestionGroups(newQuestionGroups)
       
+      // Save to database
+      await saveInterviewQuestions(
+        jobData.id,
+        apiResponse.questions
+      )
+      
+      toast({
+        title: "Success",
+        description: "Interview questions generated and saved successfully",
+      })
+      
     } catch (error) {
       console.error("Error generating questions:", error)
+      const errorMessage = error instanceof Error ? error.message : "Failed to generate questions"
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      })
     } finally {
       setIsGenerating(false)
     }
@@ -213,21 +284,49 @@ export default function InterviewQuestionsGenerator({ jobData }: InterviewQuesti
     }))
   }
 
-  const handleSaveQuestion = (groupType: string, questionId: string, newQuestion: string) => {
-    setQuestionGroups(prev => prev.map(group => {
-      if (group.type === groupType) {
-        return {
-          ...group,
-          questions: group.questions.map(q => 
-            q.id === questionId ? { ...q, question: newQuestion, isEditing: false } : q
-          )
-        }
+  const handleSaveQuestion = async (groupType: string, questionId: string, newQuestion: string) => {
+    try {
+      // Check if it's a UUID (database ID) vs a generated ID with timestamp
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(questionId)
+      
+      if (isUUID) {
+        console.log('Updating question in database:', questionId, newQuestion)
+        await updateInterviewQuestion(questionId, newQuestion)
+        console.log('Database update completed')
+      } else {
+        console.log('Skipping database update for generated ID:', questionId)
       }
-      return group
-    }))
+      
+      // Update local state
+      setQuestionGroups(prev => prev.map(group => {
+        if (group.type === groupType) {
+          return {
+            ...group,
+            questions: group.questions.map(q => 
+              q.id === questionId ? { ...q, question: newQuestion, isEditing: false } : q
+            )
+          }
+        }
+        return group
+      }))
+      
+      toast({
+        title: "Success",
+        description: "Question updated successfully",
+      })
+    } catch (error) {
+      console.error("Error saving question:", error)
+      toast({
+        title: "Error",
+        description: "Failed to save question",
+        variant: "destructive",
+      })
+    }
   }
 
   const handleCancelEdit = (groupType: string, questionId: string) => {
+    // For now, just cancel without checking for changes
+    // In a more complex implementation, you could check if the text was modified
     setQuestionGroups(prev => prev.map(group => {
       if (group.type === groupType) {
         return {
@@ -336,9 +435,13 @@ export default function InterviewQuestionsGenerator({ jobData }: InterviewQuesti
               </p>
               <div className="flex items-center space-x-2">
                 {!isGenerating && (
-                  <Button onClick={handleGenerateQuestions} size="sm">
+                  <Button 
+                    onClick={handleGenerateQuestions} 
+                    size="sm"
+                    disabled={isLoadingData || jobDescriptions.length === 0 || !selectedJobDescription}
+                  >
                     <Sparkles className="h-4 w-4 mr-2" />
-                    {hasExistingQuestions() ? "Regenerate" : "Generate Questions"}
+                    {hasExistingQuestions() ? "Regenerate" : "Generate"}
                   </Button>
                 )}
                 {isGenerating && (
@@ -351,12 +454,61 @@ export default function InterviewQuestionsGenerator({ jobData }: InterviewQuesti
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Job Description Selection */}
+            {jobDescriptions.length > 1 && !isLoadingData && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">
+                  Select Job Description <span className="text-red-500">*</span>
+                </label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Choose which job description to use for generating interview questions
+                </p>
+                <Select value={selectedJobDescription} onValueChange={setSelectedJobDescription}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a job description..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {jobDescriptions.map((desc) => (
+                      <SelectItem key={desc.id} value={desc.id}>
+                        {desc.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Loading initial data */}
+            {isLoadingData && (
+              <div className="flex items-center justify-center py-8">
+                <div className="text-center space-y-3">
+                  <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent mx-auto"></div>
+                  <p className="text-sm text-muted-foreground">
+                    Loading job descriptions...
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Show prompt message when no questions exist */}
-            {!hasExistingQuestions() && !isGenerating && (
+            {!hasExistingQuestions() && !isGenerating && !isLoadingData && (
               <div className="text-center py-8">
                 <p className="text-muted-foreground mb-4">
-                  Click &quot;Generate Questions&quot; to create tailored interview questions based on your job requirements.
+                  {jobDescriptions.length === 0 
+                    ? "No job descriptions found. Please create a job description first." 
+                    : selectedJobDescription 
+                      ? "Click \"Generate Questions\" to create tailored interview questions based on your job requirements."
+                      : "Please select a job description to generate interview questions."
+                  }
                 </p>
+                {jobDescriptions.length === 0 && jobData?.id && (
+                  <Button 
+                    onClick={() => window.location.href = `/protected/jobs/${jobData.id}/job-description-builder`}
+                    size="sm"
+                  >
+                    Go to Job Description Builder
+                  </Button>
+                )}
               </div>
             )}
 
@@ -407,6 +559,56 @@ export default function InterviewQuestionsGenerator({ jobData }: InterviewQuesti
             )}
           </CardContent>
         </Card>
+
+        {/* Overwrite Confirmation Dialog */}
+        <AlertDialog open={showOverwriteDialog} onOpenChange={setShowOverwriteDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Overwrite Existing Questions?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently replace all existing interview questions with new AI-generated ones. 
+                This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={async () => {
+                  setShowOverwriteDialog(false)
+                  await generateQuestions()
+                }}
+              >
+                Yes, Overwrite Questions
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Unsaved Changes Dialog */}
+        <AlertDialog open={showUnsavedChangesDialog} onOpenChange={setShowUnsavedChangesDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+              <AlertDialogDescription>
+                You have unsaved changes to this question. What would you like to do?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Continue Editing</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={() => {
+                  setShowUnsavedChangesDialog(false)
+                  if (pendingEdit) {
+                    handleCancelEdit(pendingEdit.groupType, pendingEdit.questionId)
+                    setPendingEdit(null)
+                  }
+                }}
+              >
+                Discard Changes
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
     </div>
   )
 }
