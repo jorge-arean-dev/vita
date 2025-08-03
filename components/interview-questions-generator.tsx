@@ -4,7 +4,8 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Sparkles, Edit, Save, X } from "lucide-react"
+import { Sparkles, Edit, Save, X, Copy } from "lucide-react"
+import { useToast } from "@/components/ui/use-toast"
 
 interface InterviewQuestion {
   id: string
@@ -43,11 +44,58 @@ const QUESTION_TYPE_MAPPING: Record<string, string> = {
 export default function InterviewQuestionsGenerator({ jobData }: InterviewQuestionsGeneratorProps) {
   const [questionGroups, setQuestionGroups] = useState<QuestionGroup[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
+  const { toast } = useToast()
 
 
   // Check if any questions exist
   const hasExistingQuestions = () => {
     return questionGroups.some(group => group.questions.length > 0)
+  }
+
+  // Copy single question to clipboard
+  const copyQuestionToClipboard = async (question: string) => {
+    try {
+      await navigator.clipboard.writeText(question)
+      toast({
+        title: "Copied to clipboard",
+        description: "Question copied successfully",
+      })
+    } catch (error) {
+      console.error("Failed to copy:", error)
+      toast({
+        title: "Failed to copy",
+        description: "Could not copy to clipboard",
+        variant: "destructive",
+      })
+    }
+  }
+
+  // Copy all questions to clipboard in markdown format
+  const copyAllQuestionsToClipboard = async () => {
+    try {
+      let markdownContent = ""
+      
+      questionGroups.forEach((group) => {
+        markdownContent += `## ${group.displayName}\n\n`
+        group.questions.forEach((question) => {
+          markdownContent += `- ${question.question}\n`
+        })
+        markdownContent += "\n"
+      })
+
+      await navigator.clipboard.writeText(markdownContent.trim())
+      toast({
+        title: "Copied to clipboard",
+        description: "All questions copied successfully",
+      })
+    } catch (error) {
+      console.error("Failed to copy:", error)
+      toast({
+        title: "Failed to copy",
+        description: "Could not copy to clipboard",
+        variant: "destructive",
+      })
+    }
   }
 
   const handleGenerateQuestions = async () => {
@@ -239,14 +287,24 @@ export default function InterviewQuestionsGenerator({ jobData }: InterviewQuesti
     return (
       <div className="flex items-start justify-between space-x-3 p-3 bg-muted/30 rounded-lg">
         <p className="text-sm flex-1 leading-relaxed">{question.question}</p>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => handleEditQuestion(groupType, question.id)}
-          className="h-8 w-8 p-0 flex-shrink-0"
-        >
-          <Edit className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center space-x-1 flex-shrink-0">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => copyQuestionToClipboard(question.question)}
+            className="h-8 w-8 p-0"
+          >
+            <Copy className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handleEditQuestion(groupType, question.id)}
+            className="h-8 w-8 p-0"
+          >
+            <Edit className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     )
   }
@@ -317,6 +375,18 @@ export default function InterviewQuestionsGenerator({ jobData }: InterviewQuesti
             {/* Generated Questions */}
             {hasExistingQuestions() && !isGenerating && (
               <div className="space-y-6">
+                {/* Copy All Questions Button */}
+                <div className="flex justify-end">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={copyAllQuestionsToClipboard}
+                  >
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy All Questions
+                  </Button>
+                </div>
+                
                 {questionGroups.map((group) => (
                   <div key={group.type} className="space-y-4">
                     <h4 className="text-lg font-medium text-primary border-b pb-2">
