@@ -1,0 +1,9 @@
+column,type,description,Nullable,has explicit allowed values?,do allowed values live in dedicated table?,where do allowed values live?
+id,uuid,Primary key,no,no,not applicable,not applicable
+name,text,template name,no,no,not applicable,not applicable
+display_name,text,display name used in the ui,no,no,not applicable,not applicable
+description,text,description to be displayed in dropdown,no,no,not applicable,not applicable
+type,text,indicates whether it's a candidate template or client template,no,yes,yes,email_types.name
+prompt,text,prompt that will be used by the email-builder api to generate the email,no,no,not applicable,not applicable
+created_at,timestampz,Record creation timestamp,no,no,not applicable,not applicable
+updated_at,timestampz,Record update timestamp,no,no,not applicable,not applicable

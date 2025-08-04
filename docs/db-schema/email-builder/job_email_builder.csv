@@ -1,0 +1,11 @@
+column,type,description,Nullable,has explicit allowed values?,do allowed values live in dedicated table?,where do allowed values live?
+id,uuid,Primary key,no,no,not applicable,not applicable
+user_id,uuid,Foreign key to profiles table - profiles.user_id,no,yes,yes,profiles.user_id
+job_id,uuid,Foreign key to profiles table - jobs.id,no,yes,yes,jobs.id
+candidate_id,uuid,Foreign key to companies table - candidates.id,yes,yes,yes,companies.id
+template,uuid,Foreign key to email_builder_tempates.id,no,yes,yes,email_builder_templates.id
+type,text,indicates whether it's a candidate email or client email,no,yes,yes,email_types.name
+title,text,email title,no,no,not applicable,not applicable
+body,text,email body,no,no,not applicable,not applicable
+created_at,timestampz,Record creation timestamp,no,no,not applicable,not applicable
+updated_at,timestampz,Record update timestamp,no,no,not applicable,not applicable
