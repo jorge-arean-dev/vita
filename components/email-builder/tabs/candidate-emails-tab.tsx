@@ -45,6 +45,7 @@ export function CandidateEmailsTab({ jobData }: CandidateEmailsTabProps) {
   // Initialize email management hooks
   const {
     emails,
+    filteredEmails,
     setEmails,
     isSaving,
     isDeleting,
@@ -68,7 +69,8 @@ export function CandidateEmailsTab({ jobData }: CandidateEmailsTabProps) {
     unsavedChanges,
     setUnsavedChanges,
     clearEditingState,
-    initializeEditingValues
+    initializeEditingValues,
+    emailType: 'candidate'
   })
 
   // Initialize generation hooks
@@ -104,7 +106,7 @@ export function CandidateEmailsTab({ jobData }: CandidateEmailsTabProps) {
   }, []) // Empty dependency array - only run once on mount
 
   const handleEmailEdit = (id: string) => {
-    const email = emails.find((e) => e.id === id)
+    const email = filteredEmails.find((e) => e.id === id)
     if (email) {
       handleEdit(email)
       // Set editing mode
@@ -115,7 +117,7 @@ export function CandidateEmailsTab({ jobData }: CandidateEmailsTabProps) {
   }
 
   const handleEmailGenerate = async (id: string) => {
-    const email = emails.find(e => e.id === id)
+    const email = filteredEmails.find(e => e.id === id)
     if (email) {
       await handleGenerate(id, email, editingValues, setEditingValues, setUnsavedChanges)
     }
@@ -151,7 +153,7 @@ export function CandidateEmailsTab({ jobData }: CandidateEmailsTabProps) {
 
       {/* Email Cards List */}
       <div className="space-y-4">
-        {emails.length === 0 ? (
+        {filteredEmails.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12 text-center">
               <div className="rounded-full bg-muted p-3 mb-4">
@@ -168,7 +170,7 @@ export function CandidateEmailsTab({ jobData }: CandidateEmailsTabProps) {
             </CardContent>
           </Card>
         ) : (
-          emails.map((email) => (
+          filteredEmails.map((email) => (
             <EmailCard
               key={email.id}
               email={email}

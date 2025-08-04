@@ -14,10 +14,12 @@ interface UseEmailManagerProps {
   setUnsavedChanges: (changes: Set<string> | ((prev: Set<string>) => Set<string>)) => void
   clearEditingState: (id: string) => void
   initializeEditingValues: (email: Email) => void
+  emailType: 'candidate' | 'client'
 }
 
 interface UseEmailManagerReturn {
   emails: Email[]
+  filteredEmails: Email[]
   setEmails: (emails: Email[] | ((prev: Email[]) => Email[])) => void
   isSaving: { [key: string]: boolean }
   isDeleting: { [key: string]: boolean }
@@ -43,7 +45,8 @@ export const useEmailManager = ({
   unsavedChanges,
   setUnsavedChanges,
   clearEditingState,
-  initializeEditingValues
+  initializeEditingValues,
+  emailType
 }: UseEmailManagerProps): UseEmailManagerReturn => {
   const [emails, setEmails] = useState<Email[]>([])
   const [isSaving, setIsSaving] = useState<{ [key: string]: boolean }>({})
@@ -51,10 +54,14 @@ export const useEmailManager = ({
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
   const { toast } = useToast()
 
+  // Filter emails by type
+  const filteredEmails = emails.filter(email => email.type === emailType)
+
   const handleNewEmail = () => {
-    const counter = getNextEmailCounter(emails)
-    const newEmail = createNewEmail(jobData)
-    newEmail.title = `${jobData?.title || 'Job'} - Email ${counter}`
+    const counter = getNextEmailCounter(emails.filter(e => e.type === emailType))
+    const newEmail = createNewEmail(jobData, emailType)
+    const typeLabel = emailType === 'candidate' ? 'Candidate' : 'Client'
+    newEmail.title = `${jobData?.title || 'Job'} - ${typeLabel} Email ${counter}`
     
     // Initialize editing values for the new email
     initializeEditingValues(newEmail)
@@ -263,6 +270,7 @@ export const useEmailManager = ({
 
   return {
     emails,
+    filteredEmails,
     setEmails,
     isSaving,
     isDeleting,

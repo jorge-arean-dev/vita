@@ -13,12 +13,13 @@ export const getNextEmailCounter = (emails: Email[]): number => {
 }
 
 // Create new email object
-export const createNewEmail = (jobData: JobData | null | undefined): Email => {
+export const createNewEmail = (jobData: JobData | null | undefined, emailType: 'candidate' | 'client' = 'candidate'): Email => {
+  const typeLabel = emailType === 'candidate' ? 'Candidate' : 'Client'
   return {
     id: `new-${Date.now()}`,
     job_id: jobData?.id || '',
-    title: `${jobData?.title || 'Job'} - Email 1`, // Will be updated with proper counter
-    type: 'candidate',
+    title: `${jobData?.title || 'Job'} - ${typeLabel} Email 1`, // Will be updated with proper counter
+    type: emailType,
     candidate_id: null,
     candidate_name: null,
     template_id: null,
@@ -55,7 +56,8 @@ export const getClientEmailTemplates = (): EmailTemplate[] => [
   { id: "interview-scheduling", name: "Interview Scheduling", description: "Schedule client interview with candidate" },
   { id: "offer-negotiation", name: "Offer Negotiation", description: "Discuss compensation and terms" },
   { id: "final-submission", name: "Final Submission", description: "Submit candidate for final hiring decision" },
-  { id: "follow-up", name: "Follow-up", description: "Follow up on candidate status" }
+  { id: "follow-up", name: "Follow-up", description: "Follow up on candidate status" },
+  { id: "custom-prompt", name: "✨ Custom Prompt", description: "Create your own AI generation instructions" }
 ]
 
 // Mock existing emails generator
@@ -75,13 +77,29 @@ export const getMockExistingEmails = (jobData: JobData | null | undefined): Emai
     updated_at: new Date().toISOString(),
     isExpanded: false,
     isEditing: false
+  },
+  {
+    id: "existing-2",
+    job_id: jobData?.id || '',
+    title: `${jobData?.title || 'Job'} - Client Presentation for Jane`,
+    type: 'client',
+    candidate_id: "2",
+    candidate_name: "Jane Smith",
+    template_id: "candidate-presentation",
+    template_name: "Candidate Presentation",
+    subject: `Excellent ${jobData?.title || 'Software Engineer'} Candidate - Jane Smith`,
+    content: "Dear Client...",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    isExpanded: false,
+    isEditing: false
   }
 ]
 
 // Storage key generators
 export const getStorageKeys = (jobData: JobData | null | undefined) => ({
-  expandedStateKey: jobData?.id ? `email-expanded-${jobData.id}` : null,
-  unsavedEmailsKey: jobData?.id ? `email-unsaved-${jobData.id}` : null
+  expandedStateKey: jobData?.id ? `email-builder-expanded-${jobData.id}` : null,
+  unsavedEmailsKey: jobData?.id ? `email-builder-unsaved-${jobData.id}` : null
 })
 
 // Generate mock email content based on template
@@ -168,10 +186,33 @@ export const generateMockClientEmailContent = (
   candidateId: string,
   candidates: Candidate[],
   clientEmailTemplates: EmailTemplate[],
-  jobData: JobData | null | undefined
+  jobData: JobData | null | undefined,
+  customPrompt?: string
 ): string => {
   const candidate = candidates.find(c => c.id === candidateId)
   const template = clientEmailTemplates.find(t => t.id === templateId)
+  
+  if (templateId === 'custom-prompt') {
+    return `Subject: ${candidate?.name} - ${jobData?.title || 'Position'}
+
+[AI-generated client email based on custom prompt: "${customPrompt}"]
+
+Dear [Client Name],
+
+This email was generated to present ${candidate?.name} for the ${jobData?.title || 'position'} at ${jobData?.companyName || 'your company'} based on your custom instructions.
+
+Custom Prompt: "${customPrompt}"
+
+[The AI would generate client-focused content here based on:
+- Candidate: ${candidate?.name} (${candidate?.email})
+- Position: ${jobData?.title || 'Position'} at ${jobData?.companyName || 'Company'}
+- Your specific instructions for presenting this candidate to the client]
+
+Please let me know if you need any additional information about this candidate.
+
+Best regards,
+[Your Name]`
+  }
   
   switch (templateId) {
     case "candidate-presentation":

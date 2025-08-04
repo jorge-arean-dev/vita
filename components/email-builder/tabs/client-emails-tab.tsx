@@ -1,179 +1,239 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Copy, Sparkles, Save } from "lucide-react"
-import { useToast } from "@/components/ui/use-toast"
+import { Card, CardContent } from "@/components/ui/card"
+import { Plus, Sparkles } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { ClientEmailsTabProps } from '../types/email-builder.types'
+import { EmailCard } from '../components/email-card'
+import { useEmailManager } from '../hooks/use-email-manager'
+import { useEmailEditing } from '../hooks/use-email-editing'
 import { useEmailGeneration } from '../hooks/use-email-generation'
+import { useEmailPersistence } from '../hooks/use-email-persistence'
 import { getMockCandidates, getClientEmailTemplates } from '../utils/email-builder.utils'
 
 export function ClientEmailsTab({ jobData }: ClientEmailsTabProps) {
+  const [mounted, setMounted] = useState(false)
+  
   // Mock data - in real implementation, these would come from props or API
   const candidates = getMockCandidates()
   const clientEmailTemplates = getClientEmailTemplates()
-  
-  // Client Email State
-  const [clientSelectedCandidate, setClientSelectedCandidate] = useState("")
-  const [clientSelectedTemplate, setClientSelectedTemplate] = useState("")
-  const [clientEmailMessage, setClientEmailMessage] = useState("")
-  const [clientIsGenerating, setClientIsGenerating] = useState(false)
-  
-  const { toast } = useToast()
+
+  // Initialize editing hooks
+  const {
+    editingValues,
+    unsavedChanges,
+    setEditingValues,
+    setUnsavedChanges,
+    handleEdit,
+    handleEditingTitleChange,
+    handleEditingFieldChange,
+    clearEditingState,
+    initializeEditingValues
+  } = useEmailEditing()
+
+  // Initialize email management hooks
+  const {
+    emails,
+    filteredEmails,
+    setEmails,
+    isSaving,
+    isDeleting,
+    deleteConfirmId,
+    setDeleteConfirmId,
+    handleNewEmail,
+    handleToggleExpand,
+    handleSave,
+    handleCancel,
+    handleDelete,
+    confirmDelete,
+    handleCopyToClipboard,
+    initializeEmails
+  } = useEmailManager({
+    jobData,
+    candidates,
+    emailTemplates: clientEmailTemplates,
+    mounted,
+    editingValues,
+    setEditingValues,
+    unsavedChanges,
+    setUnsavedChanges,
+    clearEditingState,
+    initializeEditingValues,
+    emailType: 'client'  // This is the key difference from CandidateEmailsTab
+  })
 
   // Initialize generation hooks
-  const { generateClientEmail } = useEmailGeneration({
+  const {
+    isGenerating,
+    showGenerateAlert,
+    overwriteConfirmId,
+    setOverwriteConfirmId,
+    handleGenerate,
+    proceedWithGeneration
+  } = useEmailGeneration({
     candidates,
     candidateEmailTemplates: [], // Not needed for client emails
     clientEmailTemplates,
     jobData
   })
 
-  const handleGenerateClientEmail = async () => {
-    if (!clientSelectedCandidate || !clientSelectedTemplate) {
-      return
-    }
+  // Initialize persistence hooks
+  const { restoreFromStorage } = useEmailPersistence({
+    jobData,
+    emails,
+    editingValues,
+    unsavedChanges,
+    mounted
+  })
 
-    setClientIsGenerating(true)
-    try {
-      const message = await generateClientEmail(clientSelectedCandidate, clientSelectedTemplate)
-      setClientEmailMessage(message)
-    } catch (error) {
-      console.error("Error generating client email:", error)
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred during generation.",
-        variant: "destructive",
-      })
-    } finally {
-      setClientIsGenerating(false)
+  // Initialize only once on mount
+  useEffect(() => {
+    setMounted(true)
+    const { savedExpandedStates, savedUnsavedEmails, savedEditingValues } = restoreFromStorage()
+    initializeEmails(savedUnsavedEmails, savedExpandedStates, savedEditingValues)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Empty dependency array - only run once on mount
+
+  const handleEmailEdit = (id: string) => {
+    const email = filteredEmails.find((e) => e.id === id)
+    if (email) {
+      handleEdit(email)
+      // Set editing mode
+      setEmails(
+        emails.map((e) => (e.id === id ? { ...e, isEditing: true, isExpanded: true } : e))
+      )
     }
   }
 
-  const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text)
-    toast({
-      title: "Success",
-      description: "Copied to clipboard",
-    })
+  const handleEmailGenerate = async (id: string) => {
+    const email = filteredEmails.find(e => e.id === id)
+    if (email) {
+      await handleGenerate(id, email, editingValues, setEditingValues, setUnsavedChanges)
+    }
   }
 
-  const handleSaveOldEmail = () => {
-    const emailData = { 
-      type: 'client', 
-      candidate: clientSelectedCandidate, 
-      template: clientSelectedTemplate, 
-      message: clientEmailMessage 
-    }
-    
-    console.log("Saving email:", emailData)
-    // TODO: Implement save logic
-    toast({
-      title: "Success",
-      description: "Email saved successfully.",
-    })
+  const handleProceedWithGeneration = async (id: string) => {
+    await proceedWithGeneration(id, editingValues, setEditingValues, setUnsavedChanges)
+    setOverwriteConfirmId(null)
+  }
+
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!mounted) {
+    return null
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <h3 className="text-base font-medium">Client Communication</h3>
-        <p className="text-sm text-muted-foreground">
-          Generate professional emails for client communication and candidate submissions
-        </p>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Client Email Controls */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="space-y-6">
+      {/* Header with New button */}
+      <div className="pb-6">
+        <div className="flex items-center justify-between">
           <div className="space-y-2">
-            <Label>Select Candidate</Label>
-            <Select value={clientSelectedCandidate} onValueChange={setClientSelectedCandidate}>
-              <SelectTrigger>
-                <SelectValue placeholder="Choose candidate" />
-              </SelectTrigger>
-              <SelectContent>
-                {candidates.map((candidate) => (
-                  <SelectItem key={candidate.id} value={candidate.id}>
-                    {candidate.name}
-                    {candidate.email && (
-                      <span className="text-muted-foreground"> ({candidate.email})</span>
-                    )}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <h3 className="text-base font-medium">Client Communication</h3>
+            <p className="text-sm text-muted-foreground">
+              Generate professional emails for client communication and candidate submissions
+            </p>
           </div>
-
-          <div className="space-y-2">
-            <Label>Email Template</Label>
-            <Select value={clientSelectedTemplate} onValueChange={setClientSelectedTemplate}>
-              <SelectTrigger>
-                <SelectValue placeholder="Choose template" />
-              </SelectTrigger>
-              <SelectContent>
-                {clientEmailTemplates.map((template) => (
-                  <SelectItem key={template.id} value={template.id}>
-                    <div>
-                      <div className="font-medium">{template.name}</div>
-                      <div className="text-sm text-muted-foreground">{template.description}</div>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <Button onClick={handleNewEmail} className="gap-2">
+            <Plus className="h-4 w-4" />
+            New
+          </Button>
         </div>
+      </div>
 
-        {/* Generate Button */}
-        <Button 
-          onClick={handleGenerateClientEmail}
-          disabled={!clientSelectedCandidate || !clientSelectedTemplate || clientIsGenerating}
-          className="w-full"
-        >
-          <Sparkles className="mr-2 h-4 w-4" />
-          {clientIsGenerating ? "Generating Email..." : "Generate Client Email"}
-        </Button>
-
-        {/* Generated Email */}
-        {(clientEmailMessage || clientIsGenerating) && (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label>Generated Email</Label>
-              <div className="flex gap-2">
-                {clientEmailMessage && (
-                  <>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleCopy(clientEmailMessage)}
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={handleSaveOldEmail}
-                    >
-                      <Save className="h-4 w-4 mr-2" />
-                      Save
-                    </Button>
-                  </>
-                )}
+      {/* Email Cards List */}
+      <div className="space-y-4">
+        {filteredEmails.length === 0 ? (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="rounded-full bg-muted p-3 mb-4">
+                <Sparkles className="h-6 w-6 text-muted-foreground" />
               </div>
-            </div>
-            <Textarea
-              value={clientIsGenerating ? "Generating personalized email..." : clientEmailMessage}
-              onChange={(e) => setClientEmailMessage(e.target.value)}
-              rows={16}
-              className="min-h-[300px] font-mono text-sm"
-              disabled={clientIsGenerating}
+              <h3 className="text-lg font-medium mb-2">No client emails created yet</h3>
+              <p className="text-muted-foreground mb-4">
+                Create your first client email to get started.
+              </p>
+              <Button onClick={handleNewEmail} className="gap-2">
+                <Plus className="h-4 w-4" />
+                New Email
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          filteredEmails.map((email) => (
+            <EmailCard
+              key={email.id}
+              email={email}
+              editingValues={editingValues}
+              isGenerating={isGenerating[email.id] || false}
+              isSaving={isSaving[email.id] || false}
+              isDeleting={isDeleting[email.id] || false}
+              showGenerateAlert={showGenerateAlert[email.id] || false}
+              candidates={candidates}
+              emailTemplates={clientEmailTemplates}  // Using client templates
+              onToggleExpand={handleToggleExpand}
+              onEdit={handleEmailEdit}
+              onSave={handleSave}
+              onCancel={handleCancel}
+              onDelete={handleDelete}
+              onGenerate={handleEmailGenerate}
+              onEditingTitleChange={handleEditingTitleChange}
+              onEditingFieldChange={handleEditingFieldChange}
+              onCopyToClipboard={handleCopyToClipboard}
             />
-          </div>
+          ))
         )}
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteConfirmId} onOpenChange={() => setDeleteConfirmId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Email</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this email? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Overwrite Confirmation Dialog */}
+      <AlertDialog open={!!overwriteConfirmId} onOpenChange={() => setOverwriteConfirmId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Overwrite Existing Content</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will overwrite your existing email content. Are you sure you want to continue?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              if (overwriteConfirmId) {
+                handleProceedWithGeneration(overwriteConfirmId)
+              }
+            }}>
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   )
 }

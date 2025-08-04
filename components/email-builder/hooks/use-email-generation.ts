@@ -15,7 +15,7 @@ interface UseEmailGenerationReturn {
   showGenerateAlert: { [key: string]: boolean }
   overwriteConfirmId: string | null
   setOverwriteConfirmId: (id: string | null) => void
-  handleGenerate: (id: string, email: Email, editingValues: EditingValues) => Promise<void>
+  handleGenerate: (id: string, email: Email, editingValues: EditingValues, setEditingValues: (values: EditingValues) => void, setUnsavedChanges: (fn: (prev: Set<string>) => Set<string>) => void) => Promise<void>
   proceedWithGeneration: (id: string, editingValues: EditingValues, setEditingValues: (values: EditingValues) => void, setUnsavedChanges: (fn: (prev: Set<string>) => Set<string>) => void) => Promise<void>
   generateClientEmail: (candidateId: string, templateId: string) => Promise<string>
 }
@@ -97,14 +97,39 @@ export const useEmailGeneration = ({
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000))
       
-      const { subject, content } = generateMockEmailContent(
-        editingValue.templateId,
-        editingValue.candidateId,
-        editingValue.customPrompt,
-        candidates,
-        candidateEmailTemplates,
-        jobData
-      )
+      // Check if this is a client email by looking at which templates are being used
+      const isClientEmail = clientEmailTemplates.some(t => t.id === editingValue.templateId)
+      
+      let subject: string
+      let content: string
+      
+      if (isClientEmail) {
+        // Generate client email content
+        content = generateMockClientEmailContent(
+          editingValue.templateId,
+          editingValue.candidateId,
+          candidates,
+          clientEmailTemplates,
+          jobData,
+          editingValue.customPrompt
+        )
+        // Extract subject from content (first line)
+        const lines = content.split('\n')
+        subject = lines[0].replace('Subject: ', '')
+        content = lines.slice(2).join('\n') // Remove subject line from content
+      } else {
+        // Generate candidate email content
+        const result = generateMockEmailContent(
+          editingValue.templateId,
+          editingValue.candidateId,
+          editingValue.customPrompt,
+          candidates,
+          candidateEmailTemplates,
+          jobData
+        )
+        subject = result.subject
+        content = result.content
+      }
       
       // Update the email with generated content
       setEditingValues({
