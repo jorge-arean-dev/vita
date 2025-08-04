@@ -10,7 +10,9 @@ import { useToast } from "@/components/ui/use-toast";
 interface ProfileFormProps {
   profile: {
     first_name: string | null;
-    // Add other profile fields as needed
+    last_name: string | null;
+    company: string | null;
+    role: string | null;
   } | null;
   email: string;
 }
@@ -62,6 +64,17 @@ export default function ProfileForm({ profile, email }: ProfileFormProps) {
       </div>
       
       <div className="space-y-2">
+        <Label htmlFor="last_name">Last Name</Label>
+        <Input
+          id="last_name"
+          name="last_name"
+          defaultValue={profile?.last_name || ""}
+          placeholder="Enter your last name"
+        />
+        <p className="text-sm text-muted-foreground mt-1">Your family name or surname.</p>
+      </div>
+      
+      <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input
           id="email"
@@ -73,7 +86,27 @@ export default function ProfileForm({ profile, email }: ProfileFormProps) {
         <p className="text-sm text-muted-foreground mt-1">Your email address is used for notifications and sign-in.</p>
       </div>
       
-      {/* You can add more profile fields here as needed */}
+      <div className="space-y-2">
+        <Label htmlFor="company">Company</Label>
+        <Input
+          id="company"
+          name="company"
+          defaultValue={profile?.company || ""}
+          placeholder="Enter your company name"
+        />
+        <p className="text-sm text-muted-foreground mt-1">The organization you work for.</p>
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="role">Role</Label>
+        <Input
+          id="role"
+          name="role"
+          defaultValue={profile?.role || ""}
+          placeholder="e.g., Senior Recruiter, Talent Acquisition Manager"
+        />
+        <p className="text-sm text-muted-foreground mt-1">Your current position in recruiting or talent acquisition.</p>
+      </div>
       
       <Button type="submit" disabled={isSubmitting}>
         {isSubmitting ? "Saving..." : "Save Changes"}

@@ -7,6 +7,9 @@ import { z } from 'zod'
 // Schema for profile update
 const profileUpdateSchema = z.object({
   first_name: z.string().optional().nullable(),
+  last_name: z.string().optional().nullable(),
+  company: z.string().optional().nullable(),
+  role: z.string().optional().nullable(),
 })
 
 // Schema for avatar upload
@@ -30,9 +33,15 @@ export async function updateProfile(formData: FormData) {
     
     // Parse and validate form data
     const firstName = formData.get('first_name') as string | null
+    const lastName = formData.get('last_name') as string | null
+    const company = formData.get('company') as string | null
+    const role = formData.get('role') as string | null
     
     const validatedData = profileUpdateSchema.parse({
       first_name: firstName,
+      last_name: lastName,
+      company: company,
+      role: role,
     })
     
     // Update profile
