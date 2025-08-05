@@ -59,3 +59,47 @@ export function scrollToRequirement(requirementId: string) {
     element.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 }
+
+// Card expansion state persistence utilities
+const EXPANSION_STATE_KEY = 'candidate-match-analysis-expansion-state'
+
+export function getExpansionState(jobId: string): Record<string, boolean> {
+  if (typeof window === 'undefined') return {}
+  
+  try {
+    const stored = localStorage.getItem(`${EXPANSION_STATE_KEY}-${jobId}`)
+    return stored ? JSON.parse(stored) : {}
+  } catch {
+    return {}
+  }
+}
+
+export function setExpansionState(jobId: string, analysisId: string, isExpanded: boolean) {
+  if (typeof window === 'undefined') return
+  
+  try {
+    const currentState = getExpansionState(jobId)
+    const newState = { ...currentState, [analysisId]: isExpanded }
+    localStorage.setItem(`${EXPANSION_STATE_KEY}-${jobId}`, JSON.stringify(newState))
+  } catch (error) {
+    console.warn('Failed to save expansion state:', error)
+  }
+}
+
+export function clearExpansionState(jobId: string, analysisId?: string) {
+  if (typeof window === 'undefined') return
+  
+  try {
+    if (analysisId) {
+      // Remove specific analysis expansion state
+      const currentState = getExpansionState(jobId) 
+      delete currentState[analysisId]
+      localStorage.setItem(`${EXPANSION_STATE_KEY}-${jobId}`, JSON.stringify(currentState))
+    } else {
+      // Clear all expansion state for this job
+      localStorage.removeItem(`${EXPANSION_STATE_KEY}-${jobId}`)
+    }
+  } catch (error) {
+    console.warn('Failed to clear expansion state:', error)
+  }
+}

@@ -32,6 +32,9 @@ import {
   Candidate
 } from "./types"
 
+// Import expansion state utilities
+import { getExpansionState, setExpansionState, clearExpansionState } from "./utils"
+
 export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }: CandidateMatchAnalysisProps) {
   const [mounted, setMounted] = useState(false)
   const [matchAnalyses, setMatchAnalyses] = useState<MatchAnalysis[]>([])
@@ -112,17 +115,18 @@ export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }:
     }
   }, [toast])
 
-  // Initialize existing analyses
+  // Initialize existing analyses with persistent expansion state
   useEffect(() => {
     if (mounted && existingAnalyses.length > 0) {
+      const savedExpansionState = getExpansionState(jobId)
       const analysesWithState = existingAnalyses.map(analysis => ({
         ...analysis,
-        isExpanded: false,
+        isExpanded: savedExpansionState[analysis.id] || false,
         isNew: false as const
       }))
       setExistingAnalysesState(analysesWithState)
     }
-  }, [mounted, existingAnalyses])
+  }, [mounted, existingAnalyses, jobId])
 
   // Load candidates when component mounts
   useEffect(() => {
@@ -168,18 +172,30 @@ export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }:
   }
 
   const handleToggleExpand = (id: string) => {
+    // Update new analyses state
     setMatchAnalyses(prevAnalyses => 
-      prevAnalyses.map((ma) => 
-        ma.id === id ? { ...ma, isExpanded: !ma.isExpanded } : ma
-      )
+      prevAnalyses.map((ma) => {
+        if (ma.id === id) {
+          const newExpandedState = !ma.isExpanded
+          // Persist the new state to localStorage
+          setExpansionState(jobId, id, newExpandedState)
+          return { ...ma, isExpanded: newExpandedState }
+        }
+        return ma
+      })
     )
     
+    // Update existing analyses state  
     setExistingAnalysesState(prevAnalyses =>
-      prevAnalyses.map(analysis =>
-        analysis.id === id 
-          ? { ...analysis, isExpanded: !analysis.isExpanded }
-          : analysis
-      )
+      prevAnalyses.map(analysis => {
+        if (analysis.id === id) {
+          const newExpandedState = !analysis.isExpanded
+          // Persist the new state to localStorage
+          setExpansionState(jobId, id, newExpandedState)
+          return { ...analysis, isExpanded: newExpandedState }
+        }
+        return analysis
+      })
     )
   }
 
@@ -212,6 +228,9 @@ export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }:
         // Remove from existing analyses state
         setExistingAnalysesState(existingAnalysesState.filter(analysis => analysis.id !== deleteConfirmId))
         
+        // Clean up expansion state from localStorage
+        clearExpansionState(jobId, deleteConfirmId)
+        
         toast({
           title: "Success",
           description: "Analysis deleted successfully.",
@@ -219,6 +238,9 @@ export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }:
       } else {
         // Remove from new analyses state (local only)
         setMatchAnalyses(matchAnalyses.filter((ma) => ma.id !== deleteConfirmId))
+        
+        // Clean up expansion state from localStorage
+        clearExpansionState(jobId, deleteConfirmId)
         
         toast({
           title: "Success",
@@ -259,6 +281,8 @@ export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }:
     setMatchAnalyses(matchAnalyses.filter(ma => ma.id !== analysisId))
     // Clean up animation states
     cleanupAnimationState(analysisId)
+    // Clean up expansion state from localStorage
+    clearExpansionState(jobId, analysisId)
     toast({
       title: "Analysis discarded",
       description: "The match analysis has been discarded.",
