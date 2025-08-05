@@ -78,6 +78,7 @@ export interface EmailEditFormProps {
   candidates: Candidate[]
   emailTemplates: EmailTemplate[]
   onEditingFieldChange: (id: string, field: keyof EditingValues[string], value: string) => void
+  showAsCollapsibleContent?: boolean
 }
 
 export interface EmailGenerationControlsProps {

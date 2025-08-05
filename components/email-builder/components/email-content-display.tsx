@@ -1,8 +1,11 @@
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent } from "@/components/ui/card"
 import { Copy, Loader2 } from "lucide-react"
 import { EmailContentDisplayProps } from '../types/email-builder.types'
+import { cn } from "@/lib/utils"
 
 export function EmailContentDisplay({
   email,
@@ -12,74 +15,75 @@ export function EmailContentDisplay({
   onCopyToClipboard
 }: EmailContentDisplayProps) {
   return (
-    <>
-      {/* View Mode Info */}
-      {!email.isEditing && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="text-muted-foreground">Candidate</Label>
-              <p className="text-sm font-medium">{email.candidate_name || 'Not selected'}</p>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-muted-foreground">Template</Label>
-              <p className="text-sm font-medium">{email.template_name || 'Not selected'}</p>
-            </div>
-          </div>
-          {email.subject && (
-            <div className="space-y-2">
-              <Label className="text-muted-foreground">Subject</Label>
-              <p className="text-sm font-medium">{email.subject}</p>
-            </div>
-          )}
-          {/* Copy Button - Only visible in view mode */}
-          {email.content && (
-            <div className="flex justify-end -mt-2 mb-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onCopyToClipboard(`Subject: ${email.subject}\n\n${email.content}`)}
-                className="h-8 w-8 p-0"
-                aria-label="Copy email"
-              >
+    /* Child Card for Subject and Content */
+    <Card>
+      <CardContent className="p-6 space-y-6">
+        {/* Subject */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="subject" className="text-sm text-muted-foreground">
+              Subject
+            </Label>
+            {!email.isEditing && email.subject && (
+              <Button variant="ghost" size="icon" onClick={() => onCopyToClipboard(email.subject)} aria-label="Copy subject">
                 <Copy className="h-4 w-4" />
               </Button>
-            </div>
+            )}
+          </div>
+          {email.isEditing ? (
+            <Input
+              id="subject"
+              value={editingValues[email.id]?.subject || email.subject}
+              onChange={(e) => onEditingFieldChange(email.id, 'subject', e.target.value)}
+              placeholder="Enter email subject..."
+            />
+          ) : (
+            <p className="font-medium">{email.subject || 'No subject'}</p>
           )}
         </div>
-      )}
 
-      {/* Email Content Text Area */}
-      <div className="space-y-2">
-        <Label>{email.isEditing ? 'Email Content' : 'Content'}</Label>
-        <div className="relative">
-          <Textarea
-            value={
-              email.isEditing
-                ? editingValues[email.id]?.content || email.content
-                : email.content
-            }
-            onChange={(e) => {
-              if (email.isEditing && !isGenerating) {
-                onEditingFieldChange(email.id, 'content', e.target.value)
+        {/* Email Content */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="content" className="text-sm text-muted-foreground">
+              Content
+            </Label>
+            {!email.isEditing && email.content && (
+              <Button variant="ghost" size="icon" onClick={() => onCopyToClipboard(email.content)} aria-label="Copy content">
+                <Copy className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+          <div className="relative">
+            <Textarea
+              id="content"
+              value={
+                email.isEditing
+                  ? editingValues[email.id]?.content || email.content
+                  : email.content
               }
-            }}
-            className="min-h-[400px] resize-none font-mono text-sm"
-            placeholder="Enter email content or click Generate to create one with AI..."
-            readOnly={!email.isEditing || isGenerating}
-          />
-          
-          {/* Loading Overlay */}
-          {isGenerating && email.isEditing && (
-            <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center rounded-md">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span className="text-sm">Generating email content...</span>
+              onChange={(e) => {
+                if (email.isEditing && !isGenerating) {
+                  onEditingFieldChange(email.id, 'content', e.target.value)
+                }
+              }}
+              className={cn("min-h-[300px] resize-y", !email.isEditing && "border-none focus-visible:ring-0")}
+              placeholder="Enter your email content here..."
+              readOnly={!email.isEditing || isGenerating}
+            />
+            
+            {/* Loading Overlay */}
+            {isGenerating && email.isEditing && (
+              <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center rounded-md">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span className="text-sm">Generating email content...</span>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
-    </>
+      </CardContent>
+    </Card>
   )
 }

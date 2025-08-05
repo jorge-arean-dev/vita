@@ -27,7 +27,6 @@ export function ClientEmailsTab({ jobData, candidates, emailTemplates }: ClientE
   // Initialize editing hooks
   const {
     editingValues,
-    originalValues,
     unsavedChanges,
     setEditingValues,
     setUnsavedChanges,

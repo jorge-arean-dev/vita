@@ -27,7 +27,6 @@ export function CandidateEmailsTab({ jobData, candidates, emailTemplates }: Cand
   // Initialize editing hooks
   const {
     editingValues,
-    originalValues,
     unsavedChanges,
     setEditingValues,
     setUnsavedChanges,
