@@ -12,6 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Edit, Check, X, ChevronDown, Download, Sparkles, Info, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import { CandidateBreadcrumb } from "@/components/candidate-breadcrumb"
 import { 
   CandidateDetailData, 
   CandidateSkill, 
@@ -297,6 +298,11 @@ export default function CandidateDetails({ candidate }: CandidateDetailsProps) {
 
   return (
     <div className="space-y-6">
+      {/* Breadcrumb */}
+      <CandidateBreadcrumb 
+        candidateName={`${candidate.first_name} ${candidate.last_name}`}
+      />
+      
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">

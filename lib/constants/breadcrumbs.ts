@@ -11,4 +11,5 @@ export const BREADCRUMB_ROUTES = {
   JOBS: '/protected/jobs',
   JOB_DETAIL: (jobId: string) => `/protected/jobs/${jobId}`,
   JOB_TOOL: (jobId: string, toolName: string) => `/protected/jobs/${jobId}/${toolName}`,
+  CANDIDATES: '/protected/candidates',
 } as const
