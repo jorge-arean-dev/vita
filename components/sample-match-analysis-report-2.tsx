@@ -261,12 +261,6 @@ function getStatusBadge(score: number) {
   )
 }
 
-function getProgressBarColor(score: number) {
-  if (score >= 75) return "bg-match-strong"
-  if (score >= 50) return "bg-match-adequate"
-  if (score >= 25) return "bg-match-weak"
-  return "bg-match-missing"
-}
 
 export default function CandidateMatchAnalysisPageV2() {
   const data = sampleAnalysisData
@@ -283,7 +277,6 @@ export default function CandidateMatchAnalysisPageV2() {
   // Animation states
   const [visibleSections, setVisibleSections] = useState<string[]>([])
   const [visibleRequirementCards, setVisibleRequirementCards] = useState<number>(0)
-  const [visibleProgressBars, setVisibleProgressBars] = useState<number>(0)
 
   // Calculate requirements met
   const requirementsMet = data.match_analysis.matched_mandatory_requirements
@@ -303,19 +296,6 @@ export default function CandidateMatchAnalysisPageV2() {
       }, delay)
     })
 
-    // Start progress bars animation after combined card appears
-    setTimeout(() => {
-      const progressInterval = setInterval(() => {
-        setVisibleProgressBars((prev) => {
-          if (prev < data.requirement_evaluations.length) {
-            return prev + 1
-          } else {
-            clearInterval(progressInterval)
-            return prev
-          }
-        })
-      }, 200)
-    }, 1600) // Start after combined card appears
 
     // Start requirement cards animation after requirements header appears
     setTimeout(() => {
@@ -393,7 +373,7 @@ export default function CandidateMatchAnalysisPageV2() {
               <div className="flex flex-col space-y-4 lg:w-1/2">
                 <h2 className="text-2xl font-bold">Requirement Analysis</h2>
                 <div className="flex flex-wrap gap-2">
-                  {data.requirement_evaluations.map((req, index) => (
+                  {data.requirement_evaluations.map((req) => (
                     <RequirementAnalysisBadge
                       key={req.job_requirement_id}
                       name={req.requirement_name}

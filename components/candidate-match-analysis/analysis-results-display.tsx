@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Info } from "lucide-react"
 import { CircularProgress } from "./circular-progress"
 import { RequirementAnalysisBadge } from "./requirement-analysis-badge"
-import { getAnalysisData, getStatusBadge, getProgressBarColor, getBannerColor, scrollToRequirement } from "./utils"
+import { getAnalysisData, getStatusBadge, getBannerColor, scrollToRequirement } from "./utils"
 import { MatchAnalysis, ExistingMatchAnalysis } from "./types"
 
 interface AnalysisResultsDisplayProps {
