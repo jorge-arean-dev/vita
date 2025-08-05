@@ -51,6 +51,7 @@ interface JobDescriptionBuilderProps {
 export default function JobDescriptionBuilder({ jobData, existingDescriptions = [] }: JobDescriptionBuilderProps) {
   const [jobDescriptions, setJobDescriptions] = useState<JobDescription[]>([])
   const [editingValues, setEditingValues] = useState<{ [key: string]: { title: string; content: string } }>({})
+  const [originalValues, setOriginalValues] = useState<{ [key: string]: { title: string; content: string } }>({})
   const [showGenerateAlert, setShowGenerateAlert] = useState<{ [key: string]: boolean }>({})
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
   const [overwriteConfirmId, setOverwriteConfirmId] = useState<string | null>(null)
@@ -244,6 +245,17 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
     }
   }, [jobDescriptions, editingValues, unsavedChanges, unsavedDescriptionsKey])
 
+  // Check if values have changed from original
+  const hasChanges = (id: string): boolean => {
+    const current = editingValues[id]
+    const original = originalValues[id]
+    
+    if (!current || !original) return false
+    
+    // Compare title and content
+    return current.title !== original.title || current.content !== original.content
+  }
+
   // Get next counter for job description title
   const getNextDescriptionCounter = () => {
     const existingCounts = jobDescriptions
@@ -269,13 +281,21 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
       isEditing: true,
     }
     
+    const initialValues = {
+      title: newJobDescription.title,
+      content: newJobDescription.description
+    }
+    
     // Initialize editing values for the new description
     setEditingValues({
       ...editingValues,
-      [newJobDescription.id]: {
-        title: newJobDescription.title,
-        content: newJobDescription.description
-      }
+      [newJobDescription.id]: initialValues
+    })
+    
+    // Store original values for comparison
+    setOriginalValues({
+      ...originalValues,
+      [newJobDescription.id]: initialValues
     })
     
     setJobDescriptions([newJobDescription, ...jobDescriptions])
@@ -306,6 +326,11 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
         const newEditingValues = { ...editingValues }
         delete newEditingValues[id]
         setEditingValues(newEditingValues)
+      }
+      if (originalValues[id]) {
+        const newOriginalValues = { ...originalValues }
+        delete newOriginalValues[id]
+        setOriginalValues(newOriginalValues)
       }
       setUnsavedChanges(prev => {
         const newSet = new Set(prev)
@@ -351,6 +376,13 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
         const newEditingValues = { ...editingValues }
         delete newEditingValues[deleteConfirmId]
         setEditingValues(newEditingValues)
+      }
+      
+      // Clear original values for deleted item
+      if (originalValues[deleteConfirmId]) {
+        const newOriginalValues = { ...originalValues }
+        delete newOriginalValues[deleteConfirmId]
+        setOriginalValues(newOriginalValues)
       }
       
       // Remove from unsaved changes
@@ -423,13 +455,22 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
       // Update the job description with generated content
       const jobDescription = jobDescriptions.find(jd => jd.id === id)
       if (jobDescription) {
+        const newValues = {
+          title: jobDescription.title,
+          content: result.description || ''
+        }
+        
         // Store current values for editing
         setEditingValues({
           ...editingValues,
-          [id]: {
-            title: jobDescription.title,
-            content: result.description || ''
-          }
+          [id]: newValues
+        })
+        
+        // Update original values to reflect the generated content
+        // This ensures save button is disabled until user makes manual changes
+        setOriginalValues({
+          ...originalValues,
+          [id]: newValues
         })
         
         // Enter edit mode
@@ -460,14 +501,23 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
   const handleEdit = (id: string) => {
     const jobDescription = jobDescriptions.find((jd) => jd.id === id)
     if (jobDescription) {
+      const values = {
+        title: jobDescription.title,
+        content: jobDescription.description,
+      }
+      
       // Store current values for editing
       setEditingValues({
         ...editingValues,
-        [id]: {
-          title: jobDescription.title,
-          content: jobDescription.description,
-        },
+        [id]: values,
       })
+      
+      // Store original values for comparison
+      setOriginalValues({
+        ...originalValues,
+        [id]: values,
+      })
+      
       // Set editing mode
       setJobDescriptions(
         jobDescriptions.map((jd) => (jd.id === id ? { ...jd, isEditing: true, isExpanded: true } : jd))
@@ -572,6 +622,11 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
       delete newEditingValues[id]
       setEditingValues(newEditingValues)
       
+      // Clear original values
+      const newOriginalValues = { ...originalValues }
+      delete newOriginalValues[id]
+      setOriginalValues(newOriginalValues)
+      
       // Remove from unsaved changes
       setUnsavedChanges(prev => {
         const newSet = new Set(prev)
@@ -613,6 +668,13 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
     
     // Clear editing values
     setEditingValues(prev => {
+      const newValues = { ...prev }
+      delete newValues[id]
+      return newValues
+    })
+    
+    // Clear original values
+    setOriginalValues(prev => {
       const newValues = { ...prev }
       delete newValues[id]
       return newValues
@@ -797,7 +859,8 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
                             isSaving[jobDescription.id] || 
                             isGenerating[jobDescription.id] ||
                             !editingValues[jobDescription.id]?.title?.trim() ||
-                            !editingValues[jobDescription.id]?.content?.trim()
+                            !editingValues[jobDescription.id]?.content?.trim() ||
+                            !hasChanges(jobDescription.id)
                           }
                         >
                           {isSaving[jobDescription.id] ? (
