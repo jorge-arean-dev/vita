@@ -13,6 +13,8 @@ import { useResumeProcessor } from "./hooks/useResumeProcessor"
 import { useLinkedInProcessor } from "./hooks/useLinkedInProcessor"
 import { DataSourceStep } from "./components/DataSourceStep"
 import { PersonalInfoStep } from "./components/PersonalInfoStep"
+import { SkillsStep } from "./components/SkillsStep"
+import { StepProgress } from "./components/StepProgress"
 import { validateFile, canProceedToNext } from "./utils/validation"
 
 export default function CreateTalentDialog({ 
@@ -77,6 +79,7 @@ export default function CreateTalentDialog({
     setLinkedinUrl("")
     setUploadedFile(null)
     setFileUploadError("")
+    setIsCountriesOpen(false)
     resetForm()
   }
 
@@ -163,9 +166,22 @@ export default function CreateTalentDialog({
         return "Create Candidate"
       case "personal-info":
         return "Step 1: Personal Information"
+      case "skills":
+        return "Step 2: Candidate Skills"
       default:
         return "Create Candidate"
     }
+  }
+  
+  // Get current numeric step for progress indicator
+  const getCurrentStepNumber = (): 1 | 2 => {
+    return currentStep === "skills" ? 2 : 1
+  }
+  
+  // Check if we should show progress indicator (global position)
+  const shouldShowProgress = () => {
+    return currentStep === "personal-info" || 
+           currentStep === "skills"
   }
 
   // Check if we can proceed
@@ -181,18 +197,9 @@ export default function CreateTalentDialog({
   // Determine if we're in a processing state
   const isProcessing = resumeProcessor.isProcessing || linkedInProcessor.isProcessing
 
-  // Get info message for personal info step
-  const getPersonalInfoMessage = () => {
-    if (inputMethod === "auto" && dataSource === "pdf" && parsedSkills.length > 0) {
-      return "Great! We've extracted information from your resume. Please review the details below and make any necessary adjustments before creating the candidate profile."
-    }
-    if (inputMethod === "auto") {
-      return "Please review the pre-filled information below. You can edit any field as needed. All changes can be updated later from the candidate profile."
-    }
-    if (inputMethod === "manual") {
-      return "Please enter the candidate's information. You'll be able to add skills in the next step."
-    }
-    return ""
+  // Determine if we should show the review banner (for automatic upload after parsing)
+  const shouldShowReviewBanner = () => {
+    return inputMethod === "auto" && (parsedSkills.length > 0 || formData.firstName.trim() !== "")
   }
 
   return (
@@ -203,6 +210,17 @@ export default function CreateTalentDialog({
             <DialogTitle>{getDialogTitle()}</DialogTitle>
           </DialogHeader>
 
+          {/* Progress Indicator */}
+          {shouldShowProgress() && (
+            <StepProgress 
+              currentStep={getCurrentStepNumber()}
+              steps={[
+                { number: 1, title: "Personal Information" },
+                { number: 2, title: "Candidate Skills" }
+              ]}
+            />
+          )}
+          
           <div className="space-y-6">
             {/* Data Source Step */}
             {currentStep === "data-source" && (
@@ -230,6 +248,9 @@ export default function CreateTalentDialog({
                 onCountrySelect={handleCountrySelect}
                 isComboOpen={isCountriesOpen}
                 setIsComboOpen={setIsCountriesOpen}
+                // Progress bar props
+                showProgressBar={inputMethod === "manual"}
+                currentStepNumber={getCurrentStepNumber()}
               />
             )}
 
@@ -245,7 +266,16 @@ export default function CreateTalentDialog({
                 onCountrySelect={handleCountrySelect}
                 isComboOpen={isCountriesOpen}
                 setIsComboOpen={setIsCountriesOpen}
-                infoMessage={getPersonalInfoMessage()}
+                showReviewBanner={shouldShowReviewBanner()}
+              />
+            )}
+            
+            {/* Skills Step */}
+            {currentStep === "skills" && (
+              <SkillsStep
+                skills={parsedSkills}
+                onChange={setParsedSkills}
+                showReviewBanner={shouldShowReviewBanner()}
               />
             )}
           </div>
@@ -262,13 +292,10 @@ export default function CreateTalentDialog({
                   Cancel
                 </Button>
                 <Button 
-                  onClick={inputMethod === "auto" ? handleProcessDataSource : () => handleSubmit((candidate) => {
-                    onCandidateCreated?.(candidate)
-                    onOpenChange(false)
-                  })}
-                  disabled={!canProceed || isProcessing || isPending}
+                  onClick={inputMethod === "auto" ? handleProcessDataSource : () => setCurrentStep("skills")}
+                  disabled={!canProceed || isProcessing}
                 >
-                  {isProcessing ? "Processing..." : isPending ? "Creating..." : inputMethod === "auto" ? "Next" : "Create"}
+                  {isProcessing ? "Processing..." : "Next"}
                 </Button>
               </>
             )}
@@ -285,11 +312,37 @@ export default function CreateTalentDialog({
                   Back
                 </Button>
                 <Button 
+                  onClick={() => setCurrentStep("skills")}
+                  disabled={!canProceed}
+                >
+                  Next
+                </Button>
+              </>
+            )}
+            
+            {/* Skills Step Buttons */}
+            {currentStep === "skills" && (
+              <>
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    if (inputMethod === "auto") {
+                      setCurrentStep("personal-info")
+                    } else {
+                      setCurrentStep("data-source")
+                    }
+                  }}
+                  disabled={isPending}
+                >
+                  Back
+                </Button>
+                <Button 
                   onClick={() => handleSubmit((candidate) => {
                     onCandidateCreated?.(candidate)
+                    resetDialogState()
                     onOpenChange(false)
                   })}
-                  disabled={!canProceed || isPending}
+                  disabled={isPending}
                 >
                   {isPending ? "Creating..." : "Create"}
                 </Button>

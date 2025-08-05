@@ -6,6 +6,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Upload, Link, UserPlus } from "lucide-react"
 import ToggleSlider from "@/components/ui/toggle-slider"
 import { PersonalInfoStep } from "./PersonalInfoStep"
+import { StepProgress } from "./StepProgress"
 import type { InputMethod, DataSource, CandidateFormData, Country } from "../types"
 
 interface DataSourceStepProps {
@@ -32,6 +33,9 @@ interface DataSourceStepProps {
   onCountrySelect?: (countryCode: string, countryName: string) => void
   isComboOpen?: boolean
   setIsComboOpen?: (open: boolean) => void
+  // For progress bar
+  showProgressBar?: boolean
+  currentStepNumber?: 1 | 2
 }
 
 export function DataSourceStep({
@@ -57,7 +61,10 @@ export function DataSourceStep({
   onCountrySearch,
   onCountrySelect,
   isComboOpen,
-  setIsComboOpen
+  setIsComboOpen,
+  // Progress bar props
+  showProgressBar,
+  currentStepNumber
 }: DataSourceStepProps) {
   return (
     <div className="space-y-6">
@@ -78,6 +85,17 @@ export function DataSourceStep({
           />
         </div>
       </div>
+
+      {/* Progress Bar for Manual Input */}
+      {showProgressBar && inputMethod === "manual" && (
+        <StepProgress 
+          currentStep={currentStepNumber || 1}
+          steps={[
+            { number: 1, title: "Personal Information" },
+            { number: 2, title: "Candidate Skills" }
+          ]}
+        />
+      )}
 
       {/* Auto Load - Data Source Selection */}
       {inputMethod === "auto" && (
@@ -184,7 +202,7 @@ export function DataSourceStep({
           onCountrySelect={onCountrySelect || (() => {})}
           isComboOpen={isComboOpen || false}
           setIsComboOpen={setIsComboOpen || (() => {})}
-          infoMessage="Please enter the candidate's information. You'll be able to add skills in the next step."
+          showReviewBanner={false}
         />
       )}
     </div>

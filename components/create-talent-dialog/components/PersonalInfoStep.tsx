@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ChevronDown, Info } from "lucide-react"
 import type { CandidateFormData, Country } from "../types"
 
@@ -19,7 +18,7 @@ interface PersonalInfoStepProps {
   onCountrySelect: (countryCode: string, countryName: string) => void
   isComboOpen: boolean
   setIsComboOpen: (open: boolean) => void
-  infoMessage?: string
+  showReviewBanner?: boolean
 }
 
 export function PersonalInfoStep({
@@ -32,16 +31,23 @@ export function PersonalInfoStep({
   onCountrySelect,
   isComboOpen,
   setIsComboOpen,
-  infoMessage
+  showReviewBanner
 }: PersonalInfoStepProps) {
   return (
     <div className="space-y-6">
-      {infoMessage && (
-        <Alert>
+      {/* Review banner for automatic upload */}
+      {showReviewBanner && (
+        <div className="info-indicator">
           <Info className="h-4 w-4" />
-          <AlertDescription>{infoMessage}</AlertDescription>
-        </Alert>
+          <span>Please review the extracted information below and make any necessary adjustments.</span>
+        </div>
       )}
+      
+      {/* General info banner */}
+      <div className="info-indicator">
+        <Info className="h-4 w-4" />
+        <span>This information can be updated after creation from the candidate profile.</span>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
