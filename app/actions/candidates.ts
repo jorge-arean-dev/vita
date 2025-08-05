@@ -708,6 +708,178 @@ export async function insertCandidateSkills(
   }
 }
 
+// Add a single candidate skill
+export async function addCandidateSkill(
+  candidateId: string,
+  skillData: {
+    skill: string
+    type: string
+    proficiency_level?: string | null
+    source: string
+  }
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient()
+  
+  // Get the current user
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) {
+    return { success: false, error: "User not authenticated" }
+  }
+
+  try {
+    // Verify the candidate belongs to the user
+    const { data: candidate, error: candidateError } = await supabase
+      .from("candidates")
+      .select("user_id")
+      .eq("id", candidateId)
+      .eq("user_id", user.id)
+      .single()
+
+    if (candidateError || !candidate) {
+      return { success: false, error: "Candidate not found or access denied" }
+    }
+
+    // Insert the skill
+    const { error: insertError } = await supabase
+      .from("candidates_skills")
+      .insert({
+        candidate_id: candidateId,
+        skill: skillData.skill,
+        type: skillData.type,
+        proficiency_level: skillData.proficiency_level,
+        source: skillData.source
+      })
+
+    if (insertError) {
+      console.error("Error adding candidate skill:", insertError)
+      return { success: false, error: "Failed to add skill" }
+    }
+
+    // Revalidate the candidate page
+    revalidatePath(`/protected/candidates/${candidateId}`)
+
+    return { success: true }
+  } catch (error) {
+    console.error("Error adding candidate skill:", error)
+    return { success: false, error: "An unexpected error occurred while adding skill" }
+  }
+}
+
+// Update a candidate skill
+export async function updateCandidateSkill(
+  skillId: string,
+  skillData: {
+    skill?: string
+    proficiency_level?: string | null
+  }
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient()
+  
+  // Get the current user
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) {
+    return { success: false, error: "User not authenticated" }
+  }
+
+  try {
+    // Verify the skill belongs to a candidate owned by the user
+    const { data: skill, error: skillError } = await supabase
+      .from("candidates_skills")
+      .select(`
+        id,
+        candidates!inner(user_id)
+      `)
+      .eq("id", skillId)
+      .single()
+
+    if (skillError || !skill || !skill.candidates || !Array.isArray(skill.candidates) || skill.candidates.length === 0 || skill.candidates[0].user_id !== user.id) {
+      return { success: false, error: "Skill not found or access denied" }
+    }
+
+    // Update the skill
+    const { error: updateError } = await supabase
+      .from("candidates_skills")
+      .update({
+        ...skillData,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", skillId)
+
+    if (updateError) {
+      console.error("Error updating candidate skill:", updateError)
+      return { success: false, error: "Failed to update skill" }
+    }
+
+    // Revalidate paths (we need to get candidate_id to revalidate specific path)
+    const { data: skillWithCandidate } = await supabase
+      .from("candidates_skills")
+      .select("candidate_id")
+      .eq("id", skillId)
+      .single()
+
+    if (skillWithCandidate) {
+      revalidatePath(`/protected/candidates/${skillWithCandidate.candidate_id}`)
+    }
+
+    return { success: true }
+  } catch (error) {
+    console.error("Error updating candidate skill:", error)
+    return { success: false, error: "An unexpected error occurred while updating skill" }
+  }
+}
+
+// Delete a candidate skill
+export async function deleteCandidateSkill(
+  skillId: string
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient()
+  
+  // Get the current user
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) {
+    return { success: false, error: "User not authenticated" }
+  }
+
+  try {
+    // Get skill with candidate info to verify ownership and get candidate_id for revalidation
+    const { data: skill, error: skillError } = await supabase
+      .from("candidates_skills")
+      .select(`
+        id,
+        candidate_id,
+        candidates!inner(user_id)
+      `)
+      .eq("id", skillId)
+      .single()
+
+    if (skillError || !skill || !skill.candidates || !Array.isArray(skill.candidates) || skill.candidates.length === 0 || skill.candidates[0].user_id !== user.id) {
+      return { success: false, error: "Skill not found or access denied" }
+    }
+
+    // Delete the skill
+    const { error: deleteError } = await supabase
+      .from("candidates_skills")
+      .delete()
+      .eq("id", skillId)
+
+    if (deleteError) {
+      console.error("Error deleting candidate skill:", deleteError)
+      return { success: false, error: "Failed to delete skill" }
+    }
+
+    // Revalidate the candidate page
+    revalidatePath(`/protected/candidates/${skill.candidate_id}`)
+
+    return { success: true }
+  } catch (error) {
+    console.error("Error deleting candidate skill:", error)
+    return { success: false, error: "An unexpected error occurred while deleting skill" }
+  }
+}
+
 // Update candidate resume URL after file move
 export async function updateCandidateResumeUrl(
   candidateId: string,

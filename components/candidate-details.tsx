@@ -9,16 +9,22 @@ import { Label } from "@/components/ui/label"
 import { SkillBadge } from "@/components/ui/skill-badge"
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Edit, Check, X, ChevronDown, Download, Sparkles, Info, Trash2 } from "lucide-react"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { Edit, Check, X, ChevronDown, Download, Trash2, Plus } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { toast } from "sonner"
+import { useToast } from "@/components/ui/use-toast"
 import { CandidateBreadcrumb } from "@/components/candidate-breadcrumb"
 import { 
   CandidateDetailData, 
   CandidateSkill, 
   getCandidateSkills, 
   updateCandidatePersonalInfo,
-  searchCountries 
+  searchCountries,
+  addCandidateSkill,
+  updateCandidateSkill,
+  deleteCandidateSkill
 } from "@/app/actions/candidates"
 
 interface CandidateDetailsProps {
@@ -39,36 +45,61 @@ interface PersonalInfoFormData {
   resume_file?: File | null
 }
 
+// Skill picker interfaces and types
+interface EditableSkill extends CandidateSkill {
+  isNew?: boolean
+  isEdited?: boolean
+}
+
+type SkillType = "technical_skill" | "soft_skill" | "role" | "certification" | "technology_domain" | "industry"
+
+const SKILL_TYPES = [
+  { name: "technical_skill", display_name: "Technical Skills" },
+  { name: "soft_skill", display_name: "Soft Skills" },
+  { name: "role", display_name: "Role" },
+  { name: "certification", display_name: "Certification" },
+  { name: "industry", display_name: "Industry" },
+  { name: "technology_domain", display_name: "Technology Domain" }
+] as const
+
+// Helper function to check if skill type supports proficiency levels
+const supportsProficiency = (type: string) => {
+  return type !== "soft_skill" && type !== "certification"
+}
+
 // Helper function to ensure string values
 const ensureString = (value: string | null | undefined): string => {
   return value ?? ""
 }
 
 export default function CandidateDetails({ candidate }: CandidateDetailsProps) {
+  const { toast } = useToast()
   const [activeTab, setActiveTab] = useState("personal-info")
   
   // Personal Information state
   const [isPersonalInfoEditMode, setIsPersonalInfoEditMode] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const [personalInfoFormData, setPersonalInfoFormData] = useState<PersonalInfoFormData>({
-    first_name: ensureString(candidate.first_name),
-    last_name: ensureString(candidate.last_name),
-    email: ensureString(candidate.email),
-    country: ensureString(candidate.country),
-    linkedin: ensureString(candidate.linkedin)
+  
+  // Initialize form data with guaranteed string values
+  const initializeFormData = (candidateData: CandidateDetailData): PersonalInfoFormData => ({
+    first_name: ensureString(candidateData.first_name),
+    last_name: ensureString(candidateData.last_name),
+    email: ensureString(candidateData.email),
+    country: ensureString(candidateData.country),
+    linkedin: ensureString(candidateData.linkedin)
   })
-  const [originalPersonalInfoData, setOriginalPersonalInfoData] = useState<PersonalInfoFormData>({
-    first_name: ensureString(candidate.first_name),
-    last_name: ensureString(candidate.last_name),
-    email: ensureString(candidate.email),
-    country: ensureString(candidate.country),
-    linkedin: ensureString(candidate.linkedin)
-  })
+  
+  const [personalInfoFormData, setPersonalInfoFormData] = useState<PersonalInfoFormData>(() => 
+    initializeFormData(candidate)
+  )
+  const [originalPersonalInfoData, setOriginalPersonalInfoData] = useState<PersonalInfoFormData>(() => 
+    initializeFormData(candidate)
+  )
 
   // Countries combobox state
   const [countries, setCountries] = useState<Country[]>([])
   const [isCountriesOpen, setIsCountriesOpen] = useState(false)
-  const [countrySearchValue, setCountrySearchValue] = useState(ensureString(candidate.country_name))
+  const [countrySearchValue, setCountrySearchValue] = useState(() => ensureString(candidate.country_name))
 
   // Resume upload state
   const [uploadedResumeFile, setUploadedResumeFile] = useState<File | null>(null)
@@ -78,8 +109,23 @@ export default function CandidateDetails({ candidate }: CandidateDetailsProps) {
   // Skills state
   const [skills, setSkills] = useState<CandidateSkill[]>([])
   const [isLoadingSkills, setIsLoadingSkills] = useState(false)
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [showGeneratedBanner, setShowGeneratedBanner] = useState(false)
+
+  // Skills edit mode state
+  const [isSkillsEditMode, setIsSkillsEditMode] = useState(false)
+  const [editableSkills, setEditableSkills] = useState<EditableSkill[]>([])
+  const [originalSkills, setOriginalSkills] = useState<CandidateSkill[]>([])
+  const [isSavingSkills, setIsSavingSkills] = useState(false)
+
+  // Add new skill state
+  const [newSkills, setNewSkills] = useState("")
+  const [newSkillType, setNewSkillType] = useState("")
+  const [newProficiencyLevel, setNewProficiencyLevel] = useState<string>("")
+  const [isAddSectionOpen, setIsAddSectionOpen] = useState(false)
+
+  // Unsaved changes dialog state
+  const [showUnsavedChangesDialog, setShowUnsavedChangesDialog] = useState(false)
+  const [pendingTabChange, setPendingTabChange] = useState<string | null>(null)
+  const [pendingNavigation, setPendingNavigation] = useState<(() => void) | null>(null)
 
   // Track if personal info has unsaved changes
   const hasPersonalInfoChanges = () => {
@@ -88,19 +134,60 @@ export default function CandidateDetails({ candidate }: CandidateDetailsProps) {
            isResumeMarkedForDeletion
   }
 
+  // Track if skills have unsaved changes
+  const hasSkillsChanges = () => {
+    if (!isSkillsEditMode) return false
+    return JSON.stringify(editableSkills) !== JSON.stringify(originalSkills)
+  }
+
+  // Check if current section has unsaved changes
+  const getCurrentSectionUnsavedChanges = () => {
+    if (activeTab === "personal-info" && isPersonalInfoEditMode) {
+      return hasPersonalInfoChanges()
+    }
+    if (activeTab === "skills" && isSkillsEditMode) {
+      return hasSkillsChanges()
+    }
+    return false
+  }
+
+  // Handle tab switching with unsaved changes protection
+  const handleTabChange = (newTab: string) => {
+    if (getCurrentSectionUnsavedChanges()) {
+      setPendingTabChange(newTab)
+      setShowUnsavedChangesDialog(true)
+      return
+    }
+    setActiveTab(newTab)
+  }
+
   const loadSkills = useCallback(async () => {
     setIsLoadingSkills(true)
     try {
       const candidateSkills = await getCandidateSkills(candidate.id)
       setSkills(candidateSkills)
+      setOriginalSkills(candidateSkills)
+      setEditableSkills(candidateSkills.map(skill => ({ ...skill })))
     } catch (error) {
       console.error("Error loading skills:", error)
-      toast.error("Failed to load candidate skills")
+      toast({
+        title: "Error",
+        description: "Failed to load candidate skills",
+        variant: "destructive"
+      })
     } finally {
       setIsLoadingSkills(false)
     }
-  }, [candidate.id])
+  }, [candidate.id, toast])
 
+  // Sync form data when candidate prop changes
+  useEffect(() => {
+    const newFormData = initializeFormData(candidate)
+    setPersonalInfoFormData(newFormData)
+    setOriginalPersonalInfoData(newFormData)
+    setCountrySearchValue(ensureString(candidate.country_name))
+  }, [candidate])
+  
   // Load skills when component mounts or after generation
   useEffect(() => {
     loadSkills()
@@ -171,23 +258,36 @@ export default function CandidateDetails({ candidate }: CandidateDetailsProps) {
   // Personal Information handlers
   const handleEditPersonalInfo = () => {
     setOriginalPersonalInfoData({ ...personalInfoFormData })
+    setCountrySearchValue(candidate.country_name || "")
     setIsPersonalInfoEditMode(true)
   }
 
   const handleSavePersonalInfo = async () => {
     // Validate required fields
     if (!personalInfoFormData.first_name.trim()) {
-      toast.error("First name is required")
+      toast({
+        title: "Validation Error",
+        description: "First name is required",
+        variant: "destructive"
+      })
       return
     }
     
     if (!personalInfoFormData.last_name.trim()) {
-      toast.error("Last name is required")
+      toast({
+        title: "Validation Error",
+        description: "Last name is required",
+        variant: "destructive"
+      })
       return
     }
     
     if (!personalInfoFormData.email.trim()) {
-      toast.error("Email is required")
+      toast({
+        title: "Validation Error",
+        description: "Email is required",
+        variant: "destructive"
+      })
       return
     }
 
@@ -197,10 +297,17 @@ export default function CandidateDetails({ candidate }: CandidateDetailsProps) {
       
       setOriginalPersonalInfoData({ ...personalInfoFormData })
       setIsPersonalInfoEditMode(false)
-      toast.success("Personal information updated successfully")
+      toast({
+        title: "Success",
+        description: "Personal information updated successfully"
+      })
     } catch (error) {
       console.error("Error saving personal info:", error)
-      toast.error("Failed to update personal information")
+      toast({
+        title: "Error",
+        description: "Failed to update personal information",
+        variant: "destructive"
+      })
     } finally {
       setIsSaving(false)
     }
@@ -208,92 +315,180 @@ export default function CandidateDetails({ candidate }: CandidateDetailsProps) {
 
   const handleCancelPersonalInfo = () => {
     setPersonalInfoFormData({ ...originalPersonalInfoData })
-    setCountrySearchValue(ensureString(candidate.country_name))
+    setCountrySearchValue(candidate.country_name || "")
     setUploadedResumeFile(null)
     setResumeUploadError("")
     setIsResumeMarkedForDeletion(false)
     setIsPersonalInfoEditMode(false)
   }
 
-  // Skills generation handler
-  const handleGenerateSkills = async () => {
-    if (skills.length > 0) {
-      const confirmed = window.confirm(
-        "This will replace all existing skills with new generated skills. Are you sure you want to continue?"
-      )
-      if (!confirmed) return
-    }
+  // Skills edit mode handlers
+  const handleEditSkills = () => {
+    setOriginalSkills([...skills])
+    setEditableSkills(skills.map(skill => ({ ...skill })))
+    setIsSkillsEditMode(true)
+  }
 
-    setIsGenerating(true)
-    setShowGeneratedBanner(false)
-    
+  const handleSaveSkills = async () => {
+    setIsSavingSkills(true)
     try {
-      // TODO: Implement actual API call to generate skills
-      console.log("Generating skills from:", {
-        linkedin: originalPersonalInfoData.linkedin,
-        resume_url: candidate.resume_url
-      })
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 3000))
-      
-      // Mock generated skills
-      const mockSkills: CandidateSkill[] = [
-        {
-          id: "1",
-          candidate_id: candidate.id,
-          skill: "React",
-          type: "technical_skill",
-          proficiency_level: "advanced",
-          source: "linkedin",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          skill_type_display_name: "Technical Skills"
-        },
-        {
-          id: "2",
-          candidate_id: candidate.id,
-          skill: "TypeScript",
-          type: "technical_skill",
-          proficiency_level: "advanced",
-          source: "linkedin",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          skill_type_display_name: "Technical Skills"
-        },
-        {
-          id: "3",
-          candidate_id: candidate.id,
-          skill: "Team Leadership",
-          type: "soft_skill",
-          proficiency_level: "expert",
-          source: "linkedin",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          skill_type_display_name: "Soft Skills"
+      // Process skills changes
+      const skillsToAdd = editableSkills.filter(skill => skill.isNew)
+      const skillsToUpdate = editableSkills.filter(skill => skill.isEdited && !skill.isNew)
+      const skillsToDelete = originalSkills.filter(originalSkill => 
+        !editableSkills.find(editableSkill => editableSkill.id === originalSkill.id)
+      )
+
+      let hasErrors = false
+
+      // Add new skills
+      for (const skill of skillsToAdd) {
+        const result = await addCandidateSkill(candidate.id, {
+          skill: skill.skill,
+          type: skill.type,
+          proficiency_level: skill.proficiency_level,
+          source: "user_input"
+        })
+        if (!result.success) {
+          console.error("Failed to add skill:", result.error)
+          hasErrors = true
         }
-      ]
+      }
+
+      // Update edited skills
+      for (const skill of skillsToUpdate) {
+        const result = await updateCandidateSkill(skill.id, {
+          skill: skill.skill,
+          proficiency_level: skill.proficiency_level
+        })
+        if (!result.success) {
+          console.error("Failed to update skill:", result.error)
+          hasErrors = true
+        }
+      }
+
+      // Delete removed skills
+      for (const skill of skillsToDelete) {
+        const result = await deleteCandidateSkill(skill.id)
+        if (!result.success) {
+          console.error("Failed to delete skill:", result.error)
+          hasErrors = true
+        }
+      }
+
+      if (hasErrors) {
+        toast({
+          title: "Partial Success",
+          description: "Some skills could not be updated. Please try again.",
+          variant: "destructive"
+        })
+      } else {
+        toast({
+          title: "Success",
+          description: "Skills updated successfully"
+        })
+      }
+
+      // Reload skills to get the latest data
+      await loadSkills()
+      setIsSkillsEditMode(false)
+      resetSkillsAddSection()
       
-      setSkills(mockSkills)
-      setShowGeneratedBanner(true)
-      toast.success("Skills generated successfully!")
     } catch (error) {
-      console.error("Error generating skills:", error)
-      toast.error("Failed to generate skills")
+      console.error("Error saving skills:", error)
+      toast({
+        title: "Error",
+        description: "Failed to update skills",
+        variant: "destructive"
+      })
     } finally {
-      setIsGenerating(false)
+      setIsSavingSkills(false)
     }
   }
 
-  // Group skills by type
-  const groupedSkills = skills.reduce((acc, skill) => {
-    const type = skill.skill_type_display_name || skill.type
-    if (!acc[type]) {
-      acc[type] = []
+  const handleCancelSkills = () => {
+    setEditableSkills(originalSkills.map(skill => ({ ...skill })))
+    setIsSkillsEditMode(false)
+    resetSkillsAddSection()
+  }
+
+  const resetSkillsAddSection = () => {
+    setNewSkills("")
+    setNewSkillType("")
+    setNewProficiencyLevel("")
+    setIsAddSectionOpen(false)
+  }
+
+  // Skills management handlers
+  const handleDeleteSkill = (skillId: string) => {
+    setEditableSkills(prev => prev.filter(skill => skill.id !== skillId))
+  }
+
+  const handleChangeProficiency = (skillId: string, newProficiency: string) => {
+    setEditableSkills(prev => prev.map(skill => 
+      skill.id === skillId 
+        ? { ...skill, proficiency_level: newProficiency, isEdited: true }
+        : skill
+    ))
+  }
+
+  const handleAddSkills = () => {
+    if (!newSkills.trim() || !newSkillType) return
+
+    const skillsList = newSkills
+      .split(',')
+      .map(skill => skill.trim())
+      .filter(skill => skill.length > 0)
+
+    const newSkillsArray: EditableSkill[] = skillsList.map((skillName, index) => ({
+      id: `new-${Date.now()}-${index}`,
+      candidate_id: candidate.id,
+      skill: skillName,
+      type: newSkillType,
+      proficiency_level: (newSkillType === "soft_skill" || newSkillType === "certification") 
+        ? null 
+        : (newProficiencyLevel || "beginner"),
+      source: "user_input",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      skill_type_display_name: SKILL_TYPES.find(t => t.name === newSkillType)?.display_name || newSkillType,
+      isNew: true
+    }))
+
+    setEditableSkills(prev => [...prev, ...newSkillsArray])
+    resetSkillsAddSection()
+  }
+
+  // Unsaved changes dialog handlers
+  const handleConfirmDiscardChanges = () => {
+    if (pendingTabChange) {
+      // Cancel current section edit mode
+      if (activeTab === "personal-info" && isPersonalInfoEditMode) {
+        handleCancelPersonalInfo()
+      }
+      if (activeTab === "skills" && isSkillsEditMode) {
+        handleCancelSkills()
+      }
+      
+      setActiveTab(pendingTabChange)
+      setPendingTabChange(null)
     }
-    acc[type].push(skill)
-    return acc
-  }, {} as Record<string, CandidateSkill[]>)
+    
+    if (pendingNavigation) {
+      pendingNavigation()
+      setPendingNavigation(null)
+    }
+    
+    setShowUnsavedChangesDialog(false)
+  }
+
+  const handleCancelDiscardChanges = () => {
+    setPendingTabChange(null)
+    setPendingNavigation(null)
+    setShowUnsavedChangesDialog(false)
+  }
+
+
 
 
   return (
@@ -313,7 +508,7 @@ export default function CandidateDetails({ candidate }: CandidateDetailsProps) {
         </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="personal-info">Personal Information</TabsTrigger>
           <TabsTrigger value="skills">Candidate Skills</TabsTrigger>
@@ -341,7 +536,7 @@ export default function CandidateDetails({ candidate }: CandidateDetailsProps) {
                     <Button 
                       onClick={handleSavePersonalInfo} 
                       size="sm"
-                      disabled={isSaving}
+                      disabled={isSaving || !hasPersonalInfoChanges()}
                     >
                       <Check className="h-4 w-4 mr-2" />
                       {isSaving ? "Saving..." : "Save"}
@@ -366,7 +561,7 @@ export default function CandidateDetails({ candidate }: CandidateDetailsProps) {
                   <Label htmlFor="first-name">First Name</Label>
                   <Input
                     id="first-name"
-                    value={ensureString(personalInfoFormData.first_name)}
+                    value={personalInfoFormData.first_name || ""}
                     onChange={(e) => setPersonalInfoFormData(prev => ({ ...prev, first_name: e.target.value }))}
                     readOnly={!isPersonalInfoEditMode}
                     className={cn(!isPersonalInfoEditMode && "cursor-default")}
@@ -378,7 +573,7 @@ export default function CandidateDetails({ candidate }: CandidateDetailsProps) {
                   <Label htmlFor="last-name">Last Name</Label>
                   <Input
                     id="last-name"
-                    value={ensureString(personalInfoFormData.last_name)}
+                    value={personalInfoFormData.last_name || ""}
                     onChange={(e) => setPersonalInfoFormData(prev => ({ ...prev, last_name: e.target.value }))}
                     readOnly={!isPersonalInfoEditMode}
                     className={cn(!isPersonalInfoEditMode && "cursor-default")}
@@ -391,7 +586,7 @@ export default function CandidateDetails({ candidate }: CandidateDetailsProps) {
                   <Input
                     id="email"
                     type="email"
-                    value={ensureString(personalInfoFormData.email)}
+                    value={personalInfoFormData.email || ""}
                     onChange={(e) => setPersonalInfoFormData(prev => ({ ...prev, email: e.target.value }))}
                     readOnly={!isPersonalInfoEditMode}
                     className={cn(!isPersonalInfoEditMode && "cursor-default")}
@@ -409,7 +604,7 @@ export default function CandidateDetails({ candidate }: CandidateDetailsProps) {
                           role="combobox"
                           className="w-full justify-between"
                         >
-                          {ensureString(countrySearchValue) || "Select country..."}
+                          {countrySearchValue || "Select country..."}
                           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </PopoverTrigger>
@@ -417,10 +612,10 @@ export default function CandidateDetails({ candidate }: CandidateDetailsProps) {
                         <Command shouldFilter={false}>
                           <CommandInput 
                             placeholder="Search countries..." 
-                            value={countrySearchValue}
+                            value={countrySearchValue || ""}
                             onValueChange={(value) => {
-                              setCountrySearchValue(value)
-                              handleSearchCountries(value)
+                              setCountrySearchValue(value || "")
+                              handleSearchCountries(value || "")
                             }}
                           />
                           <CommandList>
@@ -446,7 +641,7 @@ export default function CandidateDetails({ candidate }: CandidateDetailsProps) {
                     </Popover>
                   ) : (
                     <Input
-                      value={ensureString(candidate.country_name) || "Not specified"}
+                      value={candidate.country_name || "Not specified"}
                       readOnly
                       className="cursor-default"
                     />
@@ -458,7 +653,7 @@ export default function CandidateDetails({ candidate }: CandidateDetailsProps) {
                   <Label htmlFor="linkedin">LinkedIn</Label>
                   <Input
                     id="linkedin"
-                    value={ensureString(personalInfoFormData.linkedin)}
+                    value={personalInfoFormData.linkedin || ""}
                     onChange={(e) => setPersonalInfoFormData(prev => ({ ...prev, linkedin: e.target.value }))}
                     readOnly={!isPersonalInfoEditMode}
                     className={cn(!isPersonalInfoEditMode && "cursor-default")}
@@ -548,7 +743,7 @@ export default function CandidateDetails({ candidate }: CandidateDetailsProps) {
                         </Button>
                       ) : (
                         <Input
-                          value="No resume uploaded"
+                          defaultValue="No resume uploaded"
                           readOnly
                           className="cursor-default text-muted-foreground"
                         />
@@ -572,28 +767,36 @@ export default function CandidateDetails({ candidate }: CandidateDetailsProps) {
                 </p>
               </div>
               <div className="flex items-center space-x-2">
-                {hasPersonalInfoChanges() && (
-                  <Button 
-                    onClick={handleGenerateSkills}
-                    size="sm"
-                    disabled={isGenerating}
-                  >
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    {isGenerating ? "Generating..." : "Generate"}
+                {!isSkillsEditMode && (
+                  <Button variant="outline" size="sm" onClick={handleEditSkills}>
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit
                   </Button>
+                )}
+                {isSkillsEditMode && (
+                  <>
+                    <Button 
+                      onClick={handleSaveSkills} 
+                      size="sm"
+                      disabled={isSavingSkills || !hasSkillsChanges()}
+                    >
+                      <Check className="h-4 w-4 mr-2" />
+                      {isSavingSkills ? "Saving..." : "Save"}
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleCancelSkills}
+                      disabled={isSavingSkills}
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Cancel
+                    </Button>
+                  </>
                 )}
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {showGeneratedBanner && (
-                <div className="info-indicator">
-                  <Info className="h-4 w-4" />
-                  <span>
-                    Skills have been automatically generated from the candidate&apos;s profile. 
-                    Please review the generated skills for accuracy.
-                  </span>
-                </div>
-              )}
 
               {isLoadingSkills ? (
                 <div className="flex items-center justify-center py-8">
@@ -601,38 +804,174 @@ export default function CandidateDetails({ candidate }: CandidateDetailsProps) {
                     <div className="text-sm text-muted-foreground">Loading skills...</div>
                   </div>
                 </div>
-              ) : skills.length === 0 ? (
+              ) : (isSkillsEditMode ? editableSkills : skills).length === 0 ? (
                 <div className="flex items-center justify-center py-8">
                   <div className="text-center space-y-2">
                     <div className="text-sm text-muted-foreground">No skills found</div>
                     <div className="text-xs text-muted-foreground">
-                      Update the candidate&apos;s LinkedIn or resume URL and click Generate to extract skills
+                      {isSkillsEditMode ? "Add skills using the button below" : "Update the candidate's LinkedIn or resume URL and click Generate to extract skills"}
                     </div>
                   </div>
                 </div>
               ) : (
                 <div className="space-y-6">
-                  {Object.entries(groupedSkills).map(([skillType, skillsInType]) => (
-                    <div key={skillType} className="space-y-3">
-                      <Label className="text-sm font-medium">{skillType}</Label>
-                      <div className="flex flex-wrap gap-2">
-                        {skillsInType.map((skill) => (
-                          <SkillBadge 
-                            key={skill.id}
-                            skill={skill.skill}
-                            level={skill.proficiency_level as "beginner" | "advanced" | "expert" | null}
-                            type={skill.type as "technical_skill" | "soft_skill" | "role" | "certification" | "technology_domain" | "industry"}
-                          />
-                        ))}
+                  {/* Display existing skills */}
+                  {(() => {
+                    const skillsToDisplay = isSkillsEditMode ? editableSkills : skills
+                    const groupedSkills = SKILL_TYPES.map(type => ({
+                      ...type,
+                      skills: skillsToDisplay.filter(skill => skill.type === type.name)
+                    })).filter(group => group.skills.length > 0)
+
+                    return groupedSkills.map((group) => (
+                      <div key={group.name} className="space-y-3">
+                        <Label className="text-sm font-medium">{group.display_name}</Label>
+                        <div className="flex flex-wrap gap-2">
+                          {group.skills.map((skill) => (
+                            <div key={skill.id} className="flex items-center gap-1">
+                              <SkillBadge 
+                                skill={skill.skill}
+                                level={skill.proficiency_level as "beginner" | "advanced" | "expert" | null}
+                                type={skill.type as SkillType}
+                              />
+                              {isSkillsEditMode && (
+                                <>
+                                  {supportsProficiency(skill.type) && (
+                                    <Select
+                                      value={skill.proficiency_level || ""}
+                                      onValueChange={(value) => handleChangeProficiency(skill.id, value)}
+                                    >
+                                      <SelectTrigger className="h-7 w-24 text-xs">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="beginner">Beginner</SelectItem>
+                                        <SelectItem value="advanced">Advanced</SelectItem>
+                                        <SelectItem value="expert">Expert</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  )}
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-7 w-7 p-0"
+                                    onClick={() => handleDeleteSkill(skill.id)}
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))
+                  })()}
+                </div>
+              )}
+
+              {/* Add Skills Section (Edit Mode Only) */}
+              {isSkillsEditMode && (
+                <Collapsible open={isAddSectionOpen} onOpenChange={setIsAddSectionOpen}>
+                  <CollapsibleTrigger asChild>
+                    <Button variant="outline" className="w-full">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Skills
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="space-y-4 pt-4">
+                    <div className="grid gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="skill-type">Skill Type <span className="text-red-500">*</span></Label>
+                        <Select value={newSkillType} onValueChange={setNewSkillType}>
+                          <SelectTrigger id="skill-type">
+                            <SelectValue placeholder="Select skill type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {SKILL_TYPES.map((type) => (
+                              <SelectItem key={type.name} value={type.name}>
+                                {type.display_name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {newSkillType && supportsProficiency(newSkillType) && (
+                        <div className="space-y-2">
+                          <Label htmlFor="proficiency">Proficiency Level <span className="text-red-500">*</span></Label>
+                          <Select value={newProficiencyLevel} onValueChange={setNewProficiencyLevel}>
+                            <SelectTrigger id="proficiency">
+                              <SelectValue placeholder="Select proficiency level" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="beginner">Beginner</SelectItem>
+                              <SelectItem value="advanced">Advanced</SelectItem>
+                              <SelectItem value="expert">Expert</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+
+                      <div className="space-y-2">
+                        <Label htmlFor="skills">Skills (comma-separated) <span className="text-red-500">*</span></Label>
+                        <Input
+                          id="skills"
+                          placeholder="e.g., React, TypeScript, Node.js"
+                          value={newSkills}
+                          onChange={(e) => setNewSkills(e.target.value)}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Enter multiple skills separated by commas
+                        </p>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          onClick={resetSkillsAddSection}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={handleAddSkills}
+                          disabled={
+                            !newSkills.trim() || 
+                            !newSkillType || 
+                            (supportsProficiency(newSkillType) && !newProficiencyLevel)
+                          }
+                        >
+                          Add Skills
+                        </Button>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  </CollapsibleContent>
+                </Collapsible>
               )}
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Unsaved Changes Confirmation Dialog */}
+      <AlertDialog open={showUnsavedChangesDialog} onOpenChange={setShowUnsavedChangesDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have unsaved changes that will be lost. Are you sure you want to continue?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCancelDiscardChanges}>
+              Continue Editing
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDiscardChanges}>
+              Discard Changes
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
