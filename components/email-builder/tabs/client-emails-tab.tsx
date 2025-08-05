@@ -20,14 +20,9 @@ import { useEmailManager } from '../hooks/use-email-manager'
 import { useEmailEditing } from '../hooks/use-email-editing'
 import { useEmailGeneration } from '../hooks/use-email-generation'
 import { useEmailPersistence } from '../hooks/use-email-persistence'
-import { getMockCandidates, getClientEmailTemplates } from '../utils/email-builder.utils'
 
-export function ClientEmailsTab({ jobData }: ClientEmailsTabProps) {
+export function ClientEmailsTab({ jobData, candidates, emailTemplates }: ClientEmailsTabProps) {
   const [mounted, setMounted] = useState(false)
-  
-  // Mock data - in real implementation, these would come from props or API
-  const candidates = getMockCandidates()
-  const clientEmailTemplates = getClientEmailTemplates()
 
   // Initialize editing hooks
   const {
@@ -51,10 +46,13 @@ export function ClientEmailsTab({ jobData }: ClientEmailsTabProps) {
     isDeleting,
     deleteConfirmId,
     setDeleteConfirmId,
+    cancelConfirmId,
+    setCancelConfirmId,
     handleNewEmail,
     handleToggleExpand,
     handleSave,
     handleCancel,
+    confirmCancel,
     handleDelete,
     confirmDelete,
     handleCopyToClipboard,
@@ -62,7 +60,7 @@ export function ClientEmailsTab({ jobData }: ClientEmailsTabProps) {
   } = useEmailManager({
     jobData,
     candidates,
-    emailTemplates: clientEmailTemplates,
+    emailTemplates,
     mounted,
     editingValues,
     setEditingValues,
@@ -82,9 +80,8 @@ export function ClientEmailsTab({ jobData }: ClientEmailsTabProps) {
     handleGenerate,
     proceedWithGeneration
   } = useEmailGeneration({
-    candidates,
     candidateEmailTemplates: [], // Not needed for client emails
-    clientEmailTemplates,
+    clientEmailTemplates: emailTemplates,
     jobData
   })
 
@@ -180,7 +177,7 @@ export function ClientEmailsTab({ jobData }: ClientEmailsTabProps) {
               isDeleting={isDeleting[email.id] || false}
               showGenerateAlert={showGenerateAlert[email.id] || false}
               candidates={candidates}
-              emailTemplates={clientEmailTemplates}  // Using client templates
+              emailTemplates={emailTemplates}  // Using client templates
               onToggleExpand={handleToggleExpand}
               onEdit={handleEmailEdit}
               onSave={handleSave}
@@ -208,6 +205,24 @@ export function ClientEmailsTab({ jobData }: ClientEmailsTabProps) {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Cancel Confirmation Dialog */}
+      <AlertDialog open={!!cancelConfirmId} onOpenChange={() => setCancelConfirmId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Discard Email</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have unsaved changes. Are you sure you want to discard this email? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep Editing</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmCancel} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Discard
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

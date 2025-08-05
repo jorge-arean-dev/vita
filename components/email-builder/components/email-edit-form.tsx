@@ -10,6 +10,12 @@ export function EmailEditForm({
   emailTemplates,
   onEditingFieldChange
 }: EmailEditFormProps) {
+  // Helper function to check if the selected template is a custom template
+  const isCustomTemplate = (templateId: string) => {
+    const template = emailTemplates.find(t => t.id === templateId)
+    return template?.templateName === 'custom_candidate' || template?.templateName === 'custom_client'
+  }
+  
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -59,7 +65,7 @@ export function EmailEditForm({
       </div>
 
       {/* Custom Prompt Field - Only show when Custom Prompt template is selected */}
-      {editingValues[emailId]?.templateId === 'custom-prompt' && (
+      {isCustomTemplate(editingValues[emailId]?.templateId || '') && (
         <div className="space-y-2">
           <Label>Custom Prompt</Label>
           <Input

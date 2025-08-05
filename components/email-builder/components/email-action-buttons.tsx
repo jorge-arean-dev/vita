@@ -14,12 +14,18 @@ export function EmailActionButtons({
   isGenerating,
   isSaving,
   isDeleting,
+  emailTemplates,
   onEdit,
   onSave,
   onCancel,
   onDelete,
   onGenerate
 }: EmailActionButtonsProps) {
+  // Helper function to check if a template is custom
+  const isCustomTemplate = (templateId: string) => {
+    const template = emailTemplates.find(t => t.id === templateId)
+    return template?.templateName === 'custom_candidate' || template?.templateName === 'custom_client'
+  }
   if (!email.isExpanded) {
     // Collapsed view - only delete button
     return (
@@ -53,7 +59,7 @@ export function EmailActionButtons({
             isGenerating || 
             isSaving ||
             !editingValues[email.id]?.templateId ||
-            (editingValues[email.id]?.templateId === 'custom-prompt' && !editingValues[email.id]?.customPrompt?.trim())
+            (isCustomTemplate(editingValues[email.id]?.templateId || '') && !editingValues[email.id]?.customPrompt?.trim())
           }
         >
           {isGenerating ? (
@@ -75,7 +81,8 @@ export function EmailActionButtons({
           disabled={
             isSaving || 
             isGenerating ||
-            !editingValues[email.id]?.title?.trim()
+            !editingValues[email.id]?.title?.trim() ||
+            !editingValues[email.id]?.templateId
           }
         >
           {isSaving ? (

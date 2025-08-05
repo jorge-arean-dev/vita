@@ -1,7 +1,28 @@
 import { useState, useEffect } from 'react'
 import { useToast } from '@/components/ui/use-toast'
 import { Email, EditingValues, Candidate, EmailTemplate, JobData } from '../types/email-builder.types'
-import { getNextEmailCounter, createNewEmail, getMockExistingEmails } from '../utils/email-builder.utils'
+import { getNextEmailCounter, createNewEmail } from '../utils/email-builder.utils'
+import { saveEmail, loadSavedEmails, deleteEmail } from '@/app/actions/email-builder'
+
+interface JobEmailBuilderWithRelations {
+  id: string
+  job_id: string
+  candidate_id: string | null
+  template: string
+  type: string
+  title: string
+  body: string
+  subject?: string
+  created_at: string
+  updated_at: string
+  candidates?: {
+    first_name: string | null
+    last_name: string | null
+  } | null
+  email_builder_templates?: {
+    display_name: string
+  } | null
+}
 
 interface UseEmailManagerProps {
   jobData: JobData | null | undefined
@@ -25,10 +46,13 @@ interface UseEmailManagerReturn {
   isDeleting: { [key: string]: boolean }
   deleteConfirmId: string | null
   setDeleteConfirmId: (id: string | null) => void
+  cancelConfirmId: string | null
+  setCancelConfirmId: (id: string | null) => void
   handleNewEmail: () => void
   handleToggleExpand: (id: string) => void
   handleSave: (id: string) => Promise<void>
   handleCancel: (id: string) => void
+  confirmCancel: () => void
   handleDelete: (id: string) => void
   confirmDelete: () => Promise<void>
   handleCopyToClipboard: (content: string) => Promise<void>
@@ -52,6 +76,7 @@ export const useEmailManager = ({
   const [isSaving, setIsSaving] = useState<{ [key: string]: boolean }>({})
   const [isDeleting, setIsDeleting] = useState<{ [key: string]: boolean }>({})
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
+  const [cancelConfirmId, setCancelConfirmId] = useState<string | null>(null)
   const { toast } = useToast()
 
   // Filter emails by type
@@ -100,19 +125,43 @@ export const useEmailManager = ({
     setIsSaving({ ...isSaving, [id]: true })
     
     try {
-      // TODO: Implement API call
-      console.log("Saving email:", { id, ...editingValue })
+      // Create form data for server action
+      const formData = new FormData()
+      formData.append('jobId', jobData.id)
+      formData.append('emailType', emailType)
+      formData.append('templateId', editingValue.templateId)
+      formData.append('title', editingValue.title)
+      formData.append('subject', editingValue.subject)
+      formData.append('body', editingValue.content)
+      
+      if (editingValue.candidateId && editingValue.candidateId !== '') {
+        formData.append('candidateId', editingValue.candidateId)
+      }
+      
+      // Call server action to save email
+      const result = await saveEmail(formData)
+      
+      if (result.error) {
+        toast({
+          title: "Error",
+          description: result.error,
+          variant: "destructive",
+        })
+        return
+      }
       
       // Update local state
-      setEmails(
-        emails.map((e) =>
+      setEmails(prevEmails =>
+        prevEmails.map((e) =>
           e.id === id
             ? {
                 ...e,
+                // If this was a new email, update with the database ID
+                id: result.data?.id || e.id,
                 title: editingValue.title,
-                candidate_id: editingValue.candidateId,
+                candidate_id: editingValue.candidateId || null,
                 candidate_name: candidates.find(c => c.id === editingValue.candidateId)?.name || null,
-                template_id: editingValue.templateId,
+                template_id: editingValue.templateId || null,
                 template_name: emailTemplates.find(t => t.id === editingValue.templateId)?.name || null,
                 subject: editingValue.subject,
                 content: editingValue.content,
@@ -147,12 +196,26 @@ export const useEmailManager = ({
   const handleCancel = (id: string) => {
     const email = emails.find(e => e.id === id)
     
-    // Check if this is a new unsaved email with no content
-    if (id.startsWith('new-') && email && !email.content && (!editingValues[id]?.content || editingValues[id]?.content.trim() === '')) {
-      // Remove the new empty email
-      setEmails(emails.filter(e => e.id !== id))
+    // For new emails, check if user has made changes
+    if (id.startsWith('new-') && email) {
+      const hasChanges = 
+        editingValues[id]?.title?.trim() !== email.title ||
+        editingValues[id]?.content?.trim() ||
+        editingValues[id]?.subject?.trim() ||
+        editingValues[id]?.candidateId ||
+        editingValues[id]?.templateId ||
+        editingValues[id]?.customPrompt?.trim()
+      
+      if (hasChanges) {
+        // Show confirmation dialog for new emails with changes
+        setCancelConfirmId(id)
+        return
+      } else {
+        // Remove the new empty email directly
+        setEmails(emails.filter(e => e.id !== id))
+      }
     } else {
-      // Cancel editing without saving
+      // Cancel editing without saving for existing emails
       setEmails(
         emails.map((e) => (e.id === id ? { ...e, isEditing: false, isExpanded: e.isExpanded } : e))
       )
@@ -160,6 +223,49 @@ export const useEmailManager = ({
     
     // Clear editing state
     clearEditingState(id)
+  }
+
+  const confirmCancel = () => {
+    if (!cancelConfirmId) return
+    
+    // Remove the new email completely
+    setEmails(emails.filter(e => e.id !== cancelConfirmId))
+    
+    // Clear editing state
+    clearEditingState(cancelConfirmId)
+    
+    // Clear from sessionStorage completely - remove both the email and its editing values
+    if (typeof window !== 'undefined' && jobData?.id) {
+      const storageKey = `email-builder-unsaved-${jobData.id}`
+      const stored = sessionStorage.getItem(storageKey)
+      if (stored) {
+        try {
+          const parsedData = JSON.parse(stored)
+          const updatedEmails = parsedData.emails?.filter((e: Email) => e.id !== cancelConfirmId) || []
+          
+          // Also remove from editing values
+          const updatedEditingValues = { ...parsedData.editingValues }
+          delete updatedEditingValues[cancelConfirmId]
+          
+          if (updatedEmails.length === 0 && Object.keys(updatedEditingValues).length === 0) {
+            // If no emails left, remove the entire storage entry
+            sessionStorage.removeItem(storageKey)
+          } else {
+            // Update with filtered data
+            sessionStorage.setItem(storageKey, JSON.stringify({
+              emails: updatedEmails,
+              editingValues: updatedEditingValues
+            }))
+          }
+        } catch (error) {
+          console.error('Error updating sessionStorage:', error)
+          // Fallback: clear the entire storage for this job
+          sessionStorage.removeItem(storageKey)
+        }
+      }
+    }
+    
+    setCancelConfirmId(null)
   }
 
   const handleDelete = (id: string) => {
@@ -172,9 +278,21 @@ export const useEmailManager = ({
     setIsDeleting({ ...isDeleting, [deleteConfirmId]: true })
     
     try {
-      // TODO: Call API to delete from database if not a new email
-      console.log("Deleting email:", deleteConfirmId)
+      // If it's not a new email (has been saved to database), delete from database
+      if (!deleteConfirmId.startsWith('new-')) {
+        const result = await deleteEmail(deleteConfirmId)
+        
+        if (result.error) {
+          toast({
+            title: "Error",
+            description: result.error,
+            variant: "destructive",
+          })
+          return
+        }
+      }
       
+      // Remove from local state
       setEmails(emails.filter((e) => e.id !== deleteConfirmId))
       
       // Clear editing state
@@ -215,58 +333,106 @@ export const useEmailManager = ({
     }
   }
 
-  const initializeEmails = (
+  const initializeEmails = async (
     savedUnsavedEmails: Email[], 
     savedExpandedStates: { [key: string]: boolean }, 
     savedEditingValues: EditingValues
   ) => {
-    // Mock some existing emails for demonstration
-    const mockExistingEmails = getMockExistingEmails(jobData)
+    if (!jobData?.id) return
     
-    // Initialize with existing emails with state
-    const emailsWithState = mockExistingEmails.map(email => ({
-      ...email,
-      isExpanded: savedExpandedStates[email.id] ?? false,
-      isEditing: false
-    }))
-    
-    // Add saved unsaved emails
-    const allEmails = [...savedUnsavedEmails, ...emailsWithState]
-    setEmails(allEmails)
-    
-    // Restore editing values
-    if (Object.keys(savedEditingValues).length > 0) {
-      setEditingValues(savedEditingValues)
-      setUnsavedChanges(new Set(Object.keys(savedEditingValues)))
+    try {
+      // Load saved emails from database
+      const result = await loadSavedEmails(jobData.id)
+      
+      let savedEmails: Email[] = []
+      if (result.success && result.data) {
+        savedEmails = result.data.map((dbEmail: JobEmailBuilderWithRelations) => ({
+          id: dbEmail.id,
+          job_id: dbEmail.job_id,
+          title: dbEmail.title,
+          type: dbEmail.type as 'candidate' | 'client',
+          candidate_id: dbEmail.candidate_id || null,
+          candidate_name: dbEmail.candidates?.first_name && dbEmail.candidates?.last_name 
+            ? `${dbEmail.candidates.first_name} ${dbEmail.candidates.last_name}` 
+            : null,
+          template_id: dbEmail.template || null,
+          template_name: dbEmail.email_builder_templates?.display_name || null,
+          subject: dbEmail.subject || dbEmail.body.split('\n\n')[0].replace('Subject: ', ''),
+          content: dbEmail.subject ? dbEmail.body : dbEmail.body.split('\n\n').slice(1).join('\n\n'),
+          created_at: dbEmail.created_at,
+          updated_at: dbEmail.updated_at,
+          isExpanded: savedExpandedStates[dbEmail.id] ?? false,
+          isEditing: false
+        }))
+      }
+      
+      // Add saved unsaved emails (new emails not yet saved to DB)
+      const allEmails = [...savedUnsavedEmails, ...savedEmails]
+      setEmails(allEmails)
+      
+      // Restore editing values
+      if (Object.keys(savedEditingValues).length > 0) {
+        setEditingValues(savedEditingValues)
+        setUnsavedChanges(new Set(Object.keys(savedEditingValues)))
+      }
+    } catch (error) {
+      console.error('Error loading saved emails:', error)
+      toast({
+        title: "Error",
+        description: "Failed to load saved emails.",
+        variant: "destructive",
+      })
+      
+      // Fallback to just unsaved emails
+      setEmails(savedUnsavedEmails)
+      if (Object.keys(savedEditingValues).length > 0) {
+        setEditingValues(savedEditingValues)
+        setUnsavedChanges(new Set(Object.keys(savedEditingValues)))
+      }
     }
   }
 
-  // Update emails when external props change, but preserve expanded state and new emails
+  // Reload emails when jobData changes
   useEffect(() => {
-    if (!mounted) return
+    if (!mounted || !jobData?.id) return
     
-    setEmails(prev => {
-      // Create a map of current expanded states
-      const expandedStates = new Map(prev.map(email => [email.id, email.isExpanded]))
-      const editingStates = new Map(prev.map(email => [email.id, email.isEditing]))
-      
-      // Keep all new emails that haven't been saved yet
-      const unsavedNewEmails = prev.filter(email => email.id.startsWith('new-'))
-      
-      // Mock existing emails (in real implementation, this would come from props)
-      const mockExistingEmails = getMockExistingEmails(jobData)
-      
-      // Map existing emails with preserved states
-      const updatedExistingEmails = mockExistingEmails.map(email => ({
-        ...email,
-        isExpanded: expandedStates.get(email.id) ?? false,
-        isEditing: editingStates.get(email.id) ?? false
-      }))
-      
-      // Combine unsaved new emails with updated existing ones
-      return [...unsavedNewEmails, ...updatedExistingEmails]
-    })
-  }, [jobData, mounted])
+    const reloadEmails = async () => {
+      try {
+        const result = await loadSavedEmails(jobData.id)
+        
+        if (result.success && result.data) {
+          const savedEmails: Email[] = result.data.map((dbEmail: JobEmailBuilderWithRelations) => ({
+            id: dbEmail.id,
+            job_id: dbEmail.job_id,
+            title: dbEmail.title,
+            type: dbEmail.type as 'candidate' | 'client',
+            candidate_id: dbEmail.candidate_id || null,
+            candidate_name: dbEmail.candidates?.first_name && dbEmail.candidates?.last_name 
+              ? `${dbEmail.candidates.first_name} ${dbEmail.candidates.last_name}` 
+              : null,
+            template_id: dbEmail.template || null,
+            template_name: dbEmail.email_builder_templates?.display_name || null,
+            subject: dbEmail.subject || dbEmail.body.split('\n\n')[0].replace('Subject: ', ''),
+            content: dbEmail.subject ? dbEmail.body : dbEmail.body.split('\n\n').slice(1).join('\n\n'),
+            created_at: dbEmail.created_at,
+            updated_at: dbEmail.updated_at,
+            isExpanded: false,
+            isEditing: false
+          }))
+          
+          setEmails(prev => {
+            // Keep unsaved new emails and combine with loaded emails
+            const unsavedNewEmails = prev.filter(email => email.id.startsWith('new-'))
+            return [...unsavedNewEmails, ...savedEmails]
+          })
+        }
+      } catch (error) {
+        console.error('Error reloading emails:', error)
+      }
+    }
+    
+    reloadEmails()
+  }, [jobData?.id, mounted])
 
   return {
     emails,
@@ -276,10 +442,13 @@ export const useEmailManager = ({
     isDeleting,
     deleteConfirmId,
     setDeleteConfirmId,
+    cancelConfirmId,
+    setCancelConfirmId,
     handleNewEmail,
     handleToggleExpand,
     handleSave,
     handleCancel,
+    confirmCancel,
     handleDelete,
     confirmDelete,
     handleCopyToClipboard,

@@ -8,6 +8,7 @@ export interface EmailTemplate {
   id: string
   name: string
   description: string
+  templateName?: string // The actual template name from database (e.g., 'custom_candidate')
 }
 
 export interface Email {
@@ -99,6 +100,7 @@ export interface EmailActionButtonsProps {
   isGenerating: boolean
   isSaving: boolean
   isDeleting: boolean
+  emailTemplates: EmailTemplate[]
   onEdit: (id: string) => void
   onSave: (id: string) => void
   onCancel: (id: string) => void

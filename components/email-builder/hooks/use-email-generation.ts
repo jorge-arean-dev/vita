@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import { useToast } from '@/components/ui/use-toast'
-import { Email, EditingValues, Candidate, EmailTemplate, JobData } from '../types/email-builder.types'
-import { generateMockEmailContent, generateMockClientEmailContent } from '../utils/email-builder.utils'
+import { Email, EditingValues, EmailTemplate, JobData } from '../types/email-builder.types'
+import { generateEmail } from '@/app/actions/email-builder'
 
 interface UseEmailGenerationProps {
-  candidates: Candidate[]
   candidateEmailTemplates: EmailTemplate[]
   clientEmailTemplates: EmailTemplate[]
   jobData: JobData | null | undefined
@@ -21,7 +20,6 @@ interface UseEmailGenerationReturn {
 }
 
 export const useEmailGeneration = ({
-  candidates,
   candidateEmailTemplates,
   clientEmailTemplates,
   jobData
@@ -30,6 +28,13 @@ export const useEmailGeneration = ({
   const [showGenerateAlert, setShowGenerateAlert] = useState<{ [key: string]: boolean }>({})
   const [overwriteConfirmId, setOverwriteConfirmId] = useState<string | null>(null)
   const { toast } = useToast()
+
+  // Helper function to check if a template is custom
+  const isCustomTemplate = (templateId: string) => {
+    const allTemplates = [...candidateEmailTemplates, ...clientEmailTemplates]
+    const template = allTemplates.find(t => t.id === templateId)
+    return template?.templateName === 'custom_candidate' || template?.templateName === 'custom_client'
+  }
 
   const handleGenerate = async (
     id: string, 
@@ -49,7 +54,7 @@ export const useEmailGeneration = ({
     }
     
     // If custom prompt is selected, ensure the custom prompt is not empty
-    if (editingValue.templateId === 'custom-prompt' && !editingValue.customPrompt?.trim()) {
+    if (isCustomTemplate(editingValue.templateId) && !editingValue.customPrompt?.trim()) {
       toast({
         title: "Error",
         description: "Please enter a custom prompt for AI generation.",
@@ -83,52 +88,45 @@ export const useEmailGeneration = ({
     
     try {
       const editingValue = editingValues[id]
-      if (!editingValue) return
+      if (!editingValue || !jobData?.id) return
       
-      // TODO: Implement API call to generate email
-      console.log("Generating email:", { 
-        emailId: id, 
-        candidateId: editingValue.candidateId, 
-        templateId: editingValue.templateId,
-        customPrompt: editingValue.customPrompt,
-        jobData 
-      })
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      // Check if this is a client email by looking at which templates are being used
+      // Determine email type based on which templates are being used
       const isClientEmail = clientEmailTemplates.some(t => t.id === editingValue.templateId)
+      const emailType = isClientEmail ? 'client' : 'candidate'
       
-      let subject: string
-      let content: string
+      // Create form data for server action
+      const formData = new FormData()
+      formData.append('jobId', jobData.id)
+      formData.append('emailType', emailType)
+      formData.append('templateId', editingValue.templateId)
       
-      if (isClientEmail) {
-        // Generate client email content
-        content = generateMockClientEmailContent(
-          editingValue.templateId,
-          editingValue.candidateId,
-          candidates,
-          clientEmailTemplates,
-          jobData,
-          editingValue.customPrompt
-        )
-        // Extract subject from content (first line)
-        const lines = content.split('\n')
-        subject = lines[0].replace('Subject: ', '')
-        content = lines.slice(2).join('\n') // Remove subject line from content
-      } else {
-        // Generate candidate email content
-        const result = generateMockEmailContent(
-          editingValue.templateId,
-          editingValue.candidateId,
-          editingValue.customPrompt,
-          candidates,
-          candidateEmailTemplates,
-          jobData
-        )
-        subject = result.subject
-        content = result.content
+      if (editingValue.candidateId && editingValue.candidateId !== '') {
+        formData.append('candidateId', editingValue.candidateId)
+      }
+      
+      if (editingValue.customPrompt) {
+        formData.append('customPrompt', editingValue.customPrompt)
+      }
+      
+      // Call the server action
+      const result = await generateEmail(formData)
+      
+      if (result.error) {
+        toast({
+          title: "Error",
+          description: result.error,
+          variant: "destructive",
+        })
+        return
+      }
+      
+      if (!result.data) {
+        toast({
+          title: "Error",
+          description: "No email content received from the server.",
+          variant: "destructive",
+        })
+        return
       }
       
       // Update the email with generated content
@@ -136,8 +134,8 @@ export const useEmailGeneration = ({
         ...editingValues,
         [id]: {
           ...editingValue,
-          subject,
-          content
+          subject: result.data.subject,
+          content: result.data.body
         }
       })
       
@@ -164,19 +162,35 @@ export const useEmailGeneration = ({
   }
 
   const generateClientEmail = async (candidateId: string, templateId: string): Promise<string> => {
-    // TODO: Implement API call to generate client email
-    console.log("Generating client email:", { candidateId, templateId, jobData })
+    if (!jobData?.id) {
+      throw new Error('Job data is required for email generation')
+    }
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    return generateMockClientEmailContent(
-      templateId,
-      candidateId,
-      candidates,
-      clientEmailTemplates,
-      jobData
-    )
+    try {
+      // Create form data for server action
+      const formData = new FormData()
+      formData.append('jobId', jobData.id)
+      formData.append('emailType', 'client')
+      formData.append('templateId', templateId)
+      formData.append('candidateId', candidateId)
+      
+      // Call the server action
+      const result = await generateEmail(formData)
+      
+      if (result.error) {
+        throw new Error(result.error)
+      }
+      
+      if (!result.data) {
+        throw new Error('No email content received from the server')
+      }
+      
+      // Return combined subject and body for compatibility
+      return `Subject: ${result.data.subject}\n\n${result.data.body}`
+    } catch (error) {
+      console.error('Error generating client email:', error)
+      throw error
+    }
   }
 
   return {

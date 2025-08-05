@@ -48,18 +48,63 @@ export const useEmailPersistence = ({
         }
       }
       
-      // Restore unsaved emails
+      // Restore unsaved emails with validation
       if (unsavedEmailsKey) {
         try {
           const savedUnsaved = sessionStorage.getItem(unsavedEmailsKey)
           if (savedUnsaved) {
             const parsed = JSON.parse(savedUnsaved)
-            savedUnsavedEmails = parsed.emails || []
-            savedEditingValues = parsed.editingValues || {}
-            console.log('Restored unsaved emails:', savedUnsavedEmails.length, 'emails')
+            const emails = parsed.emails || []
+            const editingValues = parsed.editingValues || {}
+            
+            // Only restore emails that have actual content or are being actively edited
+            const validEmails = emails.filter((email: Email) => {
+              const hasContent = email.content?.trim() || email.subject?.trim()
+              const hasEditingValues = editingValues[email.id] && (
+                editingValues[email.id].content?.trim() ||
+                editingValues[email.id].subject?.trim() ||
+                editingValues[email.id].templateId ||
+                editingValues[email.id].candidateId ||
+                editingValues[email.id].customPrompt?.trim()
+              )
+              
+              return hasContent || hasEditingValues
+            })
+            
+            // Only restore editing values for emails that are being restored
+            const validEmailIds = new Set(validEmails.map((e: Email) => e.id))
+            const validEditingValues: EditingValues = {}
+            Object.keys(editingValues).forEach(id => {
+              if (validEmailIds.has(id)) {
+                validEditingValues[id] = editingValues[id]
+              }
+            })
+            
+            savedUnsavedEmails = validEmails
+            savedEditingValues = validEditingValues
+            
+            console.log('Restored unsaved emails:', savedUnsavedEmails.length, 'emails (filtered from', emails.length, 'stored)')
+            
+            // If we filtered out emails, update the storage to reflect the clean state
+            if (validEmails.length !== emails.length || Object.keys(validEditingValues).length !== Object.keys(editingValues).length) {
+              if (validEmails.length === 0 && Object.keys(validEditingValues).length === 0) {
+                sessionStorage.removeItem(unsavedEmailsKey)
+                console.log('Cleared empty storage')
+              } else {
+                sessionStorage.setItem(unsavedEmailsKey, JSON.stringify({
+                  emails: validEmails,
+                  editingValues: validEditingValues
+                }))
+                console.log('Updated storage with filtered emails')
+              }
+            }
           }
         } catch (e) {
           console.error('Error loading unsaved emails:', e)
+          // Clear corrupted storage
+          if (unsavedEmailsKey) {
+            sessionStorage.removeItem(unsavedEmailsKey)
+          }
         }
       }
     }

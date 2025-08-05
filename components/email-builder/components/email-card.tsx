@@ -69,6 +69,7 @@ export function EmailCard({
               isGenerating={isGenerating}
               isSaving={isSaving}
               isDeleting={isDeleting}
+              emailTemplates={emailTemplates}
               onEdit={onEdit}
               onSave={onSave}
               onCancel={onCancel}
