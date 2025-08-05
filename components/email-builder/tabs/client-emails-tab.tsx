@@ -27,6 +27,7 @@ export function ClientEmailsTab({ jobData, candidates, emailTemplates }: ClientE
   // Initialize editing hooks
   const {
     editingValues,
+    originalValues,
     unsavedChanges,
     setEditingValues,
     setUnsavedChanges,
@@ -34,7 +35,8 @@ export function ClientEmailsTab({ jobData, candidates, emailTemplates }: ClientE
     handleEditingTitleChange,
     handleEditingFieldChange,
     clearEditingState,
-    initializeEditingValues
+    initializeEditingValues,
+    hasChanges
   } = useEmailEditing()
 
   // Initialize email management hooks
@@ -178,6 +180,7 @@ export function ClientEmailsTab({ jobData, candidates, emailTemplates }: ClientE
               showGenerateAlert={showGenerateAlert[email.id] || false}
               candidates={candidates}
               emailTemplates={emailTemplates}  // Using client templates
+              hasChanges={hasChanges}
               onToggleExpand={handleToggleExpand}
               onEdit={handleEmailEdit}
               onSave={handleSave}

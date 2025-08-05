@@ -15,6 +15,7 @@ export function EmailActionButtons({
   isSaving,
   isDeleting,
   emailTemplates,
+  hasChanges,
   onEdit,
   onSave,
   onCancel,
@@ -82,7 +83,8 @@ export function EmailActionButtons({
             isSaving || 
             isGenerating ||
             !editingValues[email.id]?.title?.trim() ||
-            !editingValues[email.id]?.templateId
+            !editingValues[email.id]?.templateId ||
+            !hasChanges(email.id)
           }
         >
           {isSaving ? (

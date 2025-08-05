@@ -60,6 +60,7 @@ export interface EmailCardProps {
   showGenerateAlert: boolean
   candidates: Candidate[]
   emailTemplates: EmailTemplate[]
+  hasChanges: (id: string) => boolean
   onToggleExpand: (id: string) => void
   onEdit: (id: string) => void
   onSave: (id: string) => void
@@ -101,6 +102,7 @@ export interface EmailActionButtonsProps {
   isSaving: boolean
   isDeleting: boolean
   emailTemplates: EmailTemplate[]
+  hasChanges: (id: string) => boolean
   onEdit: (id: string) => void
   onSave: (id: string) => void
   onCancel: (id: string) => void

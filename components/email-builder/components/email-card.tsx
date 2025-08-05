@@ -16,6 +16,7 @@ export function EmailCard({
   showGenerateAlert,
   candidates,
   emailTemplates,
+  hasChanges,
   onToggleExpand,
   onEdit,
   onSave,
@@ -70,6 +71,7 @@ export function EmailCard({
               isSaving={isSaving}
               isDeleting={isDeleting}
               emailTemplates={emailTemplates}
+              hasChanges={hasChanges}
               onEdit={onEdit}
               onSave={onSave}
               onCancel={onCancel}
