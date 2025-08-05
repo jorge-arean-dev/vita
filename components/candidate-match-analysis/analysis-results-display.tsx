@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Info } from "lucide-react"
 import { CircularProgress } from "./circular-progress"
+import { RequirementAnalysisBadge } from "./requirement-analysis-badge"
 import { getAnalysisData, getStatusBadge, getProgressBarColor, getBannerColor, scrollToRequirement } from "./utils"
 import { MatchAnalysis, ExistingMatchAnalysis } from "./types"
 
@@ -66,38 +67,17 @@ export function AnalysisResultsDisplay({ analysis, candidateName, isNewCandidate
           </div>
 
           {/* Element 2: Requirement Analysis */}
-          <div className="flex flex-col space-y-6 lg:w-1/2">
+          <div className="flex flex-col space-y-4 lg:w-1/2">
             <h2 className="text-2xl font-bold">Requirement Analysis</h2>
-            <div className="space-y-6">
+            <div className="flex flex-wrap gap-2">
               {data.requirement_evaluations.map((req) => (
-                <div
+                <RequirementAnalysisBadge
                   key={req.requirement_name}
-                  className="space-y-2 transition-all duration-500 opacity-100 translate-x-0"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm font-medium">{req.requirement_name}</span>
-                      <button
-                        onClick={() => scrollToRequirement(req.requirement_name)}
-                        className="p-1 rounded-sm hover:bg-muted/50 transition-colors opacity-60 hover:opacity-100"
-                        title="View detailed evaluation"
-                      >
-                        <Info className="h-3 w-3" />
-                      </button>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      {getStatusBadge(req.score)}
-                    </div>
-                  </div>
-                  <div className="relative">
-                    <div className="w-full bg-muted rounded-full h-2">
-                      <div
-                        className={`h-2 rounded-full transition-all duration-1000 ease-out ${getProgressBarColor(req.score)}`}
-                        style={{ width: `${req.score}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
+                  name={req.requirement_name}
+                  score={req.score}
+                  status={req.status}
+                  onClick={() => scrollToRequirement(req.requirement_name)}
+                />
               ))}
             </div>
           </div>
