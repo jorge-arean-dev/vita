@@ -3,7 +3,7 @@ import Link from "next/link"
 
 export default function LandingFooter() {
   return (
-    <footer className="w-full border-t bg-white">
+    <footer className="w-full border-t backdrop-blur-sm bg-white/80">
       <div className="max-w-5xl mx-auto px-5 py-8">
         {/* Desktop Layout - Three columns */}
         <div className="hidden md:flex items-center justify-between">

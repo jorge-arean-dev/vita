@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 
 export default function LandingHeader() {
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white">
+    <header className="sticky top-0 z-50 w-full border-b backdrop-blur-sm bg-white/80">
       <div className="flex h-16 items-center justify-between w-full max-w-5xl mx-auto px-5">
         {/* Logo */}
         <Link href="/landing-v1" className="flex items-center space-x-2">
@@ -55,7 +55,7 @@ export default function LandingHeader() {
       </div>
 
       {/* Mobile Navigation Menu (hidden by default) */}
-      <div className="md:hidden border-t bg-white hidden">
+      <div className="md:hidden border-t backdrop-blur-sm bg-white/90 hidden">
         <nav className="flex flex-col space-y-1 p-4">
           <Link href="#" className="py-2 text-sm font-medium text-gray-700">About</Link>
           <Link href="#" className="py-2 text-sm font-medium text-gray-700">How</Link>
