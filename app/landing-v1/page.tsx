@@ -1,8 +1,13 @@
+"use client"
+
+import { useState } from "react"
 import LandingHeader from "@/components/landing-v1/landing-header"
 import LandingHero from "@/components/landing-v1/landing-hero"
 import LandingFooter from "@/components/landing-v1/landing-footer"
 
 export default function LandingPageV1() {
+  const [isAboutOpen, setIsAboutOpen] = useState(false)
+
   return (
     <main className="relative min-h-screen flex flex-col">
       {/* Fullscreen Video Background */}
@@ -21,8 +26,12 @@ export default function LandingPageV1() {
       
       {/* Content Overlay */}
       <div className="relative z-10 min-h-screen flex flex-col">
-        <LandingHeader />
-        <div className="flex-1 flex items-center justify-center">
+        <LandingHeader isAboutOpen={isAboutOpen} setIsAboutOpen={setIsAboutOpen} />
+        <div 
+          className={`flex-1 flex items-center justify-center transition-opacity duration-500 ease-in-out ${
+            isAboutOpen ? 'opacity-0' : 'opacity-100'
+          }`}
+        >
           <div className="max-w-5xl mx-auto px-5 w-full">
             <LandingHero />
           </div>

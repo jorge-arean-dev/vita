@@ -26,18 +26,19 @@
 ---
 
 ## ⚙️ How It Works (`#how`)
+
 ### Step 1: Create a Job
-> Capture job requirements from client calls or notes. Vita structures the info automatically and generates a professional job description with one click. You’ll also get a tailored Boolean search and role-specific interview questions—ready to go.
+> Start by capturing job requirements using free-form notes or structured fields. Vita extracts key attributes using AI and instantly generates a complete, professional job description. You also get Boolean search strings and interview questions tailored to the role—automatically.
 
 ### Step 2: Source Candidates
-> Use the AI-powered LinkedIn Query Builder to find matching profiles fast. Whether you're using LinkedIn, resumes, or referrals, Vita helps you streamline candidate discovery.
+> Use the LinkedIn Query Builder to generate precise Boolean search strings based on the job’s skills, experience level, and location. Then analyze candidate resumes or LinkedIn URLs through the Candidate Match Analysis tool, which scores fit, highlights skill gaps, and tracks all evaluations in one place.
 
-### Step 3: Analyze & Decide
-> Upload a resume or share a LinkedIn URL—Vita evaluates each candidate against the job requirements, scores them, and gives you strategic insights. You can also use our email builder to reach out or generate client-ready candidate presentations in seconds.
-
+### Step 3: Interview & Decide
+> With Companion Mode, Vita can join interviews (live or post-interview) to support recruiters—even for highly technical or niche roles. It provides real-time guidance, tailored questions, and post-interview performance analysis to help recruiters make confident, data-informed decisions—even if they’re not domain experts.
+> Final steps? Use the Email Builder to follow up with candidates, and the Client Presentation Tool to summarize and share the best matches professionally.
 ---
 
-## 🧩 Plans Section (`#plans`)
+## 🧩 Plans (`#plans`)
 ### Core Version – Everything You Need to Get Started
 > Access the full suite of AI-powered tools: job description builder, Boolean search generator, resume and LinkedIn analysis, email templates, interview companion, and more. Designed to work out of the box for modern recruiters.
 
@@ -63,6 +64,6 @@
 ---
 
 ## ⚫ Footer
+- Logo
 - Short slogan: _“Built to make recruiting smarter.”_
 - Links: Privacy Policy, Contact
-- Optional: Social icons
