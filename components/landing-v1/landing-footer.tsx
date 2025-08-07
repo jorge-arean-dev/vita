@@ -3,35 +3,35 @@ import Link from "next/link"
 
 export default function LandingFooter() {
   return (
-    <footer className="w-full border-t backdrop-blur-sm bg-white/80">
+    <footer className="w-full border-t border-gray-800/30 backdrop-blur-sm bg-black/85">
       <div className="max-w-5xl mx-auto px-5 py-8">
         {/* Desktop Layout - Three columns */}
         <div className="hidden md:flex items-center justify-between">
           {/* Logo - Left */}
           <div className="flex items-center space-x-2">
             <Image 
-              src="/logo/vita-logo-light.svg" 
+              src="/logo/vita-logo-dark.svg" 
               alt="Vita Logo" 
               width={32} 
               height={32} 
               className="h-8 w-8"
             />
-            <span className="text-xl font-bold">Vita</span>
+            <span className="text-xl font-bold text-white">Vita</span>
           </div>
 
           {/* Slogan - Center */}
           <div className="text-center">
-            <p className="text-sm text-gray-600 italic">
+            <p className="text-sm text-gray-300 italic">
               Built to make recruiting smarter.
             </p>
           </div>
 
           {/* Links - Right */}
           <div className="flex items-center space-x-6">
-            <Link href="#" className="text-sm text-gray-600 hover:text-gray-900">
+            <Link href="#" className="text-sm text-gray-300 hover:text-white transition-colors">
               Privacy Policy
             </Link>
-            <Link href="#" className="text-sm text-gray-600 hover:text-gray-900">
+            <Link href="#" className="text-sm text-gray-300 hover:text-white transition-colors">
               Contact
             </Link>
           </div>
@@ -42,26 +42,26 @@ export default function LandingFooter() {
           {/* Logo */}
           <div className="flex items-center space-x-2">
             <Image 
-              src="/logo/vita-logo-light.svg" 
+              src="/logo/vita-logo-dark.svg" 
               alt="Vita Logo" 
               width={32} 
               height={32} 
               className="h-8 w-8"
             />
-            <span className="text-xl font-bold">Vita</span>
+            <span className="text-xl font-bold text-white">Vita</span>
           </div>
 
           {/* Slogan */}
-          <p className="text-sm text-gray-600 italic">
+          <p className="text-sm text-gray-300 italic">
             Built to make recruiting smarter.
           </p>
 
           {/* Links */}
           <div className="flex items-center space-x-6">
-            <Link href="#" className="text-sm text-gray-600 hover:text-gray-900">
+            <Link href="#" className="text-sm text-gray-300 hover:text-white transition-colors">
               Privacy Policy
             </Link>
-            <Link href="#" className="text-sm text-gray-600 hover:text-gray-900">
+            <Link href="#" className="text-sm text-gray-300 hover:text-white transition-colors">
               Contact
             </Link>
           </div>
