@@ -29,7 +29,7 @@ export default function LandingHero({ onJoinWaitlist }: LandingHeroProps) {
           >
             Join Waitlist
           </Button>
-          <Link href="#">
+          <Link href="https://calendar.app.google/PZab9EFZmHffd7Ya8" target="_blank" rel="noopener noreferrer">
             <Button
               variant="outline"
               size="lg"

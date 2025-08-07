@@ -17,7 +17,11 @@ import {
   Calendar
 } from "lucide-react"
 
-export default function PlansSection() {
+interface PlansSectionProps {
+  onJoinWaitlist?: (source: "vita_core" | "vita_custom") => void
+}
+
+export default function PlansSection({ onJoinWaitlist }: PlansSectionProps) {
   return (
     <div className="max-w-5xl mx-auto px-5 w-full">
       <div className="bg-white/50 backdrop-blur-lg border border-gray-300/30 rounded-lg shadow-2xl p-8">
@@ -74,6 +78,7 @@ export default function PlansSection() {
                   <Button 
                     className="w-full bg-black hover:bg-gray-800 text-white"
                     size="lg"
+                    onClick={() => onJoinWaitlist?.("vita_core")}
                   >
                     I want to know more
                   </Button>
@@ -121,7 +126,9 @@ export default function PlansSection() {
                 <div className="pt-6">
                   <Button 
                     className="w-full bg-black hover:bg-gray-800 text-white"
-                    size="lg">
+                    size="lg"
+                    onClick={() => onJoinWaitlist?.("vita_custom")}
+                  >
                     This is the right fit for me!
                   </Button>
                 </div>

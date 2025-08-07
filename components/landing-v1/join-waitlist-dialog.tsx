@@ -32,21 +32,20 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Check, ChevronsUpDown } from "lucide-react"
+import { Check, ChevronsUpDown, SearchIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useToast } from "@/components/ui/use-toast"
+import { submitWaitlistForm, type WaitlistFormData } from "@/app/actions/waitlist"
+import { createClient } from "@/lib/supabase/client"
+import { useEffect } from "react"
 
 interface JoinWaitlistDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  triggerSource?: "join_waitlist" | "vita_core" | "vita_custom"
 }
 
-const countries = [
-  "United States", "Canada", "United Kingdom", "Germany", "France", 
-  "Spain", "Italy", "Netherlands", "Sweden", "Denmark", "Norway",
-  "Australia", "New Zealand", "Japan", "Singapore", "India",
-  "Brazil", "Mexico", "Argentina", "Chile", "Colombia"
-]
+// Countries will be loaded from database
 
 const roles = [
   "Talent Acquisition Specialist",
@@ -84,17 +83,14 @@ const hiringTools = [
   "Greenhouse",
   "Lever",
   "Workable",
-  "Ashby",
+  "Airtable",
   "Google Sheets",
   "Notion",
-  "Gem",
-  "SmartRecruiters",
+  "Manatal",
   "JazzHR",
   "Recruitee",
-  "Airtable",
-  "ChatGPT or other AI tools",
-  "I don't use any tools",
-  "Other"
+  "Other",
+  "I don't use any tools" 
 ]
 
 const aiTools = [
@@ -106,7 +102,7 @@ const aiTools = [
   "I don't use any AI tools"
 ]
 
-export function JoinWaitlistDialog({ open, onOpenChange }: JoinWaitlistDialogProps) {
+export function JoinWaitlistDialog({ open, onOpenChange, triggerSource = "join_waitlist" }: JoinWaitlistDialogProps) {
   const { toast } = useToast()
   const [formData, setFormData] = useState({
     name: "",
@@ -126,8 +122,61 @@ export function JoinWaitlistDialog({ open, onOpenChange }: JoinWaitlistDialogPro
   const [countryOpen, setCountryOpen] = useState(false)
   const [hiringToolsOpen, setHiringToolsOpen] = useState(false)
   const [aiToolsOpen, setAiToolsOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [countries, setCountries] = useState<string[]>([])
+  const [isLoadingCountries, setIsLoadingCountries] = useState(true)
+  const [countrySearch, setCountrySearch] = useState("")
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Load countries from database when dialog opens
+  useEffect(() => {
+    if (!open) return
+    
+    async function loadCountries() {
+      try {
+        const supabase = createClient()
+        const { data, error } = await supabase
+          .from('countries')
+          .select('display_name')
+          .eq('is_active', true)
+          .order('display_name')
+        
+        if (error) {
+          throw error
+        }
+        
+        if (data && data.length > 0) {
+          setCountries(data.map(country => country.display_name))
+        } else {
+          throw new Error('No countries in database')
+        }
+      } catch (error) {
+        console.error('Failed to load countries from database, using fallback:', error)
+        // Fallback to hardcoded list
+        setCountries([
+          "United States", "Canada", "United Kingdom", "Germany", "France", 
+          "Spain", "Italy", "Netherlands", "Sweden", "Denmark", "Norway",
+          "Australia", "New Zealand", "Japan", "Singapore", "India",
+          "Brazil", "Mexico", "Argentina", "Chile", "Colombia"
+        ])
+      } finally {
+        setIsLoadingCountries(false)
+      }
+    }
+    
+    if (countries.length === 0) {
+      loadCountries()
+    } else {
+      setIsLoadingCountries(false)
+    }
+  }, [open, countries.length])
+
+  // Filter countries based on search
+  const filteredCountries = countries.filter(country =>
+    country.toLowerCase().startsWith(countrySearch.toLowerCase())
+  )
+  
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     // Basic validation for all mandatory fields
@@ -177,32 +226,74 @@ export function JoinWaitlistDialog({ open, onOpenChange }: JoinWaitlistDialogPro
       return
     }
 
-    // Success - close dialog with animation and show toast
-    onOpenChange(false)
-    
-    // Show success toast after dialog starts closing
-    setTimeout(() => {
-      toast({
-        title: "Welcome to the Waitlist!",
-        description: "Thank you for your interest. We'll contact you when Vita is ready.",
-      })
-    }, 300)
+    try {
+      setIsSubmitting(true)
 
-    // Reset form
-    setFormData({
-      name: "",
-      email: "",
-      country: "",
-      linkedin: "",
-      role: "",
-      roleOther: "",
-      industry: "",
-      industryOther: "",
-      hiringTools: [],
-      hiringToolsOther: "",
-      aiTools: [],
-      aiToolsOther: ""
-    })
+      // Prepare data for server action
+      const submitData: WaitlistFormData = {
+        name: formData.name,
+        email: formData.email,
+        country: formData.country,
+        linkedin: formData.linkedin,
+        role: formData.role,
+        industry: formData.industry,
+        tools: formData.hiringTools,
+        aiTools: formData.aiTools,
+        triggerSource: triggerSource,
+        roleOther: formData.roleOther,
+        industryOther: formData.industryOther,
+        toolsOther: formData.hiringToolsOther,
+        aiToolsOther: formData.aiToolsOther,
+      }
+
+      // Submit to server
+      const result = await submitWaitlistForm(submitData)
+      
+      if (result.success) {
+        // Success - close dialog with animation and show toast
+        onOpenChange(false)
+        
+        // Reset form
+        setFormData({
+          name: "",
+          email: "",
+          country: "",
+          linkedin: "",
+          role: "",
+          roleOther: "",
+          industry: "",
+          industryOther: "",
+          hiringTools: [],
+          hiringToolsOther: "",
+          aiTools: [],
+          aiToolsOther: ""
+        })
+
+        // Show success toast after dialog starts closing
+        setTimeout(() => {
+          toast({
+            title: "Welcome to the Waitlist!",
+            description: result.message || "Thank you for your interest. We'll contact you when Vita is ready.",
+          })
+        }, 300)
+      } else {
+        // Show error toast
+        toast({
+          title: "Submission Failed",
+          description: result.error || "Something went wrong. Please try again.",
+          variant: "destructive"
+        })
+      }
+    } catch (error) {
+      console.error('Form submission error:', error)
+      toast({
+        title: "Submission Failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleCancel = () => {
@@ -314,24 +405,50 @@ export function JoinWaitlistDialog({ open, onOpenChange }: JoinWaitlistDialogPro
                             role="combobox"
                             aria-expanded={countryOpen}
                             className="w-full justify-between font-normal bg-white/50"
+                            disabled={isLoadingCountries}
                           >
-                            {formData.country || "Select country..."}
+                            {isLoadingCountries 
+                              ? "Loading countries..." 
+                              : (formData.country || "Select country...")
+                            }
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-full p-0">
-                          <Command>
-                            <CommandInput placeholder="Search country..." />
-                            <CommandList>
-                              <CommandEmpty>No country found.</CommandEmpty>
-                              <CommandGroup>
-                                {countries.map((country) => (
-                                  <CommandItem
+                        <PopoverContent className="w-[300px] p-0" align="start">
+                          <div className="flex flex-col max-h-80">
+                            {/* Search Input */}
+                            <div className="flex items-center border-b px-3">
+                              <SearchIcon className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                              <input
+                                type="text"
+                                placeholder="Search country..."
+                                value={countrySearch}
+                                onChange={(e) => setCountrySearch(e.target.value)}
+                                onFocus={(e) => e.target.select()}
+                                autoFocus
+                                className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                              />
+                            </div>
+                            
+                            {/* Countries List */}
+                            <div className="overflow-y-auto">
+                              {isLoadingCountries ? (
+                                <div className="px-2 py-3 text-sm text-muted-foreground">
+                                  Loading countries...
+                                </div>
+                              ) : filteredCountries.length === 0 ? (
+                                <div className="px-2 py-3 text-sm text-muted-foreground">
+                                  No country found.
+                                </div>
+                              ) : (
+                                filteredCountries.map((country) => (
+                                  <div
                                     key={country}
-                                    value={country}
-                                    onSelect={() => {
+                                    className="flex items-center px-2 py-2 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                                    onClick={() => {
                                       setFormData(prev => ({ ...prev, country }))
                                       setCountryOpen(false)
+                                      setCountrySearch("")
                                     }}
                                   >
                                     <Check
@@ -341,11 +458,11 @@ export function JoinWaitlistDialog({ open, onOpenChange }: JoinWaitlistDialogPro
                                       )}
                                     />
                                     {country}
-                                  </CommandItem>
-                                ))}
-                              </CommandGroup>
-                            </CommandList>
-                          </Command>
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                          </div>
                         </PopoverContent>
                       </Popover>
                     </div>
@@ -530,8 +647,9 @@ export function JoinWaitlistDialog({ open, onOpenChange }: JoinWaitlistDialogPro
                   <Button
                     type="submit"
                     className="flex-1 bg-black hover:bg-gray-800 text-white py-2.5"
+                    disabled={isSubmitting}
                   >
-                    Submit
+                    {isSubmitting ? "Submitting..." : "Submit"}
                   </Button>
                   <Button
                     type="button"

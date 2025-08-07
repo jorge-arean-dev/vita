@@ -2,11 +2,11 @@ column,type,description,has explicit allowed values?,do allowed values live in d
 id,uuid,Primary key,no,not applicable,not applicable
 name,text,Form submitter's name,no,not applicable,not applicable
 email,text,Form submitter's email,no,not applicable,not applicable
-country,text,Form submitter's country,yes,yes,countries.display_name
+country,text,Form submitter's country (stores ISO code),yes,yes,countries.iso_code
 linkedin,text,Form submitter's linkedin profile,no,not applicable,not applicable
 role,text,Form submitter's role,no,not applicable,not applicable
 industry,text,Form submitter's industry,no,not applicable,not applicable
 tools,jsonb,Form submitter's preferred hiring tools,no,not applicable,not applicable
 ai_tools,jsonb,Form submitter's preferred ai tools,no,not applicable,not applicable
-trigger_source,text,what button the user clicked for filling the form,yes,not applicable,"join, vita_core, vita_custom"
+trigger_source,text,what button the user clicked for filling the form,yes,not applicable,"join_waitlist, vita_core, vita_custom"
 created_at,timestampz,date when the form was completed,no,not applicable,not applicable
