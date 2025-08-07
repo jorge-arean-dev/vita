@@ -6,13 +6,14 @@ export default function LandingHero() {
     <section className="flex items-center justify-center px-4 py-6">
       <div className="max-w-4xl mx-auto text-center space-y-6">
         {/* Main Heading */}
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-          Streamline recruiting with Vita
+        <h1 className="text-4xl md:text-5xl lg:text-6xl text-gray-900 leading-tight">
+          <span className="font-normal">Streamline recruiting with </span>
+          <span className="font-bold">Vita</span>
         </h1>
 
         {/* Description */}
         <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-          Your toolkit to manage and automate every step of the recruitment process, from job creation to candidate submission.
+          Your AI toolkit to optimize every step of the recruitment process, from job creation to candidate submission.
         </p>
 
         {/* CTA Buttons */}

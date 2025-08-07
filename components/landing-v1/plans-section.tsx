@@ -36,17 +36,11 @@ export default function PlansSection() {
             <Card className="border-gray-200 hover:shadow-xl transition-shadow relative bg-white/70">
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-gray-100 rounded-lg">
+                  <div className="p-1 bg-gray-100 rounded-lg">
                     <Package className="h-6 w-6 text-gray-600" />
                   </div>
-                  <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                    STANDARD
-                  </span>
                 </div>
-                <CardTitle className="text-2xl mb-2">Core Version</CardTitle>
-                <CardDescription className="text-lg text-gray-700 font-medium">
-                  Everything You Need to Get Started
-                </CardDescription>
+                <CardTitle className="text-2xl">Core</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-gray-600">
@@ -56,23 +50,23 @@ export default function PlansSection() {
                 <div className="space-y-3 pt-4 border-t">
                   <div className="flex items-start space-x-3">
                     <CheckCircle className="h-5 w-5 text-gray-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-gray-600 text-sm">AI-powered job description builder</span>
+                    <span className="text-gray-600 text-sm">Job description builder</span>
                   </div>
                   <div className="flex items-start space-x-3">
                     <CheckCircle className="h-5 w-5 text-gray-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-gray-600 text-sm">Boolean search generator</span>
+                    <span className="text-gray-600 text-sm">Boolean queries generator</span>
                   </div>
                   <div className="flex items-start space-x-3">
                     <CheckCircle className="h-5 w-5 text-gray-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-gray-600 text-sm">Resume and LinkedIn analysis</span>
+                    <span className="text-gray-600 text-sm">Resume analysis</span>
                   </div>
                   <div className="flex items-start space-x-3">
                     <CheckCircle className="h-5 w-5 text-gray-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-gray-600 text-sm">Email templates and builder</span>
+                    <span className="text-gray-600 text-sm">Candidate match analysis</span>
                   </div>
                   <div className="flex items-start space-x-3">
                     <CheckCircle className="h-5 w-5 text-gray-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-gray-600 text-sm">Interview companion mode</span>
+                    <span className="text-gray-600 text-sm">Interview companion mode and much more</span>
                   </div>
                 </div>
 
@@ -81,7 +75,7 @@ export default function PlansSection() {
                     className="w-full bg-black hover:bg-gray-800 text-white"
                     size="lg"
                   >
-                    Get Started
+                    I want to know more
                   </Button>
                 </div>
               </CardContent>
@@ -91,17 +85,11 @@ export default function PlansSection() {
             <Card className="border-gray-200 hover:shadow-xl transition-shadow relative bg-white/70">
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-gray-100 rounded-lg">
+                  <div className="p-1 bg-gray-100 rounded-lg">
                     <Sparkles className="h-6 w-6 text-gray-600" />
                   </div>
-                  <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                    ENTERPRISE
-                  </span>
                 </div>
-                <CardTitle className="text-2xl mb-2">Custom Version</CardTitle>
-                <CardDescription className="text-lg text-gray-700 font-medium">
-                  Tailored for Niche Recruiting
-                </CardDescription>
+                <CardTitle className="text-2xl">Custom</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-gray-600">
@@ -109,18 +97,18 @@ export default function PlansSection() {
                 
                 <div className="space-y-3 pt-4 border-t">
                   <div className="flex items-start space-x-3">
+                    <CheckCircle className="h-5 w-5 text-gray-500 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-600 text-sm">All Core features</span>
+                  </div>
+                  <div className="flex items-start space-x-3">
                     <Settings className="h-5 w-5 text-gray-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-gray-600 text-sm">Customized to your industry language</span>
+                    <span className="text-gray-600 text-sm">Customization to your industry language</span>
                   </div>
                   <div className="flex items-start space-x-3">
                     <Building2 className="h-5 w-5 text-gray-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-gray-600 text-sm">Adapted to your specific processes</span>
+                    <span className="text-gray-600 text-sm">Adaptation to your specific processes</span>
                   </div>
-                  <div className="flex items-start space-x-3">
-                    <Users className="h-5 w-5 text-gray-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-gray-600 text-sm">Tailored to your talent profiles</span>
-                  </div>
-                  <div className="flex items-start space-x-3">
+                 <div className="flex items-start space-x-3">
                     <Rocket className="h-5 w-5 text-gray-500 mt-0.5 flex-shrink-0" />
                     <span className="text-gray-600 text-sm">Enhanced for your unique value</span>
                   </div>
@@ -132,26 +120,13 @@ export default function PlansSection() {
 
                 <div className="pt-6">
                   <Button 
-                    variant="outline"
-                    className="w-full"
-                    size="lg"
-                  >
-                    <Calendar className="h-4 w-4 mr-2" />
-                    Book a Call
+                    className="w-full bg-black hover:bg-gray-800 text-white"
+                    size="lg">
+                    This is the right fit for me!
                   </Button>
                 </div>
               </CardContent>
             </Card>
-          </div>
-
-          {/* Bottom CTA */}
-          <div className="text-center pt-6 border-t">
-            <p className="text-gray-600 mb-2">
-              👉 <span className="italic">Interested in a tailored version?</span>
-            </p>
-            <p className="text-lg text-gray-700 font-medium">
-              Let's discuss how Vita can be customized for your specific needs
-            </p>
           </div>
         </div>
       </div>

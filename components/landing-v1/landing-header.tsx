@@ -54,9 +54,9 @@ export default function LandingHeader() {
             alt="Vita Logo" 
             width={32} 
             height={32} 
-            className="h-8 w-8"
+            className="h-12 w-12"
           />
-          <span className="text-xl font-bold">Vita</span>
+          <span className="text-xl font-bold"></span>
         </button>
 
         {/* Navigation Links - Center */}
