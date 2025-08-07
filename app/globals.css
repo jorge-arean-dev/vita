@@ -35,6 +35,11 @@
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
     
+    /* Default font variables to prevent hydration mismatch */
+    --font-titles: Inter, system-ui, sans-serif;
+    --font-text: Inter, system-ui, sans-serif;
+    --font-mono: 'Space Mono', monospace;
+    
     /* Sidebar color variables */
     --sidebar: hsl(0 0% 98%);
     --sidebar-foreground: hsl(240 5.3% 26.1%);
