@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Lora:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&family=Source+Sans+3:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Nunito:wght@300;400;500;600;700&family=Merriweather:wght@300;400;700&family=PT+Sans:wght@400;700&family=Oswald:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;700&family=Work+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&family=Lexend:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Archivo:wght@300;400;500;600;700&family=Public+Sans:wght@300;400;500;600;700&family=Crimson+Text:wght@400;600;700&family=Source+Serif+4:wght@300;400;500;600;700&family=PT+Serif:wght@400;700&family=Libre+Baskerville:wght@400;700&family=Bitter:wght@300;400;500;600;700&family=Spectral:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 
 @custom-variant dark (&:is(.dark *));
@@ -224,6 +226,38 @@
   .dark .info-indicator {
     @apply bg-blue-950 border-blue-800 text-blue-200;
   }
+
+  /* Font utility classes for typography testing */
+  .font-inter { font-family: Inter, system-ui, sans-serif !important; }
+  .font-poppins { font-family: Poppins, system-ui, sans-serif !important; }
+  .font-playfair { font-family: 'Playfair Display', serif !important; }
+  .font-montserrat { font-family: Montserrat, system-ui, sans-serif !important; }
+  .font-lora { font-family: Lora, serif !important; }
+  .font-roboto { font-family: Roboto, system-ui, sans-serif !important; }
+  .font-source-sans { font-family: 'Source Sans 3', system-ui, sans-serif !important; }
+  .font-open-sans { font-family: 'Open Sans', system-ui, sans-serif !important; }
+  .font-lato { font-family: Lato, system-ui, sans-serif !important; }
+  .font-nunito { font-family: Nunito, system-ui, sans-serif !important; }
+  .font-merriweather { font-family: Merriweather, serif !important; }
+  .font-pt-sans { font-family: 'PT Sans', system-ui, sans-serif !important; }
+  .font-oswald { font-family: Oswald, system-ui, sans-serif !important; }
+  .font-raleway { font-family: Raleway, system-ui, sans-serif !important; }
+  .font-dm-sans { font-family: 'DM Sans', system-ui, sans-serif !important; }
+  .font-work-sans { font-family: 'Work Sans', system-ui, sans-serif !important; }
+  .font-space-grotesk { font-family: 'Space Grotesk', system-ui, sans-serif !important; }
+  .font-manrope { font-family: Manrope, system-ui, sans-serif !important; }
+  .font-lexend { font-family: Lexend, system-ui, sans-serif !important; }
+  .font-plus-jakarta { font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important; }
+  .font-ibm-plex { font-family: 'IBM Plex Sans', system-ui, sans-serif !important; }
+  .font-outfit { font-family: Outfit, system-ui, sans-serif !important; }
+  .font-archivo { font-family: Archivo, system-ui, sans-serif !important; }
+  .font-public-sans { font-family: 'Public Sans', system-ui, sans-serif !important; }
+  .font-crimson-text { font-family: 'Crimson Text', serif !important; }
+  .font-source-serif { font-family: 'Source Serif 4', serif !important; }
+  .font-pt-serif { font-family: 'PT Serif', serif !important; }
+  .font-libre-baskerville { font-family: 'Libre Baskerville', serif !important; }
+  .font-bitter { font-family: Bitter, serif !important; }
+  .font-spectral { font-family: Spectral, serif !important; }
 }
 
 @theme inline {

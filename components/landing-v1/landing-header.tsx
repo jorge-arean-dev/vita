@@ -5,7 +5,11 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
 
-export default function LandingHeader() {
+interface LandingHeaderProps {
+  onJoinWaitlist?: () => void
+}
+
+export default function LandingHeader({ onJoinWaitlist }: LandingHeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [activeSection, setActiveSection] = useState("")
 
@@ -113,8 +117,11 @@ export default function LandingHeader() {
 
         {/* CTA Button */}
         <div className="hidden md:flex items-center">
-          <Button asChild className="bg-black hover:bg-gray-800 text-white">
-            <Link href="#">Join Waitlist</Link>
+          <Button 
+            className="bg-black hover:bg-gray-800 text-white"
+            onClick={onJoinWaitlist}
+          >
+            Join Waitlist
           </Button>
         </div>
       </div>
@@ -141,8 +148,11 @@ export default function LandingHeader() {
             Plans
           </button>
           <div className="pt-2">
-            <Button asChild className="w-full bg-black hover:bg-gray-800 text-white">
-              <Link href="#">Join Waitlist</Link>
+            <Button 
+              className="w-full bg-black hover:bg-gray-800 text-white"
+              onClick={onJoinWaitlist}
+            >
+              Join Waitlist
             </Button>
           </div>
         </nav>

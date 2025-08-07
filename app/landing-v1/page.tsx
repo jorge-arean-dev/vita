@@ -1,11 +1,17 @@
+"use client"
+
+import { useState } from "react"
 import LandingHeader from "@/components/landing-v1/landing-header"
 import LandingHero from "@/components/landing-v1/landing-hero"
 import LandingFooter from "@/components/landing-v1/landing-footer"
 import AboutSection from "@/components/landing-v1/about-section"
 import HowSection from "@/components/landing-v1/how-section"
 import PlansSection from "@/components/landing-v1/plans-section"
+import { JoinWaitlistDialog } from "@/components/landing-v1/join-waitlist-dialog"
 
 export default function LandingPageV1() {
+  const [isWaitlistOpen, setIsWaitlistOpen] = useState(false)
+
   return (
     <main className="relative">
       {/* Fullscreen Video Background - Fixed position */}
@@ -24,16 +30,16 @@ export default function LandingPageV1() {
         </video>
       </div>
       
-      {/* Content */}
-      <div className="relative z-10">
-        <LandingHeader />
+      {/* Content - with fade effect when dialog is open */}
+      <div className={`relative z-10 transition-opacity duration-500 ${isWaitlistOpen ? 'opacity-30' : 'opacity-100'}`}>
+        <LandingHeader onJoinWaitlist={() => setIsWaitlistOpen(true)} />
         
         {/* Hero Section - Full viewport height with buttons centered in available space */}
         <section id="hero" className="min-h-screen flex pt-16 pb-20">
           <div className="flex-1 flex flex-col justify-center max-w-5xl mx-auto px-5 w-full">
             {/* Offset to position buttons at center of available space */}
             <div className="-mt-24">
-              <LandingHero />
+              <LandingHero onJoinWaitlist={() => setIsWaitlistOpen(true)} />
             </div>
           </div>
         </section>
@@ -58,6 +64,12 @@ export default function LandingPageV1() {
       <div className="fixed bottom-0 left-0 right-0 z-40">
         <LandingFooter />
       </div>
+
+      {/* Join Waitlist Dialog */}
+      <JoinWaitlistDialog 
+        open={isWaitlistOpen} 
+        onOpenChange={setIsWaitlistOpen}
+      />
     </main>
   )
 }

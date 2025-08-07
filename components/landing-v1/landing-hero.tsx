@@ -1,7 +1,11 @@
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
-export default function LandingHero() {
+interface LandingHeroProps {
+  onJoinWaitlist?: () => void
+}
+
+export default function LandingHero({ onJoinWaitlist }: LandingHeroProps) {
   return (
     <section className="flex items-center justify-center px-4 py-6">
       <div className="max-w-4xl mx-auto text-center space-y-6">
@@ -18,11 +22,13 @@ export default function LandingHero() {
 
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-2">
-          <Link href="#">
-            <Button size="lg" className="bg-black hover:bg-gray-800 text-white px-8 py-3 text-base font-medium">
-              Join Waitlist
-            </Button>
-          </Link>
+          <Button 
+            size="lg" 
+            className="bg-black hover:bg-gray-800 text-white px-8 py-3 text-base font-medium"
+            onClick={onJoinWaitlist}
+          >
+            Join Waitlist
+          </Button>
           <Link href="#">
             <Button
               variant="outline"
