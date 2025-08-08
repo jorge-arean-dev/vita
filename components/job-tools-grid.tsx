@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { FileText, Search, UserCheck, MessageSquare, BarChart3, Mail } from "lucide-react"
+import { FileText, Search, UserCheck, MessageSquare, BarChart3, Mail, Video } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface JobToolsGridProps {
@@ -44,6 +44,12 @@ const toolCards = [
     description: "Create professional outreach, follow-up, and client communication emails",
     icon: Mail,
     route: "email-builder"
+  },
+  {
+    title: "Interview Companion",
+    description: "Record and analyze Google Meet interviews with AI-powered insights",
+    icon: Video,
+    route: "interview-companion"
   },
 ]
 
