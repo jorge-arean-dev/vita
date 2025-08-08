@@ -50,7 +50,7 @@ export function CandidateCombobox({
     const delayDebounceFn = setTimeout(async () => {
       setLoading(true)
       try {
-        const { data, error } = await searchCandidates(jobId, searchTerm)
+        const { data } = await searchCandidates(jobId, searchTerm)
         if (data) {
           setCandidates(data)
         }
@@ -69,7 +69,7 @@ export function CandidateCombobox({
     const loadCandidates = async () => {
       setLoading(true)
       try {
-        const { data, error } = await searchCandidates(jobId, "")
+        const { data } = await searchCandidates(jobId, "")
         if (data) {
           setCandidates(data)
         }

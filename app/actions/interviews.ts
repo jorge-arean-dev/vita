@@ -19,19 +19,23 @@ const analyzeInterviewSchema = z.object({
   interviewId: z.string().uuid()
 })
 
-// Mock Recall.ai integration (will be replaced with real API calls)
-async function createRecallBot(meetingLink: string): Promise<string> {
-  // Simulate API call to Recall.ai
-  // In production, this would make an actual API call
-  const mockBotId = `bot_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-  
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1000))
-  
-  console.log('[Mock] Creating Recall.ai bot for meeting:', meetingLink)
-  console.log('[Mock] Bot ID:', mockBotId)
-  
-  return mockBotId
+// Real Recall.ai integration
+async function createRecallBot(meetingLink: string, botName: string = 'Vita Interview Bot'): Promise<string> {
+  try {
+    // Import the Recall client
+    const { recallClient } = await import('@/lib/api/recall')
+    
+    // Create bot using real API
+    const bot = await recallClient.createBot(meetingLink, botName)
+    
+    console.log('[Recall API] Bot created successfully:', bot.id)
+    console.log('[Recall API] Bot status:', bot.status)
+    
+    return bot.id
+  } catch (error) {
+    console.error('[Recall API] Failed to create bot:', error)
+    throw error
+  }
 }
 
 // Create a new interview session
@@ -67,8 +71,8 @@ export async function createInterview(formData: FormData) {
       return { error: 'Job not found or unauthorized' }
     }
 
-    // Create Recall.ai bot (mock)
-    const recallBotId = await createRecallBot(validatedData.meetingLink)
+    // Create Recall.ai bot (real API)
+    const recallBotId = await createRecallBot(validatedData.meetingLink, validatedData.title)
 
     // Create interview record
     const { data: interview, error: insertError } = await supabase
@@ -90,10 +94,8 @@ export async function createInterview(formData: FormData) {
       return { error: 'Failed to create interview' }
     }
 
-    // Simulate bot joining the meeting after a delay
-    setTimeout(async () => {
-      await updateInterviewStatus(interview.id, 'in_progress')
-    }, 3000)
+    // Note: Bot status will be updated via webhooks when it joins the meeting
+    // No need for manual status updates as the webhook will handle this
 
     revalidatePath(`/protected/jobs/${validatedData.jobId}/interview-companion`)
     
@@ -121,6 +123,44 @@ export async function updateInterviewStatus(
 
   if (error) {
     console.error('Error updating interview status:', error)
+    return { error: 'Failed to update interview status' }
+  }
+
+  return { success: true }
+}
+
+// Find interview by Recall bot ID
+export async function findInterviewByBotId(botId: string) {
+  const supabase = await createClient()
+  
+  const { data: interview, error } = await supabase
+    .from('interviews')
+    .select('id, job_id, status')
+    .eq('recall_bot_id', botId)
+    .single()
+
+  if (error) {
+    console.error('Error finding interview by bot ID:', error)
+    return { error: 'Interview not found', data: null }
+  }
+
+  return { data: interview, error: null }
+}
+
+// Update interview status by bot ID (for webhook processing)
+export async function updateInterviewStatusByBotId(
+  botId: string, 
+  status: 'created' | 'in_progress' | 'ready_for_analysis' | 'analyzing' | 'completed'
+) {
+  const supabase = await createClient()
+  
+  const { error } = await supabase
+    .from('interviews')
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq('recall_bot_id', botId)
+
+  if (error) {
+    console.error('Error updating interview status by bot ID:', error)
     return { error: 'Failed to update interview status' }
   }
 
@@ -163,8 +203,32 @@ export async function processTranscriptWebhook(
   return { success: true }
 }
 
+// Process transcript by bot ID (for webhook processing)
+export async function processTranscriptByBotId(
+  botId: string,
+  transcriptData: Array<{
+    speaker: string
+    text: string
+    start_time: number
+    end_time: number
+  }>
+) {
+  // Find interview by bot ID
+  const { data: interview, error } = await findInterviewByBotId(botId)
+  
+  if (error || !interview) {
+    console.error('Cannot process transcript: interview not found for bot ID:', botId)
+    return { error: 'Interview not found for bot ID' }
+  }
+
+  // Process the transcript
+  return await processTranscriptWebhook(interview.id, transcriptData)
+}
+
 // Mock scoring function
-async function generateMockScore(transcript: string, jobContext: any) {
+async function generateMockScore(transcript: string, jobContext: { title?: string; job_description?: string }) {
+  // Use parameters for future AI integration
+  console.log(`[Mock Analysis] Processing transcript (${transcript.length} chars) for job: ${jobContext.title}`);
   // Simulate processing time
   await new Promise(resolve => setTimeout(resolve, 2000))
   
@@ -257,9 +321,9 @@ export async function analyzeInterview(formData: FormData) {
     await updateInterviewStatus(validatedData.interviewId, 'analyzing')
 
     // Combine transcript segments into full text
-    const fullTranscript = interview.interview_transcripts
-      .sort((a: any, b: any) => a.start_time - b.start_time)
-      .map((t: any) => `${t.speaker}: ${t.text}`)
+    const fullTranscript = (interview.interview_transcripts || [])
+      .sort((a: { start_time: number }, b: { start_time: number }) => a.start_time - b.start_time)
+      .map((t: { speaker: string; text: string }) => `${t.speaker}: ${t.text}`)
       .join('\n')
 
     // Generate mock analysis

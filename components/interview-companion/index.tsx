@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useToast } from "@/components/ui/use-toast"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -39,8 +39,31 @@ export default function InterviewCompanion({ jobId }: InterviewCompanionProps) {
   const [refreshing, setRefreshing] = useState(false)
   const { toast } = useToast()
 
+  // Load interview details  
+  const loadInterviewDetails = useCallback(async (interviewId: string) => {
+    try {
+      const { data, error } = await getInterviewDetails(interviewId)
+      if (error) {
+        toast({
+          title: "Error",
+          description: error,
+          variant: "destructive"
+        })
+        return
+      }
+      setSelectedInterview(data)
+    } catch (error) {
+      console.error("Error loading interview details:", error)
+      toast({
+        title: "Error",
+        description: "Failed to load interview details",
+        variant: "destructive"
+      })
+    }
+  }, [toast])
+
   // Load interviews
-  const loadInterviews = async () => {
+  const loadInterviews = useCallback(async () => {
     try {
       const { data, error } = await getJobInterviews(jobId)
       if (error) {
@@ -68,35 +91,12 @@ export default function InterviewCompanion({ jobId }: InterviewCompanionProps) {
       setLoading(false)
       setRefreshing(false)
     }
-  }
-
-  // Load interview details
-  const loadInterviewDetails = async (interviewId: string) => {
-    try {
-      const { data, error } = await getInterviewDetails(interviewId)
-      if (error) {
-        toast({
-          title: "Error",
-          description: error,
-          variant: "destructive"
-        })
-        return
-      }
-      setSelectedInterview(data)
-    } catch (error) {
-      console.error("Error loading interview details:", error)
-      toast({
-        title: "Error",
-        description: "Failed to load interview details",
-        variant: "destructive"
-      })
-    }
-  }
+  }, [jobId, selectedInterview, toast, loadInterviewDetails])
 
   // Initial load
   useEffect(() => {
     loadInterviews()
-  }, [jobId])
+  }, [jobId, loadInterviews])
 
   // Auto-refresh for in-progress interviews
   useEffect(() => {
@@ -111,7 +111,7 @@ export default function InterviewCompanion({ jobId }: InterviewCompanionProps) {
       
       return () => clearInterval(interval)
     }
-  }, [interviews])
+  }, [interviews, loadInterviews])
 
   const handleRefresh = () => {
     setRefreshing(true)
@@ -134,6 +134,7 @@ export default function InterviewCompanion({ jobId }: InterviewCompanionProps) {
         await loadInterviewDetails(interviewId)
       }
     } catch (error) {
+      console.error("Error simulating transcript:", error)
       toast({
         title: "Error",
         description: "Failed to generate mock transcript",
@@ -151,7 +152,7 @@ export default function InterviewCompanion({ jobId }: InterviewCompanionProps) {
       in_progress: { variant: "default" as const, icon: Loader2 },
       ready_for_analysis: { variant: "secondary" as const, icon: AlertCircle },
       analyzing: { variant: "default" as const, icon: Loader2 },
-      completed: { variant: "success" as const, icon: CheckCircle }
+      completed: { variant: "default" as const, icon: CheckCircle }
     }
 
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.created
@@ -275,7 +276,7 @@ export default function InterviewCompanion({ jobId }: InterviewCompanionProps) {
                       </div>
                     )}
 
-                    {interview.transcript_count > 0 && (
+                    {(interview.transcript_count ?? 0) > 0 && (
                       <div className="flex items-center gap-2">
                         <FileText className="h-3 w-3 text-muted-foreground" />
                         <span className="text-xs text-muted-foreground">

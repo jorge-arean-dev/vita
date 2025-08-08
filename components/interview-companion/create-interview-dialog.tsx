@@ -39,12 +39,12 @@ export default function CreateInterviewDialog({
   const { toast } = useToast()
 
   // Generate title when candidate is selected
-  const handleCandidateSelect = async (candidate: any) => {
+  const handleCandidateSelect = async (candidate: { id: string; first_name: string | null; last_name: string | null; email: string | null }) => {
     if (!candidate?.id) return
     
     setGeneratingTitle(true)
     try {
-      const { data: generatedTitle, error } = await generateInterviewTitle(candidate.id, jobId)
+      const { data: generatedTitle } = await generateInterviewTitle(candidate.id, jobId)
       if (generatedTitle) {
         setTitle(generatedTitle)
       }

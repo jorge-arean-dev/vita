@@ -64,7 +64,7 @@ export default function InterviewAnalysis({ interview }: InterviewAnalysisProps)
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-3xl font-bold className={getScoreColor(analysis.overall_score)}">
+              <p className={`text-3xl font-bold ${getScoreColor(analysis.overall_score)}`}>
                 {analysis.overall_score}/4.0
               </p>
               <p className="text-sm text-muted-foreground">
