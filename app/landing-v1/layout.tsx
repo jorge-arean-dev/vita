@@ -13,7 +13,9 @@ export default function LandingLayout({
 }) {
   return (
     <TypographyProvider>
-      {children}
+      <div className="light">
+        {children}
+      </div>
     </TypographyProvider>
   )
 }
