@@ -20,7 +20,7 @@ const analyzeInterviewSchema = z.object({
 })
 
 // Real Recall.ai integration
-async function createRecallBot(meetingLink: string, botName: string = 'Vita Interview Bot'): Promise<string> {
+async function createRecallBot(meetingLink: string, botName: string = 'Vita Notetaker'): Promise<string> {
   try {
     // Import the Recall client
     const { recallClient } = await import('@/lib/api/recall')
@@ -72,7 +72,7 @@ export async function createInterview(formData: FormData) {
     }
 
     // Create Recall.ai bot (real API)
-    const recallBotId = await createRecallBot(validatedData.meetingLink, validatedData.title)
+    const recallBotId = await createRecallBot(validatedData.meetingLink)
 
     // Create interview record
     const { data: interview, error: insertError } = await supabase

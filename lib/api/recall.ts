@@ -2,7 +2,8 @@
 // Real API implementation
 
 const RECALL_API_KEY = process.env.RECALL_API_KEY || 'mock_recall_api_key'
-const RECALL_API_URL = 'https://us-east-1.recall.ai/api/v1'
+const RECALL_API_URL = 'https://us-west-2.recall.ai/api/v1'
+export const DEFAULT_BOT_NAME = 'Vita Notetaker'
 
 export interface RecallBot {
   id: string
@@ -30,26 +31,29 @@ export class RecallClient {
   }
 
   // Create a bot to join a meeting
-  async createBot(meetingUrl: string, botName: string = 'Vita Interview Bot'): Promise<RecallBot> {
+  async createBot(meetingUrl: string, botName: string = DEFAULT_BOT_NAME): Promise<RecallBot> {
     try {
+      const requestBody = {
+        meeting_url: meetingUrl,
+        bot_name: botName
+      }
+      
+      console.log('[Recall API] Creating bot with:', {
+        url: `${RECALL_API_URL}/bot/`,
+        headers: {
+          'Authorization': `Token ${this.apiKey.substring(0, 10)}...`,
+          'Content-Type': 'application/json',
+        },
+        body: requestBody
+      })
+      
       const response = await fetch(`${RECALL_API_URL}/bot/`, {
         method: 'POST',
         headers: {
           'Authorization': `Token ${this.apiKey}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          meeting_url: meetingUrl,
-          bot_name: botName,
-          transcription_options: {
-            provider: 'assembly_ai'
-          },
-          real_time_transcription: {
-            destination_url: process.env.NEXT_PUBLIC_VERCEL_URL 
-              ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/recall/webhooks`
-              : `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/recall/webhooks`
-          }
-        }),
+        body: JSON.stringify(requestBody),
       })
 
       if (!response.ok) {
