@@ -8,10 +8,7 @@ import {
   Target, 
   Brain,
   Zap,
-  Globe,
-  Users,
-  Rocket,
-  Briefcase
+  Globe
 } from "lucide-react"
 
 export default function AboutSection() {
@@ -96,7 +93,7 @@ export default function AboutSection() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600">
-                  Whether you're recruiting in niche industries or sectors, Vita can adapt to your workflow.
+                  Whether you&apos;re recruiting in niche industries or sectors, Vita can adapt to your workflow.
                 </p>
               </CardContent>
             </Card>

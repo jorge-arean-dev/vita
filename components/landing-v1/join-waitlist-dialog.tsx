@@ -15,14 +15,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command"
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -90,7 +82,7 @@ const hiringTools = [
   "JazzHR",
   "Recruitee",
   "Other",
-  "I don't use any tools" 
+  "I don&apos;t use any tools" 
 ]
 
 const aiTools = [
@@ -99,7 +91,7 @@ const aiTools = [
   "Claude (Anthropic)",
   "Perplexity AI",
   "Other",
-  "I don't use any AI tools"
+  "I don&apos;t use any AI tools"
 ]
 
 export function JoinWaitlistDialog({ open, onOpenChange, triggerSource = "join_waitlist" }: JoinWaitlistDialogProps) {
@@ -273,7 +265,7 @@ export function JoinWaitlistDialog({ open, onOpenChange, triggerSource = "join_w
         setTimeout(() => {
           toast({
             title: "Welcome to the Waitlist!",
-            description: result.message || "Thank you for your interest. We'll contact you when Vita is ready.",
+            description: result.message || "Thank you for your interest. We&apos;ll contact you when Vita is ready.",
           })
         }, 300)
       } else {
@@ -347,7 +339,7 @@ export function JoinWaitlistDialog({ open, onOpenChange, triggerSource = "join_w
                 Join the Waitlist
               </DialogPrimitive.Title>
               <p className="text-center text-gray-600 mt-2">
-                Be among the first to experience Vita's AI-powered recruiting toolkit
+                Be among the first to experience Vita&apos;s AI-powered recruiting toolkit
               </p>
             </div>
 
@@ -363,7 +355,7 @@ export function JoinWaitlistDialog({ open, onOpenChange, triggerSource = "join_w
                     {/* Name Field */}
                     <div className="space-y-2">
                       <Label htmlFor="name" className="text-sm font-medium">
-                        What's your name? <span className="text-red-500">*</span>
+                        What&apos;s your name? <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         id="name"
@@ -390,7 +382,7 @@ export function JoinWaitlistDialog({ open, onOpenChange, triggerSource = "join_w
                         required
                         className="bg-white/50"
                       />
-                      <p className="text-xs text-gray-500">We'll use this to contact you when the platform is ready</p>
+                      <p className="text-xs text-gray-500">We&apos;ll use this to contact you when the platform is ready</p>
                     </div>
 
                     {/* Country Field */}

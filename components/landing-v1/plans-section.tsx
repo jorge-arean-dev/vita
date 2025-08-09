@@ -1,7 +1,6 @@
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -11,10 +10,8 @@ import {
   Sparkles,
   Settings,
   Building2,
-  Users,
   Rocket,
-  CheckCircle,
-  Calendar
+  CheckCircle
 } from "lucide-react"
 
 interface PlansSectionProps {

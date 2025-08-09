@@ -84,7 +84,7 @@ export class RecallClient {
         sub_code: botData.status_changes?.[botData.status_changes.length - 1]?.sub_code
       }
     } catch (error) {
-      console.error('[Recall API] Bot creation failed:', error.message)
+      console.error('[Recall API] Bot creation failed:', error instanceof Error ? error.message : String(error))
       throw error
     }
   }
@@ -200,7 +200,7 @@ export class RecallClient {
       }
       
       // Check if transcript has a download URL - try different possible locations
-      let downloadUrl = transcriptData.download_url || transcriptData.data?.download_url
+      const downloadUrl = transcriptData.download_url || transcriptData.data?.download_url
       
       if (downloadUrl) {
         console.log(`[Recall API] Fetching transcript content from: ${downloadUrl}`)

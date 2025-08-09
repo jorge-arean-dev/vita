@@ -148,7 +148,7 @@ export default function StylesPage() {
                   Regular paragraph text - Built for independent recruiters, boutique agencies, and niche hiring teams, Vita brings together the essential tools you need to run a smarter, faster hiring process — all in one place.
                 </p>
                 <p className="text-sm">
-                  Small text - Whether you're recruiting in cybersecurity, pharma, automation, or beyond — Vita adapts to your workflow and grows with your business.
+                  Small text - Whether you&apos;re recruiting in cybersecurity, pharma, automation, or beyond — Vita adapts to your workflow and grows with your business.
                 </p>
               </div>
 
