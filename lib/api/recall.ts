@@ -33,13 +33,29 @@ export class RecallClient {
   // Create a bot to join a meeting
   async createBot(meetingUrl: string, botName: string = DEFAULT_BOT_NAME): Promise<RecallBot> {
     try {
+      const webhookUrl = process.env.RECALL_WEBHOOK_URL || 
+        (process.env.NEXT_PUBLIC_VERCEL_URL 
+          ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/recall/webhooks`
+          : `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/recall/webhooks`)
+
       const requestBody = {
         meeting_url: meetingUrl,
-        bot_name: botName
+        bot_name: botName,
+        recording_config: {
+          transcript: {
+            provider: {
+              meeting_captions: {}
+            }
+          }
+        },
+        webhook_config: {
+          url: webhookUrl
+        }
       }
       
       console.log('[Recall API] Creating bot with:', {
         url: `${RECALL_API_URL}/bot/`,
+        webhook_url: webhookUrl,
         headers: {
           'Authorization': `Token ${this.apiKey.substring(0, 10)}...`,
           'Content-Type': 'application/json',
