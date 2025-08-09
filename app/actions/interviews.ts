@@ -28,8 +28,7 @@ async function createRecallBot(meetingLink: string, botName: string = 'Vita Note
     // Create bot using real API
     const bot = await recallClient.createBot(meetingLink, botName)
     
-    console.log('[Recall API] Bot created successfully:', bot.id)
-    console.log('[Recall API] Bot status:', bot.status)
+    // Bot creation successful
     
     return bot.id
   } catch (error) {
@@ -133,6 +132,22 @@ export async function updateInterviewStatus(
 export async function findInterviewByBotId(botId: string) {
   const supabase = await createClient()
   
+  console.log(`[DB] Searching for interview with bot_id: ${botId}`)
+
+  // First, let's see all interviews to debug
+  const { data: allInterviews } = await supabase
+    .from('interviews')
+    .select('id, recall_bot_id, status, title')
+    .order('created_at', { ascending: false })
+    .limit(5)
+
+  console.log('[DB] Recent interviews:', allInterviews?.map(i => ({ 
+    id: i.id.substring(0, 8), 
+    bot_id: i.recall_bot_id?.substring(0, 8), 
+    status: i.status,
+    title: i.title 
+  })))
+  
   const { data: interview, error } = await supabase
     .from('interviews')
     .select('id, job_id, status')
@@ -140,10 +155,11 @@ export async function findInterviewByBotId(botId: string) {
     .single()
 
   if (error) {
-    console.error('Error finding interview by bot ID:', error)
+    console.error('[DB] Error finding interview by bot ID:', error)
     return { error: 'Interview not found', data: null }
   }
 
+  console.log(`[DB] Found interview: ${interview.id}`)
   return { data: interview, error: null }
 }
 
@@ -152,19 +168,61 @@ export async function updateInterviewStatusByBotId(
   botId: string, 
   status: 'created' | 'in_progress' | 'ready_for_analysis' | 'analyzing' | 'completed'
 ) {
-  const supabase = await createClient()
+  console.log(`[DB] Updating interview status: bot ${botId} -> ${status}`)
   
-  const { error } = await supabase
+  // Check if service role key is available
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!serviceRoleKey) {
+    console.error('[DB] SUPABASE_SERVICE_ROLE_KEY not found in environment variables')
+    console.log('[DB] Available env vars:', Object.keys(process.env).filter(k => k.includes('SUPABASE')))
+    return { error: 'Service role key not configured' }
+  }
+  
+  // Use service role for webhook operations (bypasses RLS)
+  const { createClient: createSupabaseClient } = await import('@supabase/supabase-js')
+  const supabase = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    serviceRoleKey,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  )
+  
+  console.log(`[DB] Using service role client for bot ID: ${botId}`)
+  
+  const { data, error } = await supabase
     .from('interviews')
     .update({ status, updated_at: new Date().toISOString() })
     .eq('recall_bot_id', botId)
+    .select()
 
   if (error) {
-    console.error('Error updating interview status by bot ID:', error)
+    console.error('[DB] Update error details:', error)
+    console.error('[DB] Bot ID being searched:', botId)
+    
+    // Let's also try to find the interview to see if it exists
+    const { data: searchData, error: searchError } = await supabase
+      .from('interviews')
+      .select('id, recall_bot_id, status')
+      .eq('recall_bot_id', botId)
+      
+    if (searchError) {
+      console.error('[DB] Search error:', searchError)
+    } else {
+      console.log('[DB] Search results:', searchData)
+    }
+    
     return { error: 'Failed to update interview status' }
   }
 
-  return { success: true }
+  console.log(`[DB] Updated ${data?.length || 0} interviews`)
+  if (data && data.length > 0) {
+    console.log(`[DB] Updated interview ${data[0].id} to status: ${data[0].status}`)
+  }
+  return { success: true, updatedCount: data?.length || 0 }
 }
 
 // Process webhook data from Recall.ai (will be called from webhook route)
@@ -179,7 +237,7 @@ export async function processTranscriptWebhook(
 ) {
   const supabase = await createClient()
 
-  // Store transcript segments
+  // Store transcript segments (keeping for compatibility)
   const { error: transcriptError } = await supabase
     .from('interview_transcripts')
     .insert(
@@ -193,13 +251,38 @@ export async function processTranscriptWebhook(
     )
 
   if (transcriptError) {
-    console.error('Error storing transcript:', transcriptError)
-    return { error: 'Failed to store transcript' }
+    console.error('Error storing transcript segments:', transcriptError)
+    return { error: 'Failed to store transcript segments' }
+  }
+
+  // Store full transcript in JSONB column
+  const fullTranscriptJson = {
+    segments: transcriptData.map(segment => ({
+      speaker: segment.speaker,
+      text: segment.text,
+      start_time: segment.start_time,
+      end_time: segment.end_time
+    })),
+    metadata: {
+      retrieved_at: new Date().toISOString(),
+      total_segments: transcriptData.length
+    }
+  }
+
+  const { error: fullTranscriptError } = await supabase
+    .from('interviews')
+    .update({ full_transcript: fullTranscriptJson })
+    .eq('id', interviewId)
+
+  if (fullTranscriptError) {
+    console.error('Error storing full transcript:', fullTranscriptError)
+    return { error: 'Failed to store full transcript' }
   }
 
   // Update interview status to ready for analysis
   await updateInterviewStatus(interviewId, 'ready_for_analysis')
 
+  console.log(`[Transcript] Stored ${transcriptData.length} segments for interview ${interviewId}`)
   return { success: true }
 }
 
@@ -213,16 +296,92 @@ export async function processTranscriptByBotId(
     end_time: number
   }>
 ) {
-  // Find interview by bot ID
-  const { data: interview, error } = await findInterviewByBotId(botId)
+  console.log(`[Transcript] Processing transcript for bot ID: ${botId}`)
   
+  // Check if service role key is available  
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!serviceRoleKey) {
+    console.error('[Transcript] SUPABASE_SERVICE_ROLE_KEY not found in environment variables')
+    return { error: 'Service role key not configured' }
+  }
+  
+  // Use service role client to find interview
+  const { createClient: createSupabaseClient } = await import('@supabase/supabase-js')
+  const supabase = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    serviceRoleKey,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  )
+  
+  // Find interview by bot ID using service role
+  const { data: interview, error } = await supabase
+    .from('interviews')
+    .select('id, job_id, status')
+    .eq('recall_bot_id', botId)
+    .single()
+
   if (error || !interview) {
-    console.error('Cannot process transcript: interview not found for bot ID:', botId)
+    console.error('[Transcript] Interview not found for bot ID:', botId, error)
     return { error: 'Interview not found for bot ID' }
   }
 
-  // Process the transcript
-  return await processTranscriptWebhook(interview.id, transcriptData)
+  console.log(`[Transcript] Found interview ${interview.id} for bot ${botId}`)
+
+  // Store transcript segments (keeping for compatibility) using service role
+  const { error: transcriptError } = await supabase
+    .from('interview_transcripts')
+    .insert(
+      transcriptData.map(segment => ({
+        interview_id: interview.id,
+        speaker: segment.speaker,
+        text: segment.text,
+        start_time: segment.start_time,
+        end_time: segment.end_time
+      }))
+    )
+
+  if (transcriptError) {
+    console.error('[Transcript] Error storing transcript segments:', transcriptError)
+    return { error: 'Failed to store transcript segments' }
+  }
+
+  // Store full transcript in JSONB column using service role
+  const fullTranscriptJson = {
+    segments: transcriptData.map(segment => ({
+      speaker: segment.speaker,
+      text: segment.text,
+      start_time: segment.start_time,
+      end_time: segment.end_time
+    })),
+    metadata: {
+      retrieved_at: new Date().toISOString(),
+      total_segments: transcriptData.length
+    }
+  }
+
+  const { error: fullTranscriptError } = await supabase
+    .from('interviews')
+    .update({ full_transcript: fullTranscriptJson })
+    .eq('id', interview.id)
+
+  if (fullTranscriptError) {
+    console.error('[Transcript] Error storing full transcript:', fullTranscriptError)
+    return { error: 'Failed to store full transcript' }
+  }
+
+  // Update interview status to ready for analysis using our service role function
+  const statusUpdateResult = await updateInterviewStatusByBotId(botId, 'ready_for_analysis')
+  if (!statusUpdateResult.success) {
+    console.error('[Transcript] Failed to update interview status after transcript processing')
+  }
+
+  console.log(`[Transcript] Stored ${transcriptData.length} segments for interview ${interview.id}`)
+  return { success: true }
 }
 
 // Mock scoring function

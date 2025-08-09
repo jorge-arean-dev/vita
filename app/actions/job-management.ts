@@ -180,7 +180,6 @@ export async function getJobData(jobId: string) {
       return null
     }
 
-    console.log("Raw job data from database:", jobData)
 
     const formattedData = {
       id: jobData.id,
@@ -210,7 +209,6 @@ export async function getJobData(jobId: string) {
       requirements: jobData.job_requirements || []
     }
 
-    console.log("Formatted job data being returned:", formattedData)
     
     return formattedData
     
@@ -665,7 +663,6 @@ export async function generateJobDescription(jobId: string) {
       return { success: false, error: "Job not found or access denied" }
     }
 
-    console.log("Fetched job data:", jobData)
 
     // Fetch company and industry information separately
     const { data: companyData, error: companyError } = await supabase
@@ -685,7 +682,6 @@ export async function generateJobDescription(jobId: string) {
       return { success: false, error: "Failed to fetch company information" }
     }
 
-    console.log("Fetched company data:", companyData)
 
     // Fetch job requirements
     const { data: requirements, error: reqError } = await supabase

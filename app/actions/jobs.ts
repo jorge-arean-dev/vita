@@ -135,7 +135,6 @@ export async function getJobForLinkedInQuery(jobId: string): Promise<JobForLinke
     throw new Error("User not authenticated")
   }
 
-  console.log('Fetching job data for LinkedIn query generation, jobId:', jobId)
   
   // First, let's try to fetch just the job data to see if that works
   const { data: jobOnly, error: jobError } = await supabase
@@ -151,7 +150,6 @@ export async function getJobForLinkedInQuery(jobId: string): Promise<JobForLinke
     .eq("user_id", user.id)
     .single()
     
-  console.log('Job only query result:', { jobOnly, jobError })
   
   if (jobError) {
     throw new Error(`Failed to fetch job data: ${jobError.message}`)
@@ -172,7 +170,6 @@ export async function getJobForLinkedInQuery(jobId: string): Promise<JobForLinke
     `)
     .eq("job_id", jobId)
     
-  console.log('Requirements query result:', { requirements, reqError })
   
   if (reqError) {
     console.error('Error fetching requirements:', reqError)

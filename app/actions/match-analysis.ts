@@ -359,12 +359,7 @@ export async function saveCandidate(
       throw new Error("User not authenticated")
     }
 
-    // Log the candidate data for debugging
-    console.log("=== SAVING CANDIDATE ===")
-    console.log("Main data:", candidateData.main)
-    console.log("Skills data:", candidateData.skills)
-    console.log("Number of skills:", candidateData.skills?.length || 0)
-    console.log("Source:", source)
+    // Saving candidate data
     
     // Handle country - if it's not a valid ISO code, set to null
     let countryCode = candidateData.main.country || null

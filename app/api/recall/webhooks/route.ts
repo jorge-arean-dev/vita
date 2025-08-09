@@ -63,43 +63,36 @@ export async function POST(request: NextRequest) {
     // Handle different webhook events
     const { event, data } = webhookData
 
-    console.log('[Webhook] Received event:', event)
+    // Extract correct bot ID and status from actual Recall.ai format
+    const botId = data.bot?.id
+    const recordingId = data.recording?.id
+    const statusCode = data.data?.code
+    
+    console.log(`[WEBHOOK] ${webhookData.event_type || event} | bot_id: ${botId} | recording_id: ${recordingId} | status: ${statusCode}`)
 
     switch (webhookData.event_type || event) {
-      case 'bot.status_change':
-        // Bot status changed (created, joining, in_call, done, error)
-        console.log('[Webhook] Bot status changed:', data.bot_id, 'to', data.status)
-        
-        // Update interview status based on bot status
-        if (data.bot_id && data.status) {
-          let interviewStatus: 'created' | 'in_progress' | 'ready_for_analysis' | 'analyzing' | 'completed' | null = null
-          
-          // Map Recall bot status to our interview status
-          switch (data.status) {
-            case 'created':
-            case 'joining':
-              interviewStatus = 'created'
-              break
-            case 'in_call':
-              interviewStatus = 'in_progress'
-              break
-            case 'done':
-              // Don't change status on 'done' - wait for recording.completed
-              console.log('[Webhook] Bot finished, waiting for recording completion')
-              break
-            case 'error':
-              console.error('[Webhook] Bot error:', data.sub_code || data.error)
-              // Keep current status on error
-              break
-            default:
-              console.log('[Webhook] Unknown bot status:', data.status)
-              break
-          }
-          
-          if (interviewStatus) {
-            await updateInterviewStatusByBotId(data.bot_id, interviewStatus)
-          }
+      case 'bot.joining_call':
+        // Bot is joining the call
+        if (botId) {
+          console.log('[Webhook] Bot joining call, updating status to created')
+          const result = await updateInterviewStatusByBotId(botId, 'created')
+          console.log('[Webhook] Status update result:', result)
         }
+        break
+
+      case 'bot.in_call_recording':
+        // Bot is actively recording
+        if (botId) {
+          console.log('[Webhook] Bot started recording, updating status to in_progress')
+          const result = await updateInterviewStatusByBotId(botId, 'in_progress')
+          console.log('[Webhook] Status update result:', result)
+        }
+        break
+
+      case 'bot.call_ended':
+      case 'bot.done':
+        // Bot finished but don't change status - wait for recording.done
+        console.log('[Webhook] Bot finished, waiting for recording completion')
         break
 
       case 'recording.status_change':
@@ -107,32 +100,53 @@ export async function POST(request: NextRequest) {
         console.log('[Webhook] Recording status changed:', data.bot_id, 'to', data.status)
         break
 
-      case 'recording.completed':
-        // Recording completed, transcript should be ready
-        console.log('[Webhook] Recording completed:', data.bot_id)
+      case 'recording.done':
+        // Recording completed, but transcript job may already exist
+        console.log('[Webhook] Recording completed - bot:', botId, 'recording:', recordingId)
         
-        // Fetch the transcript from Recall.ai and process it
-        if (data.bot_id) {
+        // Don't create transcript job here - Recall.ai may auto-create them
+        // Just wait for transcript.done or transcript.failed webhooks
+        console.log('[Webhook] Waiting for transcript webhooks, not creating duplicate job')
+        break
+
+      case 'transcript.done':
+        // Transcript generation completed
+        const transcriptId = data.transcript?.id
+        console.log('[Webhook] Transcript completed - bot:', botId, 'transcript:', transcriptId)
+        
+        if (transcriptId && botId) {
           try {
-            // Import recallClient to fetch transcript
+            console.log('[Webhook] Fetching completed transcript:', transcriptId)
             const { recallClient } = await import('@/lib/api/recall')
-            const transcript = await recallClient.getTranscript(data.bot_id)
+            const transcript = await recallClient.getTranscriptById(transcriptId)
             
-            // Process the transcript using bot ID
             if (transcript && transcript.length > 0) {
-              const result = await processTranscriptByBotId(data.bot_id, transcript)
-              
+              const result = await processTranscriptByBotId(botId, transcript)
               if (result.error) {
                 console.error('[Webhook] Failed to process transcript:', result.error)
+                await updateInterviewStatusByBotId(botId, 'ready_for_analysis')
               } else {
-                console.log('[Webhook] Transcript processed successfully for bot:', data.bot_id)
+                console.log('[Webhook] Transcript processed successfully')
+                // Status is updated by processTranscriptByBotId
               }
             } else {
-              console.warn('[Webhook] No transcript data found for bot:', data.bot_id)
+              console.log('[Webhook] Empty transcript received, updating status anyway')
+              await updateInterviewStatusByBotId(botId, 'ready_for_analysis')
             }
           } catch (error) {
-            console.error('[Webhook] Failed to fetch transcript for bot:', data.bot_id, error)
+            console.error('[Webhook] Failed to process completed transcript:', error)
+            await updateInterviewStatusByBotId(botId, 'ready_for_analysis')
           }
+        }
+        break
+
+      case 'transcript.failed':
+        // Transcript generation failed
+        const failedTranscriptId = data.transcript?.id
+        console.error('[Webhook] Transcript generation failed - bot:', botId, 'transcript:', failedTranscriptId)
+        if (botId) {
+          console.log('[Webhook] Updating interview status after transcript failure')
+          await updateInterviewStatusByBotId(botId, 'ready_for_analysis')
         }
         break
 

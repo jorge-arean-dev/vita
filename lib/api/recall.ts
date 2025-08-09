@@ -53,15 +53,7 @@ export class RecallClient {
         }
       }
       
-      console.log('[Recall API] Creating bot with:', {
-        url: `${RECALL_API_URL}/bot/`,
-        webhook_url: webhookUrl,
-        headers: {
-          'Authorization': `Token ${this.apiKey.substring(0, 10)}...`,
-          'Content-Type': 'application/json',
-        },
-        body: requestBody
-      })
+      console.log(`[Recall API] Creating bot: ${botName} | webhook: ${webhookUrl}`)
       
       const response = await fetch(`${RECALL_API_URL}/bot/`, {
         method: 'POST',
@@ -79,7 +71,7 @@ export class RecallClient {
       }
 
       const botData = await response.json()
-      console.log('[Recall API] Bot created successfully:', botData.id)
+      console.log(`[Recall API] Bot created: ${botData.id}`)
 
       return {
         id: botData.id,
@@ -92,7 +84,7 @@ export class RecallClient {
         sub_code: botData.status_changes?.[botData.status_changes.length - 1]?.sub_code
       }
     } catch (error) {
-      console.error('Error creating Recall bot:', error)
+      console.error('[Recall API] Bot creation failed:', error.message)
       throw error
     }
   }
@@ -131,8 +123,196 @@ export class RecallClient {
     }
   }
 
-  // Get transcript for a completed recording
+  // Create transcript job for a completed recording
+  async createTranscript(recordingId: string): Promise<{ transcript_id: string }> {
+    try {
+      console.log(`[Recall API] Creating transcript job for recording: ${recordingId}`)
+      
+      const response = await fetch(`${RECALL_API_URL}/recording/${recordingId}/create_transcript/`, {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Token ${this.apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          provider: {
+            recallai_async: {
+              language_code: 'en'
+            }
+          }
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.text()
+        console.error('Recall API Error (createTranscript):', response.status, errorData)
+        throw new Error(`Failed to create transcript: ${response.status} ${response.statusText}`)
+      }
+
+      const transcriptData = await response.json()
+      console.log(`[Recall API] Transcript job created: ${transcriptData.id}`)
+      
+      return { transcript_id: transcriptData.id }
+    } catch (error) {
+      console.error('Error creating transcript job:', error)
+      throw error
+    }
+  }
+
+  // Get transcript data using transcript ID
+  async getTranscriptById(transcriptId: string): Promise<RecallTranscript[]> {
+    try {
+      console.log(`[Recall API] Fetching transcript: ${transcriptId}`)
+      
+      const response = await fetch(`${RECALL_API_URL}/transcript/${transcriptId}/`, {
+        headers: { 
+          'Authorization': `Token ${this.apiKey}`,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (!response.ok) {
+        const errorData = await response.text()
+        console.error('Recall API Error (getTranscript):', response.status, errorData)
+        throw new Error(`Failed to get transcript: ${response.status} ${response.statusText}`)
+      }
+
+      const transcriptData = await response.json()
+      
+      console.log(`[Recall API] Transcript response keys:`, Object.keys(transcriptData))
+      console.log(`[Recall API] Transcript status:`, transcriptData.status)
+      console.log(`[Recall API] Full transcript data:`, JSON.stringify(transcriptData, null, 2))
+      
+      // Extract status code from status object
+      const statusCode = transcriptData.status?.code || transcriptData.status
+      console.log(`[Recall API] Status code:`, statusCode)
+      
+      // Check transcript status first
+      if (statusCode === 'error' || statusCode === 'failed') {
+        console.error(`[Recall API] Transcript failed with status: ${statusCode}`)
+        throw new Error(`Transcript generation failed: ${statusCode}`)
+      }
+      
+      if (statusCode !== 'done' && statusCode !== 'completed') {
+        console.warn(`[Recall API] Transcript not ready yet, status: ${statusCode}`)
+        return []
+      }
+      
+      // Check if transcript has a download URL - try different possible locations
+      let downloadUrl = transcriptData.download_url || transcriptData.data?.download_url
+      
+      if (downloadUrl) {
+        console.log(`[Recall API] Fetching transcript content from: ${downloadUrl}`)
+        
+        // Fetch the actual transcript content
+        const contentResponse = await fetch(downloadUrl)
+        if (!contentResponse.ok) {
+          throw new Error(`Failed to download transcript content: ${contentResponse.status}`)
+        }
+        
+        const transcriptContent = await contentResponse.json()
+        console.log(`[Recall API] Downloaded transcript structure:`, {
+          isArray: Array.isArray(transcriptContent),
+          hasUtterances: !!transcriptContent.utterances,
+          hasSegments: !!transcriptContent.segments,
+          hasTranscript: !!transcriptContent.transcript,
+          keys: Object.keys(transcriptContent),
+          length: transcriptContent.length,
+          firstItem: transcriptContent[0]
+        })
+        
+        // Handle different possible structures
+        let segments = []
+        
+        // If it's directly an array (most likely case based on logs)
+        if (Array.isArray(transcriptContent)) {
+          segments = transcriptContent
+        } else if (transcriptContent.utterances && Array.isArray(transcriptContent.utterances)) {
+          segments = transcriptContent.utterances
+        } else if (transcriptContent.segments && Array.isArray(transcriptContent.segments)) {
+          segments = transcriptContent.segments
+        } else if (transcriptContent.transcript && Array.isArray(transcriptContent.transcript)) {
+          segments = transcriptContent.transcript
+        }
+        
+        console.log(`[Recall API] Processing ${segments.length} transcript segments`)
+        
+        // Transform to our expected format
+        return segments.map((segment: {
+          speaker?: string
+          text?: string
+          start?: number
+          end?: number
+          start_time?: number
+          end_time?: number
+          participant?: {
+            name?: string
+            id?: number
+          }
+          words?: Array<{
+            text?: string
+            start?: number
+            end?: number
+          }>
+        }) => {
+          // Handle Recall.ai format with participant and words
+          if (segment.participant && segment.words) {
+            const speaker = segment.participant.name || `Participant ${segment.participant.id}` || 'Unknown'
+            const text = segment.words.map(word => word.text || '').join(' ')
+            const start_time = segment.words.length > 0 ? (segment.words[0].start || 0) : 0
+            const end_time = segment.words.length > 0 ? (segment.words[segment.words.length - 1].end || 0) : 0
+            
+            console.log(`[Recall API] Transformed segment: ${speaker}: "${text}" (${start_time}-${end_time})`)
+            
+            return {
+              speaker,
+              text,
+              start_time,
+              end_time
+            }
+          }
+          
+          // Handle standard format
+          return {
+            speaker: segment.speaker || 'Unknown',
+            text: segment.text || '',
+            start_time: segment.start_time || segment.start || 0,
+            end_time: segment.end_time || segment.end || 0
+          }
+        })
+      }
+      
+      console.warn('[Recall API] No download URL found in transcript data')
+      return []
+    } catch (error) {
+      console.error('Error getting transcript:', error)
+      throw error
+    }
+  }
+
+  // Legacy method - get transcript for a completed recording (now properly implemented)
+  async getTranscriptByRecordingId(recordingId: string): Promise<RecallTranscript[]> {
+    try {
+      // First create a transcript job
+      const { transcript_id } = await this.createTranscript(recordingId)
+      
+      // Wait a bit for processing (in real implementation, we'd use webhooks)
+      console.log(`[Recall API] Waiting for transcript processing...`)
+      await new Promise(resolve => setTimeout(resolve, 5000))
+      
+      // Then fetch the transcript
+      return await this.getTranscriptById(transcript_id)
+    } catch (error) {
+      console.error('Error getting transcript by recording ID:', error)
+      return []
+    }
+  }
+
+  // Legacy method - keep for backward compatibility but mark as deprecated
   async getTranscript(botId: string): Promise<RecallTranscript[]> {
+    console.warn('[Recall API] getTranscript is deprecated, use getTranscriptByRecordingId instead')
+    // Try the legacy endpoint first, if it fails, return empty array
     try {
       const response = await fetch(`${RECALL_API_URL}/bot/${botId}/transcript/`, {
         headers: { 
@@ -142,9 +322,8 @@ export class RecallClient {
       })
 
       if (!response.ok) {
-        const errorData = await response.text()
-        console.error('Recall API Error (getTranscript):', response.status, errorData)
-        throw new Error(`Failed to get transcript: ${response.status} ${response.statusText}`)
+        console.warn('[Recall API] Legacy transcript endpoint failed, returning empty transcript')
+        return []
       }
 
       const transcriptData = await response.json()
@@ -163,8 +342,8 @@ export class RecallClient {
         end_time: segment.end_time || 0,
       }))
     } catch (error) {
-      console.error('Error getting transcript:', error)
-      throw error
+      console.warn('[Recall API] Legacy transcript failed, returning empty transcript:', error)
+      return []
     }
   }
 

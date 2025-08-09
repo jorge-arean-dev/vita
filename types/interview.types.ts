@@ -8,6 +8,19 @@ export interface InterviewStatus {
   sort_order: number
 }
 
+export interface FullTranscript {
+  segments: Array<{
+    speaker: string
+    text: string
+    start_time: number
+    end_time: number
+  }>
+  metadata: {
+    retrieved_at: string
+    total_segments: number
+  }
+}
+
 export interface Interview {
   id: string
   job_id: string
@@ -21,6 +34,7 @@ export interface Interview {
   analysis_triggered_by: string | null
   created_at: string
   updated_at: string
+  full_transcript: FullTranscript | null
   interview_statuses?: InterviewStatus
 }
 

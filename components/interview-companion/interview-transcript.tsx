@@ -59,8 +59,21 @@ export default function InterviewTranscript({ interview, onAnalyze }: InterviewT
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
   }
 
-  // Check if transcript exists
-  const hasTranscript = interview.interview_transcripts && interview.interview_transcripts.length > 0
+  // Check if transcript exists (either format)
+  const hasLegacyTranscript = interview.interview_transcripts && interview.interview_transcripts.length > 0
+  const hasFullTranscript = interview.full_transcript && interview.full_transcript.segments.length > 0
+  const hasTranscript = hasLegacyTranscript || hasFullTranscript
+  
+  // Use full transcript if available, otherwise fall back to legacy format
+  const transcriptSegments = hasFullTranscript 
+    ? interview.full_transcript!.segments.map((segment, index) => ({
+        id: `segment-${index}`,
+        speaker: segment.speaker,
+        text: segment.text,
+        start_time: segment.start_time,
+        end_time: segment.end_time
+      }))
+    : (interview.interview_transcripts || [])
 
   if (!hasTranscript) {
     return (
@@ -107,7 +120,7 @@ export default function InterviewTranscript({ interview, onAnalyze }: InterviewT
       {/* Transcript display */}
       <ScrollArea className="h-[500px] w-full rounded-md border p-4">
         <div className="space-y-4">
-          {(interview.interview_transcripts || [])
+          {transcriptSegments
             .sort((a, b) => (a.start_time || 0) - (b.start_time || 0))
             .map((segment, index) => (
               <div key={segment.id || index} className="space-y-2">
@@ -124,7 +137,7 @@ export default function InterviewTranscript({ interview, onAnalyze }: InterviewT
                     </p>
                   </div>
                 </div>
-                {index < (interview.interview_transcripts || []).length - 1 && (
+                {index < transcriptSegments.length - 1 && (
                   <hr className="border-border/50" />
                 )}
               </div>
@@ -134,13 +147,19 @@ export default function InterviewTranscript({ interview, onAnalyze }: InterviewT
 
       {/* Transcript stats */}
       <div className="flex gap-4 text-sm text-muted-foreground">
-        <span>{(interview.interview_transcripts || []).length} segments</span>
+        <span>{transcriptSegments.length} segments</span>
         <span>•</span>
         <span>
           Duration: {formatTime(
-            Math.max(...(interview.interview_transcripts || []).map(t => t.end_time || 0))
+            Math.max(...transcriptSegments.map(t => t.end_time || 0))
           )}
         </span>
+        {hasFullTranscript && (
+          <>
+            <span>•</span>
+            <span>Retrieved: {new Date(interview.full_transcript!.metadata.retrieved_at).toLocaleString()}</span>
+          </>
+        )}
       </div>
     </div>
   )
