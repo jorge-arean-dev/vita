@@ -109,7 +109,7 @@ This document outlines the integration plan for connecting the Vita Interview Co
 1. **Production Webhook Configuration**
    - Deploy to Vercel with real environment variables
    - Update webhook URL in Recall.ai dashboard: `https://your-app.vercel.app/api/recall/webhooks`
-   - Test webhook delivery in production
+   - Test webhook delivery in production.
 
 2. **Enhanced Error Handling**
    - Implement retry logic for failed API calls
