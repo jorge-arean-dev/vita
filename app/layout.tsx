@@ -11,8 +11,8 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Next.js and Supabase Starter Kit",
-  description: "The fastest way to build apps with Next.js and Supabase",
+  title: "Vita – AI Recruitment Platform for Human-Driven Hiring",
+  description: "Combine the speed of AI with your recruitment skills. Vita accelerates sourcing, analysis, and interviews so you can focus on building lasting talent connections.",
 };
 
 
@@ -27,15 +27,15 @@ export default function RootLayout({
       <body className="min-h-screen font-sans antialiased">
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
           disableTransitionOnChange
         >
           <FontProvider>
-            <AuthStateProvider>
+            <div className="light">
               {children}
               <Toaster />
-            </AuthStateProvider>
+            </div>
           </FontProvider>
         </ThemeProvider>
       </body>

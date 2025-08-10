@@ -1,49 +1,87 @@
 
-import { createClient } from "@/lib/supabase/server";
-import HeroSection from "@/components/ui/hero-3";
-import { ThemeSwitcher } from "@/components/theme-switcher";
-import { ConnectSupabaseSteps } from "@/components/tutorial/connect-supabase-steps";
-import { SignUpUserSteps } from "@/components/tutorial/sign-up-user-steps";
-import { hasEnvVars } from "@/lib/utils";
-import Header from "@/components/site-header";
-import { redirect } from "next/navigation";
+"use client"
 
-export default async function Home() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  // If user is logged in, redirect to protected dashboard
-  if (user) {
-    redirect("/protected");
-  }
-  
+import { useState } from "react"
+import LandingHeader from "@/components/landing-v1/landing-header"
+import LandingHero from "@/components/landing-v1/landing-hero"
+import LandingFooter from "@/components/landing-v1/landing-footer"
+import AboutSection from "@/components/landing-v1/about-section"
+import HowSection from "@/components/landing-v1/how-section"
+import PlansSection from "@/components/landing-v1/plans-section"
+import { JoinWaitlistDialog } from "@/components/landing-v1/join-waitlist-dialog"
+
+export default function Home() {
+  const [isWaitlistOpen, setIsWaitlistOpen] = useState(false)
+  const [triggerSource, setTriggerSource] = useState<"join_waitlist" | "vita_core" | "vita_custom">("join_waitlist")
+
   return (
-    <main className="min-h-screen flex flex-col items-center">
-      <div className="flex-1 w-full flex flex-col gap-8 items-center">
-        <Header />
-        <div className="flex-1 flex flex-col gap-20 max-w-5xl p-5">
-          <HeroSection />
-          <main className="flex-1 flex flex-col gap-6 px-4">
-            <h2 className="font-medium text-xl mb-4">Next steps</h2>
-            {hasEnvVars ? <SignUpUserSteps /> : <ConnectSupabaseSteps />}
-          </main>
-        </div>
-
-        <footer className="w-full flex items-center justify-center border-t mx-auto text-center text-xs gap-8 py-16">
-          <p>
-            Powered by{" "}
-            <a
-              href="https://supabase.com/?utm_source=create-next-app&utm_medium=template&utm_term=nextjs"
-              target="_blank"
-              className="font-bold hover:underline"
-              rel="noreferrer"
-            >
-              Supabase
-            </a>
-          </p>
-          <ThemeSwitcher />
-        </footer>
+    <main className="relative">
+      {/* Fullscreen Video Background - Fixed position */}
+      <div className="fixed inset-0 -z-10">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source 
+            src="https://res.cloudinary.com/dnhjrpwmc/video/upload/v1754507917/background-2-4k_nkezn5.mp4" 
+            type="video/mp4" 
+          />
+        </video>
       </div>
+      
+      {/* Content - with fade effect when dialog is open */}
+      <div className={`relative z-10 transition-opacity duration-500 ${isWaitlistOpen ? 'opacity-30' : 'opacity-100'}`}>
+        <LandingHeader onJoinWaitlist={() => {
+          setTriggerSource("join_waitlist")
+          setIsWaitlistOpen(true)
+        }} />
+        
+        {/* Hero Section - Full viewport height with buttons centered in available space */}
+        <section id="hero" className="min-h-screen flex pt-16 pb-20">
+          <div className="flex-1 flex flex-col justify-center max-w-5xl mx-auto px-5 w-full">
+            {/* Offset to position buttons at center of available space */}
+            <div className="-mt-24">
+              <LandingHero onJoinWaitlist={() => {
+                setTriggerSource("join_waitlist")
+                setIsWaitlistOpen(true)
+              }} />
+            </div>
+          </div>
+        </section>
+
+        {/* About Section - Full viewport height with padding for footer */}
+        <section id="about" className="min-h-screen flex items-center justify-center pt-16 pb-24">
+          <AboutSection />
+        </section>
+
+        {/* How Section - Full viewport height with padding for footer */}
+        <section id="how" className="min-h-screen flex items-center justify-center pt-16 pb-24">
+          <HowSection />
+        </section>
+
+        {/* Plans Section - Full viewport height with padding for footer */}
+        <section id="plans" className="min-h-screen flex items-center justify-center pt-16 pb-24">
+          <PlansSection onJoinWaitlist={(source: "vita_core" | "vita_custom") => {
+            setTriggerSource(source)
+            setIsWaitlistOpen(true)
+          }} />
+        </section>
+      </div>
+
+      {/* Fixed Footer - Always visible */}
+      <div className="fixed bottom-0 left-0 right-0 z-40">
+        <LandingFooter />
+      </div>
+
+      {/* Join Waitlist Dialog */}
+      <JoinWaitlistDialog 
+        open={isWaitlistOpen} 
+        onOpenChange={setIsWaitlistOpen}
+        triggerSource={triggerSource}
+      />
     </main>
-  );
+  )
 }
