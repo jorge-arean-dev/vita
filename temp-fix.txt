@@ -1,0 +1,11 @@
+Looking at the error, the issue is in the JSX structure around the ternary operator. The structure should be:
+
+{analysis.isNew && !analysis.results ? (
+  // New Analysis Panel
+  <div>...</div>
+) : analysis.results ? (
+  // Results View
+  <div>...</div>
+) : null}
+
+But the current structure has malformed closing brackets.

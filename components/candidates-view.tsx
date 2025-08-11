@@ -1,0 +1,343 @@
+"use client"
+
+import { useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
+import { FileText, MoreHorizontal, Trash2, Users } from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
+import { useToast } from "@/components/ui/use-toast"
+import { deleteCandidate, createSampleCandidates, CandidateData } from "@/app/actions/candidates"
+import CreateTalentDialog from "@/components/create-talent-dialog"
+
+interface CandidatesViewProps {
+  candidates: CandidateData[]
+}
+
+export default function CandidatesView({ candidates: initialCandidates }: CandidatesViewProps) {
+  const [candidates, setCandidates] = useState(initialCandidates)
+  const [isPending, startTransition] = useTransition()
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [candidateToDelete, setCandidateToDelete] = useState<{ id: string; name: string } | null>(null)
+  const { toast } = useToast()
+  const router = useRouter()
+
+  const handleOpen = (candidate: CandidateData) => {
+    router.push(`/protected/candidates/${candidate.id}`)
+  }
+
+  const handleDeleteClick = (candidateId: string, candidateName: string) => {
+    setCandidateToDelete({ id: candidateId, name: candidateName })
+    setDeleteDialogOpen(true)
+  }
+
+  const handleConfirmDelete = () => {
+    if (!candidateToDelete) return
+
+    startTransition(async () => {
+      try {
+        await deleteCandidate(candidateToDelete.id)
+        setCandidates(candidates.filter((candidate) => candidate.id !== candidateToDelete.id))
+        toast({
+          title: "Success",
+          description: "Candidate deleted successfully",
+        })
+        setDeleteDialogOpen(false)
+        setCandidateToDelete(null)
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to delete candidate",
+          variant: "destructive",
+        })
+        console.error("Error deleting candidate:", error)
+      }
+    })
+  }
+
+  const handleCreateSamples = () => {
+    startTransition(async () => {
+      try {
+        await createSampleCandidates()
+        toast({
+          title: "Success",
+          description: "Sample candidates created successfully",
+        })
+        // Refresh the server component data
+        router.refresh()
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to create sample candidates",
+          variant: "destructive",
+        })
+        console.error("Error creating sample candidates:", error)
+      }
+    })
+  }
+
+  const handleCandidateCreated = (newCandidate: CandidateData) => {
+    // Add the new candidate to the state for immediate UI update
+    setCandidates(prev => [newCandidate, ...prev])
+  }
+
+  const getInitials = (firstName: string | null, lastName: string | null) => {
+    const first = firstName?.charAt(0) || ''
+    const last = lastName?.charAt(0) || ''
+    return `${first}${last}`.toUpperCase() || '??'
+  }
+
+  const getAvatarColor = (fullName: string) => {
+    const colors = [
+      "bg-blue-500",
+      "bg-green-500",
+      "bg-purple-500",
+      "bg-orange-500",
+      "bg-pink-500",
+      "bg-indigo-500",
+      "bg-teal-500",
+      "bg-red-500",
+    ]
+    const index = fullName.length % colors.length
+    return colors[index]
+  }
+
+
+  return (
+    <TooltipProvider>
+      <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Candidates</h1>
+          <p className="text-muted-foreground">See all the candidates you&apos;ve reviewed, sourced or assessed, past and present</p>
+        </div>
+        <div className="flex gap-2">
+          {candidates.length === 0 && (
+            <Button 
+              variant="outline" 
+              onClick={handleCreateSamples}
+              disabled={isPending}
+            >
+              Create Sample Data
+            </Button>
+          )}
+          <Button onClick={() => setIsCreateDialogOpen(true)}>Create Candidate</Button>
+        </div>
+      </div>
+
+      {candidates.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="rounded-full bg-muted p-3 mb-4">
+            <Users className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <h3 className="text-lg font-medium mb-2">No candidates created yet</h3>
+          <p className="text-muted-foreground mb-4">Add your first candidate to get started.</p>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline"
+              onClick={handleCreateSamples}
+              disabled={isPending}
+            >
+              Create Sample Data
+            </Button>
+            <Button onClick={() => setIsCreateDialogOpen(true)}>Create Candidate</Button>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {/* Table Headers */}
+          <div className="grid grid-cols-12 gap-4 px-6 py-3 text-sm font-medium text-muted-foreground border-b">
+            <div className="col-span-4">Name</div>
+            <div className="col-span-2">Location</div>
+            <div className="col-span-2">Experience</div>
+            <div className="col-span-2">Added</div>
+            <div className="col-span-2"></div>
+          </div>
+
+          {/* Candidate Cards */}
+          <div className="space-y-2">
+            {candidates.map((candidate) => {
+              const fullName = `${candidate.first_name || ''} ${candidate.last_name || ''}`.trim() || 'Unknown Candidate'
+              const location = candidate.country_name || candidate.country || "Unknown"
+
+              return (
+                <Card
+                  key={candidate.id}
+                  className="group cursor-pointer transition-all duration-200 hover:shadow-md hover:border-primary/50 focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2"
+                  onClick={() => handleOpen(candidate)}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Open candidate: ${fullName}`}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault()
+                      handleOpen(candidate)
+                    }
+                  }}
+                >
+                  <CardContent className="px-4 pb-0 pt-0">
+                    <div className="grid grid-cols-12 gap-4 items-center">
+                      {/* Profile Picture + Name */}
+                      <div className="col-span-4 flex items-center gap-3">
+                        <div
+                          className={`w-10 h-10 rounded-full ${getAvatarColor(fullName)} flex items-center justify-center text-white font-medium text-sm`}
+                        >
+                          {getInitials(candidate.first_name, candidate.last_name)}
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="font-medium group-hover:text-primary transition-colors">
+                            {fullName}
+                          </span>
+                          {candidate.email && (
+                            <span className="text-xs text-muted-foreground truncate max-w-48">
+                              {candidate.email}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Location */}
+                      <div className="col-span-2">
+                        <span className="text-muted-foreground">{location}</span>
+                      </div>
+
+                      {/* Experience */}
+                      <div className="col-span-2">
+                        <span className="text-muted-foreground">
+                          {candidate.years_experience 
+                            ? `${candidate.years_experience} ${candidate.years_experience === 1 ? 'year' : 'years'}`
+                            : 'N/A'
+                          }
+                        </span>
+                      </div>
+
+                      {/* Added Date */}
+                      <div className="col-span-2">
+                        <span className="text-muted-foreground">
+                          {new Date(candidate.created_at).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          })}
+                        </span>
+                      </div>
+
+                      {/* Documents + Actions */}
+                      <div className="col-span-2 flex items-center justify-center gap-3">
+                        {/* PDF Icon */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            {candidate.resume_url ? (
+                              <FileText 
+                                className="h-5 w-5 cursor-pointer text-green-600 hover:text-green-700 transition-colors"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  window.open(candidate.resume_url!, '_blank', 'noopener,noreferrer')
+                                }}
+                              />
+                            ) : (
+                              <FileText className="h-5 w-5 text-gray-400 cursor-not-allowed" />
+                            )}
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{candidate.resume_url ? "Click to open resume" : "No Resume Uploaded"}</p>
+                          </TooltipContent>
+                        </Tooltip>
+
+                        {/* LinkedIn Icon */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div
+                              className={`h-5 w-5 rounded-sm flex items-center justify-center transition-colors ${
+                                candidate.linkedin 
+                                  ? "bg-[#0A66C2] hover:bg-[#004182] cursor-pointer" 
+                                  : "bg-gray-400 cursor-not-allowed"
+                              }`}
+                              onClick={(e) => {
+                                if (candidate.linkedin) {
+                                  e.stopPropagation()
+                                  window.open(candidate.linkedin, '_blank', 'noopener,noreferrer')
+                                }
+                              }}
+                            >
+                              <span className="text-white font-bold text-[10px] leading-none">in</span>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{candidate.linkedin ? "Click to open LinkedIn profile" : "No LinkedIn Profile"}</p>
+                          </TooltipContent>
+                        </Tooltip>
+
+                        {/* Action Menu */}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity ml-2"
+                              aria-label={`Actions for ${fullName}`}
+                              onClick={(e) => e.stopPropagation()}
+                              disabled={isPending}
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-[160px]">
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDeleteClick(candidate.id, fullName)
+                              }}
+                              className="cursor-pointer text-destructive focus:text-destructive"
+                              disabled={isPending}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+        </div>
+      )}
+      </div>
+
+      <CreateTalentDialog
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+        onCandidateCreated={handleCandidateCreated}
+      />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Candidate</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {candidateToDelete?.name}? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setCandidateToDelete(null)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={isPending}
+            >
+              {isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </TooltipProvider>
+  )
+}

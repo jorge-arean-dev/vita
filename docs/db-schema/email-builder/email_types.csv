@@ -1,0 +1,5 @@
+column,type,description,Nullable,has explicit allowed values?,do allowed values live in dedicated table?,where do allowed values live?
+id,uuid,Primary key,no,no,not applicable,not applicable
+name,text,name,no,no,not applicable,not applicable
+created_at,timestampz,Record creation timestamp,no,no,not applicable,not applicable
+updated_at,timestampz,Record update timestamp,no,no,not applicable,not applicable

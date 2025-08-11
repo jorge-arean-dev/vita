@@ -1,0 +1,2769 @@
+The site header needs some changes especially related to what to display when a user is logged in vs not logged user
+
+content to display for non logged in users:
+- app logo
+- links: just 2 links: how it works and about. We'll then adjust this.
+- login/sign up buttons
+
+content to display when a user is logged in:
+- app logo
+- links: current links displayed: jobs, candidates, companies, settings
+- create job button. 
+- message "hey, <username>"
+- logout button (probably an icon-based button)
+
+
+There is some content placed between the site header and the hero section. Given the adjusmetbts we are making, that content can be removed
+
+
+================
+
+
+Couple of additional changes needed related to the site header:
+
+- for non logged in users: the wording for sign up button must be login instead
+- the site header must appear in the login and sign up pages
+- when clicking on the app logo, that should contain a link to the main route (this appied for both logged and non logged in users)
+
+
+i made a mistake with my last message and you removed the sign up button from the site header.
+Please add it!
+In summary the site headear (for non logged in users) must display 2 buttons: login and signup
+
+
+when logging in, i was taken to /protected and notice that the site header we created is not showing up (we are still seeing the prev version). please make necessary changes to display the new site header following the policies for logged and non logged in users
+
+===========
+
+
+Some additional fixes needed:
+1. add one more section to the header called FAQ. That should take the user to the FAQ section
+2. in the login and signup pages, the site header we just created must also display there
+3. about and faq must be accessible publicly, meaning there is no need to be logged in to see these routes
+
+===========
+
+
+The content of the site header showing up in the route page is correct, but when going to login or signup routes, the content varies. THis is incorrect. THe content must be the same 
+
+=======
+
+When clicking about or faq link, i'm taken to the login route. this is not the expected flow as about and faq routes must be accessible publicliy (for non logged in users)
+
+======
+
+Let's take a step back and rethink what we've done and what needs to be accomplished.
+In this conversation we had 2 goals:
+
+1-Create profiles table and trigger: This was done successfully
+2-Create storage bucket for avatars: This wasn't accomplished. The goal is to Create a private storage bucket called avatars and generate the action needed to handle the logic to insert the url into the profile table avatar_url column. You must Apply necessary policies so these files remain private. you must also Apply the migration using supabase db push
+
+For Goal 2, you did changes to profiles.ts (which now seems to have errors) and then you made several changes which haven't made any effect. 
+
+Please undo all the changes/adjustments you made for Goal 2 and start from scratch if possible. Please create a plan to get Goal 2 accomplished
+
+=====
+
+
+Lets do these modifications:
+- Lets not use the tab organization. Everything (avatar and profile info) must be in the same section
+- Add a button to delete account -destructive color- (the logic behind this will be taken care of later, lets not make this functional yet)
+
+I'm still seeing the same error. As an additional note, you have attempted with public-related features for supabase. Please remember that avatars bucket (the bucket where the pictures must be stored) is private, not public
+
+=====
+Instruction:
+- Please create a new route called /settings that enables their profile data with existing server actions
+- This route must also allow users upload/edit their avatar. Note that the avatar for each user is stored in the private bucket "avatar"
+- Please Create the page using existing ui components.
+
+Considerations:
+- Note that we already have a site-header for navigation. That header must be visible in the route /settings following the guidelines for logged-in users
+- Adopt a clean and good ui/ux criteria when arranging the components
+
+Before taking any action, share your plan. Ask for confirmation and, once i confirm, proceed
+
+====
+
+After applying all these changes, the app returned the same message through a toast. Given this i decided to manually remove the "avatars" bucket through the supabase dashboard.
+
+Please: 
+- Re-reate a private storage bucket called avatars and generate the action needed to handle the logic to insert the url into the profile table avatar_url column.
+- Apply necessary policies so these files remain private.
+- Apply the migration using supabase db push
+
+Before executing the above, check if there will be conflict with any of the existing files
+
+=====
+
+the settings route content is not centered respect to the page. Please adjust this
+
+======
+Lets do a couple of adjustments in /settings route:
+
+- in profile tab, add a descriptive text below the first name input field in gray that says: This is how we'll address you in the application.
+
+- below the first name, add "email". This will display the users email address. This value cant be changed since is linked to the authentication. below the input field for email, add a descriptive text below that says: Your email address is used for notifications and sign-in
+=====
+
+Please make the following adjustments to the site navbar:
+
+- Continue differentiating the site navbar for logged-in users and non-logged-in users.
+- The content of the site header for non-logged-in users should remain unchanged.
+- For logged-in users, apply the following changes to the site header:
+
+  - Update the middle section to include only the following links: Jobs, Candidates, and Companies. The URLs for each link will be provided later. Remove any other existing links.
+  - Remove the message "Hey, <username>".
+  - Remove the logout button.
+  - On the right side of the navbar, display the user avatar. if no avatar available, this must fallback to an avatar with the initial of the user first_name. 
+  - The avatar must be clickable. When clicked, a dropdown menu should appear with only two options: "Settings" and "Log out". These 2 options must follow the app font guidlines
+
+important/additional comments: 
+- Remember that the site navbar for logged in users must be kept across the whole app if the user is logged in
+- for the avatar display consider reviewing how the avatar picture is displayed in the /settings route (@avatar-form.tsx more specifically, this component deals with the avatar preview)
+
+=====
+
+
+I identified some items to fix:
+- the avatar in the navbar must display the avatar file displayed in the "avatars" bucket
+- the menu that displays upon clicking on the avatar in the navbar doesn't have the app fonts we defined in globals.css
+
+====
+
+the user avatar is displaying but not following the expected behavior. 
+- For the existing user im testing with, the user in the logged in session the first nae is "Eric" and the email is "jorge.arean+user1@gmail.com". theuser has an avatar available 
+- the user avatar in the site header shows a "J". in reality this must show the actual avatar. also, i realize the fallback is not working as the initial must be an "E"
+- if you check how this is being handled in the /settings route in the avatar section, the behavior doesn't match
+
+=====
+
+now i did some tests changing the users first name and changing the avatar and the avatar displayed in the site header doesn't replicate the changes, though, the settings section (in the avatar) replicates them. Thi smeans the site header is not workig as expected
+Please adjust how this works so we the site headers's avatar mimics the setting's section avatar display
+
+====
+
+i notice that both for the site header and the settings route (avatar upload section), the load of the avatar picture takes a time to load (this is noticed when loading/refreshing pages). a few messages ago you mentioned some differences related to server side rendering vs client side. Could we please adjust this in some way so it doesn't take such a long time to load?
+
+====
+
+i'm having some errors that are only happening in the version deployed in vercel, not locally. Therefore it's hard to say why. Also i don't have significant logs being reported
+
+Let me share the errors I'm encountering. These issues are somewhat erratic:
+
+1. After logging in, if I navigate to the settings section via the menu (by clicking the avatar in the site header), it redirects me to the login page and logs the user out.
+2. If I manually enter the /settings route in the browser, it correctly takes me to the settings page.
+3. After logging in as one user (say, User 1), then logging out and logging in as another user (say, User 2), the avatar image in the site header remains stuck showing User 1’s avatar. This issue occurs only in the settings section; elsewhere in the app, the avatar updates correctly.
+
+Can you please run a check on the existing code to see if you identify potential issues taht may be related to the issues im having?
+
+
+=====
+
+i'm still having the same erratic errors that are only visibile in vercel deploy, not here locally.
+The curious thing is that errors are entirely related to the site header. 
+
+Lets focus first on the avatar of the site header and what displays. Please ensure the avatar displayed in the siteheader replicates what is being displayed in the avatar from the setting section. This is working correctly locally but not when deploing into vercel. please first investigate what may be going on that causes this, research the code and then detail a plan to solve this. ask for confirmation, once i confirm, youll be good to proceed.
+======
+
+Revise the header according to the following guidelines:
+- Remove the "Create Job" button and all navigation links.
+- Add a circular avatar on the right side. It should display either the user's avatar image or, as a fallback, the first initial of their first name. of course use placeholders for avatar images or initials
+- Place a logout icon next to the avatar.
+- The elements in the header should appear in this order: (logo + brand name), (avatar), (logout icon).
+
+=======
+
+Add another component that consists of a collapsable left hand side menu.
+The menu must have this options:
+- jobs
+- candidates
+- companies
+- settings
+Add icons next to each menu option
+
+=====
+
+make this adjustment to the menu:
+- reduce a bit the width
+- add an on select color to identify the option selected
+
+=====
+
+i have added 2 components.
+
+Please import them to the app following these guidelines:
+- both components must appear in user sessions only (when user is logged in)
+- the site header: the avatar must display the respective avatar from the user that is logged in (you must reference the avatar url from the profiles table)
+- site header: the logout button must log the user out
+- sidebar: add the options as they are, i'll provide the respective links each option takes to later
+
+======
+
+the /settings route must be treated as the protected route
+when clicking "settings" in the sidebar, the sidebar and the header (for logged in users) must persist, while the protected view displays the settings.
+
+
+========
+
+
+the avatar in the header is not displaying the avatar when we have a user with a corresponding avatar image.
+please take as a reference how the settings page displays the avatar in the avatar form section
+
+======
+
+suv = car
+
+=====
+
+I'm encountering an issue that only occurs in the deployed version on Vercel, not in the local environment.
+
+Where the issue is located: in the site header for logged in users.
+
+Description of the issue:
+When a user (e.g., User 1) logs in, their avatar displays correctly in the site’s heaader. However, after logging out and another user (e.g., User 2) logs in, the site header fails to update the avatar properly. It either shows the wrong avatar or displays an incorrect fallback avatar (e.g., the wrong initial based on User 2’s first name from the `profiles` table).
+
+Notably, the avatar displays correctly in the settings section (specifically in the avatar upload component) in both local and deployed environments.
+
+Instruction:
+Please analyze how the site header renders the avatar and identify potential issues. 
+Keep in mind that the problem only occurs in the deployed Vercel version and not locally.
+Don't build anything yet, just review the codebase and identify potential issues that may be causing this behavior
+
+Files you may review:
+
+
+====
+
+I implemented the changes and deployed to Vercel, but the behavior is still incorrect. Below are the steps I followed and the results I observed:
+
+- User 1 logs in.
+- The data displayed on the /protected route (Your User Details section) is correct. The avatar header also displays correctly.
+- User 1 logs out.
+- User 2 logs in.
+- The data displayed on the /protected route is incorrect—the email shown belongs to User 1. The avatar header shows a fallback initial corresponding to User 1's first name.
+- After refreshing the page, the data on the /protected route (User 2’s email) and the avatar header are displayed correctly (showing User 2's avatar).
+
+Seems like the data displayed both in the /protected route (user email) and in the header (user avatar) gets fixed upon refresh.
+
+Please, based on the described behavior do any necessary research, then propose a plan to fix this. Once you do this i'll confirm
+
+======
+
+Main user tables (aside from profiles):
+- jobs
+- candidates
+- companies
+
+Stages:
+
+Define:
+- Client Call Notes Input: these notes will be stored in jobs table.
+- Company Information: this will be read from the companies table.
+- Role Analysis: this portion contains different attributes that will be columns from the jobs table
+- Job Description: jd will be stored in the jobs table as a separate column
+
+Source:
+- Boolean Query Generator for LinkedIn: jobs must contain a text-based column attribute to store the queries and the recommendations
+Request for Pre-Vetted Available Candidates: This is a premium feature not included in this version
+
+Review:
+-**LinkedIn Profile Analysis**: Input a candidate’s LinkedIn URL to get a full analysis. An external API will be used to fetch the profile. This API will be provided by later in the process.
+- **PDF Resume Analysis**:
+
+
+Review:
+===========
+
+
+You're a Supabase and database specialist. I want to create all of my tables that I need in this app. 
+
+Follow these guidelines:
+- Before you start review these files to gain further context about the requirements:
+	1. app prd file ()
+	2. database schema file ()
+- Ask me a set of questions for me to answer if needed.
+- You won't be using Supabase MCP for this task, but rather creating and applying migrations files.
+- When creating tables please:
+ 	– Create the relevant types files
+	– Generate and run necessary migrations
+	– Include RLS policies
+
+Aside from these instructions, please remember to follow instructions detailed in 
+
+
+
+3a
+
+==========
+
+Perfect. In the Assess section there will be 2 sections: 1) interview questions (where user will get ideas to ask questions during the interview) 2) full interview review: here the user will be able to paste the interview transcript and the system will return an evaluation.
+
+the idea will be to capture an score based on these areas:
+-Technical Skills & Domain Knowledge
+-Problem-Solving & Analytical Thinking
+-Communication & Collaboration
+-Leadership & Initiative
+-Adaptability & Learning Agility
+-Cultural Fit & Values Alignment
+
+please return a db schema for a table called "candidate_interview_evaluation" where this information will be stored.
+
+here are other tables that i have already designed that are related to "candidate_interview_evaluation": 
+
+========
+
+I'll share the lookup table values in csv format.
+Please check the files in <> where you will find one csv per table. There are still some tables missing which i will share details later (regions, countries, timezones)
+
+note that each csv contain just respective names and display names
+display names are the names used to be displayed in the app.
+
+======
+my answers below:
+1. it's correct to have just the display_name. Lets leave it as is
+2. lets run this migration now and handle the geographic data later
+3. yes!
+
+======
+
+Add a new component that will be placed in the central part of the page (will display when user clicks the jobs section) that consists of a table that displays the jobs.
+
+that table will contain these columns:
+- Title (job title)
+- Company (company associated with the job)
+- # of Candidates (number of candidates linked to the job)
+
+Next to the last column, there should be link (could be a button) that onpens up an action menu with 2 options: open (to access that job) or delete (to delete the job)
+
+please make the table good looking, good ux/ui, aesthetic and minimalistic
+
+============
+
+I want to create the page that should be displayed when a user clicks on "Jobs" in the sidebar.
+
+When the user clicks on "Jobs," the central area of the page should display the following elements:
+
+1. **Title**: "Jobs"
+2. **Subtitle**: "Manage your active roles. Create a new one when you're ready."
+3. **Create Job Button**: A simple, minimalist call-to-action button for creating a new job.
+4. **Table**: A table displaying all jobs associated with the currently logged-in user.
+
+### Guidelines for Each Element:
+- **Title**: Use the text "Jobs."
+- **Subtitle**: Use the text "Manage your active roles. Create a new one when you're ready."
+- **Create Job Button**: Design a clean and minimalist button for creating a new job.
+- **Table**: Use the referenced file as a design and layout reference. Note that this file contains mock data. In the actual implementation, the table should be populated with data from the "jobs" table.
+
+Please ask any questions you need to gain clarity. Build a plan before starting and ask me to confirm before proceeding.
+=========
+
+my answers:
+1. it will follow a route, but lets leave it with no action for now
+2. no
+3. yes!
+
+new request: please add a new column to the table displaying the creation date
+===========
+
+The thing is that i dont have data loaded in the database.
+It would be more helpful proably if we add some test mock data. Right? DONT DO ANYTHING YET, JUST ANSWER MY QUESTION
+
+==========
+
+understood, before creating test mock data, lets add the seed data for the tables countries, timezones and regions. Pleaes reference these files for creating the data. once the migration files are ready let me know so i can run the supabase db push instruction
+
+==========
+
+perfect, now pleaes review the country.csv file i provided. there you will identify that there are some countries that dont have a value for region_parent and primary_timezone either.
+
+1. identify the countries that dont have values for either region_parent and primary_timezone.
+2. for those countries assign a timezone (the timezone you assign must be 
+
+========
+
+id like to test the jobs table displayed in the route "/protected/jobs" - pleaes create test mock data for the jobs and the companies table.
+- please create 2 jobs and 2 companies
+- those 2 jobs and companies must be created by user whose user_id (profiles table) is "3e16fe36-cca4-46b8-8c7b-a466764d526b"
+
+=======
+
+perfect!
+
+for the number of candidates, lets actually remove this value of the table view. is it possible to do it?
+
+=====
+
+in the /protected/jobs route, in the table i notice the menu that displays the options to open or delete a job does not follow the font guidelines (the fonts being displayed are not the ones that must be displayed as per globals.css)
+
+i have been already tried fixing this error but this didn't work out. so here lets take another approach.
+
+please take this source component as a rreferecen which is a component that i brought here to replicate. 
+
+please do this:
+1. confirm if you are effectively seeing that not the correct font is being displayed
+2. please compare the source compoenent it against what's being implemented.
+3. see if there are discrepancies that amy be affecting the font correctly being displayed
+
+======
+This is not working yet.
+I got extra help from another AI that gave me a suggestion on how to proceed in order to solve this.
+Read this suggestion, analyze it, check if it could work, share your feedback and ask me to confirm before taking action:
+
+"=== globals.css ===
+
+1. Open globals.css
+2. Find and remove this block:
+   @layer base {
+     p, span, div, li, input, textarea {
+       font-family: var(--font-space-mono), monospace;
+     }
+   }
+
+3. In the same @layer base (or add a new one), insert:
+   @layer base {
+     code, pre, .font-mono {
+       font-family: var(--font-space-mono), monospace;
+     }
+   }
+
+=== your layout file === (here i suppose it refers to @app/protected/jobs/page.tsx)
+
+1. Open the layout file
+2. Locate the <body> tag in your RootLayout component
+3. Update it so it reads exactly:
+   <body className="min-h-screen font-sans antialiased">
+     {children}
+   </body>
+4. Save both files and restart your dev server.
+"
+
+====================
+
+in the /protected/jobs route, in the table i notice this 2 elemeents dont not follow the font guidelines (the fonts being displayed are not the ones that must be displayed as per globals.css)
+1. menu that displays the options to open or delete a job does
+2. the pop up menu that pops up upon cliking "delete" through the menu described in (1)
+
+i have been already tried fixing this error but this didn't work out. so here lets take another approach. We have edited multiple files and none of them worked.
+
+Please share the steps i should follow to share with you what's being currently displayed in the browser. I could do a web inspect and share what the browser is showing. lets use this approach to solve this.
+
+Remember that:
+- elements must not be hardcoded when it comes to styling. Everything must be correctly inherited from globals.css
+
+
+===========
+
+lets focus on the dropdown menu first (Step 2):
+
+here is the element:
+<div role="menuitem" data-slot="dropdown-menu-item" data-variant="default" class="focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:!text-destructive [&amp;_svg:not([class*='text-'])]:text-muted-foreground relative flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&amp;_svg]:pointer-events-none [&amp;_svg]:shrink-0 [&amp;_svg:not([class*='size-'])]:size-4 cursor-pointer" tabindex="-1" data-orientation="vertical" data-radix-collection-item="" style="font-family: var(--font-inter), system-ui, sans-serif;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye mr-2 h-4 w-4" aria-hidden="true"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>Open</div>
+
+
+here is what the font-family says: " font-family "Times New Roman" 
+-======
+
+I want to create a guide written for specifically avoiding font related issues like this. Take everything you've learned about this error fix, including common pitfalls and solutions, to create this guide.
+
+Name the guide font-provider-common-issues.md and add it to the docs folder.
+
+=======
+
+I need to make a minor change to the site header for logged-in users:
+
+The avatar and logout button are not aligned with the content displayed in the central part of the app. This misalignment makes the site header appear as though it has excessive right padding compared to the left padding (where the logo is).
+
+app files to review: 
+
+please make sure you follow the guidelines mentioned here: @docs/rules/coding.md
+
+======
+
+I want to build the flow and UI that appears when a user clicks the "Create New Job" button in the "protected/jobs" view. This same UI should also be used when accessing an existing job.
+
+At the top of the central area of the page, there should be a fixed graphical step-by-step schema representing the following phases: Define, Source, Review, Reach, Assess, Submit. Each phase should be clickable, allowing the user to navigate to the corresponding section.
+
+As stated, this structure applies both when creating a new job and when opening an existing one. The displayed content should change based on the current phase the user is in.
+
+I have included mockups in this directory @/mockups (organized properly by folders) and a functional description of the core structure and each phase in this document @/docs/jobs-feature-functional-description.md
+
+What I need:
+1. Review the PRD first, followed by the mockups and the functional description, to fully understand the requirements.
+2. Ask any questions needed to gain further clarity.
+3. Build a plan to create the user experience for the job. DO NOT BUILD ANYTHING YET—JUST OUTLINE THE PLAN AND WAIT FOR MY CONFIRMATION.
+
+Considerations:
+1. Focus only on the UI for now.
+2. The mockups are not final—they are meant to guide the design, but changes may be necessary.
+3. Database integration and external API connections will be handled in a later stage. You may prepare a list of related items for that phase. Placeholder data can be used for API responses at this stage.
+
+DO NOT TAKE ANY ACTION YET—JUST PREPARE THE PLAN.
+
+=====
+
+For context let me
+  elaborate on the functional description of this field (Initial Notes) which can be empty, but this prevents subsequent API-related generation
+  functions from producing output, as they rely on Initial Notes content  as input.
+
+  Therefore, while Initial Notes can be marked as optional, this should be clearly reflected in the application. For example, the "Generate" button
+  used to create role attributes should be disabled if the `initialNotes` field is empty.
+
+  There’s no need to address these references right now—this is just to clarify the relationship for future consideration.
+
+=====
+
+Understood.
+
+Let’s create a `CLAUDE.md` file based on the following guidelines:
+
+- Use these two documents as primary coding guidelines: `@docs/rules-claude/coding.md` and `@docs/rules-claude/global-rules.md`. They should be treated as the main reference when writing new code.
+- For anything related to Supabase, refer to `@docs/rules-claude/supabase-guide.md`. This file should be the primary guideline for database connections or any database integration code.
+- Depending on the context, refer to files in `@docs/recommendations`, which contain best practice recommendations. These are based on past mistakes and should help prevent repeating them.
+- If you encounter significant difficulties while building something or identify something worth noting for future development, document it in `@docs/recommendations/general-recommendations.md`. Append a clear title and a description of your insight. Please ask for confirmation before creating any new content.
+- If the recommendation is substantial and warrants more attention, you may propose creating a dedicated Markdown file in the directory `@docs/recommendations/` . Please ask for confirmation before creating any new content.
+
+=======
+
+Analyze the full resume and identify every skill present in the content from the work experience. every skill must be identified, and for each these parameters must be catpured: 
+
+1) years of experience: exact number of years of experience with that specific skill that was captured
+
+2) category: the categorization must be done based on  the categories explained below:
+- technical: technical skills related to development tools, technologies, programming languages, softwares, apps, technical practices, etc. Examples are: React, Amazon Web Services, JavaScript, Snowflake, Automation, etc.
+- soft_skill: refers to soft skills. examples are: Leadership, Public speaking, etc
+- role: refers to specific position titles like Fullstack Developer, Software Architect, Cloud Engineer, etc
+- certification: refers to technical cerritications like: AWS Solutions Architect, GCP Cloud Solutions Architect, etc
+- industry: refers to specific industries. each skill of this type must be captured as the indlusry name like: Fintech, Real Estate, Insurance, etc
+
+========
+
+
+- technical: Skills related to software development, IT tools, programming languages, platforms, cloud services, data tools, technical methodologies, etc (e.g., React, AWS, JavaScript, Snowflake, Automation).
+
+- soft_skill: Interpersonal and non-technical skills, like Communication, Leadership, Teamwork, and Problem-solving, etc(e.g., Leadership, Public Speaking).
+
+- role: Specific job titles or functions that describe the individual’s position or responsibility within an organization or project (e.g., Fullstack Developer, Software Architect, Cloud Engineer).
+
+- certification: Official credentials or certifications awarded by recognized institutions or providers, typically related to technology or project management (e.g., AWS Solutions Architect, GCP Cloud Solutions Architect).
+
+- industry: Sector-specific experience that reflects the context in which the skills were applied (e.g., Fintech, Insurance, Healthcare).
+
+
+==========
+const skillExtractionCriteria = `Analyze the full resume and identify every skill mentioned in the work experience section. Each skill must be captured with the following parameters:
+
+1) Years of Experience – The exact number of years the individual has used that specific skill.
+
+2) Proficiency Level  
+Based on the number of years of experience you provided, please assign a Proficiency Level using the criteria below:
+
+"beginner":
+- Less than 2 years of hands-on experience with the skill
+- Just starting to learn and apply the skill in real-world situations
+
+"advanced":
+- 2 to less than 5 years of consistent, practical experience
+- Has contributed to multiple projects and is able to work independently
+
+"expert":
+- 5 or more years of in-depth, specialized experience
+- May include responsibilities such as mentoring, providing architectural guidance, or leading initiatives
+
+Additional Considerations: Use these to further refine the appropriate level:
+- How often the skill is used (e.g., daily vs. occasionally)
+- Complexity of the projects (e.g., hobby vs. production-level work)
+- Experience mentoring or teaching others
+- Certifications or public recognition in the field
+
+3) Category – Assign one of the following categories based on the nature of the skill:
+- "technical": Skills related to software development, IT tools, programming languages, platforms, cloud services, data tools, technical methodologies, etc (e.g., React, AWS, JavaScript, Snowflake, Automation).
+- "soft_skill": Interpersonal and non-technical skills, like Communication, Leadership, Teamwork, and Problem-solving, etc (e.g., Leadership, Public Speaking).
+- "role": Specific job titles or functions that describe the individual’s position or responsibility within an organization or project (e.g., Fullstack Developer, Software Architect, Cloud Engineer).
+- "certification": Official credentials or certifications awarded by recognized institutions or providers, typically related to technology or project management (e.g., AWS Solutions Architect, GCP Cloud Solutions Architect).
+- "industry": Skills corresponding to industry experience. For example, if experience in the fintech sector is identified, the skill should be labeled as "Fintech." Other examples include Insurance, Healthcare, etc.
+
+Formatting Requirement:
+Each skill must be written in Title Case, with the first letter of each word capitalized (e.g., React, Amazon Web Services, Cloud Engineer). Avoid using all caps or all lowercase letters, except for established acronyms or brand-specific stylizations (e.g., AWS, GCP, iOS).`;
+
+========
+
+Let's build the view that will be displayed when selecting the "Candidate" option in the sidebar.
+
+Requirements:
+- Display a card-based table of talents.
+- Each row should be a horizontally oriented, clickable card (wider than it is tall).
+
+Card Content (per row):
+- Profile picture
+- Candidate full name
+- Country
+- Years of experience
+- PDF icon
+- LinkedIn icon
+
+Example row layout:
+(profile pic)    John Doe    United States    5 years    (PDF icon)    (LinkedIn icon)
+
+Table Headers:
+- Name
+- Country
+- Experience
+========
+
+Let's build the view that displays when accessing the "Candidates" section from the sidebar.
+
+- Clicking on "Candidates" should navigate the user to the /candidates route.
+- At this route, users should see a table of candidates they have created.
+- The system must fetch candidates from the "candidates" table in the database, filtered by the currently logged-in user.
+
+Table Display:
+- The view must include a table to display the list of candidates.
+- Use the referenced sample component as a guide when building the table:
+
+======
+
+in @components\job-description-builder.tsx lets adjust how the collapse/expand works for the job descriptions.
+i notice that if the user is in expanded view and then for some reason leaves the page and goes to another tab, the job descriotion collapses
+
+Also, after saving, the job description collapses. which should not haeppen
+
+please confirm these behviours, please remove them. only clicking on collapse icon must acutally collapse the job desc
+
+
+Before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements.
+=======
+after checking the fixes, i still see both behaviors still happening. please run a review to see whats going on. sharing console logs in case needed:
+=======
+
+Perfect, it's working now.
+
+Now let's implement the following two fixes:
+
+- **Prevent Empty Job Description**: Disable the Save button when the job description is empty.
+- **Text Area Height (Expanded View)**: Increase the height of the job description text area in expanded view. As a reference, ensure that the following text is fully visible when expanded:
+
+"About the Company:
+We are a growing financial technology (fintech) company seeking to expand our team.
+
+About the Role:
+We are looking for a React developer to enhance our primary CRM platform. Responsibilities include implementing new features, fixing bugs, conducting code reviews, writing documentation, and occasionally mentoring junior developers.
+
+Required Skills:
+- React
+- Node.js
+- AWS
+- PostgreSQL
+
+Bonus Skills:
+- Golang
+- Google Cloud Platform (GCP)
+
+Position Highlights:
+- Fully remote position
+- Daily working hours must overlap with the Pacific Time Zone"
+
+
+Before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements
+
+===========
+
+I want to integrate the API that will be called when clicking "Generate":
+
+- API name: `generate-job-descriptions`
+- Refer to this document for details: @docs\api\generate-job-description.md
+- The API inputs must be sourced from the following tables:
+
+  - `initial_notes`: from `jobs.initial_notes`
+  - `company_name`: from `companies.name`
+  - `industry`: use `companies.industry_id` to look up `industries.name`
+  - `attributes`: review the `jobs` table to identify the relevant columns
+  - `requirements`: review the `job_requirements` table to identify the relevant columns
+
+Before starting implementation, review the documentation and explain your understanding of this instruction. Ask clarifying questions about the API and/or database columns, and map the attributes one at a time until the requirements are clear.
+
+============
+
+Let's focus on the LinkedIn Query Builder tool located at the route `/jobs/[jobid]/linkedin-query-builder` (`@components/linkedin-query-builder.tsx`).
+
+Start by adjusting the view/edit modes and the behavior of the Generate, Edit, Save, and Cancel buttons. Please review the documentation (`@docs/job-description-builder-edit-view-modes.md`) and replicate the behavior described in that document.
+
+Before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements
+
+============
+
+The radio buttons must function independently from the Generate, Edit, Save, and Cancel buttons, as they are used to switch between different query types.
+
+- Radio buttons must be enabled in both View and Edit modes.
+- In Edit mode, radio buttons should remain available and functional.
+
+Additionally, I liked the "Unsaved Changes" badge used to indicate modifications. Let's enhance its behavior:
+- The badge should appear only if the user clicks "Edit" **and** makes a change to any of the queries.
+- If no changes are made after clicking "Edit", the badge should not be displayed.
+
+This badge should serve as a visual alert for unsaved changes.
+
+Before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements
+
+============
+
+great, lets create a table where this information will be saved. 
+
+new table name: job_linkedin_queries
+schema:
+"column,type,description
+id,uuid,Primary key
+job_id,uuid,Foreign key to jobs.id
+complete_query_all,text,linkedin query in text format
+complete_query_skills_only,text,linkedin query in text format
+mandatory_only_query_all,text,linkedin query in text format
+mandatory_only_query_skills_only,text,linkedin query in text format
+mandatory_only_query_job_titles_only,text,linkedin query in text format
+recommendations,jsonb,json containing recommendations
+created_at,timestampz,Record creation timestamp
+updated_at,timestampz,Record update timestamp
+"
+
+Lets create this table and add it to our db
+
+Before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements
+
+=============
+
+I want to integrate the API that will be called when clicking "Generate":
+
+- API name: `generate-linkedin-queries`
+- Refer to this document for details: @docs\api\generate-linkedin-queries.md
+- The API inputs must be sourced from the following tables:
+
+  - `attributes`: review the `jobs` table to identify the relevant columns
+  - `requirements`: review the `job_requirements` table to identify the relevant columns
+
+
+Before starting implementation, review the documentation and explain your understanding of this instruction. Ask clarifying questions about the API and/or database columns, and map the attributes one at a time until the requirements are clear.
+
+=============
+
+Please review the JSON containing the results of a "Candidate Match Analysis" and create a new page accessible via the sidebar under a new option called **"Candidate Match Analysis"**.
+
+The page structure should be as follows:
+
+**Title**
+
+**Main Section:**
+- **Overall Match Score**: Display the `overall_score` using an intuitive graphic or visualization (e.g., a circular progress bar that fills proportionally to the score).
+- **Requirement Match Summary**: Display a line showing the candidate matches `matched_mandatory_requirements` out of `total_mandatory_requirements`.
+
+**Requirement Evaluations:**
+For each requirement in `requirement_evaluation` (assume a requirement name), display:
+- **Score**: Visualize the score (0–100 scale) using an intuitive graphic.
+- **Status**: Show a color-coded badge based on the following thresholds:
+  - `score >= 75` → **Strong**
+  - `score >= 50` → **Adequate**
+  - `score >= 25` → **Weak**
+  - `score < 25` → **Missing**
+
+  *Comment: Badge colors must clearly indicate the quality of the match — for example, "Strong" should use a positive color, while "Missing" should use a warning or negative color.*
+
+- **Feedback**: Display the associated feedback text.
+
+**Summary:**
+Use two side-by-side cards in a table-style layout:
+- **Strengths**: Fill with content from the `strengths` field.
+- **Gaps**: Fill with content from the `gaps` field.
+
+**Recommendations:**
+For each item in `recruiter_recommendations`, create a vertically stacked card displaying the content.
+
+Use a clean, minimalistic, and intuitive design, and include good elements to display scores as this page will serve as a report-style dashboard.
+
+
+		
+Below is the sample JSON you can use as a reference:
+
+"{
+    "match_analysis": {
+        "overall_score": 18,
+        "matched_mandatory_requirements": 0,
+        "total_mandatory_requirements": 5
+    },
+    "requirement_evaluations": [
+        {
+            "job_requirement_id": "req_1",
+            "score": 6,
+            "status": "missing",
+            "feedback": "Candidate has beginner-level TypeScript (1 year) but expert level required (5+ years). Significant skill gap identified for senior role."
+        },
+        {
+            "job_requirement_id": "req_2",
+            "score": 39,
+            "status": "weak",
+            "feedback": "Candidate demonstrates advanced proficiency in React with 3.5 years of experience, but the expert level is required. This indicates a potential for growth but may not meet immediate project needs."
+        },
+        {
+            "job_requirement_id": "req_3",
+            "score": 39,
+            "status": "weak",
+            "feedback": "Similar to React, the candidate has advanced Node.js skills with 3.5 years of experience, yet the expert level is required. This could limit their effectiveness in leading complex backend projects."
+        },
+        {
+            "job_requirement_id": "req_4",
+            "score": 11,
+            "status": "missing",
+            "feedback": "Candidate lacks experience in PostgreSQL, with only 1 year at a beginner level, while advanced proficiency is required. This gap could hinder their ability to manage database-related tasks effectively."
+        },
+        {
+            "job_requirement_id": "req_5",
+            "score": 11,
+            "status": "missing",
+            "feedback": "Candidate has no experience with MongoDB, which is required at an advanced level. This absence of experience could be detrimental in roles that rely heavily on NoSQL databases."
+        },
+        {
+            "job_requirement_id": "req_6",
+            "score": 0,
+            "status": "missing",
+            "feedback": "Candidate has no experience with AWS, which is not mandatory but preferred at an advanced level. This could limit their versatility in cloud-based projects."
+        },
+        {
+            "job_requirement_id": "req_7",
+            "score": 0,
+            "status": "missing",
+            "feedback": "Candidate has no experience in the financial services industry, which is preferred but not mandatory. This may affect their understanding of domain-specific challenges."
+        }
+    ],
+    "summary": {
+        "strengths": [
+            "Strong foundation in JavaScript, Python, React, and Node.js with a total of 5 years of experience.",
+            "Extensive experience in Agile methodologies, Scrum, and Test Driven Development.",
+            "Demonstrated ability to work in full-stack development environments."
+        ],
+        "gaps": [
+            "TypeScript proficiency significantly below senior level requirements.",
+            "Lacks advanced experience in PostgreSQL and MongoDB, both critical for the role.",
+            "Limited experience with AWS and no background in financial services."
+        ]
+    },
+    "recruiter_recommendations": {
+        "assessment_strategy": [
+            "Dig deeper into TypeScript projects during technical interview to assess potential for growth.",
+            "Evaluate candidate's problem-solving skills through practical coding challenges.",
+            "Discuss past experiences with React and Node.js to understand depth of knowledge."
+        ],
+        "interview_focus": [
+            "Spend extra time on TypeScript architecture and design patterns.",
+            "Explore the candidate's experience with Agile and CI/CD practices.",
+            "Assess understanding of database management and data modeling."
+        ],
+        "alternative_positioning": [
+            "Consider 'Mid-Level with Senior Potential' positioning instead, focusing on growth opportunities.",
+            "Explore roles that may leverage their strengths in JavaScript and Python without heavy reliance on TypeScript.",
+            "Position for projects that require strong front-end skills but can accommodate learning on the backend."
+        ]
+    },
+    "metadata": {
+        "analysis_timestamp": "2025-07-30T15:32:24.798Z",
+        "job_id": "placeholder_job_id",
+        "candidate_id": "placeholder_candidate_id",
+        "algorithm_version": "1.0",
+        "total_processing_time_ms": 12331
+    }
+}"
+
+
+======
+
+Adjust the Requirement Match Summary section. replace the existing contente except from the title:
+- first item must be a word that says "{candidate.name} meets {n} out of {x} requirements for this role"
+- below you must put a list of all the skills analyzed in the section "Requirement evaluation" and next to it the score. the score must be colored following the color system you defined
+- upon refresh or when first loading the report, this list must appear one by one, like an enumeration
+
+
+Also, upon load, the page should behave like a dynamic presentation and start displaying the sections sequeantially to make this more "presentation like"
+
+please generate the output in a separated tsx component
+
+=====
+
+
+Apply the following changes to the page layout and behavior:
+
+- **Overall Match Score** section will be placed on the top of the page.
+- Remove the **Requirements Match Summary** section entirely.
+- below "overall match score", place "requirements evaluation:
+	**Requirement Evaluation:**
+		- Add a subtitle above the evaluations: `{candidate.name} meets {n} out of {x} requirements for this role`.
+		- Display each requirement evaluation in its own card (replacing the current format). Each card should include:
+  			- Score (visualized with a graphic)
+  			- Status (with color-coded badge based on defined thresholds)
+  			- Feedback
+		- On initial page load or refresh, display the requirement cards sequentially, one by one, for a presentation-like effect.
+
+After all requirement cards have loaded, proceed to display the remaining sections on the page (Summary and Recommendations).
+======
+
+lets do these changes:
+- put overall match score card go from left to right filling the full width of the page
+- in requiremetns evalaito, use cards that are wider than higher (in other words, must be like horizoantl bar like cards) following a table like format
+
+=====
+
+
+Apply the following layout updates:
+
+- Revert to a previously similar layout structure: At the top of the page, display **two side-by-side cards**:
+
+  1. **Overall Match Score**: Maintain the same content and styling currently used.
+
+  2. **Requirement Analysis**: List all requirements from the JSON, each followed by a progress bar filled proportionally to its score. The layout should resemble the following:
+     - Skill 1    [progress bar]
+     - Skill 2    [progress bar]
+     - Skill 3    [progress bar]
+     
+     - The color of the progress bar fill must follow the established status color convention (Strong, Adequate, Weak, Missing) - dont display any badge nor numbers here, just fill the progress bar accordingly
+
+- Below these two cards, retain all other page content as currently structured.
+
+----------
+
+Apply the following layout updates:
+
+- Combine the **"Overall Match Score"** and **"Requirement Analysis"** into a single card component.
+
+- This card should use a **row container layout** with two main elements:
+
+  - **Element 1**: A column container with two sub-elements:
+    - **Element 1.1**: The Overall Match Score title with their respective circular progress bar.
+    - **Element 1.2**: An informative banner with the text:  
+      `[candidate.name] meets [n] out of [x] requirements for this role. {recommend sending or not sending based on the score}`  
+      The banner's color must follow the status color convention (e.g., strong = green, missing = red).
+
+  - **Element 2**: The Requirement Analysis section, including its title and the list of skills with corresponding progress bars filled proportionally to the score. The fill color must also adhere to the status color convention.
+
+=======
+
+
+In @components\candidate-match-analysis.tsx, in the pill selector, lets swap the options:
+- Lets show first "New Candidate" and make it selected by default
+
+Before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements.
+
+
+===
+
+Make a major structural update to `@components/candidate-match-analysis.tsx` using `@components/job-description-builder.tsx` as a reference.
+
+The goal is to align the Candidate Match Analysis tool with the structure and interaction flow of the Job Description Builder, allowing users to manage multiple analyses.
+
+**Expected User Flow:**
+
+- A "+ New" button should allow the user to create a new analysis.
+- Upon clicking "+ New", a card should open displaying the current "candidate panel" content from `candidate-match-analysis.tsx`, where users choose between new or existing candidates and configure the candidate details.
+- A "Run" button will trigger the analysis (simulate an API call for now).
+- Once results are returned, the user can either **Save** or **Discard** the analysis. No editing is allowed.
+- Clicking **Save** simulates storing the analysis in a database and displays it as a saved card.
+- Saved analyses are displayed as cards, similar to how job descriptions are handled in the Job Description Builder.
+- The default title for each saved card should be: `Match Analysis for {candidate.fullname}` (adjust wording as needed for clarity).
+
+Replicate the layout and state management patterns from the Job Description Builder to maintain consistency.
+
+Before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements.
+
+======
+
+based on this output i would like to:
+
+- within "match_analysis", add an overall "Status" based on the overall score (follow same logic for "requirement_evaluations")
+
+- add another element that consists of something like an overall feedback, saying soething like "this candidate is good to be presented for this position", or "please consider reviewing and confirming some aspects before sending" or "this candidate is not a good fit, consider other options unless further details are provided". There may be 4 categories of wording based on the overall status the candidate gets. it's a sort of overall indication based on the match analysis.
+
+=======
+
+The initial JSON used to build this UI has slightly changed. Please apply the following adjustments:
+
+- Use the value `match_analysis.status` from the updated JSON to determine the appropriate color for these elements in the top card:
+  - The circular progress bar.
+  - The banner displayed beneath the progress bar.
+  	- Follow the same color convention as previously defined (Strong, Adequate, Weak, Missing).
+
+- Update the banner content to include two lines:
+  - **First line**: `{candidate.first_name} {candidate.last_name} meets {match_analysis.matched_mandatory_requirements} out of {match_analysis.matched_total_requirements} requirements`
+  - **Second line**: `{match_analysis.overall_feedback}`
+
+
+sharing the updated json:
+"{
+    "match_analysis": {
+        "overall_score": 18,
+        "status": "missing",
+        "overall_feedback": "This candidate is not a good fit; consider other options unless more information becomes available.",
+        "matched_mandatory_requirements": 0,
+        "total_mandatory_requirements": 5
+    },
+    "requirement_evaluations": [
+        {
+            "job_requirement_id": "req_1",
+            "score": 6,
+            "status": "missing",
+            "feedback": "Candidate has beginner-level TypeScript (1 year) but expert level required (5+ years). Significant skill gap identified for senior role."
+        },
+        {
+            "job_requirement_id": "req_2",
+            "score": 39,
+            "status": "weak",
+            "feedback": "Candidate demonstrates advanced proficiency in React with 3.5 years of experience, but the expert level is required. This indicates a potential for growth but may not meet immediate expectations for a senior role."
+        },
+        {
+            "job_requirement_id": "req_3",
+            "score": 39,
+            "status": "weak",
+            "feedback": "Similar to React, the candidate has advanced experience in Node (3.5 years), yet the role demands expert-level skills. This suggests a solid foundation but a need for further development to meet senior expectations."
+        },
+        {
+            "job_requirement_id": "req_4",
+            "score": 11,
+            "status": "missing",
+            "feedback": "Candidate has beginner-level experience with Postgres (1 year), while the role requires advanced proficiency. This gap could hinder the candidate's ability to handle complex database tasks effectively."
+        },
+        {
+            "job_requirement_id": "req_5",
+            "score": 11,
+            "status": "missing",
+            "feedback": "With only beginner-level experience in MongoDB (1 year), the candidate does not meet the advanced requirement for this role. This could limit their effectiveness in projects that rely heavily on NoSQL databases."
+        },
+        {
+            "job_requirement_id": "req_6",
+            "score": 0,
+            "status": "missing",
+            "feedback": "Candidate lacks any experience with AWS, while advanced skills are preferred. This could be a significant drawback, especially for roles that involve cloud services."
+        },
+        {
+            "job_requirement_id": "req_7",
+            "score": 0,
+            "status": "missing",
+            "feedback": "Candidate has no experience in the financial services industry, which is not mandatory but would be beneficial. This could affect their understanding of domain-specific challenges."
+        }
+    ],
+    "summary": {
+        "strengths": [
+            "Strong React and Node.js foundation with 3.5 years experience each",
+            "5 years of experience in software engineering, demonstrating a solid background in full-stack development",
+            "Advanced skills in Agile methodologies, Scrum, and Test Driven Development, indicating strong project management capabilities"
+        ],
+        "gaps": [
+            "TypeScript proficiency significantly below senior level requirements",
+            "Missing advanced skills in Postgres and MongoDB, which are critical for the role",
+            "Lack of experience with AWS, which may limit cloud-based project contributions"
+        ]
+    },
+    "recruiter_recommendations": {
+        "interview_strategy": [
+            "Dig deeper into TypeScript projects during the technical interview to assess potential for growth",
+            "Explore candidate's understanding of advanced React and Node concepts to gauge readiness for senior responsibilities",
+            "Discuss past experiences with databases to evaluate problem-solving skills in relation to Postgres and MongoDB"
+        ],
+        "other_options": [
+            "Consider 'Mid-Level with Senior Potential' positioning instead, focusing on the candidate's strong foundation and growth mindset",
+            "Explore opportunities for mentorship or training in TypeScript and AWS to bridge skill gaps",
+            "Look for roles that may allow for gradual upskilling in the required technologies while leveraging existing strengths"
+        ]
+    },
+    "metadata": {
+        "analysis_timestamp": "2025-07-31T16:45:13.471Z",
+        "job_id": "placeholder_job_id",
+        "candidate_id": "placeholder_candidate_id",
+        "algorithm_version": "1.0",
+        "total_processing_time_ms": 12612
+    }
+}"
+
+=======
+
+
+Let's continue refining `@components/candidate-match-analysis.tsx`.
+
+Update the UI used to display **mock results**, using `@components/sample-match-analysis-report.tsx` as the reference for:
+- UI layout
+- Styling
+- Content presentation
+
+Replicate the design and structure from the `sample-match-analysis-report` component when rendering the match analysis results.
+
+Note: This update is purely front-end. Do **not** implement any database connections at this stage; DB integration will be handled in a future phase.
+
+Before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements.
+
+=========
+
+- answer to your question: i can share with you a sample json output from the api that generates the data to populate this structure. does this sound good?
+- question 1 for you: you mentioned 4 colors: green/blue/orange/red for different score ranges, actually it shouldn't be blue, it should be something like amber instead since i'm representing like a scale for the best status (green), to the worst one (red). can we check this?
+- question 2 for you: i would like the colors to be managed through globals.css file. doy ou think this is a good proactice? if so, please add this to your to do and clearly identify this in the file.
+
+Before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements.
+
+====
+
+  - Green (strong/>=75%)
+  - Amber (or something between green and orange - probably yellow) (adequate/>=50%)
+  - Orange (weak/>=25%)
+  - Red (missing/<25%)
+
+=====
+
+
+assume that "req_1", "req_2" will be ids that then will be used for searching in a table called job_requirements. that table has an id and there there is a display name column that will be the value that we'll use for displaying the data       
+
+====
+
+Apply the following UI fixes to `@components/candidate-match-analysis.tsx`:
+
+1. **Title Alignment**:
+   - Align the "Overall Match Score" title to the **left**.
+   - Keep the circular progress bar centered as it currently is.
+
+2. **Requirement Navigation**:
+   - In the top section, next to each requirement name, add a subtle clickable icon. Suggest icon options based on the purpose i mentioned
+   - Clicking the icon should scroll the user to the corresponding section in the report under "Requirement Evaluations".
+
+3. **Save Button**:
+   - Change the label of the "Save Analysis" button to simply: **"Save"**, and include the appropriate icon.
+
+4. **Title Text**:
+   - Update the main report title to: **"Match Analysis for {candidate name}"** (remove the word "candidate" from the end).
+
+5. **Action Buttons Placement**:
+   - Move the **[Discard]** and **[Save]** buttons to the top-right corner.
+   - Align them with the "Match Analysis for {candidate name}" title, mimicking the layout used in `@components/job-description-builder.tsx`.
+
+Before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements.
+
+======
+
+Apply the following changes to the layout and functionality:
+
+1. **Top Section Layout**:
+   - Wrap the top section in a **column container** with two elements:
+     1.1 **Element 1**: The current content that includes "Overall Match Score" and "Requirement Analysis".
+     1.2 **Element 2**: A new section titled **"Candidate Summary"**, containing the "Strengths" and "Gaps" cards displayed side-by-side.
+
+2. **Collapsible Sections**:
+   - For the **"Per Requirement Analysis"** section and the **"Recruiter Recommendations"** section, add a **collapse/expand icon** to allow toggling their visibility.
+
+Before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements.
+
+======
+
+do these fixes:
+- remove the border card for the top section
+- remove the strenghs and gaps cards below the per requirement analysis as its repeated
+
+Before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements.
+
+====
+
+do these fixes:
+- for the top section, i see you removed the card and kept the padding. lets also remove the padding but keep the container structure. 
+- increase the top spacing for "candidate summary" section
+- in the "per requirement analysis":
+	- eliminate the score next to the requirement name as it's redundant with the circled progress bar
+	- reduce slightly the font size of the score displayed in the center of the circled progres bar
+
+Before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements.
+
+=======
+
+
+do these fixes:
+- in the title next to "match analysis for {candidate name} Candidate" that is next to the collapse/expand icon, lets remove "Candidate"
+- in the banner that says "{candidate name} Candidate meets 0 out of 5 requirements." lets also remove "Candidate"
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements.
+
+=========
+
+Lets do one more fix:
+- in view mode (expanded view of the match analysis), lets add a delete button similarly to how it's handled in @components\job-description-builder.tsx
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements.
+
+========
+
+let me answer by explainning the workflow:
+- user generates new analysis, buttons that appear are: [discard] and [save]
+- when user enters an already saved analsysi, then the button [delete] must appear (it already appears in collapsed mode as an icon, but must asppear as a full button in expanded view)
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements.
+
+======
+
+In `@components/candidate-match-analysis.tsx`, within the `{/* Left Section - Requirement Name and Score Info */}`, I want to slightly reduce the top and bottom spacing (the space between the card and its content). Could you please tell me which parameters we should adjust?
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements.
+====
+Actually, I want to increase the left and right padding and decrease the top and bottom padding. Please tell me where these values are defined so I can adjust the numbers accordingly.
+=====
+
+Let's make the following final changes:
+- Remove the collapse/expand functionality from the "Per Requirement Analysis" and "Recruiter Recommendations" sections.
+- Add a subtitle beneath "Recruiter Recommendations". Please suggest some subtitle options.
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements.
+
+
+======
+
+In the Candidate Match Analysis tool (`@components/candidate-match-analysis.tsx`), when the "Run Analysis" button is pressed, it must triggers the `match-analysis` API. Lets focus on that:
+
+Please review the following items:
+1) The `@docs/api/match-analysis.md` file, which contains the necessary details for integrating the `match-analysis` API with the application.
+2) The component code from `@components/candidate-match-analysis.tsx`.
+3) The current database schema, including all tables (referencing Supabase).
+4) @docs\match-analysis-database-tables.csv - this includes a proposed table schema for the database to store match analysis.
+
+
+Based on this information, check if the item (4) includes a reasonable and valid table suggestion for a table to support the api. For now, the focus will be solely on identifying the necessary tables and their respective columns.
+
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements.
+
+=======
+
+Let's focus on integrating the "match-analysis" API (as described in @docs\api\match-analysis.md) with the app UI.
+
+Here is the expected flow:
+
+1. The candidate accesses the candidate match analysis component (@components\candidate-match-analysis.tsx).
+2. The candidate clicks on "New Analysis."
+3. If the user selects "New Candidate":
+   3.1. If the user chooses "LinkedIn Profile URL" in the radio buttons:
+       - The user provides a LinkedIn URL.
+       - When the user clicks "Run Analysis", the app should:
+         a. Parse the provided LinkedIn profile URL.
+         b. Extract all relevant attributes.
+         c. Run the respective analysis.
+       - The following APIs (already configured and in use) must be called in sequence:
+         a. Parse LinkedIn profile URL:
+            a.1. Use the "apify-linkedin-scraper" API (see @docs\api\apify-linkedin-scraper.md). This API is also used in @components\create-talent-dialog.tsx.
+            a.2. Then, use the "linkedin-profile-reducer" API (see @docs\api\linkedin-profile-reducer.md). Also used in @components\create-talent-dialog.tsx.
+            a.3. Finally, use the "parse-linkedin-skill" API (see @docs\api\parse-linkedin-skill.md). Also used in @components\create-talent-dialog.tsx.
+       - The response from "parse-linkedin-skill" will be used as input for the "match-analysis" API, along with the job under analysis.
+       - When the user clicks "Run Analysis", the "match-analysis" API will be triggered with the collected data.
+       - After the results are displayed in the dashboard:
+         a. If the user clicks "Discard", the analysis is discarded.
+         b. If the user clicks "Save", perform the following actions sequentially:
+            b.1. Save the candidate (output from "parse-linkedin-skill") to the database as a new entry in the candidates table.
+            b.2. Save the analysis results (output from "match-analysis" API) to the job_candidate_match_analysis table.
+
+Let's focus on this part of the flow first. I will later describe what happens for:
+- New candidates via PDF upload
+- Existing candidates
+
+Important:
+- We must clearly reflect the current status of the process so the user remains informed and engaged.
+- Follow the same approach used in @components\create-talent-dialog.tsx (e.g., display messages like "Reviewing LinkedIn profile," "Extracting information," "Comparing against job details," etc.).
+- Use the corresponding 200 success codes from API responses to transition between status messages.
+- Ensure the wording is friendly and appropriate to enhance the user experience.
+
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements.
+
+====
+
+Let's continue integrating the "match-analysis" API with the rest of the flow.
+
+Here is the expected flow:
+
+1. The candidate accesses the Candidate Match Analysis component (`@components/candidate-match-analysis.tsx`).
+2. The candidate clicks on "New Analysis."
+3. If the user selects "New Candidate":
+   3.1. If the user selects "LinkedIn Profile URL" via the radio buttons – already implemented!
+   3.2. If the user selects "PDF Resume Upload" via the radio buttons:
+       - The user uploads a PDF file.
+       - Behind the scenes, replicate the behavior in `@components/create-talent-dialog.tsx` when creating a new candidate with "automatic upload" -> "PDF Resume Upload":
+         - Upload the PDF to the `temp_resume` folder in Supabase storage.
+         - Once the upload completes, parse the PDF by calling the `parse-resume-skill` endpoint (see `@docs/api/parse-resume-skill.md`). This is also used in `@components/create-talent-dialog.tsx`.
+         - The response from `parse-resume-skill` will serve as input for the `match-analysis` API, along with the job under analysis.
+       - When the user clicks "Run Analysis", trigger the `match-analysis` API with the collected data.
+       - Once the results are displayed in the dashboard:
+         a. If the user clicks "Discard", discard the analysis.
+         b. If the user clicks "Save", perform the following steps in sequence:
+            b.1. Save the candidate (output from `parse-resume-skill`) to the database as a new entry in the `candidates` table, and the extracted skills to `candidate_skills`.
+            b.2. As done in `@components/create-talent-dialog.tsx`, move the resume from `temp_resume` to `resumes`. Then, use the resulting URL to populate the `resume_url` column in the `candidates` table. Ensure `temp_resume` is cleared of resumes.
+            b.3. Save the analysis results (output from the `match-analysis` API) to the `job_candidate_match_analysis` table.
+
+Let's focus on this part of the flow first. I’ll describe the behavior for existing candidates later.
+
+Important:
+- Maintain loading statuses as previously implemented.
+- Use the appropriate 200 success codes from API responses to transition between status messages.
+
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements.
+
+
+
+======
+
+In the match analysis, for new candidates—whether added via the "LinkedIn Profile URL" or "PDF Resume Upload" sharing options—after retrieving the results and clicking "Save," the system should not only add the candidate as a new entry to the "candidates" table but also insert the corresponding skill entries into the "candidates_skills" table, using the skills extracted through the respective APIs.
+
+Can you confirm whether entries are being added to the "candidates_skills" table?
+
+-===
+
+sharing a basic schema of how the card would look like:
+
+[collapse/expand icon] [Card Title]                      [circular progress bar]    [action icons (Delete)]
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements
+
+=====
+
+In `@components/candidate-match-analysis.tsx`, I noticed you created two different layouts: "Expanded Content" and "Expanded Content for Existing Analysis".
+
+====
+
+Given the last errors you got when doing pnpm build command, are you in a position to create a list of rules to follow going forward to help prevent them?
+
+If so, please generate a list of coding guidelines and append them to the `claude.md` file.
+--------
+
+Please remove "Expanded Content for Existing Analysis" and use the same "Expanded Content" layout for both new and existing analyses.
+
+Also, for existing candidates, when expanding the card, please hide the small circular progress bar, since the larger one will appear in the expanded content.
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements
+
+=====
+
+Let's make the following additional adjustments:
+
+- When creating a new analysis, the newly created card should appear at the top of the card list (currently, it appears at the bottom).
+- When creating a new analysis, a cancel button should appear at the top to discard the new analysis. Clicking this button should cancel the creation process.
+
+These two adjustments follow the same structure used in `@components/job-description-builder.tsx`. Please refer to it if you have any doubts.
+
+====
+
+Improved Instruction:
+When accessing the route `/jobs/[jobid]/candidate-match-analysis` for the job I'm viewing, the page does not fetch data related to the existing analysis, even though there are entries in the corresponding table (and therefore they should be displayed).
+
+Additionally, I see the following console log:
+
+1. DELETE - Users can delete own candidates
+2. insert - Users can insert own candidates
+3. update - Users can update own candidates
+4. select -Users can view own candidates
+
+=====
+
+please review @components\candidate-match-analysis.tsx - i still need to define what happens when existing candidates are selected for the analysis to be run.
+given the length of the component, do you think we should refactor it into smaller components? do you see value on it? please briefly explain in 1-2 lines if you recommend it. be honest, critic and challenging. dont do anything yet, just recommend if its's good idea to do this now before adding more funcitonalities
+
+=====
+
+perfect! lets refactor then.
+Please explain your refactoring stragegy. Also, if possible use either folders or adequeate naming convetions so i can better now what subcomponent is related to the main one.
+======
+
+Perfect! Let's proceed with the refactor.
+
+Please explain your refactoring strategy. Also, if possible, use folders or appropriate naming conventions so it's clear which subcomponents are related to the main component.
+
+IMPORTANT: LETS ENSURE YOU DONT BREAK ANY EXISTING FUNCTIONALITY OF THE APP
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements
+
+=======
+
+perfect thanks.
+
+Let's now define the flow for creating a new analysis using the "Existing Candidates" option:
+
+- The user selects the "Existing Candidate" option from the pill selector.
+- In the "Select Candidate" combobox, populate the list with candidates from the `candidates` table, filtered by the currently logged-in user's ID.
+- When a candidate is selected and the "Run Analysis" button is pressed, call the Match Analysis API. The API input should include:
+  1) The job under review and its associated requirements, retrieved from the `job_requirements` table.
+  2) The candidate’s skills information from the `candidate_skills` table.
+
+The rest of the flow remains the same, except the banner indicating that a new candidate will be saved should not be displayed, as this is an existing candidate.
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements
+
+=====
+
+perfect - this works!
+
+now i have any
+
+issues with storing yoe after resume/linkeding parse:
+in candidate creation both parse-linkedin-skill and parse-resume-skill dont store the yoe in candidate_skills
+in match analysis - new candidate, yoe is stored for linekdin options and pdf resume!
+
+
+I'm seeing two errors that need to be fixed:
+
+1. In Match Analysis, when selecting a new candidate—either via PDF upload or LinkedIn share—the blue informative banner does not appear to indicate that the candidate will be saved to the database.
+
+2. After saving a new candidate, the list shows the newly created candidate duplicated: one version appears correct (with the delete icon in the card), and the other lacks the delete button. After refreshing the page, the layout corrects itself and the duplicate (without the delete button) disappears.
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements
+
+=======
+
+I need to fix an error that works correctly in `@components/candidate-match-analysis.tsx` but not as expected in `@components/create-talent-dialog.tsx`.
+
+This issue relates to candidate creation from an external source (PDF or LinkedIn). In `@components/create-talent-dialog.tsx`, when selecting "Automatic Load" in the pill selector and choosing either option, the response from the API (`parse-linkedin-skill` or `parse-resume-skill`) includes a numeric value for years of experience per skill. However, this value is not being stored in the database (`candidate_skills` table).
+
+In contrast, when performing a match analysis for new candidates using LinkedIn or resume parsing, the years of experience per skill are stored correctly after saving the candidate.
+
+**Instruction:** Ensure that candidate creation via `@components/create-talent-dialog.tsx` stores the years of experience per skill in the database.
+
+you can refer to the api docs @docs\api\parse-linkedin-skill.md and @docs\api\parse-linkedin-skill.md for further info
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements
+
+========
+
+This is working! Great.
+
+Let’s now make the following adjustments:
+
+1. In the `/candidates` route, add a delete confirmation dialog when attempting to delete a candidate.
+2. In `@components/create-talent-dialog.tsx`, after successfully creating a candidate, display a toast notification indicating that the candidate has been created.
+
+For both items, please use the same styling used throughout the app.
+
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements
+
+
+=====
+
+This is still not working — the toast notification does not display, and additionally, the newly created candidate is not being added to the candidate card table. I need to refresh the page for it to appear.
+
+please think strategically, dont apply patches solutions
+
+=====
+
+please add these guidelines about using shadcn in the globals.css file and also to claude.md file so we use it for future features tha we may build
+
+=====
+
+1. In the route `/jobs/[jobid]/interview-questions-generator` (located at `@components/interview-questions-generator.tsx`), add a copy icon next to each question, positioned to the left of the edit button. When the icon is clicked, the content of that specific question should be copied to the clipboard, and a toast should appear with the message "Copied to clipboard".
+
+2. Add a copy icon above all questions, positioned between the "Generate" button and the start of the questions list. Clicking this icon should copy all questions in Markdown format, preserving group structures and indentation. A toast should also be displayed with the message "Copied to clipboard".
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements
+
+=====
+
+Lets now Fully implement the Interview Questions Generator tool by integrating the corresponding API.
+
+When the user clicks the "Generate" button, a POST request should be sent to the `generate-interview-questions` API. Refer to its documentation at `@docs/api/generate-interview-questions.md`.
+
+**API Behavior:**
+- **Input:** Gathers data from the following tables:
+  - `jobs`
+  - `job_requirements`
+  - `companies`
+  - `job_descriptions`
+- **Output:** Saves the generated questions to the `job_questions` table.
+
+**Job Description Selection:**
+- If a job has multiple related job descriptions, display a dropdown after clicking "Generate" or "Regenerate" to let the user choose one. Indicate a title or helper to indicate the user how to proceed
+- This dropdown should appear between the "Generate" button and the questions section (above the "Copy All Questions" button).
+- Display each job description using its title.
+- Ensure the dropdown expands harmoniously and matches the existing UI/UX styling for a cohesive experience.
+
+**User Flow:**
+- On first "Generate" click (no existing questions):
+  - Call the API.
+  - Populate the questions section with the returned data.
+  - Immediately save the questions to the `job_questions` table.
+- If questions already exist and the user clicks "Regenerate":
+  - Show an **overwrite confirmation dialog**.
+  - If confirmed, call the API and overwrite the existing questions.
+
+**Editing & Saving:**
+- Users can edit questions individually and save each to the database.
+- Show a **leave confirmation dialog** when a user tries to exit edit mode with unsaved changes.
+
+**UI Components:**
+- Use existing `shadcn` styling for all dialogs, toasts, and dropdowns to maintain consistency across the app.
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements
+
+======
+
+1. yes, refer to @docs/api/generate-interview-questions.md
+2. lets make it appear before clicking generate - if job description is not selected, then the generate button must be disabled. Of course, the job desc must be fetched in the page load
+3.
+	A) Lets use the same approach as we've been using previously. detail which is it
+	b) yes
+4. 
+	a) yes
+	b) yes
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements
+
+====
+
+1. yes, i guess so
+2. only title
+3. if there is only one, dont show the dropdown and autoselect it
+
+
+additional questions: are you planning to use server actions for the api generate-interview-questions
+
+=====
+
+
+in @components\interview-questions-generator.tsx, within the section {/* Show prompt message when no questions exist */}, add a button below the text "No job descriptions found. Please create a job description first." that says "Go to Job Description Builder" and make it take the user to /jobs/[jobid]/job-description-builder
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements
+
+=====
+
+
+In `@components/job-description-builder.tsx`, when creating a new job description, the respective card enters edit mode. Currently, if the user switches to another tab or window and then returns, the new card disappears. This behavior should be prevented — the new card must remain visible and stay in edit mode upon returning. Do you identify this behavior?
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements
+
+----
+perfect. its working. lets do another fix:
+
+In @components/job-description-builder.tsx, move the `{/* Generate Alert Banner */}` inside the job description card component that is being created. Specifically, place it between the job description text area and the container that holds the dropdown and action buttons.
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements
+
+-----
+
+In the route `/jobs/[jobid]/email-builder` (`@components/email-builder.tsx`), apply the following ui changes:
+
+- Implement a structure similar to @components/job-description-builder.tsx for displaying existing elements, but for emails instead of job descriptions.
+- Preserve the selector at the top for toggling between "Candidate Emails" and "Client Emails." This selector should be used to switch between the two email types.
+- Display emails using a card-based table format, similar to job descriptions, with support for expand/collapse functionality and deletion.
+- Add a "New" button at the top-right corner of the page.
+- When the "New" button is clicked, an expanded new email card should appear.
+- The section below the email type selector should include:
+  - A title: "Candidate Outreach"
+  - A subtitle: "Generate professional emails for candidate outreach and communication"
+  These should be placed **outside** of the new card.
+
+- Inside the new card (that when created will be expanded):
+  - Include a candidate selection dropdown, an email template selection dropdown, and a "Generate" button.
+  - The "Generate" button should be placed at the top-right corner of the card, mirroring the layout in the job description builder.
+
+- Mirror the same structure and functionality for the "Client Emails" section.
+
+- Each email card must support both view and edit modes. Reference the edit/view mode behavior from @docs/job-description-builder-edit-view-modes.md.
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements
+
+
+======
+
+1) Good question: In addition to the "Select Candidate" and "Email Template" dropdowns, include an input field above them to allow the user to enter a title for the email. This title will be used to identify the email in the card list. 
+
+Also, do you think "Title" is the most appropriate label for this input field?
+
+2) yes, "Generate" functionality will create AI-generated emails based on the selected candidate and template
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements
+
+=======
+
+Issue detected: When creating a new email and the expanded card is open for the user to fill in the form, switching to another tab or window causes the card and its content to disappear upon returning. This same issue was previously resolved in `@components/job-description-builder.tsx`. Please apply the same fix to this component to ensure the new email card remains visible and in edit mode when the user returns.
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements
+------
+
+Now add a new option to the email template dropdown called "Custom" (or a better-named alternative). When this option is selected, an input field should appear above the email subject field, allowing the user to enter a prompt that guides how the AI should generate the email.
+
+Additionally, when the "Custom" option is selected, the "Generate" button must only be enabled if the custom prompt input field is not empty.
+
+Please suggest naming options for:
+- The "Custom" option in the email template dropdown.
+- The label and placeholder (helper text) for the input field that accepts the custom prompt.
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements
+======
+
+1. The email template dropdown uses a format that includes both a title and a one-sentence description for each option. Follow this same structure for the "Custom" option. You may use an AI symbol (such as a star) to indicate that it's AI-driven, but do not use any separators.
+
+2. Confirmed: when the "Custom" option is selected, a new input field should appear above the email subject, allowing the user to input a prompt for AI generation. The "Generate" button should only be enabled if this input is not empty.
+
+3. Candidate selection should not be a mandatory field in any case.
+
+====
+
+great.
+now Remove the visible border from the main card that contains the main title, subtitle, "Candidate Emails" vs "Client Emails" selector, the email cards table, and related elements. The overall structure and layout should remain unchanged — only the card border should be removed.
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements
+
+
+before beginning implementation, explain your understanding of this instruction. Ask clarifying questions one at a time until you're confident in the requirements
+
+======
+
+Apply more appropriate styling to the title “Candidate Outreach” and the subtitle “Generate professional emails for candidate outreach and communication,” as they currently share the same styling as the main section’s title and subtitle. This creates a visual hierarchy issue.
+
+Before proceeding with implementation, provide your interpretation of this instruction and ask one clarifying question at a time until the requirements are fully clear. Share your honest perspective on the current styling and suggest improvements if needed.
+
+======
+
+the styling edits i asked you to make are related to the titles within the “Candidate email” subsection.
+
+in particular:
+- the title: Candidate Outreach
+- the subtitle: Generate professional emails for candidate outreach and communication
+
+i checked what you did and i dont see any change
+
+
+======
+
+in @components\email-builder.tsx i want to replicate what’s currently displaying for the option “candidate emails” to the section “client emails” by doing just minor tweaks. before doing that i see the length of the tsx component is signicicatn. do you recommend doing that edit or you think refactoring it could be a better option to improve maintanabilty? pleaes provide your honest feedback
+
+=====
+
+Proceed with the refactor, but ensure that no existing functionality brakes. Keep in mind that API integrations for generating emails are still pending and will be provided later.
+
+Before beginning, share your refactoring strategy. Be sure to use clear and consistent subcomponent file and folder naming conventions so that each part of the component can be easily identified and maintained.
+
+=====
+
+
+One quick edit:
+
+In the email body text area, display a loading status while the app is generating the body output. The loading status should appear directly inside the email body text area to indicate processing, preventing the user from attempting to write during this time. Use clear and subtle visual cues such as a spinner icon or a placeholder message like "Generating email content..." with a light gray font to indicate that the system is working. Ensure the loading status is removed and replaced with the generated content once it is ready.
+
+Before proceeding with implementation, provide your interpretation of this instruction and ask one clarifying question at a time until the requirements are fully clear. Share your honest perspective on the current styling and suggest improvements if needed.
+
+======
+
+Focus on `@components/email-builder.tsx`.
+
+Replicate the UI logic, layout, and flows currently implemented for the "Candidate Emails" subsection into the "Client Emails" subsection. The goal is to mirror the structure implemented for candidate emails
+
+Before proceeding with implementation, provide your interpretation of this instruction and ask one clarifying question at a time until the requirements are fully clear.
+
+=======
+
+The "Custom" option is missing in the email template dropdown under the "Client Emails" section. Please replicate it from the "Candidate Emails" section, including the form that appears when this option is selected.
+
+Before proceeding with implementation, provide your interpretation of this instruction and ask one clarifying question at a time until the requirements are fully clear.
+
+
+======
+
+I want to create a new API that generates emails based on job information, candidate information, an initial user prompt, and other configuration inputs. The output must be a JSON object containing the email subject and body.
+
+Input:
+The input format will be similar to the initial API shared, but will include additional data. Will share details later.
+
+Expected Behavior:
+Based on the provided [job information], [candidate information], [email type], and [user prompt], the API must generate an email subject and body that align with the specified context and purpose.
+
+Context:
+This API is intended to be integrated into an app that streamlines a recruiter's workflow. The generated emails may be sent to clients (e.g., presenting candidates, following up, negotiating rates) or to candidates (e.g., sharing job opportunities, scheduling interviews). The [email type] input determines the recipient. [job information] includes all relevant job details, and [candidate information] includes all relevant candidate details.
+
+
+Input Structure:
+
+- job_information (JSON object): 
+{
+  "initial_notes": "We need a senior Python developer who will be responsible for building and maintaining our trading platform APIs. The candidate should be comfortable working with real-time data processing and have experience with financial regulations compliance. They will also mentor junior developers and collaborate closely with our quantitative research team.",
+  "company_name": "FinTech Solutions Inc",
+  "industry": "Financial Technology",
+  "attributes": {
+    "title": "Senior Python Developer",
+    "rate": {
+      "value": 12000,
+      "freq": "monthly"
+    },
+    "commitment": "full_time",
+    "duration": "permanent",
+    "location": {
+      "category": "hybrid",
+      "regions": [],
+      "countries": ["US", "CA"]
+    }
+  },
+  "requirements": [
+    {
+      "requirement": "Python",
+      "type": "technical_skill",
+      "is_mandatory": true,
+      "proficiency_level": "expert",
+      "weight": 1.0
+    },
+    {
+      "requirement": "Django",
+      "type": "technical_skill",
+      "is_mandatory": true,
+      "proficiency_level": "advanced",
+      "weight": 0.75
+    },
+    {
+      "requirement": "PostgreSQL",
+      "type": "technical_skill",
+      "is_mandatory": true,
+      "proficiency_level": "advanced",
+      "weight": 0.75
+    }
+  ]
+}
+
+- candidate_information (JSON object):
+{
+  "first_name": "Enmanuel",
+  "last_name": "Veras",
+  "country": "DO"
+}
+
+- email_type (string): Either "candidate" or "client". Determines the intended recipient of the email.
+
+- prompt (string): Custom instruction to guide the AI in crafting the email. For example:  
+  "Based on the provided information, please generate an email to present the candidate to the client for this job."
+
+Before proceeding with implementation, provide your interpretation of this instruction and ask one clarifying question at a time until the requirements are fully clear.
+
+
+=========
+
+This api will work along with a ui where user can pick from a dropdown for preset templates. one of those options must be "custom" that will allow users to insert their own prompts to tell the ai what they want to write the email.
+for the following presets table, please suggest a prompt in the prompt column that will be the prompt that we will pass to the api as the "prompt" element of the input. 
+
+"name	display_name	type	prompt
+first_outreach_email	First-time Outreach (Email)	candidate	
+first_outreach_linkedin	First-time Outreach (LinkedIn)	candidate	
+initial_follow_up_email	Follow-up Message	candidate	
+interview_scheduling	Interview Scheduling	candidate	
+positive_interview_feedback	Positive Interview Feedback	candidate	
+rejection	Rejection	candidate	
+custom_candidate	✨ Custom Prompt	candidate	
+candidate_presentation	Candidate Presentation	client	
+interview-scheduling	Interview Scheduling	client	
+offer-negotiation	Offer Negotiation	client	
+follow-up	Follow-up	client	
+custom_client	✨ Custom Prompt	client	"
+
+comment: "custom" is the options where users will input their own prompt. 
+
+Before proceeding with implementation, provide your interpretation of this instruction and ask one clarifying question at a time until the requirements are fully clear.
+
+
+=========
+
+
+The functionalities developed in `@components/email-builder.tsx` are currently hardcoded. However, the email generation feature will eventually be handled by an external API that uses AI. API details will be provided later.
+
+Additionally, the data generated from these emails will be stored in a Supabase database.
+
+To support this, I want to add the following tables to the Supabase database:
+
+- `job_email_builder`: Stores the emails generated by a user. Table schema: `@docs/db-schema/email-builder/job_email_builder.csv`
+- `email_builder_templates`: Stores the templates available in the email template dropdown. The user's selection from this dropdown will be sent to the API to guide email generation. Table schema: `@docs/db-schema/email-builder/email_builder_templates.csv`
+- `email_types`: Stores the possible types of emails. Currently, the options are "candidate" and "client" since we only generate these types. Table schema: `@docs/db-schema/email-builder/email_types.csv`
+
+Please:
+1. Review the table schemas and compare them with the UI elements that may interact with them. Confirm whether they are correctly structured. No changes to components or UI are needed at this stage.
+2. Create the necessary migration files to create these tables in the database. Once complete, I will run the `supabase db push` command.
+
+Before proceeding with implementation, provide your interpretation of this instruction and ask one clarifying question at a time until the requirements are fully clear.
+
+======
+
+Now, please review `@docs/db-schema/email-builder/email_builder_templates-data.csv`, which contains the data to populate the newly created `email_builder_templates` table.
+
+Create the necessary migration files to insert this data into the table.
+
+Also, a quick note regarding the UI (for context only—no need to modify components at this stage):
+
+- Each entry in this table will populate the email template dropdown using the value of `email_builder_templates.display_name`.
+- For client emails, `email_builder_templates.type` must be `client`. For candidate emails, it must be `candidate`.
+- The `prompt` field contains the value that will be passed to the API. For entries with `type` values `custom_client` and `custom_candidate`, the `prompt` field is empty. These correspond to the "custom prompt" options for client and candidate types respectively. In such cases, the API will use the value entered by the user in an input field.
+
+Before proceeding with implementation, provide your interpretation of this instruction and ask one clarifying question at a time until the requirements are fully clear.
+
+====
+
+In the route `/settings` (a protected route) with the component located at `@app/protected/settings/profile-form.tsx`, please add the following input fields corresponding to user attributes:
+
+- **Last Name**: Last name of the candidate.
+- **Company**: The company the user works at.
+- **Role**: The user's current role at the company (include placeholder text as a helper).
+
+All three fields should be free-text inputs and optional (not mandatory).
+
+Ensure the new inputs are displayed in a way that provides a good UI/UX experience and matches the current styling.
+
+Add a toast notification to confirm when profile updates are successfully completed.
+
+Additionally, create corresponding columns in the `profiles` table to store these new values through migrations files
+
+Before proceeding with implementation, provide your interpretation of this instruction and ask one clarifying question at a time until the requirements are fully clear.
+
+======
+
+now generate another documentation for this api:
+
+api name: email-builder
+url: https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/email-builder
+auth: supabase auth
+sample input: "{
+  "job_information": {
+    "initial_notes": "We need a senior Python developer who will be responsible for building and maintaining our trading platform APIs. The candidate should be comfortable working with real-time data processing and have experience with financial regulations compliance. They will also mentor junior developers and collaborate closely with our quantitative research team.",
+    "company_name": "FinTech Solutions Inc",
+    "industry": "Financial Technology",
+    "attributes": {
+      "title": "Senior Python Developer",
+      "rate": {
+        "value": 12000,
+        "freq": "monthly"
+      },
+      "commitment": "full_time",
+      "duration": "permanent",
+      "location": {
+        "category": "hybrid",
+        "regions": [],
+        "countries": ["US", "CA"]
+      }
+    },
+    "requirements": [
+      {
+        "requirement": "Python",
+        "type": "technical_skill",
+        "is_mandatory": true,
+        "proficiency_level": "expert",
+        "weight": 1.0
+      },
+      {
+        "requirement": "Django",
+        "type": "technical_skill",
+        "is_mandatory": true,
+        "proficiency_level": "advanced",
+        "weight": 0.75
+      },
+      {
+        "requirement": "PostgreSQL",
+        "type": "technical_skill",
+        "is_mandatory": true,
+        "proficiency_level": "advanced",
+        "weight": 0.75
+      }
+    ]
+  },
+  "candidate_information": {
+    "first_name": "Enmanuel",
+    "last_name": "Veras",
+    "country": "DO"
+  },
+  "sender_information": {
+    "first_name": "Sarah",
+    "last_name": "Mitchell",
+    "position": null,
+    "company": null
+  },
+  "email_type": "candidate",
+  "prompt": "generate an email to share details to candidate about the role and gauge interest."
+}"
+sample output: "{
+    "subject": "Exciting Opportunity - Senior Python Developer at FinTech Solutions Inc",
+    "body": "Hi Enmanuel Veras,\n\nI hope this message finds you well! I'm Sarah Mitchell, and I'm thrilled to share an exciting opportunity with you at FinTech Solutions Inc. We are currently seeking a talented Senior Python Developer to join our dynamic team.\n\nIn this role, you'll have the chance to build and maintain our cutting-edge trading platform APIs, working with real-time data processing and ensuring compliance with financial regulations. Your expertise in Python, Django, and PostgreSQL will be invaluable as you mentor junior developers and collaborate closely with our quantitative research team.\n\nFinTech Solutions Inc is at the forefront of the Financial Technology industry, offering a hybrid work environment across the US and CA. We provide a competitive monthly rate of $12,000, along with the opportunity for permanent, full-time engagement. You'll be part of a company that values innovation, growth, and collaboration.\n\nIf you're ready to take the next step in your career and make a significant impact in the fintech world, I'd love to discuss this opportunity with you further. Please let me know a convenient time for us to connect.\n\nLooking forward to hearing from you soon!\n\nBest regards,\n\nSarah Mitchell"
+}"
+api code: see below
+
+====================
+
+
+
+Let's now return to `@components/email-builder.tsx` and work on integrating it with the API used for generating messages.
+
+The API is triggered when the "Generate" button is clicked. It is named `email-builder` and is documented in `@docs/api/email-builder.md`.
+
+Please review both the `email-builder` component and the `email-builder` API documentation, and create an integration plan to fully connect the component with the API for a functional implementation.
+
+Use server actions to handle the API calls.
+
+Feel free to ask any questions regarding how the API inputs map to the form inputs and sections/subsections in the UI, or which database tables are queried or updated when saving the generated emails.
+
+Provide your interpretation of this instruction and ask one clarifying question at a time until the requirements are fully clear.
+
+==========
+
+I just tested the candidate email generation and encountered the following error (see details below).
+
+Before making any changes, please note that I forgot to mention an important requirement:  
+The "Select Candidate" dropdown must fetch and display the candidates (by their full name) associated with the `user_id` of the currently logged-in user.
+
+Before proceeding with implementation, provide your interpretation of this instruction and ask one clarifying question at a time until the requirements are fully clear.
+
+==========
+
+
+I noticed an unexpected behavior in the email creation flow. Currently, it works as follows:
+
+1. User clicks "New".
+2. A new email card opens.
+3. User selects a template.
+4. User clicks "Generate".
+5. The email is generated.
+6. If the user clicks [Save], the email is saved to the database.
+7. If the user clicks [Cancel], the email is stored somewhere (not in the database) and persists even after refreshing the page. This also occurs if the user writes the email manually (without clicking "Generate"). After clicking [Cancel], the message still persists.
+
+**Expected Behavior:**
+
+When a user creates a new email, the card should open in edit mode. If the user clicks [Cancel] before saving for the first time, the email should be discarded completely. Optionally, display a confirmation dialog to alert the user about discarding the unsaved email.
+This must happen for both candidate and client emails
+
+Before proceeding with implementation, provide your interpretation of this instruction, confirm if you see this behavior and ask one clarifying question at a time until the requirements are fully clear.
+
+========
+
+Create a new version of `candidate-match-analysis-page.tsx` and update the "Requirement Analysis" section at the top.
+
+Replace the progress bars currently shown for each requirement with badges. Each badge should display the requirement name and have the following characteristics:
+
+- The badge color should subtly reflect the status, using the same color convention previously used.
+- To the right of the requirement name, include a small, filled progress bar that visually represents the score. Do not display the numerical value.
+- Ensure the badges are styled and positioned following good UI/UX practices for clarity and visual hierarchy.
+
+Focus on achieving a clean and functional layout that enhances readability and usability.
+This new version must be accesible through a new option in the sidebar called "match analysis 2"
+
+====
+
+perfect. this works.
+
+now, add a new column "subject" to job_builder_table to store the subject that the email-builder api returns
+
+create necessary migration files and make any necessary adjustments on the ui and server actions to handle this properly
+
+Before proceeding with implementation, provide your interpretation of this instruction, confirm if you see this behavior and ask one clarifying question at a time until the requirements are fully clear.
+
+=====
+
+generate a new option in the sidebar called "email builder". that option takes the user to new page that will be populated with content that will be generated based on the screenshot provided.
+The content you generate must be an improved version of the screenshot. focus on ui/ux, usability 
+
+========
+
+
+In the email builder route (@components\email-builder.tsx), when entering in edit mode, the button "save" must be enabled only if the user has made changes on any of the inputs. this must happen in both client and candidate emails subsections
+Before proceeding with implementation, provide your interpretation of this instruction, confirm if you see this behavior and ask one clarifying question at a time until the requirements are fully clear.
+
+
+Lets go now to @components\job-description-builder.tsx and lets replicate the change you've made as i'm seeing same behavior of save button when entering an existing job description card in edit mode.
+Before proceeding with implementation, provide your interpretation of this instruction, confirm if you see this behavior and ask one clarifying question at a time until the requirements are fully clear.
+
+=======
+
+
+I want to improve the UI of a specific section at the route `/jobs/[jobid]/email-builder` (located at `@components/email-builder.tsx`).
+
+Specifically, I want to update the UI of the email card in its expanded mode (both edit and view modes). Please use `@components/sample-email-builder.tsx` as a visual reference to replicate the UI design.
+
+IMPORTANT:
+- This is strictly a UI update. All existing functionalities (API integration, logic, and behavior) must remain unchanged.
+- Do not import anything from `@components/sample-email-builder.tsx`, as this file will be deleted after the UI update.
+
+Before proceeding with implementation, provide your interpretation of this instruction, and ask one clarifying question at a time until the requirements are fully clear.
+=======
+
+answer to your question: yes, candidate/template dropdown fields must appear above the subject/content child card.
+
+additional comments which are important:
+- you said "Collapsible header shows candidate/template as read-only info in both edit and view modes" - these fields are read-only in view mode. In edit mode, they are: a editable combobox (candidate selection) and a dropdown (template)
+- you said "Edit form dropdowns (for changing candidate/template) appear only in expanded view within edit mode" - correction: element to change candidate is a combo box. element to change template is a dropdown
+
+Before proceeding with implementation, provide your interpretation of this instruction, and ask one clarifying question at a time until the requirements are fully clear.
+
+=====
+
+ i have a clarifying comment: in collapsed view the card must remain as is only showing the email title.
+Not sure what do you mean when you described tehse items:
+
+"- Collapsible section showing candidate/template info:
+        - View Mode: Read-only display text
+      - Edit Mode: Read-only display text (same as view mode)"
+
+========
+
+I want to improve the UI of a specific section at the route `/jobs/[jobid]/candidate-match-analysis` (located at `@components/candidate-match-analysis.tsx`).
+
+Specifically, I want to update the part of the UI displaying the match analysis results that are populated from the API. In the "Requirement Analysis" section at the top, I want to change how the skills are presented.
+
+With the goal of saving space, Instead of showing requirement names with progress bars, I want to display badges. These badges should be color-coded based on their status and should include a circular progress bar filled proportionally to the score.
+
+Please use `@components/sample-match-analysis-report-2.tsx` as a visual reference for the new design.
+
+IMPORTANT:
+- This is strictly a UI update. All existing functionalities (API integration, logic, and behavior) must remain unchanged.
+- Do not import anything from `@components/sample-match-analysis-report-2.tsx`, as this file will be deleted after the UI update.
+-Ensure the final design is visually appealing, harmonious, and provides a good user experience.
+
+
+
+Before proceeding with implementation,  provide your interpretation of this instruction, and ask one clarifying question at a time until the requirements are fully clear.
+
+=======
+
+Good question. Let me answer and add more details:
+
+- You must only update the top summary section with badges.
+- These badges must be clickable. Clicking on a badge should trigger the same action as clicking the currently implemented info button next to each requirement — it should scroll the user to the respective feedback detail.
+- For badge colors, please use the predefined colors specified in the `globals.css` file.
+- On hover, the badge color must remain unchanged. Instead, apply a very subtle hover effect (e.g., a soft shadow or soft opacity change).
+
+Before proceeding with implementation,  provide your interpretation of this instruction, and ask one clarifying question at a time until the requirements are fully clear.
+
+======
+
+
+lets make a fix on route /jobs/[jobid]/candidate-match-analysis (component @components\candidate-match-analysis.tsx)
+when we expand a collapsed card and for some reason the user goes to another tab or page, when returning, the card collapses. this should not happen.
+
+Before proceeding with implementation,  provide your interpretation of this instruction, confim if you see this behavior and ask one clarifying question at a time until the requirements are fully clear.
+
+=========
+
+
+I want to make an edit to the route `candidates/[candidateid]` (component located at `@components/candidate-details.tsx`).
+
+Add breadcrumbs to facilitate navigation. Use the breadcrumb implementation from the route `/jobs/[jobid]` as a reference.
+
+The breadcrumbs should be placed above the candidate's name.
+
+breadcrumbs structure when being at a given candidate page must be: Candidates > [Candidate name]
+Before proceeding with implementation,  provide your interpretation of this instruction, and ask one clarifying question at a time until the requirements are fully clear.
+
+=========
+
+I want to edit the behavior of the Create Candidate dialog (located at `@components/create-talent-dialog.tsx`).
+
+Expected behavior:
+
+1. The user selects between "Automatic Load" and "Manual Input".
+2. If "Automatic Load" is chosen:
+   2.1. The user provides a LinkedIn URL or uploads a PDF, then proceeds to the next section. An API is called, and its results are used to populate the next step.
+   2.2. A two-step process begins. Add a visual two-step indicator to reflect this. Details of each step are as follows:
+
+       Step 1 – Personal Information:
+       - Include all fields currently shown after clicking "Next" in the original flow.
+       - Add a title "Personal Information" and a progress bar to indicate this is step 1.
+       - Fields should be prepopulated with the API response.
+       - The existing blue banner information must remain.
+
+       Step 2 – Candidate Skills:
+       - This is a new section that displays skill-related information returned by the API, which is currently not shown in the dialog.
+       - Display skills as badges, which can be removed or added.
+       - Use the job requirements section from `@components/job-details-dialog.tsx` as a reference, but consider the following:
+         - Do not include the "mandatory/non-mandatory" toggle (it should not appear).
+         - Soft skills and certifications do not have a proficiency level.
+       - The blue banner information and step progress indication must remain, showing that this is step 2.
+
+Changes to the Personal Information and Candidate Skills sections will be used to save the candidate information.
+
+
+Based on this instruction please:
+1. provide your interpretation of this instruction
+2. ask one clarifying question at a time until the requirements are fully clear.
+3. based on the current status/length of the component that will be affected, tell me if we should think about doing a refactor before adding more complexity.
+
+DONT BEGIN IMPLEMENTATION YET
+
+
+=====
+
+let me answer the question you raised before moving forward: option 2- users must be able to both remove existing skills and manually add new skills not detected by api
+
+also, let me clarify this:
+- manual input must also have a step 2 where users can add skills
+- the skills section you said: "  - Skills section should mirror the job requirements pattern but without:
+    - Mandatory/non-mandatory toggle
+    - Proficiency levels for soft skills and certifications"  want to clarify that for the 2nd item, it works the same way for the job requirement pattern as proficiency level is not allowed for soft skill and certification.
+
+to conclude, jsut 1 question: does refactoring make sense if no human will code this app? does it make sense to refactor if only ai tools will be used for coding?
+
+please ensure you understand the above before proceeding with the refactor
+
+=======
+
+when trying the component and picking the manual input option, i dont see the input fields (which in this status they must be just the personal info related ones) - why this is not displaying? dont build anything, just explain
+
+
+========
+
+Create a new page accessible via a new section in the sidebar labeled "Candidates 2".
+
+This section should function similarly to the existing "Candidates" section but display the candidates in a talent board-style grid layout.
+
+Use the provided component as a reference for layout and behavior, but adapt the styling to match the design system and visual style of the current application.
+
+component code below:
+
+"import type { FC } from 'react';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Linkedin, FileText, MapPin, Briefcase } from 'lucide-react';
+import type { Candidate } from '@/lib/types';
+
+interface CandidateCardProps {
+  candidate: Candidate;
+}
+
+export const CandidateCard: FC<CandidateCardProps> = ({ candidate }) => {
+  return (
+    <Card className="flex flex-col overflow-hidden rounded-lg border-border bg-card text-card-foreground shadow-md transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl">
+      <CardHeader className="flex flex-row items-center gap-4 p-4">
+        <Avatar className="h-16 w-16 border-2 border-primary">
+          <AvatarImage src={candidate.avatarUrl} alt={candidate.fullName} data-ai-hint={candidate.aiHint} />
+          <AvatarFallback>{candidate.avatarFallback}</AvatarFallback>
+        </Avatar>
+        <div className="flex-1">
+          <CardTitle className="text-lg font-bold font-headline">{candidate.fullName}</CardTitle>
+          <p className="text-sm text-muted-foreground">{candidate.email}</p>
+        </div>
+      </CardHeader>
+      <CardContent className="flex-grow space-y-3 p-4">
+        <div className="flex items-center text-sm text-foreground">
+          <MapPin className="mr-2 h-4 w-4 shrink-0 text-primary" />
+          <span className="truncate">{candidate.country}</span>
+        </div>
+        <div className="flex items-center text-sm text-foreground">
+          <Briefcase className="mr-2 h-4 w-4 shrink-0 text-primary" />
+          <span>{candidate.experience} years of experience</span>
+        </div>
+      </CardContent>
+      <CardFooter className="mt-auto flex justify-end space-x-2 border-t border-border bg-muted/30 p-3">
+        <Button variant="ghost" size="icon" asChild>
+          <a href={candidate.linkedinUrl} target="_blank" rel="noopener noreferrer" aria-label={`${candidate.fullName}'s LinkedIn profile`} title="LinkedIn Profile">
+            <Linkedin className="h-5 w-5 text-muted-foreground transition-colors hover:text-primary" />
+          </a>
+        </Button>
+        <Button variant="ghost" size="icon" asChild>
+          <a href={candidate.resumeUrl} target="_blank" rel="noopener noreferrer" aria-label={`${candidate.fullName}'s resume`} title="View Resume">
+            <FileText className="h-5 w-5 text-muted-foreground transition-colors hover:text-primary" />
+          </a>
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+};
+"
+===========
+
+please create a new section
+
+Create a new page accessible via a new section in the sidebar labeled "Jobs 2".
+
+This section should function similarly to the existing "Jobs" section but display the jobs using the layout shown in the provided screenshot.
+
+Use the screenshot as a reference for layout (but adapt the styling to match the design system and visual style of the current application) and incorporate the following details in the job card:
+
+- Clearly define each job attribute in the code:
+  - Company Name
+  - Creation Date
+  - Job Title
+  - Commitment (e.g., Part-time, Full-time, Hourly)
+  - Rate: Must be a numeric value (not a range), and can be based on an hourly, weekly, daily, or yearly basis
+  - Location Requirement: Instead of a traditional location, use one of the following values:
+    - Remote Global
+    - Remote – Region Specific
+    - Remote – Country Specific
+    - On-site
+    - Hybrid
+=======
+
+after testing the results i notice some errors that need to be fixed. i'll address them 1 by 1:
+
+when opening the create candidate dialog and picking "manual input", the progress bar must appear at the top indicating we are in step 1. currently the progress bar only appears in step 2.
+
+Before proceeding with implementation,  provide your interpretation of this instruction, and ask one clarifying question at a time until the requirements are fully clear.
+
+
+great, now i'm sharing another fix to do:
+
+when adding a skill, proficiency level dropdown must be required for all skills that admit them (industry, role, technical skill, technology domain)
+
+
+great, now i'm sharing another 3 fixes to do:
+a. the current white banner at the top must only say: "This information can be updated after creation from the candidate profile". content must be the same across both the personal information and the candidate skills steps
+b. for automatic upload, after the parse has been executed, we must also display an informative banner asking the user to review the information that has been extracted
+c. both banners from (b) and (c) must follow the styling guidelines (Color) indicated in globals.css
+
+
+Before proceeding with implementation,  provide your interpretation of this instruction, and ask one clarifying question at a time until the requirements are fully clear.
+
+=========
+
+Perfect. Now i did a test using linkedin profile parse (automatic load) and got an error when trying to create the candidate in the last step
+
+
+=====
+
+in route /candidates/[candidateid] route i get this error when clicking edit button in personal information. please analyze and propose a fix
+
+====
+
+Need to make edits in `@components/candidate-details.tsx`.
+
+In the "Personal Information" section:
+- In edit mode, the Save button should only be enabled when the user has made a change to any field; otherwise, it should be disabled.
+- If the user attempts to leave the section after making changes (e.g., navigating to another link, switching tabs, going to the "Candidate Skills" section, etc.), a discard changes confirmation dialog must appear.
+
+In the "Candidate Skills" section:
+- Allow users to add and edit skills.
+- This section must support view/edit modes with corresponding action buttons (Edit, Cancel, Save).
+- Use the skill picker implemented in Step 2 of the Create Candidate component as a reference (`@components/create-talent-dialog/index.tsx`).
+- Important:
+  - When adding a new skill, set `source = "user_input"` in the `candidates_skills` table.
+  - When editing an existing skill, the `source` value must remain unchanged.
+- If the user attempts to leave this section with unsaved changes, display a discard changes confirmation dialog.
+- In edit mode, the Save button should only be enabled when changes are made; otherwise, it should be disabled.
+
+Important:
+- The "Personal Information" and "Candidate Skills" subsections must remain independent—each with its own edit/view mode logic.
+- dialog components must follow current styling of the app
+
+Before proceeding with implementation,  provide your interpretation of this instruction, and ask one clarifying question at a time until the requirements are fully clear.
+
+====
+
+For now, lets not include the generate button on any case in the candidate profile. lets just remove it. Before proceeding with implementation,  provide your interpretation of this instruction, and ask one clarifying question at a time until the requirements are fully clear.
+
+=====
+
+
+i need help with designing the structure of a landing page for this app. based on the current status i want a minimalistic landing page that serves to:
+
+- explain what vita does
+- enable users to join waitlist
+- offer possibility of jumping on a call to share details
+
+
+based on this share how you would structure this. dont go into details of the content, just share the structure.
+
+important: this landing page will serve me to explain what vita does while the mvp is under deveolopment
+
+when explaining what vita does, i want to communicate this:
+- brief overview of goal
+- brief overview of the tools
+- do a subtle highlight on the interview analysis / companion mode that allows recruiters to have a bot that will join interviews and will provide guidance on how to assess candidates based on job description
+- there will be a basic product tier where the tools described will be offered
+- then, there will be custom versions for niche oriented recruiting agencies or companies that focus on specific areas like: industrial automation, cybersecurity, pharmaceutical, others
+- we want to tailor this to medium/small recruiting agencies, freelance recruiters that want to leverage ai and incorporate it into processes
+
+
+======
+
+Let's build a landing page for this app at an alternative route: `/landing-v1`.
+
+This landing page should be based on the current page displayed at the root route, with the following modifications:
+
+- Use light mode only; remove the theme selector at the bottom.
+- Remove the "Next Steps" section.
+- Retain the existing header.
+- Retain the existing hero section.
+- In the header:
+  - Remove the icon next to the "Vita" name.
+  - Use this logo instead: `@public/logo/vita-logo-light.svg`.
+- In the hero section:
+  - Remove the logo but preserve the spacing.
+
+
+Considerations about heading and hero section:
+
+## Header Navigation
+- **Logo**
+- **About**
+- **How**
+- **Plans**
+- **[Join Waitlist]** (CTA button)
+
+---
+
+## Hero Section
+- **Headline**: "Streamline recruiting with Vita"
+- **Subheading**: Your toolkit to manage and automate every step of the recruitment process, from job creation to candidate submission.
+- **CTA Buttons**: [Join Waitlist] and [Book a Call]
+
+---
+
+
+Before proceeding with implementation,  provide your interpretation of this instruction, and ask one clarifying question at a time until the requirements are fully clear.
+
+
+
+======
+
+
+Lets edit the footer following these guidelines
+
+## Footer
+- Logo
+- Short slogan: _“Built to make recruiting smarter.”_
+- Links: Privacy Policy, Contact
+
+
+maintain alignment with header so header and footer content looks harmonic and aligned 
+
+Before proceeding with implementation,  provide your interpretation of this instruction, and ask one clarifying question at a time until the requirements are fully clear.
+
+======
+
+
+The hero section is currently positioned too close to the top of the page layout. Center it vertically.
+
+Additionally, there is excessive spacing in the layout. Reduce this space slightly.
+
+
+Before proceeding with implementation,  provide your interpretation of this instruction, and ask one clarifying question at a time until the requirements are fully clear.
+
+======
+
+
+Add a soft motion animation to this image. The semi-transparent white and light gray layers should subtly shift horizontally or diagonally back and forth, at a very slow pace, to create a calm, flowing effect. The animation should use smooth easing with no abrupt changes, simulating a gentle breeze or slow drift. Maintain the clean, layered gradient look, and ensure that all movements are minimal and seamless to preserve the elegant, modern aesthetic.
+
+
+=====
+
+Lets change the background and use Video based Background:
+
+A fullscreen video fills the entire viewport (100vw × 100vh) using CSS object-cover to maintain aspect ratio and crop overflow.
+
+The video is autoplaying, muted, looping, and plays inline.
+
+Video source URL:
+https://res.cloudinary.com/dnhjrpwmc/video/upload/v1754506313/background-2_hvoguh.mp4
+
+Before proceeding with implementation,  provide your interpretation of this instruction, and ask one clarifying question at a time until the requirements are fully clear.
+
+
+Overlay a subtle black layer on top of the video with 20% opacity (bg-black/20) covering the entire viewport to enhance text readability.
+
+=======
+
+please adjust slightly the color of footer and header so the video overlays a bit more
+
+
+=====
+
+Animate this background with a very subtle, continuous sequence where new cubes softly form through connecting light gray lines, while other existing lines gradually disconnect and fade. The animation should maintain the minimal geometric aesthetic—each cube must appear by progressively drawing its edges, connecting lines one by one to complete the shape. Simultaneously, other cube outlines should dissolve gently as their lines disconnect in reverse. The process should loop seamlessly and rhythmically, with slow timing and soft easing, creating an ambient, intelligent flow of structural transformation across the isometric grid. The final output must be rendered in the highest possible video quality (4K or higher), with crisp line detail and smooth transitions to preserve the precision and clarity of the design.
+
+
+=======
+
+When clicking the About section, display a dialog centered on the page. It should not cover the entire screen but should occupy the central area of the full-page layout.
+
+Use an appropriate design—ensure the dialog is visually appealing with a strong focus on good UI/UX. Use cards to distribute the content within the dialog.
+
+Refer to the document @docs\landing-page\landing-page.md (section "About") to identify the content to display.
+
+While the dialog is open, the About section must be highlighted.
+
+Since this is a landing page, the design should be aesthetically pleasing and follow best practices in UI/UX.
+
+Before proceeding with implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood.
+
+======
+
+
+The dialog must expand to be wide and occupy the full screen area, but not as large as the entire page—slightly smaller than the full page layout.
+
+Remove the three gray boxes labeled "Built for teams," "Scales with you," and "All in one."
+
+
+perfect.
+
+lets do some edits:
+- when clicking about, the hero section must softly hide using a smooth transiton to fadeout and let the dialog appear
+- lets not put opacity to the background when the dialog opens
+- the dialog must not be white, instead lets add some opacity so we can see through it what happens behind (the landing page with the animation)
+- the border of the dialog must haav avery subtle gray
+======
+
+Perfect.
+
+Let's make the following edits:
+
+- When clicking the About section, the hero section must softly hide using a smooth fade-out transition to allow the dialog to appear.
+- Do not apply background opacity when the dialog opens.
+- The dialog itself must not have a solid white background; instead, apply a translucent background so the landing page and its animation remain partially visible behind it.
+- The dialog's border must have a very subtle gray color.
+
+
+Before proceeding with implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood.
+
+
+====
+
+
+Perfect.
+
+Let's make the following edits:
+
+- when opeining the dialog, the opeming time must be slightly slower, same as for closing
+- increase slightly the transparency level
+- the icons displayed in the boxes must be in gray scale
+
+
+Before proceeding with implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood.
+
+
+======
+
+now please review @docs\landing-page\landing-page.md (How it works section only) and build the respective dialog for this section. This section will appear when user clicks "How" in the header
+the design must be based on the dialog you just built for about section
+
+
+now please review @docs\landing-page\landing-page.md (Plans section only) and build the respective dialog for this section. This section will appear when user clicks "Plans" in the header
+use cards one next to the other to display content
+
+=======
+
+Let's edit the landing page:
+
+- Add three new sections: About, How, and Plans. These sections will be accessible via the header links.
+- Remove the current dialogs triggered by these header links. The links will now function as anchor links that smoothly scroll to their respective sections.
+- The landing page will consist of four sections in total: Hero, About, How, and Plans.
+- The content currently displayed in the About, How, and Plans dialogs should now be embedded directly into their respective sections.
+- Each section (About, How, and Plans) should display its content within a rectangular container that visually replicates the dialog style, but it should not function as a dialog.
+- For dimensions, match the size and layout of the Hero section to maintain consistency across all sections.
+
+Before proceeding with implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood.
+
+====
+
+Perfect.
+
+Ensure the footer is always visible when scrolling.
+
+Adjust the height of each section so they fit appropriately within the viewport, taking into account both the fixed header and footer. This ensures all sections are fully visible without overlapping or requiring additional scrolling.
+
+Before proceeding with implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood.
+
+=====
+
+
+No, the minimum height of each section must match the height of the Hero section from the previous version.
+
+Ensure the About, How, and Plans sections meet this height requirement.
+
+Ask me how we can reduce text content, if necessary, to fit within these constraints.
+
+Before proceeding with implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood.
+
+
+
+---
+
+Move the Hero section slightly higher on the page.
+
+Use the buttons "Join Waitlist" and "Book Call" as a vertical alignment reference—they should appear vertically centered within the Hero section.
+
+before proceeding with implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood.
+
+======
+
+
+Create a landing-v1/styles page and present the typography styles. Include dropdowns to vary the different typography styling present in the app (globals.css) - by picking a font on the dropdown, the route landing-v1 must vary its fonts respectively. this would be just for tsting
+
+
+========
+
+Lets do edits on the route /landing-v1
+
+When the user clicks the "Join Waitlist" button, a dialog containing a form should open. The form includes various fields—some mandatory, others optional—as detailed in this file: @docs\landing-page\join-waitlist-form.md.
+
+For styling, use this component @components\landing-v1\sample-landing-page-dialog.tsx as a reference for color, opacity, and layout. When the dialog opens, the current page content (regardless of the section—Hero, About, How, or Plans) must fade out, and the dialog should appear centered in the viewport.
+
+The dialog includes "Submit" and "Cancel" buttons.
+
+On clicking "Submit," the form should close, and a toast notification should appear confirming the user has been added to the waitlist. The closing must be soft and harmonic
+
+
+before proceeding with implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood.
+
+========
+
+for now, lets focus on the ui, i will take care of the storage later
+
+=======
+do these edits:
+- Increase the spacing between each column.
+- Mark "Industry" and "Role" fields as mandatory.
+- When I said the dialog should occupy the full viewport, I meant it should fill the available space excluding the header and footer.
+- Increase the transparency of the background so it's slightly more visible.
+
+before proceeding with implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood.
+
+=======
+
+
+the join waitlist button from the hero section must also open the join waitlist dialog
+
+
+======
+
+now lets work on what to do when submitting the form
+When submitting the form, we must save the collected information to a new Supabase table with the structure defined in the referenced file @docs\landing-page\waitlist_form_table_schema.csv.
+
+Additionally, we must capture which button the user clicked to open the form using a variable named `trigger_source`.
+
+Set `trigger_source` as follows:
+- If the form was triggered by the "Join Waitlist" button (from the header or hero section), set `trigger_source` to `waitlist`.
+- If triggered by the "I want to know more" button in the "Plans" section under the "Core" card, set `trigger_source` to `vita_core`.
+- If triggered by the "This is the right fit for me!" button in the "Plans" section under the "Custom" card, set `trigger_source` to `vita_custom`.
+
+Tasks:
+- Update the code to correctly capture and store the `trigger_source` value.
+- Review the schema in the provided file to confirm if it's good enough/ready to be added to Supabase via a migration file (to be applied using `supabase db push`).
+
+
+before proceeding with implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood.
+
+
+======
+
+I noticed an issue with the countries combo box:
+
+- When the user types, no options appear.
+- This should be working: as the user types, country options must appear based on matches with the input.
+- The matching must be performed against the `display_name` values from the database, as that is what the user will input.
+
+before proceeding with implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood.
+
+=====
+
+
+when someone fills the form, the supabase table waitlist_forms store the iso codes instead of teh countries display name. please adjust to store display names
+
+=====
+
+im comparing the visual styling of route /landing-v1 local version (localhost) vs version deployed in vercel and there are differences in the colors.
+is ther any way to capture/identify why we are having these differences?
+
+
+
+====
+
+
+Generate a temporary new landing page at the route `/landing-test` that replicates `/landing-v1`.
+
+In the hero section, include a color picker that allows modification of the color variables from globals.css. As the color pickers are adjusted, the `/landing-test` page should update accordingly to reflect the new color combinations.
+
+before proceeding with implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood.
+
+====
+
+please create new page accessible through a new option in the sidebar called "interview analysis"
+
+follow these instructions for designing the page that we will show when user clicks on that option on the sidebar:
+
+You are designing the UI for the "Interview Analysis" feature of the Vita recruitment platform.
+
+Goal:
+Create a modern, intuitive, and mobile-responsive UI for managing and reviewing interviews, supporting a card-based table layout where each card represents one interview.
+
+Requirements:
+
+1. **Statuses to Support**
+   - Pending Interview (interview scheduled but not started)
+   - In Progress (interview currently happening)
+   - Processing Transcript (call finished, transcript processing)
+   - Analysis Ready (transcript analyzed and ready for review)
+   - Archived (completed and stored for reference)
+
+2. **Main View – Card-Based Table**
+   - Each card is a row in the table.
+   - Attributes displayed on each card:
+     - Job Title (linked to job page)
+     - Candidate Name (linked to candidate profile)
+     - Interview Date & Time
+     - Status (with colored badge per status)
+     - Duration (once completed)
+     - Bot Join Link (if interview is upcoming)
+     - Actions Menu (View Analysis, Reschedule, Archive, Delete)
+   - Cards should be responsive and stack vertically on mobile.
+
+3. **Card Design**
+   - Use ShadCN Card component with subtle shadow and rounded corners.
+   - Header: Job Title + Candidate Name in bold, stacked or side-by-side depending on screen size.
+   - Body: Date/Time, Duration, and Status badge.
+   - Footer: Action buttons (primary = View Analysis, secondary = menu for other actions).
+
+4. **Filters & Search**
+   - Filters: Status, Date Range, Job, Candidate.
+   - Search bar for quick lookup by candidate or job name.
+   - Filters appear above the card list.
+
+5. **Interview Detail View**
+   - Opens when clicking "View Analysis" on a card.
+   - Tabs:
+     - **Transcript**: Full meeting transcript with timestamps.
+     - **Analysis**: AI-generated evaluation against the job description, scoring per competency.
+     - **Summary**: Key strengths, weaknesses, recommendations.
+   - Actions: Download Transcript (PDF), Share Analysis (copy link), Archive Interview.
+
+6. **Empty State**
+   - If no interviews exist: show an illustration and “No interviews yet” message with a “Schedule Interview” button.
+
+7. **Theme**
+   - Consistent with Vita’s existing dark/light mode.
+   - Use Tailwind + ShadCN UI styling.
+   - Accessible color contrasts for badges.
+
+8. **Responsive Behavior**
+   - Desktop: cards in 2-4 column grid layout.
+   - Tablet: 2 columns.
+   - Mobile: single column stacked.
+
+Deliverables:
+- Wireframe/layout description for the main card table view.
+- Wireframe/layout description for the interview detail view.
+- Badge color suggestions for each status.
+- Suggested icons (Lucide React) for actions.
+
+Focus only on the UI/UX layer. Do not include backend, API, or database instructions.
+
+=======
+
+now lets design the dialog that opens when clicking on "schedule interview"
+
+"You are designing the "schedule interview" interface for the Vita recruitment platform.
+
+Goal:
+Create a clean, intuitive, and mobile-responsive UI that allows a user to schedule a new interview and capture all necessary details before sending an interview bot.
+
+Requirements:
+
+1. **Form Fields to Capture**
+   - **Job Selection**
+     - Dropdown list of jobs the user owns.
+     - Searchable for large lists.
+   - **Candidate**
+     - Dropdown of candidates linked to the selected job.
+     - Option to leave blank (“Unassigned”).
+   - **Meeting Link**
+     - Text input for Google Meet link.
+     - Validate format and display warning if not recognized.
+   - **Scheduled Date & Time**
+     - Date picker + time picker.
+     - Time zone selector (defaults to user’s time zone).
+     - Optional: “Send bot immediately” toggle (bypasses scheduling).
+   - **Consent Confirmation**
+     - Checkbox: “I have informed the candidate and obtained consent for recording and transcription.” (required).
+   - **Notes (optional)**
+     - Multiline text field for internal notes or context for the interviewer.
+
+2. **UI Layout**
+   - Use ShadCN `Card` component with:
+     - **Header**: “Schedule New Interview”
+     - **Description**: Brief guidance (“Select a job, choose a candidate, and provide meeting details…”)
+   - Form laid out in logical steps:
+     1) Job & Candidate
+     2) Meeting Details
+     3) Consent & Notes
+   - Each section clearly labeled with headings.
+
+3. **Validation & States**
+   - All required fields validated on blur and before submission.
+   - Disable “Create Interview” button until:
+     - Job selected
+     - Meeting link provided
+     - Consent checkbox checked
+   - Show inline error messages.
+   - On submit: loading state on button (“Creating…”).
+
+4. **Actions**
+   - **Primary**: “Create Interview”
+   - **Secondary**: “Cancel” (navigates back to Interview Analysis list)
+
+5. **Responsive Design**
+   - Desktop: two-column layout (job/candidate on left, meeting/consent on right).
+   - Mobile: single column stacked.
+
+6. **Styling**
+   - Match Vita’s Tailwind + ShadCN design system.
+   - Accessible contrast and clear focus states.
+   - Use Lucide icons:
+     - Calendar for date/time
+     - Video for meeting link
+     - User for candidate
+     - Clipboard-Check for consent
+
+7. **Post-Creation Feedback**
+   - On success: success toast (“Interview scheduled successfully. The bot will join at the scheduled time.”)
+   - On error: error toast with reason."
+
+
+===========================
+
+
+Please review the set of instructions provided in this file @docs\interview-companion-mvp.md and use them as the prompt.
+
+Identify all the steps listed under the "Step-by-Step Build Plan" section, and clearly communicate and confirm with me before starting and after completing each step.
+
+Very important: Ensure that any changes you make do not break any part of the existing app, either at the code level or the database level.
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. If any information, detail, link, or API is missing, feel free to ask. Do not make any assumptions.
+
+
+=========
+
+
+use a placeholder for: recall.ai api and for the scoring part (you can simulate it with mock data)
+also, for new ui component try to follow existing ui styling guidlines 
+
+===========
+
+
+lLet's put these values into a separate table called "interview_statuses". This table should have two columns: `name` and `display_name`. The `name` column will store values like "created", "in_progress", etc., while the `display_name` column will store the corresponding labels to be shown in the UI.
+
+Before implementing this, do you think this is a good approach?  
+Also, will any code changes be needed to support this?
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. 
+
+
+========
+
+Make the following updates to the "interviews" table:
+
+- Add a `candidate_id` column to establish a foreign key relationship with the "candidates" table. When creating a new interview, include a combobox for candidate selection, with word-matching functionality as the user types.
+
+- Add a `title` column. By default, the title should be set to "Interview - {Candidate Name}". If multiple interviews exist for the same candidate, append a number (e.g., "Interview - John Doe 2"). The title field must be editable during interview creation and should be prepopulated with the default value.
+
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood.
+
+===
+I want this agent to act as a documentation reviewer. The agent must be capable of browsing the internet and, when given a URL, should explore not only the root URL but also other related pages under the same root domain.
+
+For example, if the provided root URL is "https://docs.recall.ai/docs", the agent must also review other pages such as:
+- https://docs.recall.ai/docs/asynchronous-transcription
+- https://docs.recall.ai/docs/bot-fundamentals
+=====
+
+I need to integrate the existing work related to the interview-companion feature located at the route /jobs/[jobid]/interview-companion (@components\interview-companion)
+
+Please review the integration plan outlined in:  
+@docs\recall-ai-integration-plan.md  
+Then proceed with the implementation.
+
+If you require setting or specifying API keys or webhook secrets, please ask me directly and guide me through the necessary steps. Similarly, let me know if I need to install any packages or dependencies via the console.
+
+For any additional details, refer to the official Recall.ai documentation:  
+https://docs.recall.ai/docs/  
+Use the appropriate agent to access this information.
+
+======
+
+
+Before proceeding with phase 2 let me clarify this that i see in the recall.ai dashboard after running a test (created a bot from the route /jobs/[jobid]/interview-companion)
+
+
+

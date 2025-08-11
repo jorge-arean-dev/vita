@@ -1,9 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Lora:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&family=Source+Sans+3:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Nunito:wght@300;400;500;600;700&family=Merriweather:wght@300;400;700&family=PT+Sans:wght@400;700&family=Oswald:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;700&family=Work+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&family=Lexend:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Archivo:wght@300;400;500;600;700&family=Public+Sans:wght@300;400;500;600;700&family=Crimson+Text:wght@400;600;700&family=Source+Serif+4:wght@300;400;500;600;700&family=PT+Serif:wght@400;700&family=Libre+Baskerville:wght@400;700&family=Bitter:wght@300;400;500;600;700&family=Spectral:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
+
+@custom-variant dark (&:is(.dark *));
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
+    /* Shadcn UI color variables */
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
@@ -29,8 +34,61 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+    
+    /* Default font variables to prevent hydration mismatch */
+    --font-titles: Inter, system-ui, sans-serif;
+    --font-text: Inter, system-ui, sans-serif;
+    --font-mono: 'Space Mono', monospace;
+    
+    /* Sidebar color variables */
+    --sidebar: hsl(0 0% 98%);
+    --sidebar-foreground: hsl(240 5.3% 26.1%);
+    --sidebar-primary: hsl(240 5.9% 10%);
+    --sidebar-primary-foreground: hsl(0 0% 98%);
+    --sidebar-accent: hsl(240 4.8% 95.9%);
+    --sidebar-accent-foreground: hsl(240 5.9% 10%);
+    --sidebar-border: hsl(220 13% 91%);
+    --sidebar-ring: hsl(217.2 91.2% 59.8%);
+    
+    /* Skill badge variables */
+    --skill-badge-border: hsl(var(--primary) / 0.3);
+    --skill-badge-border-hover: hsl(var(--primary) / 0.5);
+    --skill-badge-fill: hsl(var(--primary) / 0.4);
+    --skill-badge-background: transparent;
+    --skill-badge-text: hsl(var(--primary));
+    --skill-badge-text-filled: hsl(var(--primary-foreground));
+    --skill-badge-remove-icon: hsl(0 84% 60%);
+    --skill-badge-remove-icon-hover: hsl(0 84% 40%);
+    --skill-badge-remove-background-hover: hsl(0 84% 95%);
+    
+    /* MATCH ANALYSIS COLOR SYSTEM - 4-level performance scale */
+    /* Strong performance (>=75%) - Green */
+    --match-strong: 142 76% 36%;
+    --match-strong-bg: 142 76% 95%;
+    --match-strong-border: 142 76% 85%;
+    --match-strong-text: 142 76% 20%;
+    
+    /* Adequate performance (>=50%) - Yellow/Amber */
+    --match-adequate: 45 93% 47%;
+    --match-adequate-bg: 45 93% 95%;
+    --match-adequate-border: 45 93% 85%;
+    --match-adequate-text: 45 93% 25%;
+    
+    /* Weak performance (>=25%) - Orange */
+    --match-weak: 25 95% 53%;
+    --match-weak-bg: 25 95% 95%;
+    --match-weak-border: 25 95% 85%;
+    --match-weak-text: 25 95% 25%;
+    
+    /* Missing/Poor performance (<25%) - Red */
+    --match-missing: 0 72% 51%;
+    --match-missing-bg: 0 72% 95%;
+    --match-missing-border: 0 72% 85%;
+    --match-missing-text: 0 72% 25%;
   }
+  
   .dark {
+    /* Shadcn UI dark mode colors */
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
     --card: 0 0% 3.9%;
@@ -55,14 +113,165 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    
+    /* Sidebar dark mode colors */
+    --sidebar: hsl(240 5.9% 10%);
+    --sidebar-foreground: hsl(240 4.8% 95.9%);
+    --sidebar-primary: hsl(224.3 76.3% 48%);
+    --sidebar-primary-foreground: hsl(0 0% 100%);
+    --sidebar-accent: hsl(240 3.7% 15.9%);
+    --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+    --sidebar-border: hsl(240 3.7% 15.9%);
+    --sidebar-ring: hsl(217.2 91.2% 59.8%);
+    
+    /* Skill badge variables - dark mode */
+    --skill-badge-border: hsl(var(--primary) / 0.4);
+    --skill-badge-border-hover: hsl(var(--primary) / 0.6);
+    --skill-badge-fill: hsl(var(--primary) / 0.3);
+    --skill-badge-background: transparent;
+    --skill-badge-text: hsl(var(--primary));
+    --skill-badge-text-filled: hsl(var(--primary-foreground));
+    --skill-badge-remove-icon: hsl(0 84% 60%);
+    --skill-badge-remove-icon-hover: hsl(0 84% 70%);
+    --skill-badge-remove-background-hover: hsl(0 84% 15%);
+    
+    /* MATCH ANALYSIS COLOR SYSTEM - Dark mode */
+    /* Strong performance (>=75%) - Green */
+    --match-strong: 142 76% 50%;
+    --match-strong-bg: 142 76% 10%;
+    --match-strong-border: 142 76% 20%;
+    --match-strong-text: 142 76% 80%;
+    
+    /* Adequate performance (>=50%) - Yellow/Amber */
+    --match-adequate: 45 93% 60%;
+    --match-adequate-bg: 45 93% 10%;
+    --match-adequate-border: 45 93% 20%;
+    --match-adequate-text: 45 93% 80%;
+    
+    /* Weak performance (>=25%) - Orange */
+    --match-weak: 25 95% 65%;
+    --match-weak-bg: 25 95% 10%;
+    --match-weak-border: 25 95% 20%;
+    --match-weak-text: 25 95% 80%;
+    
+    /* Missing/Poor performance (<25%) - Red */
+    --match-missing: 0 72% 65%;
+    --match-missing-bg: 0 72% 10%;
+    --match-missing-border: 0 72% 20%;
+    --match-missing-text: 0 72% 80%;
   }
-}
-
-@layer base {
+  
+  /* Global element styles */
   * {
-    @apply border-border;
+    @apply border-border outline-ring/50;
   }
+  
+  html {
+    font-family: var(--font-text), system-ui, sans-serif;
+  }
+  
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-text), system-ui, sans-serif;
   }
+  
+  /* Typography - Semantic font assignment */
+  
+  /* Titles use title font */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-titles), system-ui, sans-serif !important;
+  }
+  
+  /* Text elements use text font */
+  p, span, div, li, input, textarea, label, .font-sans {
+    font-family: var(--font-text), system-ui, sans-serif !important;
+  }
+  
+  /* Interactive elements use title font for emphasis */
+  button, a {
+    font-family: var(--font-titles), system-ui, sans-serif !important;
+  }
+  
+  /* Radix UI portal elements that render outside normal DOM tree */
+  [data-radix-portal] *, 
+  [data-slot="dropdown-menu-content"] *, 
+  [data-slot="alert-dialog-content"] *,
+  [data-slot="dialog-content"] *,
+  [data-slot="tooltip-content"] *,
+  [data-slot="popover-content"] * {
+    font-family: var(--font-text), system-ui, sans-serif !important;
+  }
+  
+  /* Portal titles should use title font */
+  [data-radix-portal] h1, [data-radix-portal] h2, [data-radix-portal] h3, 
+  [data-radix-portal] h4, [data-radix-portal] h5, [data-radix-portal] h6,
+  [data-slot="alert-dialog-content"] h1, [data-slot="alert-dialog-content"] h2,
+  [data-slot="dialog-content"] h1, [data-slot="dialog-content"] h2 {
+    font-family: var(--font-titles), system-ui, sans-serif !important;
+  }
+  
+  /* Portal buttons should use title font */
+  [data-radix-portal] button, [data-radix-portal] a,
+  [data-slot="dropdown-menu-content"] button, [data-slot="dropdown-menu-content"] a,
+  [data-slot="alert-dialog-content"] button, [data-slot="alert-dialog-content"] a {
+    font-family: var(--font-titles), system-ui, sans-serif !important;
+  }
+  
+  /* Monospace elements */
+  .font-mono, code, pre {
+    font-family: var(--font-mono), monospace !important;
+  }
+
+  /* Info indicator bar for informative notifications */
+  .info-indicator {
+    @apply bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-md;
+    @apply flex items-center gap-2 text-sm;
+  }
+
+  .dark .info-indicator {
+    @apply bg-blue-950 border-blue-800 text-blue-200;
+  }
+
+  /* Font utility classes for typography testing */
+  .font-inter { font-family: Inter, system-ui, sans-serif !important; }
+  .font-poppins { font-family: Poppins, system-ui, sans-serif !important; }
+  .font-playfair { font-family: 'Playfair Display', serif !important; }
+  .font-montserrat { font-family: Montserrat, system-ui, sans-serif !important; }
+  .font-lora { font-family: Lora, serif !important; }
+  .font-roboto { font-family: Roboto, system-ui, sans-serif !important; }
+  .font-source-sans { font-family: 'Source Sans 3', system-ui, sans-serif !important; }
+  .font-open-sans { font-family: 'Open Sans', system-ui, sans-serif !important; }
+  .font-lato { font-family: Lato, system-ui, sans-serif !important; }
+  .font-nunito { font-family: Nunito, system-ui, sans-serif !important; }
+  .font-merriweather { font-family: Merriweather, serif !important; }
+  .font-pt-sans { font-family: 'PT Sans', system-ui, sans-serif !important; }
+  .font-oswald { font-family: Oswald, system-ui, sans-serif !important; }
+  .font-raleway { font-family: Raleway, system-ui, sans-serif !important; }
+  .font-dm-sans { font-family: 'DM Sans', system-ui, sans-serif !important; }
+  .font-work-sans { font-family: 'Work Sans', system-ui, sans-serif !important; }
+  .font-space-grotesk { font-family: 'Space Grotesk', system-ui, sans-serif !important; }
+  .font-manrope { font-family: Manrope, system-ui, sans-serif !important; }
+  .font-lexend { font-family: Lexend, system-ui, sans-serif !important; }
+  .font-plus-jakarta { font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important; }
+  .font-ibm-plex { font-family: 'IBM Plex Sans', system-ui, sans-serif !important; }
+  .font-outfit { font-family: Outfit, system-ui, sans-serif !important; }
+  .font-archivo { font-family: Archivo, system-ui, sans-serif !important; }
+  .font-public-sans { font-family: 'Public Sans', system-ui, sans-serif !important; }
+  .font-crimson-text { font-family: 'Crimson Text', serif !important; }
+  .font-source-serif { font-family: 'Source Serif 4', serif !important; }
+  .font-pt-serif { font-family: 'PT Serif', serif !important; }
+  .font-libre-baskerville { font-family: 'Libre Baskerville', serif !important; }
+  .font-bitter { font-family: Bitter, serif !important; }
+  .font-spectral { font-family: Spectral, serif !important; }
+}
+
+@theme inline {
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 }

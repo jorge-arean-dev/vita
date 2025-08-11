@@ -1,0 +1,14 @@
+╭───────────────────────────────────────────────────╮
+│ ✻ Welcome to Claude Code!                         │
+│                                                   │
+│   /help for help, /status for your current setup  │
+│                                                   │
+│   cwd: /mnt/c/Users/jorge/coding/vita             │
+╰───────────────────────────────────────────────────╯
+
+> /help 
+  ⎿  (no content)
+
+> /export 
+  ⎿  Conversation copied to clipboard
+

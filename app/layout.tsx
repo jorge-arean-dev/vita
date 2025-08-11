@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { FontProvider } from "@/components/ui/font-provider";
+import { Toaster } from "@/components/ui/toaster";
+import { AuthStateProvider } from "@/components/auth-state-provider";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -9,15 +11,11 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Next.js and Supabase Starter Kit",
-  description: "The fastest way to build apps with Next.js and Supabase",
+  title: "Vita – AI Recruitment Platform for Human-Driven Hiring",
+  description: "Combine the speed of AI with your recruitment skills. Vita accelerates sourcing, analysis, and interviews so you can focus on building lasting talent connections.",
 };
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  display: "swap",
-  subsets: ["latin"],
-});
+
 
 export default function RootLayout({
   children,
@@ -26,14 +24,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.className} antialiased`}>
+      <body className="min-h-screen font-sans antialiased">
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
           disableTransitionOnChange
         >
-          {children}
+          <FontProvider>
+            <div className="light">
+              {children}
+              <Toaster />
+            </div>
+          </FontProvider>
         </ThemeProvider>
       </body>
     </html>

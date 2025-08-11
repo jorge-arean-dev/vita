@@ -1,0 +1,6 @@
+name,display_name
+remote_global,Remote (global)
+remote_region_specific,Remote (region specific)
+remote_country_specific,Remote (country specific)
+hybrid,Hybrid
+on_site,On-site
