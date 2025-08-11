@@ -13,6 +13,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
   title: "Vita – AI Recruitment Platform for Human-Driven Hiring",
   description: "Combine the speed of AI with your recruitment skills. Vita accelerates sourcing, analysis, and interviews so you can focus on building lasting talent connections.",
+  icons: {
+    icon: '/logo/vita-logo-light.svg',
+    shortcut: '/logo/vita-logo-light.svg',
+    apple: '/logo/vita-logo-light.svg',
+  },
 };
 
 
