@@ -28,10 +28,10 @@ export default function LandingFooter() {
 
           {/* Links - Right */}
           <div className="flex items-center space-x-6">
-            <Link href="#" className="text-sm text-gray-300 hover:text-white transition-colors">
+            <Link href="https://drive.google.com/file/d/1HU87s9U4kJBOA8tlVsd4i83sKyDUVoPL/view?usp=sharing" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-300 hover:text-white transition-colors">
               Privacy Policy
             </Link>
-            <Link href="#" className="text-sm text-gray-300 hover:text-white transition-colors">
+            <Link href="mailto:info@vita-hire.com" className="text-sm text-gray-300 hover:text-white transition-colors">
               Contact
             </Link>
           </div>
@@ -58,10 +58,10 @@ export default function LandingFooter() {
 
           {/* Links */}
           <div className="flex items-center space-x-6">
-            <Link href="#" className="text-sm text-gray-300 hover:text-white transition-colors">
+            <Link href="https://drive.google.com/file/d/1HU87s9U4kJBOA8tlVsd4i83sKyDUVoPL/view?usp=sharing" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-300 hover:text-white transition-colors">
               Privacy Policy
             </Link>
-            <Link href="#" className="text-sm text-gray-300 hover:text-white transition-colors">
+            <Link href="mailto:info@vita-hire.com" className="text-sm text-gray-300 hover:text-white transition-colors">
               Contact
             </Link>
           </div>
