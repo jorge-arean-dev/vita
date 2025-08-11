@@ -91,7 +91,7 @@ const aiTools = [
   "Claude (Anthropic)",
   "Perplexity AI",
   "Other",
-  "I don&apos;t use any AI tools"
+  "I don't use any AI tools"
 ]
 
 export function JoinWaitlistDialog({ open, onOpenChange, triggerSource = "join_waitlist" }: JoinWaitlistDialogProps) {
@@ -302,12 +302,26 @@ export function JoinWaitlistDialog({ open, onOpenChange, triggerSource = "join_w
   }
 
   const toggleAITool = (tool: string) => {
-    setFormData(prev => ({
-      ...prev,
-      aiTools: prev.aiTools.includes(tool)
-        ? prev.aiTools.filter(t => t !== tool)
-        : [...prev.aiTools, tool]
-    }))
+    const noAiToolsOption = "I don't use any AI tools"
+    
+    setFormData(prev => {
+      if (tool === noAiToolsOption) {
+        // If selecting "I don't use any AI tools", clear all other selections
+        return {
+          ...prev,
+          aiTools: prev.aiTools.includes(noAiToolsOption) ? [] : [noAiToolsOption]
+        }
+      } else {
+        // If selecting any other tool, remove "I don't use any AI tools" if it's selected
+        const filteredTools = prev.aiTools.filter(t => t !== noAiToolsOption)
+        return {
+          ...prev,
+          aiTools: filteredTools.includes(tool)
+            ? filteredTools.filter(t => t !== tool)
+            : [...filteredTools, tool]
+        }
+      }
+    })
   }
 
   const getSelectedToolsLabel = (tools: string[], type: 'hiring' | 'ai') => {
@@ -603,21 +617,39 @@ export function JoinWaitlistDialog({ open, onOpenChange, triggerSource = "join_w
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-80 bg-white/95 backdrop-blur-sm">
                           <div className="p-2 space-y-1">
-                            {aiTools.map(tool => (
-                              <div key={tool} className="flex items-center space-x-2 py-1.5 px-2 hover:bg-gray-100/50 rounded">
-                                <Checkbox
-                                  id={`ai-${tool}`}
-                                  checked={formData.aiTools.includes(tool)}
-                                  onCheckedChange={() => toggleAITool(tool)}
-                                />
-                                <Label
-                                  htmlFor={`ai-${tool}`}
-                                  className="text-sm font-normal cursor-pointer flex-1"
+                            {aiTools.map(tool => {
+                              const noAiToolsSelected = formData.aiTools.includes("I don't use any AI tools")
+                              const isNoAiToolsOption = tool === "I don't use any AI tools"
+                              const isDisabled = noAiToolsSelected && !isNoAiToolsOption
+                              
+                              return (
+                                <div 
+                                  key={tool} 
+                                  className={`flex items-center space-x-2 py-1.5 px-2 rounded ${
+                                    isDisabled 
+                                      ? "opacity-50 cursor-not-allowed" 
+                                      : "hover:bg-gray-100/50"
+                                  }`}
                                 >
-                                  {tool}
-                                </Label>
-                              </div>
-                            ))}
+                                  <Checkbox
+                                    id={`ai-${tool}`}
+                                    checked={formData.aiTools.includes(tool)}
+                                    disabled={isDisabled}
+                                    onCheckedChange={() => !isDisabled && toggleAITool(tool)}
+                                  />
+                                  <Label
+                                    htmlFor={`ai-${tool}`}
+                                    className={`text-sm font-normal flex-1 ${
+                                      isDisabled 
+                                        ? "cursor-not-allowed text-gray-400" 
+                                        : "cursor-pointer"
+                                    }`}
+                                  >
+                                    {tool}
+                                  </Label>
+                                </div>
+                              )
+                            })}
                           </div>
                         </DropdownMenuContent>
                       </DropdownMenu>
