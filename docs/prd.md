@@ -1,9 +1,9 @@
 # App: Vita – your Virtual Interface for Talent Acquisition
 
 ## Overview
-Vita is an AI-powered recruitment platform designed to streamline and accelerate recruiter workflows. The application centers around the **Job** object, with intelligent tools that automate repetitive tasks and provide data-driven insights throughout the hiring process.
+Vita is an AI-powered recruitment platform designed to streamline and accelerate recruiter workflows. Built on Next.js 15 with Supabase backend, the application centers around the **Job** object, providing intelligent tools that automate repetitive tasks and deliver data-driven insights throughout the hiring process.
 
-The platform provides a comprehensive suite of recruitment tools organized by function. It leverages advanced AI capabilities to generate content, analyze candidates, and provide strategic recommendations - all with one-click copy functionality for seamless integration with existing tools.
+The platform provides a comprehensive suite of recruitment tools organized by function, including advanced features like real-time interview recording and analysis. It leverages advanced AI capabilities to generate content, analyze candidates, and provide strategic recommendations - all with one-click copy functionality for seamless integration with existing tools.
 
 ---
 
@@ -127,28 +127,52 @@ The platform provides a comprehensive suite of recruitment tools organized by fu
 
 ### Interview Questions Generator:
 - **Dynamic Question Generation**: AI-powered questions based on job requirements
-- **Question Categories**: Technical, behavioral, and role-specific questions
-- **Customization**: Tailor questions for different interview stages
+- **Structured Question Categories**: Exactly 6 categories (Technical, Problem-solving, Communication, Leadership, Learning, Cultural)
+- **Two Questions Per Category**: Comprehensive candidate evaluation framework
+- **Job-Specific Tailoring**: Questions generated from job descriptions and requirements
 - **Support for All Recruiters**: Designed for both technical and non-technical interviewers
 
-### Interview Analysis:
+✅ **Copy Functionality**: Generated questions ready for immediate use
+
+### Interview Companion (Live Recording & Analysis):
+- **Real-Time Recording**: Automated Google Meet interview recording using Recall.ai bot integration
+- **Live Transcription**: Real-time speech-to-text conversion with speaker identification  
+- **AI-Powered Analysis**: Comprehensive interview evaluation using advanced AI models
+- **Competency Scoring**: Structured scoring across key competency areas
+- **Interview Management**: Create, track, and manage interview sessions
+- **Webhook Integration**: Real-time status updates and transcript processing
+- **Actionable Insights**: Data-driven hiring recommendations based on interview performance
+
+### Interview Analysis (Manual Entry):
 - **Response Evaluation**: Paste candidate answers for AI analysis
 - **Performance Scoring**: Objective assessment of each response
 - **Feedback Generation**: Actionable insights on candidate performance
 - **Interview Records**: Save assessments linked to candidates and jobs
 
+✅ **Copy Functionality**: Analysis results and interview summaries ready for sharing
+
 ---
 
-## 📤 Client Presentation Tools
-*Tools to help you present candidates to clients.*
+## 🚀 Landing Page & Waitlist
+*Public-facing platform to attract and manage prospects.*
 
 ### Features:
-- **Candidate Presentation Builder**: Professional candidate summaries
-- **Client Communication Templates**: Customized messages with candidate information
-- **Submission Tracking**: Monitor which candidates have been presented
-- **Feedback Collection**: Track client responses and decisions
+- **Professional Landing Page**: Modern, responsive design showcasing platform capabilities
+- **Waitlist Management**: Comprehensive form collecting prospect information
+- **User Profiling**: Detailed data collection including:
+  - Personal information (name, email, LinkedIn)
+  - Professional details (role, industry, country)
+  - Tool preferences and AI experience
+  - Custom "Other" options for flexibility
+- **Data Validation**: Country verification against database
+- **Lead Qualification**: Structured data collection for targeted outreach
 
-✅ **Copy Functionality**: Presentations and communications ready for sharing
+### Waitlist Data Capture:
+- Contact information and professional background
+- Current tools and AI tool usage patterns
+- Industry and role classification
+- Geographic distribution tracking
+- Source attribution for marketing analytics
 
 ---
 
@@ -167,27 +191,61 @@ When viewing a job, users can access all tools through a clean grid layout:
 - Candidate Match Analysis
 - Email Builder
 - Interview Questions Generator
-- Interview Analysis
+- Interview Analysis (Manual Entry)
+- Interview Companion (Live Recording)
+
+### Authentication & User Management:
+- **Secure Authentication**: Supabase Auth with email/password login
+- **User Profiles**: Complete profile management with avatar support
+- **Password Management**: Secure password reset and update functionality
+- **Session Security**: Automatic session management with proper logout procedures
 
 ### User Interface:
-- Modern, intuitive design
-- Dark/light mode support
-- Mobile-responsive interface
-- Accessibility-compliant components
+- Modern, intuitive design with Shadcn UI components
+- Dark/light mode support throughout the application
+- Mobile-responsive interface optimized for all devices
+- Accessibility-compliant components following WCAG guidelines
+- Centralized font system with portal element support for modals and dropdowns
 
 ---
 
-## Job Creation Flow
+## Key User Workflows
 
+### Job Creation Flow:
 The job creation process is streamlined through a simple wizard:
 
 1. **Initiation**: Click "Create Job" button
 2. **Job Details Form**:
    - Job title/name (required)
-   - Company selection (searchable dropdown)
-   - Initial notes/requirements (rich text)
+   - Company selection (searchable dropdown with existing companies)
+   - Initial notes/requirements (rich text editor)
 3. **Smart Creation**: Instant job creation with intelligent defaults
 4. **Tool Access**: Immediate access to all recruitment tools
+
+### Candidate Creation Flow:
+Multiple pathways for adding candidates to the system:
+
+1. **Manual Entry**:
+   - Personal information form (name, email, contact details)
+   - Professional details (LinkedIn, GitHub, years of experience)
+   - Skills and experience level input
+   
+2. **LinkedIn Profile Import**:
+   - URL input for LinkedIn profile extraction
+   - Automated profile parsing using Apify integration
+   - AI-powered skill identification and experience calculation
+   - Automatic candidate profile creation with structured data
+
+3. **Resume Upload**:
+   - PDF file upload with OCR processing
+   - AI-powered text extraction and skill parsing
+   - Automatic candidate profile generation
+   - Resume file storage for future reference
+
+4. **Data Processing**:
+   - Skills categorization by type (technical, soft skills, etc.)
+   - Proficiency level assignment based on experience
+   - Source tracking (manual, LinkedIn, resume) for data integrity
 
 ---
 
@@ -196,80 +254,106 @@ The job creation process is streamlined through a simple wizard:
 ### Core Entities:
 - **Jobs**: Central object with comprehensive attributes
   - Job details, requirements, location preferences
-  - Pay structure and commitment types
+  - Pay structure and commitment types (hourly/annual rates, full-time/contract)
+  - Geographic constraints (regions, countries, timezones)
   - Links to companies and candidates
 - **Candidates**: Complete talent profiles
-  - Contact information and professional details
-  - Skills and experience tracking
-  - Resume and LinkedIn data storage
+  - Personal details (first name, last name, email)
+  - Professional links (LinkedIn, GitHub)
+  - Resume file storage with PDF upload support
+  - Geographic information and years of experience
 - **Companies**: Reusable organization profiles
-  - Company information and industry classification
-  - Website and contact details
-  - Multiple job associations
+  - Company information with industry classification
+  - Website, LinkedIn, and culture information
+  - Country-based location tracking
 - **Match Analysis**: AI-generated evaluations
-  - Detailed scoring and recommendations
-  - Historical analysis tracking
-  - Strategic insights
+  - Comprehensive candidate-job compatibility scoring
+  - Requirement-level analysis and recommendations
+  - Historical analysis tracking for decision support
+
+### Interview System:
+- **Interviews**: Session management with Recall.ai integration
+  - Google Meet link processing and bot deployment
+  - Status tracking (created, in_progress, ready_for_analysis, analyzing, completed)
+  - Real-time webhook integration for status updates
+- **Interview Transcripts**: Detailed conversation records
+  - Speaker identification and timestamp tracking
+  - Real-time transcript processing and storage
+- **Interview Scores**: AI-powered evaluation results
+  - Overall scoring (0-4 scale) with detailed analysis
+  - Competency-based assessment with actionable insights
+
+### Email Builder System:
+- **Email Templates**: Structured content generation
+  - Multiple email types (outreach, follow-up, scheduling)
+  - Job and candidate context integration
+  - Template versioning and customization
+- **Job Email Builder**: Personalized content management
+  - Subject line and body content generation
+  - Candidate and client-focused variations
 
 ### Supporting Data:
-- Geographic data (countries, regions, timezones)
-- Industry classifications
-- Skill types and proficiency levels
-- Interview questions and evaluations
+- **Geographic Data**: Countries (250+), regions, timezones with display names
+- **Industry Classifications**: Comprehensive industry mapping
+- **Skill Management**: Skill types, proficiency levels, and source tracking
+- **Job Attributes**: Pay frequencies, durations, commitment types, location types
+- **Waitlist Data**: Prospect information with detailed qualification data
 
 ---
 
 ## 🚀 Technology Overview
 
+### Technical Architecture:
+- **Frontend**: Next.js 15 with App Router and React Server Components
+- **Backend**: Supabase (PostgreSQL database, authentication, storage)
+- **UI Framework**: Shadcn UI + Radix UI with Tailwind CSS
+- **Language**: TypeScript with strict mode enforcement
+- **State Management**: Server Actions and React Server Components
+- **Validation**: Zod schema validation throughout
+
 ### AI-Powered Capabilities:
-- Natural language processing for job extraction
-- Intelligent Boolean query generation
-- Advanced candidate-job matching algorithms
-- Resume and LinkedIn profile parsing
-- Interview question generation
-- Response evaluation and scoring
+- Natural language processing for job requirement extraction
+- Intelligent Boolean query generation for LinkedIn search optimization
+- Advanced candidate-job matching algorithms with weighted scoring
+- Resume and LinkedIn profile parsing with skill identification
+- Interview question generation across 6 structured categories
+- Real-time interview analysis and scoring with competency assessment
+- Professional email content generation with personalization
 
 ### Integration Points:
-- LinkedIn data extraction
-- Resume parsing (PDF support)
-- Future: Email service providers
-- Future: Calendar systems
-- Future: ATS platforms
+- **Recall.ai**: Real-time interview recording and transcription
+- **Apify**: LinkedIn profile data extraction and processing
+- **Supabase Storage**: PDF resume upload and processing
+- **Webhook System**: Real-time status updates and data synchronization
+- **File Processing**: OCR and text extraction for resume analysis
 
 ### Security & Privacy:
-- Secure authentication
-- Data isolation between users
-- Encrypted storage
-- GDPR-compliant data handling
+- **Authentication**: Supabase Auth with secure session management
+- **Data Isolation**: Row Level Security (RLS) policies for multi-tenant architecture
+- **API Security**: Server-side validation and authorization checks
+- **File Security**: Secure storage buckets with proper access controls
+- **Cache Isolation**: User-specific cache keys to prevent data leakage
+- **GDPR Compliance**: Structured data handling with proper consent mechanisms
 
 ---
 
 ## 🎯 Key Benefits
 
 ### For Recruiters:
-- **Time Savings**: Automate repetitive tasks
-- **Better Matches**: AI-powered candidate evaluation
-- **Professional Output**: Consistent, high-quality communications
-- **Organized Workflow**: All tools in one platform
-- **Data-Driven Decisions**: Objective candidate assessments
+- **Comprehensive Automation**: From job creation to interview analysis, reduce manual work
+- **AI-Enhanced Decision Making**: Objective candidate scoring and requirement analysis
+- **Professional Communication**: Generated emails, job descriptions, and search queries
+- **Real-Time Interview Intelligence**: Live recording and instant analysis with actionable insights
+- **Organized Multi-Job Management**: Centralized platform for managing entire recruitment pipeline
+- **Data-Driven Insights**: Historical analysis tracking and performance metrics
 
 ### For Organizations:
-- **Faster Hiring**: Streamlined recruitment process
-- **Quality Candidates**: Better matching algorithms
-- **Cost Efficiency**: Reduced time-to-hire
-- **Compliance**: Standardized evaluation processes
-- **Scalability**: Handle multiple jobs efficiently
-
----
-
-## Future Vision
-
-### Planned Enhancements or Future Features:
-- Advanced AI capabilities
-- Interview recording within the platform by using bot and let it integrate with Zoom or Google Meet
-- Pre-vetted candidate marketplace
-- Enterprise integrations
-- Custom branding options
+- **End-to-End Recruitment Platform**: Complete solution from sourcing to hiring decisions
+- **Advanced Interview Capabilities**: Real-time recording and AI analysis reduce interviewing bias
+- **Quality Assurance**: Consistent evaluation processes across all positions and interviewers
+- **Faster Time-to-Hire**: Automated workflows and instant candidate analysis
+- **Scalable Architecture**: Handle multiple concurrent hiring processes efficiently
+- **Compliance & Documentation**: Structured data collection and evaluation records
 
 ---
 
