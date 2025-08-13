@@ -16,6 +16,7 @@ import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/components/ui/use-toast"
 import AttributesSection from "@/components/sample-job-attributes"
 import RequirementsSection from "@/components/requirements-section"
+import { searchIndustries, getCountries, createCompany } from "@/app/actions/companies"
 
 
 interface CreateJobDialogProps {
@@ -84,6 +85,7 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
   const [showCompanyForm, setShowCompanyForm] = useState(false)
   const [comboOpen, setComboOpen] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
+  const [isSavingCompany, setIsSavingCompany] = useState(false)
   const [attributesData, setAttributesData] = useState<AttributesData>({
     rate: { value: null, freq: "hourly" },
     commitment: "",
@@ -102,6 +104,15 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
   const [newCompanyName, setNewCompanyName] = useState("")
   const [newCompanyWebsite, setNewCompanyWebsite] = useState("")
   const [newCompanyIndustry, setNewCompanyIndustry] = useState("")
+  const [newCompanyCountry, setNewCompanyCountry] = useState("")
+  
+  // Industry and country dropdown states for new company form
+  const [industries, setIndustries] = useState<{ id: string; display_name: string }[]>([])
+  const [countries, setCountries] = useState<{ iso_code: string; display_name: string }[]>([])
+  const [isNewCompanyIndustryOpen, setIsNewCompanyIndustryOpen] = useState(false)
+  const [isNewCompanyCountryOpen, setIsNewCompanyCountryOpen] = useState(false)
+  const [industrySearchValue, setIndustrySearchValue] = useState("")
+  const [countrySearchValue, setCountrySearchValue] = useState("")
 
   // Fetch companies from database
   const fetchCompanies = async () => {
@@ -144,10 +155,42 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
     }
   }
 
-  // Load companies when dialog opens
+  // Load industries for new company form
+  const loadIndustries = async () => {
+    try {
+      const result = await searchIndustries("")
+      setIndustries(result)
+    } catch (error) {
+      console.error('Error loading industries:', error)
+      toast({
+        title: "Error",
+        description: "Failed to load industries",
+        variant: "destructive"
+      })
+    }
+  }
+
+  // Load countries for new company form
+  const loadCountries = async () => {
+    try {
+      const result = await getCountries()
+      setCountries(result)
+    } catch (error) {
+      console.error('Error loading countries:', error)
+      toast({
+        title: "Error", 
+        description: "Failed to load countries",
+        variant: "destructive"
+      })
+    }
+  }
+
+  // Load companies, industries, and countries when dialog opens
   useEffect(() => {
     if (open) {
       fetchCompanies()
+      loadIndustries()
+      loadCountries()
     }
   }, [open])
 
@@ -166,6 +209,9 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
     setNewCompanyName("")
     setNewCompanyWebsite("")
     setNewCompanyIndustry("")
+    setNewCompanyCountry("")
+    setIndustrySearchValue("")
+    setCountrySearchValue("")
     setAttributesData({
       rate: { value: null, freq: "hourly" },
       commitment: "",
@@ -177,6 +223,7 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
     setIsLoadingCompanies(false)
     setIsGenerating(false)
     setHasGenerated(false)
+    setIsSavingCompany(false)
   }
 
   const handleClose = () => {
@@ -223,6 +270,9 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
       setNewCompanyName("")
       setNewCompanyWebsite("")
       setNewCompanyIndustry("")
+      setNewCompanyCountry("")
+      setIndustrySearchValue("")
+      setCountrySearchValue("")
     } else {
       handleClose()
     }
@@ -231,27 +281,83 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
   const handleCreateNewCompany = () => {
     setShowCompanyForm(true)
     setComboOpen(false)
+    // Load data when company form is shown if not already loaded
+    if (industries.length === 0) loadIndustries()
+    if (countries.length === 0) loadCountries()
   }
 
-  const handleSaveNewCompany = () => {
-    // TODO: In real app, this would be an API call to create company in Supabase
-    const newCompany: Company = {
-      id: `new-${Date.now()}`,
-      name: newCompanyName,
-      website: newCompanyWebsite,
-      culture: null,
-      industry: newCompanyIndustry,
+  const handleSaveNewCompany = async () => {
+    if (!newCompanyName.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Company name is required",
+        variant: "destructive"
+      })
+      return
     }
 
-    // Select the newly created company
-    setSelectedCompany(newCompany)
-    setCompanySearch(newCompany.name)
+    if (!newCompanyIndustry) {
+      toast({
+        title: "Validation Error", 
+        description: "Industry is required",
+        variant: "destructive"
+      })
+      return
+    }
 
-    // Return to company selection view
-    setShowCompanyForm(false)
-    setNewCompanyName("")
-    setNewCompanyWebsite("")
-    setNewCompanyIndustry("")
+    setIsSavingCompany(true)
+    try {
+      // Create company in database
+      const createdCompany = await createCompany({
+        name: newCompanyName.trim(),
+        industry_id: newCompanyIndustry,
+        country: newCompanyCountry || null,
+        website: newCompanyWebsite.trim() || null,
+        linkedin: null,
+        culture: null
+      })
+
+      // Convert to the Company interface format for the UI
+      const newCompany: Company = {
+        id: createdCompany.id,
+        name: createdCompany.name,
+        website: createdCompany.website,
+        culture: createdCompany.culture,
+        industry: industries.find(i => i.id === createdCompany.industry_id)?.display_name || null,
+      }
+
+      // Select the newly created company
+      setSelectedCompany(newCompany)
+      setCompanySearch(newCompany.name)
+
+      // Show success toast
+      toast({
+        title: "Company Created",
+        description: `${newCompany.name} has been successfully created.`,
+        variant: "default"
+      })
+
+      // Return to company selection view and reset form
+      setShowCompanyForm(false)
+      setNewCompanyName("")
+      setNewCompanyWebsite("")
+      setNewCompanyIndustry("")
+      setNewCompanyCountry("")
+      setIndustrySearchValue("")
+      setCountrySearchValue("")
+
+      // Refresh the companies list to include the new company
+      fetchCompanies()
+    } catch (error) {
+      console.error('Error creating company:', error)
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to create company",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSavingCompany(false)
+    }
   }
 
   const handleNext = async () => {
@@ -467,7 +573,7 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
 
   // Updated validation: Step 1 only needs company and notes
   const canProceedStep1 = selectedCompany && initialNotes.trim()
-  const canSaveNewCompany = newCompanyName.trim() && newCompanyWebsite.trim() && newCompanyIndustry.trim()
+  const canSaveNewCompany = newCompanyName.trim() && newCompanyIndustry
   
   // Step 2 validation: require title and at least 1 requirement
   const canCreateJob = jobTitle.trim() && (requirementsData || []).length > 0
@@ -567,7 +673,7 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
 
                   <div className="space-y-3">
                     <div>
-                      <Label htmlFor="company-name">Company Name</Label>
+                      <Label htmlFor="company-name">Company Name <span className="text-destructive">*</span></Label>
                       <Input
                         id="company-name"
                         placeholder="e.g., Acme Corporation"
@@ -587,19 +693,121 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
                     </div>
 
                     <div>
-                      <Label htmlFor="company-industry">Industry</Label>
-                      <Input
-                        id="company-industry"
-                        placeholder="e.g., Technology"
-                        value={newCompanyIndustry}
-                        onChange={(e) => setNewCompanyIndustry(e.target.value)}
-                      />
+                      <Label htmlFor="company-industry">Industry <span className="text-destructive">*</span></Label>
+                      <Popover open={isNewCompanyIndustryOpen} onOpenChange={setIsNewCompanyIndustryOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={isNewCompanyIndustryOpen}
+                            className="w-full justify-between"
+                          >
+                            {industries.find(i => i.id === newCompanyIndustry)?.display_name || "Select industry"}
+                            <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full p-0" align="start">
+                          <Command>
+                            <CommandInput
+                              placeholder="Search industries..."
+                              value={industrySearchValue}
+                              onValueChange={setIndustrySearchValue}
+                            />
+                            <CommandList>
+                              <CommandEmpty>
+                                {industries.length === 0 ? "Loading industries..." : "No industries found"}
+                              </CommandEmpty>
+                              <CommandGroup>
+                                {industries
+                                  .filter(industry =>
+                                    industry.display_name.toLowerCase().includes(industrySearchValue.toLowerCase())
+                                  )
+                                  .map((industry) => (
+                                    <CommandItem
+                                      key={industry.id}
+                                      value={industry.display_name}
+                                      onSelect={() => {
+                                        setNewCompanyIndustry(industry.id)
+                                        setIsNewCompanyIndustryOpen(false)
+                                        setIndustrySearchValue("")
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          "mr-2 h-4 w-4",
+                                          newCompanyIndustry === industry.id ? "opacity-100" : "opacity-0"
+                                        )}
+                                      />
+                                      {industry.display_name}
+                                    </CommandItem>
+                                  ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="company-country">Country</Label>
+                      <Popover open={isNewCompanyCountryOpen} onOpenChange={setIsNewCompanyCountryOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={isNewCompanyCountryOpen}
+                            className="w-full justify-between"
+                          >
+                            {countries.find(c => c.iso_code === newCompanyCountry)?.display_name || "Select country"}
+                            <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full p-0" align="start">
+                          <Command>
+                            <CommandInput
+                              placeholder="Search countries..."
+                              value={countrySearchValue}
+                              onValueChange={setCountrySearchValue}
+                            />
+                            <CommandList>
+                              <CommandEmpty>
+                                {countries.length === 0 ? "Loading countries..." : "No countries found"}
+                              </CommandEmpty>
+                              <CommandGroup>
+                                {countries
+                                  .filter(country =>
+                                    country.display_name.toLowerCase().includes(countrySearchValue.toLowerCase())
+                                  )
+                                  .map((country) => (
+                                    <CommandItem
+                                      key={country.iso_code}
+                                      value={country.display_name}
+                                      onSelect={() => {
+                                        setNewCompanyCountry(country.iso_code)
+                                        setIsNewCompanyCountryOpen(false)
+                                        setCountrySearchValue("")
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          "mr-2 h-4 w-4",
+                                          newCompanyCountry === country.iso_code ? "opacity-100" : "opacity-0"
+                                        )}
+                                      />
+                                      {country.display_name}
+                                    </CommandItem>
+                                  ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                     </div>
                   </div>
 
                   <div className="flex gap-2 pt-2">
-                    <Button size="sm" onClick={handleSaveNewCompany} disabled={!canSaveNewCompany}>
-                      Save
+                    <Button size="sm" onClick={handleSaveNewCompany} disabled={!canSaveNewCompany || isSavingCompany}>
+                      {isSavingCompany ? "Creating..." : "Save"}
                     </Button>
                     <Button variant="outline" size="sm" onClick={handleCancel}>
                       Cancel
