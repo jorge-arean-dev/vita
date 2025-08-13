@@ -232,6 +232,34 @@
     @apply bg-blue-950 border-blue-800 text-blue-200;
   }
 
+  /* Responsive dialog utilities */
+  .dialog-content-safe {
+    /* Ensure dialog content doesn't exceed viewport bounds */
+    max-height: calc(100vh - 2rem);
+    max-height: calc(100dvh - 2rem); /* Dynamic viewport height for mobile */
+  }
+  
+  @media (max-height: 600px) {
+    .dialog-content-safe {
+      max-height: calc(100vh - 1rem);
+      max-height: calc(100dvh - 1rem);
+    }
+  }
+  
+  @media (max-height: 500px) {
+    .dialog-content-safe {
+      max-height: 95vh;
+      max-height: 95dvh;
+    }
+  }
+  
+  /* Ensure buttons are always accessible on very small screens */
+  @media (max-width: 374px) {
+    .dialog-content-safe {
+      padding-bottom: 0.5rem;
+    }
+  }
+
   /* Font utility classes for typography testing */
   .font-inter { font-family: Inter, system-ui, sans-serif !important; }
   .font-poppins { font-family: Poppins, system-ui, sans-serif !important; }
@@ -274,4 +302,13 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* Utility to hide scrollbars */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Safari and Chrome */
 }

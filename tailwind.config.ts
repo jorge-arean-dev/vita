@@ -10,6 +10,9 @@ export default {
   ],
   theme: {
     extend: {
+      screens: {
+        'xs': '375px',
+      },
       fontFamily: {
         sans: ['var(--font-inter)'],
         mono: ['var(--font-space-mono)'],

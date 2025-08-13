@@ -339,32 +339,32 @@ export function JoinWaitlistDialog({ open, onOpenChange, triggerSource = "join_w
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
         <DialogPrimitive.Content 
-          className="fixed left-[50%] top-[50%] z-50 translate-x-[-50%] translate-y-[-50%] w-[95vw] max-w-7xl max-h-[calc(100vh-8rem)] bg-white/75 backdrop-blur-md border border-gray-200/30 rounded-lg shadow-2xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] duration-500 overflow-hidden"
+          className="dialog-content-safe fixed left-[50%] top-[50%] z-50 translate-x-[-50%] translate-y-[-50%] w-[calc(100vw-1rem)] sm:w-[95vw] max-w-7xl h-[calc(100vh-1rem)] sm:h-[calc(100vh-2rem)] md:h-[calc(100vh-4rem)] bg-white/75 backdrop-blur-md border border-gray-200/30 rounded-lg shadow-2xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] duration-500 overflow-hidden"
         >
-          <div className="h-full w-full flex flex-col">
+          <div className="h-full w-full flex flex-col min-h-0">
             {/* Header */}
-            <div className="relative border-b border-gray-200/50 px-8 py-6">
-              <DialogPrimitive.Close className="absolute right-6 top-6 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
+            <div className="relative border-b border-gray-200/50 px-4 sm:px-8 py-4 sm:py-6 flex-shrink-0">
+              <DialogPrimitive.Close className="absolute right-4 sm:right-6 top-4 sm:top-6 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
                 <X className="h-5 w-5" />
                 <span className="sr-only">Close</span>
               </DialogPrimitive.Close>
               
-              <DialogPrimitive.Title className="text-4xl font-bold text-center">
+              <DialogPrimitive.Title className="text-2xl sm:text-3xl md:text-4xl font-bold text-center pr-8">
                 Join the Waitlist
               </DialogPrimitive.Title>
-              <p className="text-center text-gray-600 mt-2">
+              <p className="text-center text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base pr-8">
                 Be among the first to experience Vita&apos;s AI-powered recruiting toolkit
               </p>
             </div>
 
             {/* Form Content */}
-            <div className="flex-1 overflow-y-auto px-8 py-6">
-              <form onSubmit={handleSubmit} className="h-full flex flex-col">
-                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12 max-w-7xl mx-auto w-full">
+            <div className="flex-1 overflow-y-auto px-4 sm:px-6 md:px-8 py-4 sm:py-6 scrollbar-hide">
+              <form onSubmit={handleSubmit} className="min-h-full flex flex-col">
+                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-12 max-w-7xl mx-auto w-full pb-20 min-h-0">
                   
                   {/* Column 1 - Personal Information */}
-                  <div className="space-y-5">
-                    <h3 className="font-semibold text-lg text-gray-800 border-b border-gray-200 pb-2">Personal Information</h3>
+                  <div className="space-y-4 sm:space-y-5">
+                    <h3 className="font-semibold text-base sm:text-lg text-gray-800 border-b border-gray-200 pb-2">Personal Information</h3>
                     
                     {/* Name Field */}
                     <div className="space-y-2">
@@ -490,8 +490,8 @@ export function JoinWaitlistDialog({ open, onOpenChange, triggerSource = "join_w
                   </div>
 
                   {/* Column 2 - Professional Information */}
-                  <div className="space-y-5">
-                    <h3 className="font-semibold text-lg text-gray-800 border-b border-gray-200 pb-2">Professional Background</h3>
+                  <div className="space-y-4 sm:space-y-5">
+                    <h3 className="font-semibold text-base sm:text-lg text-gray-800 border-b border-gray-200 pb-2">Professional Background</h3>
                     
                     {/* Current Role Field - Now Mandatory */}
                     <div className="space-y-2">
@@ -547,8 +547,8 @@ export function JoinWaitlistDialog({ open, onOpenChange, triggerSource = "join_w
                   </div>
 
                   {/* Column 3 - Tools & Technology */}
-                  <div className="space-y-5">
-                    <h3 className="font-semibold text-lg text-gray-800 border-b border-gray-200 pb-2">Tools & Technology</h3>
+                  <div className="space-y-4 sm:space-y-5">
+                    <h3 className="font-semibold text-base sm:text-lg text-gray-800 border-b border-gray-200 pb-2">Tools & Technology</h3>
                     
                     {/* Hiring Tools Dropdown */}
                     <div className="space-y-2">
@@ -666,23 +666,25 @@ export function JoinWaitlistDialog({ open, onOpenChange, triggerSource = "join_w
                   </div>
                 </div>
 
-                {/* Action Buttons - Fixed at bottom */}
-                <div className="flex gap-4 pt-6 mt-6 border-t border-gray-200/50 max-w-md mx-auto w-full">
-                  <Button
-                    type="submit"
-                    className="flex-1 bg-black hover:bg-gray-800 text-white py-2.5"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? "Submitting..." : "Submit"}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="flex-1 py-2.5"
-                    onClick={handleCancel}
-                  >
-                    Cancel
-                  </Button>
+                {/* Action Buttons - Always visible at bottom */}
+                <div className="flex-shrink-0 sticky bottom-0 px-3 py-3 sm:px-6 sm:py-6 mt-4 z-10">
+                  <div className="flex flex-col xs:flex-row gap-2 xs:gap-3 sm:gap-4 max-w-md mx-auto w-full">
+                    <Button
+                      type="submit"
+                      className="w-full xs:flex-1 bg-black hover:bg-gray-800 text-white py-2.5 text-sm sm:text-base min-w-0 shrink-0"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Submitting..." : "Submit"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full xs:flex-1 py-2.5 text-sm sm:text-base min-w-0 shrink-0"
+                      onClick={handleCancel}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
                 </div>
               </form>
             </div>

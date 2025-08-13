@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { FontProvider } from "@/components/ui/font-provider";
 import { Toaster } from "@/components/ui/toaster";
-import { AuthStateProvider } from "@/components/auth-state-provider";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
