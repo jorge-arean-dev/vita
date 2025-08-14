@@ -466,12 +466,16 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
           [id]: newValues
         })
         
-        // Update original values to reflect the generated content
-        // This ensures save button is disabled until user makes manual changes
-        setOriginalValues({
-          ...originalValues,
-          [id]: newValues
-        })
+        // For new job descriptions, don't update original values after generation
+        // This keeps the Save button enabled for generated content
+        // For existing descriptions, update original values to match generated content
+        const isNewDescription = id.startsWith('new-')
+        if (!isNewDescription) {
+          setOriginalValues({
+            ...originalValues,
+            [id]: newValues
+          })
+        }
         
         // Enter edit mode
         setJobDescriptions(
