@@ -689,8 +689,6 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
   }
   
   const proceedWithCancel = (id: string) => {
-    const jobDesc = jobDescriptions.find(jd => jd.id === id)
-    
     // For new descriptions, remove from list entirely
     if (id.startsWith('new-')) {
       setJobDescriptions(jobDescriptions.filter(jd => jd.id !== id))

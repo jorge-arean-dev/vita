@@ -696,11 +696,15 @@ export async function generateJobDescription(jobId: string) {
       return { success: false, error: "Failed to fetch job requirements" }
     }
 
-    // Prepare API payload
+    // Prepare API payload  
+    const industryDisplayName = Array.isArray(companyData.industries) 
+      ? companyData.industries[0]?.display_name 
+      : (companyData.industries as { display_name?: string } | null)?.display_name
+    
     const apiPayload = {
       initial_notes: jobData.initial_notes || "",
       company_name: companyData.name,
-      industry: companyData.industries?.display_name || "General",
+      industry: industryDisplayName || "General",
       attributes: {
         title: jobData.title,
         rate: {
