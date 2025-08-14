@@ -68,13 +68,19 @@ interface Country {
   display_name: string
 }
 
+interface PayFrequency {
+  name: string
+  display_name: string
+}
+
 export default function AttributesSection({ data, isEditMode, onChange }: AttributesSectionProps) {
   const [regions, setRegions] = useState<Region[]>([])
   const [countries, setCountries] = useState<Country[]>([])
+  const [payFrequencies, setPayFrequencies] = useState<PayFrequency[]>([])
   const [regionsOpen, setRegionsOpen] = useState(false)
   const [countriesOpen, setCountriesOpen] = useState(false)
 
-  // Fetch regions and countries from database
+  // Fetch regions, countries, and pay frequencies from database
   useEffect(() => {
     const fetchData = async () => {
       const supabase = createClient()
@@ -99,8 +105,17 @@ export default function AttributesSection({ data, isEditMode, onChange }: Attrib
 
         if (countriesError) throw countriesError
         setCountries(countriesData || [])
+
+        // Fetch pay frequencies
+        const { data: payFrequenciesData, error: payFrequenciesError } = await supabase
+          .from('job_pay_frequencies')
+          .select('name, display_name')
+          .order('name')
+
+        if (payFrequenciesError) throw payFrequenciesError
+        setPayFrequencies(payFrequenciesData || [])
       } catch (error) {
-        console.error('Error fetching regions/countries:', error)
+        console.error('Error fetching lookup data:', error)
       }
     }
 
@@ -224,9 +239,11 @@ export default function AttributesSection({ data, isEditMode, onChange }: Attrib
                 <SelectValue placeholder="hour" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="hourly">hour</SelectItem>
-                <SelectItem value="monthly">month</SelectItem>
-                <SelectItem value="yearly">year</SelectItem>
+                {payFrequencies.map((frequency) => (
+                  <SelectItem key={frequency.name} value={frequency.name}>
+                    {frequency.display_name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

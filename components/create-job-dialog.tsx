@@ -505,8 +505,8 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
         commitment: attributesData.commitment || null,
         duration: attributesData.duration || null,
         location_reqs: attributesData.location.category || null,
-        regions: attributesData.location.regions.length > 0 ? attributesData.location.regions : null,
-        countries: attributesData.location.countries.length > 0 ? attributesData.location.countries : null,
+        regions: attributesData.location.regions || [],
+        countries: attributesData.location.countries || [],
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       }
