@@ -81,8 +81,8 @@ export function setExpansionState(jobId: string, analysisId: string, isExpanded:
     const currentState = getExpansionState(jobId)
     const newState = { ...currentState, [analysisId]: isExpanded }
     localStorage.setItem(`${EXPANSION_STATE_KEY}-${jobId}`, JSON.stringify(newState))
-  } catch (error) {
-    console.warn('Failed to save expansion state:', error)
+  } catch {
+    // Silently fail if localStorage is not available
   }
 }
 
@@ -99,7 +99,7 @@ export function clearExpansionState(jobId: string, analysisId?: string) {
       // Clear all expansion state for this job
       localStorage.removeItem(`${EXPANSION_STATE_KEY}-${jobId}`)
     }
-  } catch (error) {
-    console.warn('Failed to clear expansion state:', error)
+  } catch {
+    // Silently fail if localStorage is not available
   }
 }

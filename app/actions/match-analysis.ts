@@ -122,7 +122,6 @@ export async function fetchJobDataForAnalysis(jobId: string): Promise<JobData | 
       .single()
 
     if (jobError || !job) {
-      console.error("Error fetching job:", jobError)
       return null
     }
 
@@ -160,7 +159,6 @@ export async function fetchJobDataForAnalysis(jobId: string): Promise<JobData | 
 
     return formattedJob
   } catch (error) {
-    console.error("Error in fetchJobDataForAnalysis:", error)
     return null
   }
 }
@@ -201,7 +199,6 @@ export async function scrapeLinkedInProfile(linkedinUrl: string): Promise<Linked
 
     return scrapedData[0]
   } catch (error) {
-    console.error("Error scraping LinkedIn profile:", error)
     throw error
   }
 }
@@ -228,7 +225,6 @@ export async function reduceLinkedInProfile(profileData: LinkedInProfileData): P
         await response.json()
       } catch {
         const textError = await response.text()
-        console.error("Reduce failed - not JSON response:", textError)
         throw new Error(`LinkedIn profile reducer returned ${response.status}: ${textError || "Unknown error"}`)
       }
       
@@ -246,7 +242,6 @@ export async function reduceLinkedInProfile(profileData: LinkedInProfileData): P
 
     return await response.json()
   } catch (error) {
-    console.error("Error reducing LinkedIn profile:", error)
     throw error
   }
 }
@@ -270,7 +265,6 @@ export async function parseLinkedInSkills(reducedData: Record<string, unknown>):
 
     if (!response.ok) {
       const parseErrorData = await response.json()
-      console.error("LinkedIn skills parsing failed:", parseErrorData)
       const errorData = parseErrorData
       
       if (response.status === 400) {
@@ -289,10 +283,8 @@ export async function parseLinkedInSkills(reducedData: Record<string, unknown>):
       throw new Error("Could not extract name from LinkedIn profile. Please check the profile URL.")
     }
 
-    console.log("✅ Successfully parsed LinkedIn skills")
     return parsedData
   } catch (error) {
-    console.error("Error parsing LinkedIn skills:", error)
     throw error
   }
 }
@@ -306,7 +298,9 @@ export async function runMatchAnalysis(
 ): Promise<MatchAnalysisResponse> {
   try {
     const requestBody = { candidate, job }
-    console.log("✅ Successfully completed match analysis")
+    
+    // Log the API input
+    console.log("🔍 Match Analysis API Input:", JSON.stringify(requestBody, null, 2))
     
     const response = await fetch(
       "https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/match-analysis",
@@ -336,9 +330,13 @@ export async function runMatchAnalysis(
       throw new Error(errorData.error || "Failed to analyze candidate match")
     }
 
-    return await response.json()
+    const result = await response.json()
+    
+    // Log the API output
+    console.log("✅ Match Analysis API Output:", JSON.stringify(result, null, 2))
+    
+    return result
   } catch (error) {
-    console.error("Error running match analysis:", error)
     throw error
   }
 }
@@ -376,7 +374,6 @@ export async function saveCandidate(
         .single()
       
       if (!countryExists) {
-        console.log(`Country code "${countryCode}" not found in countries table, setting to null`)
         countryCode = null
       }
     }
@@ -398,13 +395,11 @@ export async function saveCandidate(
       .single()
 
     if (candidateError || !candidate) {
-      console.error("Error creating candidate:", candidateError)
       throw new Error("Failed to create candidate")
     }
 
     // Insert candidate skills
     if (candidateData.skills && candidateData.skills.length > 0) {
-      console.log(`Inserting ${candidateData.skills.length} skills for candidate ${candidate.id}`)
       
       const skillsToInsert = candidateData.skills.map(skill => ({
         candidate_id: candidate.id,
@@ -415,25 +410,20 @@ export async function saveCandidate(
         years_of_experience: skill.yoe ? parseFloat(skill.yoe.toString()) : null
       }))
 
-      console.log("Skills to insert:", skillsToInsert)
 
       const { error: skillsError } = await supabase
         .from("candidates_skills")
         .insert(skillsToInsert)
 
       if (skillsError) {
-        console.error("Error inserting candidate skills:", skillsError)
         // Don't throw here - candidate was created successfully
       } else {
-        console.log(`Successfully inserted ${skillsToInsert.length} skills`)
       }
     } else {
-      console.log("No skills to insert for candidate")
     }
 
     return candidate.id
   } catch (error) {
-    console.error("Error saving candidate:", error)
     throw error
   }
 }
@@ -460,7 +450,6 @@ export async function fetchCandidatesForUser(): Promise<Array<{ id: string; name
       .order("created_at", { ascending: false })
 
     if (error) {
-      console.error("Error fetching candidates:", error)
       throw new Error("Failed to fetch candidates")
     }
 
@@ -471,7 +460,6 @@ export async function fetchCandidatesForUser(): Promise<Array<{ id: string; name
       email: candidate.email || undefined
     }))
   } catch (error) {
-    console.error("Error in fetchCandidatesForUser:", error)
     throw error
   }
 }
@@ -505,7 +493,6 @@ export async function fetchCandidateForAnalysis(candidateId: string): Promise<Pa
       .single()
 
     if (candidateError || !candidate) {
-      console.error("Error fetching candidate:", candidateError)
       throw new Error("Candidate not found or access denied")
     }
 
@@ -536,7 +523,6 @@ export async function fetchCandidateForAnalysis(candidateId: string): Promise<Pa
 
     return parsedCandidate
   } catch (error) {
-    console.error("Error in fetchCandidateForAnalysis:", error)
     throw error
   }
 }
@@ -580,13 +566,9 @@ export async function getExistingMatchAnalyses(jobId: string) {
       .order("created_at", { ascending: false })
 
     if (error) {
-      console.error("Error fetching match analyses:", error)
-      console.error("Job ID:", jobId)
-      console.error("User ID:", user.id)
       throw new Error("Failed to fetch existing match analyses")
     }
 
-    console.log("Fetched analyses:", analyses?.length || 0)
     
     // Transform the data to handle Supabase's array response for joined data
     const transformedAnalyses = (analyses || []).map(analysis => ({
@@ -603,12 +585,10 @@ export async function getExistingMatchAnalyses(jobId: string) {
     const validAnalyses = transformedAnalyses.filter(analysis => analysis.candidates)
     
     if (validAnalyses.length !== transformedAnalyses.length) {
-      console.warn(`Filtered out ${transformedAnalyses.length - validAnalyses.length} analyses with missing candidate data`)
     }
 
     return validAnalyses
   } catch (error) {
-    console.error("Error in getExistingMatchAnalyses:", error)
     throw error
   }
 }
@@ -640,11 +620,9 @@ export async function saveMatchAnalysis(
       })
 
     if (error) {
-      console.error("Error saving match analysis:", error)
       throw new Error("Failed to save match analysis")
     }
   } catch (error) {
-    console.error("Error in saveMatchAnalysis:", error)
     throw error
   }
 }
@@ -665,7 +643,6 @@ export async function parseLinkedInProfile(linkedinUrl: string): Promise<ParsedC
     
     return parsedCandidate
   } catch (error) {
-    console.error("Error in LinkedIn parsing flow:", error)
     throw error
   }
 }
@@ -705,7 +682,6 @@ export async function analyzeLinkedInCandidate(
     
     return { candidate, analysis }
   } catch (error) {
-    console.error("Error in analyzeLinkedInCandidate:", error)
     throw error
   }
 }
@@ -735,7 +711,6 @@ export async function parseResumeSkills(pdfUrl: string): Promise<ParsedCandidate
       } catch {
         errorData = { error: "Failed to parse error response" }
       }
-      console.error("Resume parsing failed:", errorData)
       
       if (response.status === 400) {
         throw new Error("Invalid PDF format or content. Please try a different resume.")
@@ -753,10 +728,8 @@ export async function parseResumeSkills(pdfUrl: string): Promise<ParsedCandidate
       throw new Error("Could not extract name from resume. Please check the file and try again.")
     }
 
-    console.log("✅ Successfully parsed PDF resume skills")
     return parsedData
   } catch (error) {
-    console.error("Error parsing resume skills:", error)
     throw error
   }
 }
@@ -815,7 +788,6 @@ export async function analyzePDFCandidate(
     
     return { candidate, analysis, tempFilePath: uploadResult.tempPath }
   } catch (error) {
-    console.error("Error in analyzePDFCandidate:", error)
     throw error
   }
 }
@@ -839,7 +811,6 @@ export async function savePDFCandidateWithResume(
       // Step 3: Update candidate with final resume URL
       await updateCandidateResumeUrl(candidateId, moveResult.finalUrl)
     } else {
-      console.error("Failed to move resume file:", moveResult.error)
       // Don't fail the entire operation, but log the error
     }
     
@@ -848,7 +819,6 @@ export async function savePDFCandidateWithResume(
     
     return candidateId
   } catch (error) {
-    console.error("Error saving PDF candidate with resume:", error)
     throw error
   }
 }
@@ -872,13 +842,11 @@ export async function deleteMatchAnalysis(analysisId: string): Promise<{ success
       .eq("user_id", user.id) // Security: only delete own analyses
 
     if (error) {
-      console.error("Error deleting match analysis:", error)
       return { success: false, error: "Failed to delete match analysis" }
     }
 
     return { success: true }
   } catch (error) {
-    console.error("Error in deleteMatchAnalysis:", error)
     return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
   }
 }

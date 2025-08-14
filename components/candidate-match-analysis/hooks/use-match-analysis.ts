@@ -170,7 +170,6 @@ export function useMatchAnalysis(
         triggerAnimationsForAnalysis(analysisId, analysisResults.requirement_evaluations.length)
       }, 100)
     } catch (error) {
-      console.error("Error running analysis:", error)
       const errorMessage = error instanceof Error ? error.message : "Failed to run analysis"
       toast({
         title: "Error",
@@ -193,12 +192,9 @@ export function useMatchAnalysis(
     selectedExistingCandidate: string,
     linkedinUrl: string
   ) => {
-    console.log("🔄 Starting save analysis...")
-    
     const analysis = matchAnalyses.find(ma => ma.id === analysisId)
     
     if (!analysis || !analysis.results || !analysis.parsedCandidate) {
-      console.log("❌ Missing required data for save")
       return
     }
 
@@ -209,7 +205,6 @@ export function useMatchAnalysis(
       
       // Save new candidate if needed
       if (analysis.candidateInfo.type === "new") {
-        console.log(`📝 Saving ${analysis.candidateInfo.source} candidate...`)
         if (analysis.candidateInfo.source === "pdf" && analysis.tempFilePath) {
           // PDF candidate - use special function that handles resume moving
           candidateId = await savePDFCandidateWithResume(
@@ -234,8 +229,6 @@ export function useMatchAnalysis(
         await saveMatchAnalysis(jobId, candidateId, analysis.results)
       }
       
-      console.log("✅ Save operation completed successfully")
-      
       const successMessage = analysis.candidateInfo.type === "new" 
         ? analysis.candidateInfo.source === "pdf"
           ? "Candidate created with resume, and match analysis saved successfully."
@@ -252,7 +245,6 @@ export function useMatchAnalysis(
         await onAnalysisSaved(analysisId)
       }
     } catch (error) {
-      console.error("Error saving analysis:", error)
       const errorMessage = error instanceof Error ? error.message : "Failed to save analysis"
       toast({
         title: "Error",

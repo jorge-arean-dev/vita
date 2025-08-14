@@ -65,7 +65,6 @@ export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }:
       
       // Reload existing analyses from the server
       const updatedAnalyses = await getExistingMatchAnalyses(jobId)
-      console.log("Reloaded analyses after save:", updatedAnalyses.length)
       
       const analysesWithState = updatedAnalyses.map(analysis => ({
         ...analysis,
@@ -74,7 +73,6 @@ export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }:
       }))
       setExistingAnalysesState(analysesWithState)
     } catch (error) {
-      console.error("Error reloading analyses:", error)
       toast({
         title: "Note",
         description: "Analysis saved successfully. Please refresh to see it in the list.",
@@ -104,7 +102,6 @@ export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }:
       const fetchedCandidates = await fetchCandidatesForUser()
       setCandidates(fetchedCandidates)
     } catch (error) {
-      console.error("Error loading candidates:", error)
       toast({
         title: "Error",
         description: "Failed to load candidates. Please refresh the page.",
@@ -216,7 +213,6 @@ export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }:
         // Delete from database
         const result = await deleteMatchAnalysis(deleteConfirmId)
         if (!result.success) {
-          console.error("Failed to delete match analysis:", result.error)
           toast({
             title: "Error",
             description: "Failed to delete analysis. Please try again.",
@@ -250,7 +246,6 @@ export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }:
       
       setDeleteConfirmId(null)
     } catch (error) {
-      console.error("Error deleting analysis:", error)
       toast({
         title: "Error",
         description: "An unexpected error occurred while deleting.",
