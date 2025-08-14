@@ -55,6 +55,8 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
   const [showGenerateAlert, setShowGenerateAlert] = useState<{ [key: string]: boolean }>({})
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
   const [overwriteConfirmId, setOverwriteConfirmId] = useState<string | null>(null)
+  const [cancelConfirmId, setCancelConfirmId] = useState<string | null>(null)
+  const [collapseConfirmId, setCollapseConfirmId] = useState<string | null>(null)
   const [isGenerating, setIsGenerating] = useState<{ [key: string]: boolean }>({})
   const [isSaving, setIsSaving] = useState<{ [key: string]: boolean }>({})
   const [isDeleting, setIsDeleting] = useState<{ [key: string]: boolean }>({})
@@ -307,18 +309,30 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
     if (!jobDesc) return
     
     // Check for unsaved changes before collapsing
-    if (unsavedChanges.has(id) && jobDesc.isExpanded && jobDesc.isEditing) {
-      const confirmed = window.confirm(
-        "You have unsaved changes. Are you sure you want to collapse without saving?"
-      )
-      if (!confirmed) return
+    if (jobDesc.isExpanded && jobDesc.isEditing && hasChanges(id)) {
+      setCollapseConfirmId(id)
+      return
     }
 
-    setJobDescriptions(prevDescriptions => 
-      prevDescriptions.map((jd) => 
-        jd.id === id ? { ...jd, isExpanded: !jd.isExpanded, isEditing: false } : jd
+    // No changes, proceed with toggle
+    proceedWithToggleExpand(id)
+  }
+  
+  const proceedWithToggleExpand = (id: string) => {
+    const jobDesc = jobDescriptions.find(jd => jd.id === id)
+    if (!jobDesc) return
+
+    // For new descriptions, behave exactly like cancel button (remove from UI)
+    if (id.startsWith('new-')) {
+      setJobDescriptions(jobDescriptions.filter(jd => jd.id !== id))
+    } else {
+      // For existing descriptions, just toggle expand/collapse
+      setJobDescriptions(prevDescriptions => 
+        prevDescriptions.map((jd) => 
+          jd.id === id ? { ...jd, isExpanded: !jd.isExpanded, isEditing: false } : jd
+        )
       )
-    )
+    }
     
     // Clear editing values and unsaved changes when collapsing
     if (jobDesc.isExpanded) {
@@ -336,6 +350,13 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
         const newSet = new Set(prev)
         newSet.delete(id)
         return newSet
+      })
+      
+      // Hide generate alert for this job description
+      setShowGenerateAlert(prev => {
+        const newAlerts = { ...prev }
+        delete newAlerts[id]
+        return newAlerts
       })
     }
   }
@@ -657,14 +678,24 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
   }
 
   const handleCancel = (id: string) => {
+    // Check if there are unsaved changes
+    if (hasChanges(id)) {
+      setCancelConfirmId(id)
+      return
+    }
+    
+    // No changes, proceed with cancel
+    proceedWithCancel(id)
+  }
+  
+  const proceedWithCancel = (id: string) => {
     const jobDesc = jobDescriptions.find(jd => jd.id === id)
     
-    // Check if this is a new unsaved description with no content
-    if (id.startsWith('new-') && jobDesc && !jobDesc.description && (!editingValues[id]?.content || editingValues[id]?.content.trim() === '')) {
-      // Remove the new empty description
+    // For new descriptions, remove from list entirely
+    if (id.startsWith('new-')) {
       setJobDescriptions(jobDescriptions.filter(jd => jd.id !== id))
     } else {
-      // Cancel editing without saving
+      // For existing descriptions, exit edit mode
       setJobDescriptions(
         jobDescriptions.map((jd) => (jd.id === id ? { ...jd, isEditing: false, isExpanded: jd.isExpanded } : jd))
       )
@@ -1018,6 +1049,58 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
               }
             }}>
               Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Cancel Confirmation Dialog */}
+      <AlertDialog open={!!cancelConfirmId} onOpenChange={() => setCancelConfirmId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Discard Changes</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have unsaved changes. Are you sure you want to cancel without saving? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep Editing</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => {
+                if (cancelConfirmId) {
+                  proceedWithCancel(cancelConfirmId)
+                  setCancelConfirmId(null)
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Discard Changes
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Collapse Confirmation Dialog */}
+      <AlertDialog open={!!collapseConfirmId} onOpenChange={() => setCollapseConfirmId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Collapse and Discard Changes</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have unsaved changes. Are you sure you want to collapse without saving? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep Editing</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => {
+                if (collapseConfirmId) {
+                  proceedWithToggleExpand(collapseConfirmId)
+                  setCollapseConfirmId(null)
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Collapse and Discard
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
