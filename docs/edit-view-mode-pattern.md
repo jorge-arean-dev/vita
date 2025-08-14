@@ -1,269 +1,349 @@
-# Edit/View Mode Toggle Behavior - Implementation Guide
+# Edit/View Mode Pattern - Implementation Guide
 
 ## Overview
 
-The edit/view mode system provides a consistent way for users to switch between viewing content (read-only) and editing content (interactive), with built-in safety features like content backup and restore functionality.
+The edit/view mode system provides a consistent way for users to switch between viewing content (read-only) and editing content (interactive), with built-in safety features including unsaved changes detection, confirmation dialogs, and proper state management. This pattern is implemented comprehensively in the job description builder.
 
-## Core States Required
+## Core Concepts
 
-Every section implementing this pattern needs four state variables:
+### State Management Architecture
 
-**isEditMode** - Boolean that tracks whether the section is currently in edit mode or view mode. When false, all inputs are disabled/readonly. When true, inputs become interactive.
+The pattern uses three key state objects to manage editing lifecycle:
 
-**isGenerating** - Boolean for sections that support AI generation. Shows loading state during API calls.
+1. **Current Display Values**: What the user sees (read-only or editable)
+2. **Editing Values**: Temporary values during editing sessions  
+3. **Original Values**: Baseline for change detection (represents saved state)
 
-**isAutoEditMode** - Boolean that tracks when the section automatically entered edit mode after generation (as opposed to manual edit button click). This affects which buttons are shown.
+### Change Detection System
 
-**backupContent** - Stores a copy of the content before any editing begins, allowing users to cancel changes and restore the previous state.
+Changes are detected by comparing `editingValues` against `originalValues`:
+- **New items**: No `originalValues` entry → changes detected if content exists
+- **Existing items**: Compare current editing values with saved values
+- **After generation**: Generation acts like manual editing (doesn't update `originalValues`)
 
-## Button Display Logic
+## Required State Variables
 
-The buttons shown depend on the current state combination:
-
-**View Mode (Normal State)**: Show both Generate and Edit buttons. This is when users can either generate new content or manually edit existing content.
-
-**Edit Mode (After Manual Edit)**: Show Save and Cancel buttons. Users can either save their changes to persist them, or cancel to restore the backup.
-
-**Auto-Edit Mode (After Generation)**: Show only Save and Cancel buttons, hide Generate and Edit buttons. This happens automatically after content generation.
-
-**Generating State**: Show a disabled "Generating..." button to indicate the API call is in progress.
-
-## Workflows
-
-### Manual Edit Workflow
-
-When a user clicks the Edit button, the system first creates a backup copy of all current content. This backup is crucial for the cancel functionality. Then it switches to edit mode, making all input fields interactive. The Generate and Edit buttons disappear, replaced by Save and Cancel buttons.
-
-If the user clicks Save, the system persists the changes (to database or parent state), exits edit mode, and clears the backup since it's no longer needed.
-
-If the user clicks Cancel, the system restores the content from the backup, effectively undoing all changes made during the edit session, then exits edit mode.
-
-### Generate Workflow
-
-When a user clicks Generate, the system first checks if there's existing content that would be overwritten. If so, it shows a confirmation dialog. After confirmation, it creates a backup of the current content, then starts the generation process.
-
-Once the API call completes and new content is populated, the system automatically enters edit mode (auto-edit mode specifically). This is different from manual edit because it hides the Generate and Edit buttons entirely - the user must either save the generated content or cancel to restore the previous content.
-
-An informational blue bar appears prompting the user to review the generated content before saving.
-
-## Input Field Behavior
-
-All input fields must respect the edit mode state:
-
-**In View Mode**: Inputs use readOnly or disabled props to prevent interaction. They typically also get a "cursor-default" class to show they're not clickable.
-
-**In Edit Mode**: Inputs function normally, allowing user interaction.
-
-This applies to text inputs, dropdowns, checkboxes, and any other interactive elements.
-
-## Safety Features
-
-### Content Backup System
-
-Before any potentially destructive action (editing or generating), the system creates a complete backup of the current content. This backup enables the cancel functionality - users can always return to the state before they started making changes.
-
-The backup is cleared when changes are saved (since they're now permanent) or when cancel restores the content.
-
-### Overwrite Protection
-
-When generating new content, if existing content would be lost, the system shows a confirmation dialog asking the user to confirm they want to proceed.
-
-### State Consistency
-
-The button logic ensures users can't get stuck in invalid states. The combinations of state variables determine exactly which buttons are available at any time.
-
-## Visual Feedback
-
-### Info Indicator Bar
-
-When in auto-edit mode (after generation), a blue informational bar appears with an info icon and text like "Please review the generated content and click Save to confirm." This uses a consistent blue color scheme that can be reused across the app.
-
-### Button States
-
-Buttons clearly indicate the current mode - Generate/Edit in view mode, Save/Cancel in edit mode, and disabled "Generating..." during API calls.
-
-## Implementation Steps for New Sections
-
-To add this behavior to a new section:
-
-**Step 1**: Add the four required state variables to your component.
-
-**Step 2**: Create the three handler functions - handleEdit, handleSave, and handleCancel. Include handleGenerate if the section supports AI generation.
-
-**Step 3**: Update your button rendering to show the correct buttons based on the state combination.
-
-**Step 4**: Add readOnly or disabled props to all input fields, controlled by the isEditMode state.
-
-**Step 5**: Add the info indicator bar that appears during auto-edit mode.
-
-**Step 6**: Implement the backup and restore logic specific to your content structure.
-
-**Step 7**: Test the complete flow: view mode → edit mode → save/cancel, and if applicable, view mode → generate → auto-edit → save/cancel.
-
-## Code Examples
-
-### State Variables
 ```typescript
-const [isEditMode, setIsEditMode] = useState(false)
-const [isGenerating, setIsGenerating] = useState(false) // Optional for sections with generate
-const [isAutoEditMode, setIsAutoEditMode] = useState(false) // For auto-edit after generate
-const [backupContent, setBackupContent] = useState<ContentType | null>(null)
+// Core display state
+const [items, setItems] = useState<Item[]>([])
+const [editingValues, setEditingValues] = useState<{ [key: string]: EditingState }>({})
+const [originalValues, setOriginalValues] = useState<{ [key: string]: EditingState }>({})
+
+// UI state management
+const [isGenerating, setIsGenerating] = useState<{ [key: string]: boolean }>({})
+const [isSaving, setIsSaving] = useState<{ [key: string]: boolean }>({})
+
+// Confirmation dialogs
+const [cancelConfirmId, setCancelConfirmId] = useState<string | null>(null)
+const [collapseConfirmId, setCollapseConfirmId] = useState<string | null>(null)
+const [overwriteConfirmId, setOverwriteConfirmId] = useState<string | null>(null)
+
+// Unsaved changes tracking
+const [unsavedChanges, setUnsavedChanges] = useState<Set<string>>(new Set())
 ```
 
-### Button Display Logic
+## Change Detection Function
+
 ```typescript
-// Show Generate & Edit buttons (view mode)
-{!isEditMode && !isGenerating && !isAutoEditMode && (
-  <>
-    <Button onClick={handleGenerate}>Generate</Button> // Optional
-    <Button onClick={handleEdit}>Edit</Button>
-  </>
-)}
-
-// Show Save & Cancel buttons (edit mode)
-{isEditMode && (
-  <>
-    <Button onClick={handleSave}>Save</Button>
-    <Button onClick={handleCancel}>Cancel</Button>
-  </>
-)}
-
-// Show generating state (optional)
-{isGenerating && (
-  <Button disabled>Generating...</Button>
-)}
-```
-
-### Handler Functions
-
-#### Manual Edit Mode
-```typescript
-const handleEdit = () => {
-  // Backup current content before editing
-  setBackupContent({ ...currentContent })
-  setIsEditMode(true)
-  setIsAutoEditMode(false)
-}
-
-const handleSave = () => {
-  // Save content to database/state
-  console.log("Saving content:", currentContent)
+const hasChanges = (id: string): boolean => {
+  const current = editingValues[id]
+  const original = originalValues[id]
   
-  // Exit edit mode and clear backup
-  setIsEditMode(false)
-  setIsAutoEditMode(false)
-  setBackupContent(null)
-}
-
-const handleCancel = () => {
-  // Restore backup content if available
-  if (backupContent) {
-    setCurrentContent(backupContent)
-    setBackupContent(null)
+  // If no current editing values, no changes
+  if (!current) return false
+  
+  // If no original values (new item), check if there's any content
+  if (!original) {
+    return current.title.trim() !== '' || current.content.trim() !== ''
   }
   
-  // Exit edit mode
-  setIsEditMode(false)
-  setIsAutoEditMode(false)
+  // Compare current values with original values
+  return current.title !== original.title || current.content !== original.content
 }
 ```
 
-#### Generate Mode
-```typescript
-const handleGenerate = async () => {
-  // Check for existing content
-  if (hasExistingContent()) {
-    const confirmed = window.confirm("This will overwrite existing content...")
-    if (!confirmed) return
-  }
+## Button States and Actions
 
-  // Backup current content
-  setBackupContent({ ...currentContent })
-  setIsGenerating(true)
+### Save Button Logic
+```typescript
+// Save button is enabled when there are changes
+<Button 
+  disabled={!hasChanges(id) || isSaving[id]} 
+  onClick={() => handleSave(id)}
+>
+  {isSaving[id] ? "Saving..." : "Save"}
+</Button>
+```
+
+### Cancel/Collapse with Confirmation
+```typescript
+const handleCancel = (id: string) => {
+  // Check if there are unsaved changes
+  if (hasChanges(id)) {
+    setCancelConfirmId(id)
+    return
+  }
+  
+  // No changes, proceed with cancel
+  proceedWithCancel(id)
+}
+```
+
+### Generate Button Behavior
+```typescript
+const handleGenerate = (id: string) => {
+  // Check for existing content that would be overwritten
+  const hasContent = editingValues[id]?.content?.trim()
+  if (hasContent) {
+    setOverwriteConfirmId(id)
+    return
+  }
+  
+  proceedWithGeneration(id)
+}
+
+const proceedWithGeneration = async (id: string) => {
+  setIsGenerating({ ...isGenerating, [id]: true })
   
   try {
-    // API call and content population
-    const newContent = await generateContent()
-    setCurrentContent(newContent)
+    const result = await generateContent(id)
     
-    // Auto-enter edit mode
-    setIsAutoEditMode(true)
-    setIsEditMode(true)
+    const newValues = {
+      title: result.title,
+      content: result.content
+    }
     
-  } catch (error) {
-    console.error("Generation error:", error)
+    // Update editing values (acts like manual edit)
+    setEditingValues({
+      ...editingValues,
+      [id]: newValues
+    })
+    
+    // NEVER update originalValues during generation
+    // Generation should be treated as an edit operation
+    
   } finally {
-    setIsGenerating(false)
+    setIsGenerating({ ...isGenerating, [id]: false })
   }
 }
 ```
 
-### Input Field Implementation
+## Item Lifecycle Management
+
+### Adding New Items
 ```typescript
-// Text inputs
-<Input
-  value={content.field}
-  onChange={(e) => setContent(prev => ({ ...prev, field: e.target.value }))}
-  readOnly={!isEditMode}
-  className={!isEditMode ? "cursor-default" : ""}
-/>
-
-// Dropdowns
-<Select
-  value={content.option}
-  onValueChange={(value) => setContent(prev => ({ ...prev, option: value }))}
-  disabled={!isEditMode}
->
-```
-
-### Info Indicator
-```typescript
-{isAutoEditMode && (
-  <div className="info-indicator mx-6">
-    <Info className="h-4 w-4 flex-shrink-0" />
-    <span>Please review the generated content and click Save to confirm.</span>
-  </div>
-)}
-```
-
-## CSS Classes Required
-
-Add these classes to your global stylesheet:
-
-```css
-/* Info indicator bar for informative notifications */
-.info-indicator {
-  @apply bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-md;
-  @apply flex items-center gap-2 text-sm;
-}
-
-.dark .info-indicator {
-  @apply bg-blue-950 border-blue-800 text-blue-200;
+const addNewItem = () => {
+  const newItem = {
+    id: `new-${Date.now()}`,
+    title: `New Item ${counter}`,
+    content: '',
+    isEditing: true,
+    isExpanded: true
+  }
+  
+  // Initialize editing values
+  setEditingValues({
+    ...editingValues,
+    [newItem.id]: {
+      title: newItem.title,
+      content: newItem.content
+    }
+  })
+  
+  // DON'T set originalValues for new items
+  // This ensures hasChanges() works correctly
+  
+  setItems([newItem, ...items])
 }
 ```
 
-## Key Behavior Rules
+### Saving Items
+```typescript
+const handleSave = async (id: string) => {
+  const editingData = editingValues[id]
+  if (!editingData) return
+  
+  setIsSaving({ ...isSaving, [id]: true })
+  
+  try {
+    if (id.startsWith('new-')) {
+      // Create new item
+      const result = await createItem(id, editingData.title, editingData.content)
+      // Update with real ID from database
+      updateItemAfterSave(id, result.id, editingData)
+    } else {
+      // Update existing item
+      await updateItem(id, editingData.title, editingData.content)
+    }
+    
+    // Set original values to current values (represents new saved state)
+    setOriginalValues({
+      ...originalValues,
+      [id]: { ...editingData }
+    })
+    
+    // Exit edit mode
+    setItems(items.map(item => 
+      item.id === id ? { ...item, isEditing: false } : item
+    ))
+    
+  } finally {
+    setIsSaving({ ...isSaving, [id]: false })
+  }
+}
+```
 
-1. **View Mode Default**: Section starts in view mode (all inputs disabled/readonly)
+## Confirmation Dialog Pattern
 
-2. **Manual Edit**: 
-   - Creates backup → Enables editing → Show Save/Cancel
-   - Save → Persist changes → Return to view mode
-   - Cancel → Restore backup → Return to view mode
+### Styled Confirmation Dialogs
+```typescript
+{/* Cancel Confirmation Dialog */}
+<AlertDialog open={!!cancelConfirmId} onOpenChange={() => setCancelConfirmId(null)}>
+  <AlertDialogContent>
+    <AlertDialogHeader>
+      <AlertDialogTitle>Discard Changes</AlertDialogTitle>
+      <AlertDialogDescription>
+        You have unsaved changes. Are you sure you want to cancel without saving? This action cannot be undone.
+      </AlertDialogDescription>
+    </AlertDialogHeader>
+    <AlertDialogFooter>
+      <AlertDialogCancel>Keep Editing</AlertDialogCancel>
+      <AlertDialogAction 
+        onClick={() => {
+          if (cancelConfirmId) {
+            proceedWithCancel(cancelConfirmId)
+            setCancelConfirmId(null)
+          }
+        }}
+        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+      >
+        Discard Changes
+      </AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+</AlertDialog>
 
-3. **Generate Mode**:
-   - Creates backup → Generates content → **Auto-enters edit mode**
-   - Hide Generate/Edit buttons during auto-edit
-   - Show info indicator prompting review
-   - Same Save/Cancel behavior as manual edit
+{/* Overwrite Confirmation Dialog */}
+<AlertDialog open={!!overwriteConfirmId} onOpenChange={() => setOverwriteConfirmId(null)}>
+  <AlertDialogContent>
+    <AlertDialogHeader>
+      <AlertDialogTitle>Overwrite Existing Content</AlertDialogTitle>
+      <AlertDialogDescription>
+        This will overwrite your existing content. Are you sure you want to continue?
+      </AlertDialogDescription>
+    </AlertDialogHeader>
+    <AlertDialogFooter>
+      <AlertDialogCancel>Cancel</AlertDialogCancel>
+      <AlertDialogAction onClick={() => {
+        if (overwriteConfirmId) {
+          proceedWithGeneration(overwriteConfirmId)
+          setOverwriteConfirmId(null)
+        }
+      }}>
+        Continue
+      </AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+</AlertDialog>
+```
 
-4. **Input States**:
-   - **View Mode**: `readOnly={true}` or `disabled={true}` + `cursor-default`
-   - **Edit Mode**: Normal interactive inputs
+## Loading States
 
-5. **Backup System**:
-   - Always backup before any destructive action (edit/generate)
-   - Cancel always restores backup
-   - Save clears backup
+### Generation Loading Overlay
+```typescript
+{/* Text Area with Loading Overlay */}
+<div className="space-y-2 relative">
+  <Textarea
+    value={editingValues[id]?.content || ''}
+    onChange={(e) => handleContentChange(id, e.target.value)}
+    readOnly={!item.isEditing || isGenerating[id]}
+    className="min-h-[500px] resize-none"
+  />
+  
+  {/* Generation Loading Overlay */}
+  {isGenerating[id] && (
+    <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-md flex items-center justify-center z-10">
+      <div className="flex flex-col items-center gap-3 text-center">
+        <Sparkles className="h-8 w-8 animate-spin text-primary" />
+        <div className="space-y-1">
+          <p className="text-lg font-medium">Generating content...</p>
+          <p className="text-sm text-muted-foreground">
+            Please wait while AI creates your content
+          </p>
+        </div>
+      </div>
+    </div>
+  )}
+</div>
+```
 
-This pattern ensures users always know what mode they're in, can safely experiment with changes, and have a consistent experience across all sections of the application.
+## Key Behavioral Rules
+
+### 1. Change Detection Logic
+- **New items**: Never set `originalValues` → `hasChanges()` returns `true` if content exists
+- **Existing items**: Set `originalValues` on edit mode entry → `hasChanges()` compares current vs saved
+- **After generation**: Never update `originalValues` → Generation acts like manual editing
+
+### 2. Save Button State
+- **Enabled**: When `hasChanges()` returns `true` AND not currently saving
+- **Disabled**: When no changes detected OR save operation in progress
+- **Text**: Shows "Saving..." during save operations
+
+### 3. Confirmation Dialogs
+- **Cancel/Collapse**: Show confirmation if `hasChanges()` returns `true`
+- **Generate**: Show overwrite confirmation if existing content would be lost
+- **Consistent styling**: Use AlertDialog with destructive styling for destructive actions
+
+### 4. Item Lifecycle
+- **New items**: Start in edit mode, no `originalValues`, removed if cancelled with no content
+- **Existing items**: Start in view mode, `originalValues` set on edit entry, revert on cancel
+- **Collapse behavior**: For new items, acts like cancel (removes item); for existing, just collapses
+
+### 5. Generation Behavior
+- **UI State**: Show loading overlay, disable textarea, update button states  
+- **Data Flow**: Update only `editingValues`, never `originalValues`
+- **User Flow**: Acts exactly like manual editing for save/cancel logic
+
+### 6. State Management
+- **Editing values**: Always represents current user input
+- **Original values**: Always represents last saved state (or undefined for new items)
+- **Change detection**: Always compares these two states
+
+## Toast Integration
+
+Use the shadcn/ui toast system for user feedback:
+
+```typescript
+import { useToast } from "@/components/ui/use-toast"
+
+const { toast } = useToast()
+
+// Success feedback
+toast({
+  title: "Success",
+  description: "Item saved successfully!",
+})
+
+// Error feedback  
+toast({
+  title: "Error",
+  description: "Failed to save item. Please try again.",
+  variant: "destructive",
+})
+```
+
+## Implementation Checklist
+
+When implementing this pattern in a new component:
+
+- [ ] Set up three state objects: display items, editing values, original values
+- [ ] Implement `hasChanges()` function with proper new vs existing item logic
+- [ ] Add confirmation dialogs with consistent styling
+- [ ] Implement loading states with overlays for long operations
+- [ ] Set up proper button states (save enabled/disabled, loading states)
+- [ ] Handle new item lifecycle (no original values, cancel removes item)
+- [ ] Ensure generation acts like editing (updates only editing values)
+- [ ] Add toast notifications for user feedback
+- [ ] Test complete flows: new item creation, existing item editing, generation, cancellation
+
+This pattern provides a robust, user-friendly editing experience with proper safety mechanisms and consistent behavior across the application.

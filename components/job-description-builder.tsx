@@ -252,9 +252,15 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
     const current = editingValues[id]
     const original = originalValues[id]
     
-    if (!current || !original) return false
+    // If no current editing values, no changes
+    if (!current) return false
     
-    // Compare title and content
+    // If no original values (new job description), check if there's any content
+    if (!original) {
+      return current.title.trim() !== '' || current.content.trim() !== ''
+    }
+    
+    // Compare current values with original values
     return current.title !== original.title || current.content !== original.content
   }
 
@@ -294,11 +300,8 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
       [newJobDescription.id]: initialValues
     })
     
-    // Store original values for comparison
-    setOriginalValues({
-      ...originalValues,
-      [newJobDescription.id]: initialValues
-    })
+    // For new job descriptions, DON'T set originalValues
+    // This ensures hasChanges() always returns true until saved to database
     
     setJobDescriptions([newJobDescription, ...jobDescriptions])
     setUnsavedChanges(prev => new Set(prev).add(newJobDescription.id))
@@ -487,16 +490,9 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
           [id]: newValues
         })
         
-        // For new job descriptions, don't update original values after generation
-        // This keeps the Save button enabled for generated content
-        // For existing descriptions, update original values to match generated content
-        const isNewDescription = id.startsWith('new-')
-        if (!isNewDescription) {
-          setOriginalValues({
-            ...originalValues,
-            [id]: newValues
-          })
-        }
+        // NEVER update originalValues during generation for any job description
+        // Generation should be treated as an edit operation, not a save operation
+        // This keeps the Save button enabled for all generated content
         
         // Enter edit mode
         setJobDescriptions(

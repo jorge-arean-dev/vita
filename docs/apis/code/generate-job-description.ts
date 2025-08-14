@@ -92,7 +92,7 @@ async function generateJobDescription(initialNotes, companyName, industry, attri
     [List mandatory requirements based on is_mandatory field. If any requirement has expert proficiency level, indicate that accordingly. eg: Proficient in React, Expert in Node.js (use words like Expert, Proficient, or Rockstar, etc). If a requirement as proficiency level "advanced" or "beginner", just name the requirement and don't include the proficiency level. Format: 'Required skills:\\n- Item 1\\n- Item 2\\n...']
     \\n\\n
     Bonus skills (not mandatory):
-    [List optional requirements based on is_mandatory field. Dont mention the proficiency level. Format: 'Bonus skills:\\n- Item 1\\n- Item 2\\n...']
+    [If available, list optional requirements based on is_mandatory field. Dont mention the proficiency level. If no optional requirements are available, don't include this section. Format: 'Bonus skills:\\n- Item 1\\n- Item 2\\n...']
     \\n\\n
     Position Highlights:
     [If available, include relevant job attributes like commitment, location, and rate. Write this in a natural, flowing manner. Format: 'Position Highlights:\\n- Item 1\\n- Item 2\\n...']
