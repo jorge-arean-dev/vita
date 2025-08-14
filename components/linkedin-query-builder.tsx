@@ -548,34 +548,35 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
             if (!displayData) return null
             
             return (
-            <>
+            <div className="relative">
               {/* LinkedIn Search Query Section */}
               <div className="space-y-4">
                 <Label className="text-base font-medium">LinkedIn Search Query</Label>
                 
-                {/* Radio buttons in 3x2 grid - always enabled */}
+                {/* Radio buttons in 3x2 grid - disabled during generation */}
                 <div className="grid grid-cols-2 gap-4">
                   <RadioGroup 
                     value={getCurrentQueryType()} 
                     onValueChange={handleQueryTypeChange}
                     className="contents"
+                    disabled={isGenerating}
                   >
                     {/* Left Column */}
                     <div className="space-y-3">
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="complete_query_all" id="complete_query_all" />
+                        <RadioGroupItem value="complete_query_all" id="complete_query_all" disabled={isGenerating} />
                         <Label htmlFor="complete_query_all" className="text-sm font-normal cursor-pointer">
                           Full Query
                         </Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="complete_query_skills_only" id="complete_query_skills_only" />
+                        <RadioGroupItem value="complete_query_skills_only" id="complete_query_skills_only" disabled={isGenerating} />
                         <Label htmlFor="complete_query_skills_only" className="text-sm font-normal cursor-pointer">
                           Skills Only
                         </Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="complete_query_job_titles_only" id="complete_query_job_titles_only" />
+                        <RadioGroupItem value="complete_query_job_titles_only" id="complete_query_job_titles_only" disabled={isGenerating} />
                         <Label htmlFor="complete_query_job_titles_only" className="text-sm font-normal cursor-pointer">
                           Job Titles Only
                         </Label>
@@ -585,19 +586,19 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
                     {/* Right Column */}
                     <div className="space-y-3">
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="mandatory_only_query_all" id="mandatory_only_query_all" />
+                        <RadioGroupItem value="mandatory_only_query_all" id="mandatory_only_query_all" disabled={isGenerating} />
                         <Label htmlFor="mandatory_only_query_all" className="text-sm font-normal cursor-pointer">
                           Must-Haves Only (All)
                         </Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="mandatory_only_query_skills_only" id="mandatory_only_query_skills_only" />
+                        <RadioGroupItem value="mandatory_only_query_skills_only" id="mandatory_only_query_skills_only" disabled={isGenerating} />
                         <Label htmlFor="mandatory_only_query_skills_only" className="text-sm font-normal cursor-pointer">
                           Must-Haves Skills Only
                         </Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="mandatory_only_query_job_titles_only" id="mandatory_only_query_job_titles_only" />
+                        <RadioGroupItem value="mandatory_only_query_job_titles_only" id="mandatory_only_query_job_titles_only" disabled={isGenerating} />
                         <Label htmlFor="mandatory_only_query_job_titles_only" className="text-sm font-normal cursor-pointer">
                           Must-Haves Job Titles Only
                         </Label>
@@ -624,10 +625,11 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
                       </Button>
                     )}
                   </div>
+                  
                   <Textarea
                     value={getCurrentQuery()}
                     onChange={(e) => handleQueryTextChange(e.target.value)}
-                    readOnly={!isEditing}
+                    readOnly={!isEditing || isGenerating}
                     rows={4}
                     className={`${!isEditing ? 'cursor-default bg-muted/50' : ''} resize-none`}
                     placeholder={isEditing ? "Query will appear here after generation" : ""}
@@ -637,7 +639,7 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
 
               {/* LinkedIn Search Recommendations Section */}
               {displayData.recommendations && displayData.recommendations.length > 0 && (
-                <div className="space-y-4">
+                <div className="space-y-4 mt-6">
                   <Label className="text-base font-medium">LinkedIn Search Recommendations</Label>
                   <div className="grid gap-4">
                     {displayData.recommendations.map((recommendation, index) => (
@@ -649,7 +651,22 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
                   </div>
                 </div>
               )}
-            </>
+              
+              {/* Generation Loading Overlay - Covers entire content area */}
+              {isGenerating && (
+                <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-md flex items-center justify-center z-10">
+                  <div className="flex flex-col items-center gap-3 text-center">
+                    <Sparkles className="h-8 w-8 animate-spin text-primary" />
+                    <div className="space-y-1">
+                      <p className="text-lg font-medium">Generating LinkedIn queries...</p>
+                      <p className="text-sm text-muted-foreground">
+                        Please wait while AI creates your search queries and recommendations
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
             )
           })()}
         </CardContent>
