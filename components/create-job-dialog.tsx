@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { Check, ChevronDown, Plus, X, Sparkles } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -115,7 +115,7 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
   const [countrySearchValue, setCountrySearchValue] = useState("")
 
   // Fetch companies from database
-  const fetchCompanies = async () => {
+  const fetchCompanies = useCallback(async () => {
     setIsLoadingCompanies(true)
     try {
       const supabase = createClient()
@@ -153,10 +153,10 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
     } finally {
       setIsLoadingCompanies(false)
     }
-  }
+  }, [])
 
   // Load industries for new company form
-  const loadIndustries = async () => {
+  const loadIndustries = useCallback(async () => {
     try {
       const result = await searchIndustries("")
       setIndustries(result)
@@ -168,10 +168,10 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
         variant: "destructive"
       })
     }
-  }
+  }, [toast])
 
   // Load countries for new company form
-  const loadCountries = async () => {
+  const loadCountries = useCallback(async () => {
     try {
       const result = await getCountries()
       setCountries(result)
@@ -183,7 +183,7 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
         variant: "destructive"
       })
     }
-  }
+  }, [toast])
 
   // Load companies, industries, and countries when dialog opens
   useEffect(() => {
@@ -192,7 +192,7 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
       loadIndustries()
       loadCountries()
     }
-  }, [open])
+  }, [open, fetchCompanies, loadIndustries, loadCountries])
 
   // Filter companies based on search
   const filteredCompanies = companies.filter((company) =>
