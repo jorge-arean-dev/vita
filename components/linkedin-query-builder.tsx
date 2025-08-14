@@ -1,19 +1,21 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Copy, Sparkles, Check, X, Info } from "lucide-react"
 import { getJobForLinkedInQuery } from "@/app/actions/jobs"
 import { generateLinkedInQueries, saveLinkedInQueries, loadLinkedInQueries } from "@/lib/api/linkedin-queries"
@@ -58,22 +60,24 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
   const [isEditing, setIsEditing] = useState(false)
   const { toast } = useToast()
   
-  // Main state - this is what gets saved to database
-  const [savedQueryData, setSavedQueryData] = useState<LinkedInQueryData | null>(null)
-  const [savedSelectedQueryType, setSavedSelectedQueryType] = useState<keyof QueryVariations>("complete_query_all")
+  // Core display state (what user sees - read-only or editable)
+  const [queryData, setQueryData] = useState<LinkedInQueryData | null>(null)
+  const [selectedQueryType, setSelectedQueryType] = useState<keyof QueryVariations>("complete_query_all")
   
-  // Editing state - temporary values during edit mode
-  const [editingQueryData, setEditingQueryData] = useState<LinkedInQueryData | null>(null)
-  const [editingSelectedQueryType, setEditingSelectedQueryType] = useState<keyof QueryVariations>("complete_query_all")
+  // Editing values (temporary values during editing sessions)
+  const [editingValues, setEditingValues] = useState<{
+    queryData: LinkedInQueryData | null
+    selectedQueryType: keyof QueryVariations
+  } | null>(null)
   
-  // Track unsaved changes (only for actual text modifications)
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  // Original values (baseline for change detection - represents saved state)
+  const [originalValues, setOriginalValues] = useState<{
+    queryData: LinkedInQueryData | null
+    selectedQueryType: keyof QueryVariations
+  } | null>(null)
   
   // Track if content was just generated (for showing info banner)
   const [showGenerationBanner, setShowGenerationBanner] = useState(false)
-  
-  // Store original query data when entering edit mode (for comparison)
-  const [originalEditingData, setOriginalEditingData] = useState<LinkedInQueryData | null>(null)
 
   // Dialog state for confirmations
   const [showOverwriteDialog, setShowOverwriteDialog] = useState(false)
@@ -92,8 +96,8 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
       try {
         const existingQueries = await loadLinkedInQueries(jobData.id)
         if (existingQueries) {
-          setSavedQueryData(existingQueries)
-          setSavedSelectedQueryType("complete_query_all")
+          setQueryData(existingQueries)
+          setSelectedQueryType("complete_query_all")
         }
       } catch (error) {
         console.error("Error loading existing LinkedIn queries:", error)
@@ -105,22 +109,65 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
   }, [mounted, jobData])
 
 
+  // Change detection function following the pattern
+  const hasChanges = useCallback((): boolean => {
+    const current = editingValues
+    const original = originalValues
+    
+    // If no current editing values, no changes
+    if (!current) return false
+    
+    // If no original values (new content), check if there's any content
+    if (!original) {
+      if (!current.queryData) return false
+      
+      // Check if any query has content
+      const queries = current.queryData.boolean_queries
+      return Object.values(queries).some(query => query.trim() !== '')
+    }
+    
+    // Compare current values with original values
+    if (!current.queryData && !original.queryData) return false
+    if (!current.queryData || !original.queryData) return true
+    
+    // Compare query type selection
+    if (current.selectedQueryType !== original.selectedQueryType) return true
+    
+    // Compare all query variations
+    const currentQueries = current.queryData.boolean_queries
+    const originalQueries = original.queryData.boolean_queries
+    
+    const queryTypes: (keyof QueryVariations)[] = [
+      'complete_query_all',
+      'complete_query_skills_only', 
+      'complete_query_job_titles_only',
+      'mandatory_only_query_all',
+      'mandatory_only_query_skills_only',
+      'mandatory_only_query_job_titles_only'
+    ]
+    
+    return queryTypes.some(queryType => 
+      currentQueries[queryType] !== originalQueries[queryType]
+    )
+  }, [editingValues, originalValues])
+
   // Check if any content exists that would be overwritten
   const hasExistingContent = () => {
-    if (isEditing) {
-      return editingQueryData !== null
+    if (isEditing && editingValues?.queryData) {
+      const queries = editingValues.queryData.boolean_queries
+      return Object.values(queries).some(query => query.trim() !== '')
     }
-    return savedQueryData !== null
+    return queryData !== null
   }
 
   // Get current display data based on mode
   const getCurrentData = () => {
-    return isEditing ? editingQueryData : savedQueryData
+    return isEditing ? editingValues?.queryData : queryData
   }
 
   // Get current query type based on mode
   const getCurrentQueryType = () => {
-    return isEditing ? editingSelectedQueryType : savedSelectedQueryType
+    return isEditing ? (editingValues?.selectedQueryType || "complete_query_all") : selectedQueryType
   }
 
   // Get current query text
@@ -132,7 +179,7 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
 
   // Check if we have any saved content
   const hasSavedContent = () => {
-    return savedQueryData !== null
+    return queryData !== null
   }
 
   // Handle overwrite confirmation
@@ -164,12 +211,26 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
   }
 
   const proceedWithGeneration = async () => {
+    if (!jobData) return // Early return for safety
+    
     // If not in edit mode, enter edit mode first
     if (!isEditing) {
       setIsEditing(true)
+      
       // Initialize editing state with current saved data
-      setEditingQueryData(savedQueryData)
-      setEditingSelectedQueryType(savedSelectedQueryType)
+      setEditingValues({
+        queryData: queryData,
+        selectedQueryType: selectedQueryType
+      })
+      
+      // Set original values to represent the baseline (current saved state)
+      // Only set originalValues when entering edit mode, NOT during generation
+      if (!originalValues) {
+        setOriginalValues({
+          queryData: queryData,
+          selectedQueryType: selectedQueryType
+        })
+      }
     }
 
     setIsGenerating(true)
@@ -185,13 +246,13 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
       const apiResponse = await generateLinkedInQueries(jobForGeneration)
       console.log('Successfully generated LinkedIn queries:', apiResponse)
       
-      // Update editing state with generated data
-      setEditingQueryData(apiResponse)
-      setEditingSelectedQueryType("complete_query_all")
+      // Update editing values with generated data (acts like manual editing)
+      setEditingValues({
+        queryData: apiResponse,
+        selectedQueryType: "complete_query_all"
+      })
       
-      // Check if generated content is different from original
-      const hasTextChanges = checkForTextChanges(apiResponse)
-      setHasUnsavedChanges(hasTextChanges)
+      // NEVER update originalValues during generation - this acts like manual editing
       setShowGenerationBanner(true)
       
     } catch (error) {
@@ -211,34 +272,46 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
   }
 
   const handleEdit = () => {
-    // Enter edit mode and initialize editing state with saved data
+    // Enter edit mode and initialize editing state with current saved data
     setIsEditing(true)
-    setEditingQueryData(savedQueryData)
-    setEditingSelectedQueryType(savedSelectedQueryType)
-    setHasUnsavedChanges(false)
-    // Store original data for comparison
-    setOriginalEditingData(savedQueryData)
+    
+    // Set editing values to current saved data
+    setEditingValues({
+      queryData: queryData,
+      selectedQueryType: selectedQueryType
+    })
+    
+    // Set original values to represent the baseline (current saved state)
+    setOriginalValues({
+      queryData: queryData,
+      selectedQueryType: selectedQueryType
+    })
+    
+    setShowGenerationBanner(false)
   }
 
   const handleSave = async () => {
-    if (!editingQueryData || !jobData) return
+    if (!editingValues?.queryData || !jobData) return
 
     setIsSaving(true)
     try {
       // Save to database
-      await saveLinkedInQueries(jobData.id, editingQueryData)
+      await saveLinkedInQueries(jobData.id, editingValues.queryData)
       
-      // Save editing data to saved state
-      setSavedQueryData(editingQueryData)
-      setSavedSelectedQueryType(editingSelectedQueryType)
+      // Update main display state with saved data
+      setQueryData(editingValues.queryData)
+      setSelectedQueryType(editingValues.selectedQueryType)
+      
+      // Set original values to current editing values (represents new saved state)
+      setOriginalValues({
+        queryData: editingValues.queryData,
+        selectedQueryType: editingValues.selectedQueryType
+      })
       
       // Clear editing state and exit edit mode
-      setEditingQueryData(null)
-      setEditingSelectedQueryType("complete_query_all")
-      setHasUnsavedChanges(false)
+      setEditingValues(null)
       setIsEditing(false)
       setShowGenerationBanner(false)
-      setOriginalEditingData(null)
       
       // Show success toast
       toast({
@@ -264,7 +337,7 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
 
   const handleCancel = () => {
     // Show confirmation if there are unsaved changes
-    if (hasUnsavedChanges) {
+    if (hasChanges()) {
       setShowUnsavedChangesDialog(true)
       return
     }
@@ -275,12 +348,10 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
 
   const proceedWithCancel = () => {
     // Clear editing state and return to view mode
-    setEditingQueryData(null)
-    setEditingSelectedQueryType("complete_query_all")
-    setHasUnsavedChanges(false)
+    setEditingValues(null)
+    setOriginalValues(null)
     setIsEditing(false)
     setShowGenerationBanner(false)
-    setOriginalEditingData(null)
   }
 
   const handleCopy = async (text: string) => {
@@ -304,7 +375,7 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
   // Handle unsaved changes protection
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (hasUnsavedChanges) {
+      if (hasChanges()) {
         e.preventDefault()
         e.returnValue = 'You have unsaved changes. Are you sure you want to leave?'
         return e.returnValue
@@ -313,54 +384,36 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
 
     window.addEventListener('beforeunload', handleBeforeUnload)
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
-  }, [hasUnsavedChanges])
+  }, [hasChanges])
 
-  // Handle query type selection (available in both modes, doesn't trigger unsaved changes)
+  // Handle query type selection (available in both modes)
   const handleQueryTypeChange = (value: keyof QueryVariations) => {
-    if (isEditing) {
-      setEditingSelectedQueryType(value)
-      // Note: Switching query types doesn't count as unsaved changes
+    if (isEditing && editingValues) {
+      setEditingValues({
+        ...editingValues,
+        selectedQueryType: value
+      })
     } else {
-      setSavedSelectedQueryType(value)
+      setSelectedQueryType(value)
     }
   }
 
   // Handle query text changes (only in edit mode)
   const handleQueryTextChange = (value: string) => {
-    if (!isEditing || !editingQueryData) return
+    if (!isEditing || !editingValues?.queryData) return
     
     const updatedQueryData = {
-      ...editingQueryData,
+      ...editingValues.queryData,
       boolean_queries: {
-        ...editingQueryData.boolean_queries,
-        [editingSelectedQueryType]: value
+        ...editingValues.queryData.boolean_queries,
+        [editingValues.selectedQueryType]: value
       }
     }
     
-    setEditingQueryData(updatedQueryData)
-    
-    // Check if any query text has actually changed from original
-    const hasTextChanges = checkForTextChanges(updatedQueryData)
-    setHasUnsavedChanges(hasTextChanges)
-  }
-  
-  // Check if any query text has been modified from original
-  const checkForTextChanges = (currentData: LinkedInQueryData): boolean => {
-    if (!originalEditingData) return true // If no original data, consider it changed
-    
-    // Compare all query variations
-    const queryTypes: (keyof QueryVariations)[] = [
-      'complete_query_all',
-      'complete_query_skills_only', 
-      'complete_query_job_titles_only',
-      'mandatory_only_query_all',
-      'mandatory_only_query_skills_only',
-      'mandatory_only_query_job_titles_only'
-    ]
-    
-    return queryTypes.some(queryType => 
-      currentData.boolean_queries[queryType] !== originalEditingData.boolean_queries[queryType]
-    )
+    setEditingValues({
+      ...editingValues,
+      queryData: updatedQueryData
+    })
   }
 
   // Prevent hydration mismatch by not rendering until mounted
@@ -399,7 +452,7 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
                         : "Generate search queries for LinkedIn Recruiter or Sales Navigator"
                 }
               </p>
-              {hasUnsavedChanges && (
+              {hasChanges() && (
                 <span className="text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
                   Unsaved changes
                 </span>
@@ -443,7 +496,7 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
                   <Button 
                     onClick={handleSave} 
                     size="sm"
-                    disabled={isGenerating || isSaving || !editingQueryData}
+                    disabled={!hasChanges() || isGenerating || isSaving}
                   >
                     <Check className="h-4 w-4 mr-2" />
                     {isSaving ? "Saving..." : "Save"}
@@ -464,7 +517,7 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Show generation info banner in edit mode after generation */}
-          {isEditing && showGenerationBanner && editingQueryData && (
+          {isEditing && showGenerationBanner && editingValues?.queryData && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <div className="flex items-start space-x-3">
                 <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
@@ -603,44 +656,43 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
       </Card>
 
       {/* Overwrite Confirmation Dialog */}
-      <Dialog open={showOverwriteDialog} onOpenChange={setShowOverwriteDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Overwrite Existing Content</DialogTitle>
-            <DialogDescription>
+      <AlertDialog open={showOverwriteDialog} onOpenChange={setShowOverwriteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Overwrite Existing Content</AlertDialogTitle>
+            <AlertDialogDescription>
               This will overwrite your existing LinkedIn query. Are you sure you want to continue?
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowOverwriteDialog(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleOverwriteConfirm}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleOverwriteConfirm}>
               Continue
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Unsaved Changes Confirmation Dialog */}
-      <Dialog open={showUnsavedChangesDialog} onOpenChange={setShowUnsavedChangesDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Unsaved Changes</DialogTitle>
-            <DialogDescription>
-              You have unsaved changes. Are you sure you want to cancel without saving?
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowUnsavedChangesDialog(false)}>
-              Keep Editing
-            </Button>
-            <Button variant="destructive" onClick={handleUnsavedChangesConfirm}>
+      <AlertDialog open={showUnsavedChangesDialog} onOpenChange={setShowUnsavedChangesDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Discard Changes</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have unsaved changes. Are you sure you want to cancel without saving? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep Editing</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleUnsavedChangesConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
               Discard Changes
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
