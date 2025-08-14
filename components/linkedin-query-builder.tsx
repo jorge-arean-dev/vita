@@ -6,6 +6,14 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { Copy, Sparkles, Check, X, Info } from "lucide-react"
 import { getJobForLinkedInQuery } from "@/app/actions/jobs"
 import { generateLinkedInQueries, saveLinkedInQueries, loadLinkedInQueries } from "@/lib/api/linkedin-queries"
@@ -67,6 +75,10 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
   // Store original query data when entering edit mode (for comparison)
   const [originalEditingData, setOriginalEditingData] = useState<LinkedInQueryData | null>(null)
 
+  // Dialog state for confirmations
+  const [showOverwriteDialog, setShowOverwriteDialog] = useState(false)
+  const [showUnsavedChangesDialog, setShowUnsavedChangesDialog] = useState(false)
+
   // Initialize after mount to prevent hydration mismatch
   useEffect(() => {
     setMounted(true)
@@ -123,6 +135,18 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
     return savedQueryData !== null
   }
 
+  // Handle overwrite confirmation
+  const handleOverwriteConfirm = () => {
+    setShowOverwriteDialog(false)
+    proceedWithGeneration()
+  }
+
+  // Handle unsaved changes confirmation
+  const handleUnsavedChangesConfirm = () => {
+    setShowUnsavedChangesDialog(false)
+    proceedWithCancel()
+  }
+
   const handleGenerate = async () => {
     if (!jobData) {
       console.error("No job data available for generation")
@@ -131,12 +155,15 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
 
     // Check for existing content and show confirmation if needed
     if (hasExistingContent()) {
-      const confirmed = window.confirm(
-        "This will overwrite your existing LinkedIn query. Are you sure you want to continue?"
-      )
-      if (!confirmed) return
+      setShowOverwriteDialog(true)
+      return
     }
 
+    // If no existing content, proceed directly
+    proceedWithGeneration()
+  }
+
+  const proceedWithGeneration = async () => {
     // If not in edit mode, enter edit mode first
     if (!isEditing) {
       setIsEditing(true)
@@ -172,8 +199,11 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
       
       // Show user-friendly error message
       const errorMessage = error instanceof Error ? error.message : "Failed to generate LinkedIn queries"
-      alert(`Error: ${errorMessage}`)
-      // TODO: Replace with proper toast notification
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      })
       
     } finally {
       setIsGenerating(false)
@@ -221,8 +251,11 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
       
       // Show user-friendly error message
       const errorMessage = error instanceof Error ? error.message : "Failed to save LinkedIn queries"
-      alert(`Error: ${errorMessage}`)
-      // TODO: Replace with proper toast notification
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      })
       
     } finally {
       setIsSaving(false)
@@ -232,12 +265,15 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
   const handleCancel = () => {
     // Show confirmation if there are unsaved changes
     if (hasUnsavedChanges) {
-      const confirmed = window.confirm(
-        "You have unsaved changes. Are you sure you want to cancel without saving?"
-      )
-      if (!confirmed) return
+      setShowUnsavedChangesDialog(true)
+      return
     }
     
+    // If no unsaved changes, proceed directly
+    proceedWithCancel()
+  }
+
+  const proceedWithCancel = () => {
     // Clear editing state and return to view mode
     setEditingQueryData(null)
     setEditingSelectedQueryType("complete_query_all")
@@ -565,6 +601,46 @@ export default function LinkedInQueryBuilder({ jobData }: LinkedInQueryBuilderPr
           })()}
         </CardContent>
       </Card>
+
+      {/* Overwrite Confirmation Dialog */}
+      <Dialog open={showOverwriteDialog} onOpenChange={setShowOverwriteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Overwrite Existing Content</DialogTitle>
+            <DialogDescription>
+              This will overwrite your existing LinkedIn query. Are you sure you want to continue?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowOverwriteDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleOverwriteConfirm}>
+              Continue
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Unsaved Changes Confirmation Dialog */}
+      <Dialog open={showUnsavedChangesDialog} onOpenChange={setShowUnsavedChangesDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Unsaved Changes</DialogTitle>
+            <DialogDescription>
+              You have unsaved changes. Are you sure you want to cancel without saving?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowUnsavedChangesDialog(false)}>
+              Keep Editing
+            </Button>
+            <Button variant="destructive" onClick={handleUnsavedChangesConfirm}>
+              Discard Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
