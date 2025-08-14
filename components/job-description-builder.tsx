@@ -988,7 +988,7 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
                     )}
                     
                     {/* Text Area */}
-                    <div className="space-y-2">
+                    <div className="space-y-2 relative">
                       <Textarea
                         value={
                           jobDescription.isEditing
@@ -1002,8 +1002,23 @@ export default function JobDescriptionBuilder({ jobData, existingDescriptions = 
                         }}
                         className="min-h-[500px] resize-none"
                         placeholder="Enter job description content or click Generate to create one with AI..."
-                        readOnly={!jobDescription.isEditing}
+                        readOnly={!jobDescription.isEditing || isGenerating[jobDescription.id]}
                       />
+                      
+                      {/* Generation Loading Overlay */}
+                      {isGenerating[jobDescription.id] && (
+                        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-md flex items-center justify-center z-10">
+                          <div className="flex flex-col items-center gap-3 text-center">
+                            <Sparkles className="h-8 w-8 animate-spin text-primary" />
+                            <div className="space-y-1">
+                              <p className="text-lg font-medium">Generating job description...</p>
+                              <p className="text-sm text-muted-foreground">
+                                Please wait while AI creates your job description
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </CardContent>

@@ -83,28 +83,19 @@ async function generateJobDescription(initialNotes, companyName, industry, attri
     Please generate a job description that follows this exact structure:
 
     About the company:
-    \\n\\n
     [General information about ${companyName} and its ${industry} industry/sector. Do not mention the company name directly.]
     \\n\\n
     About the role:
-    \\n\\n
     [General description including Position Title from attributes, Key Responsibilities (use initial_notes for additional context), and role summary]
     \\n\\n
-    Requirements:
+    Required skills:
+    [List mandatory requirements based on is_mandatory field. If any requirement has expert proficiency level, indicate that accordingly. eg: Proficient in React, Expert in Node.js (use words like Expert, Proficient, or Rockstar, etc). If a requirement as proficiency level "advanced" or "beginner", just name the requirement and don't include the proficiency level. Format: 'Required skills:\\n- Item 1\\n- Item 2\\n...']
     \\n\\n
-    [Organize requirements into two sections based on the is_mandatory field:
-    
-    Mandatory:
-    - List mandatory requirements with their proficiency levels where applicable
-    
-    Nice to have:
-    - List optional requirements with their proficiency levels where applicable
-    
-    Format: 'Mandatory:\\n- Requirement 1\\n- Requirement 2\\n\\nNice to Have:\\n- Requirement 3\\n- Requirement 4']
+    Bonus skills (not mandatory):
+    [List optional requirements based on is_mandatory field. Dont mention the proficiency level. Format: 'Bonus skills:\\n- Item 1\\n- Item 2\\n...']
     \\n\\n
     Position Highlights:
-    \\n\\n
-    [Include relevant job attributes like commitment, duration, location, and rate if available. Write this in a natural, flowing manner. Format: 'Position Highlights:\\n- Item 1\\n- Item 2\\n...']
+    [If available, include relevant job attributes like commitment, location, and rate. Write this in a natural, flowing manner. Format: 'Position Highlights:\\n- Item 1\\n- Item 2\\n...']
 
     IMPORTANT INSTRUCTIONS:
     1. Use the structured attributes and requirements as your PRIMARY source

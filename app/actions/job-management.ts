@@ -700,9 +700,7 @@ export async function generateJobDescription(jobId: string) {
     const apiPayload = {
       initial_notes: jobData.initial_notes || "",
       company_name: companyData.name,
-      industry: Array.isArray(companyData.industries) && companyData.industries.length > 0
-        ? companyData.industries[0].display_name 
-        : "General",
+      industry: companyData.industries?.display_name || "General",
       attributes: {
         title: jobData.title,
         rate: {
