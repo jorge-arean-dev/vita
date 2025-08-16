@@ -75,7 +75,7 @@ interface EnhancedJobRequirement {
   requirement: string
   type: string
   is_mandatory: boolean
-  proficiency_level: "beginner" | "intermediate" | "advanced" | "expert"
+  proficiency_level: "beginner" | "advanced" | "expert"
   weight: number // 0.1 to 1.0
 }
 
@@ -211,7 +211,7 @@ CREATE TABLE semantic_matches (
 interface QualitativeAnalysis {
   implied_skills: Array<{
     skill: string
-    type: 'technical_skill' | 'soft_skill' | 'industry' | 'role'
+    type: 'technical_skill' | 'soft_skill' | 'role' | 'certification' | 'industry' | 'technology_domain'
     evidence: string[] // Quotes from profile supporting this skill
     confidence: number
   }>
@@ -400,7 +400,7 @@ interface ProficiencyCalculation {
 function calculateEnhancedProficiency(
   skill: string,
   contexts: ProficiencyCalculation[]
-): 'beginner' | 'intermediate' | 'advanced' | 'expert' {
+): 'beginner' | 'advanced' | 'expert' {
   // Enhanced proficiency calculation considering multiple factors
 }
 ```

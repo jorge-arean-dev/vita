@@ -1,0 +1,673 @@
+[
+    {
+        "linkedinUrl": "https://www.linkedin.com/in/jose-r-carrillo",
+        "firstName": "Refugio(Jose)",
+        "lastName": "Carrillo",
+        "fullName": "Refugio(Jose) Carrillo",
+        "headline": "Software Engineer | TypeScript  | React.js  | Node.js | Golang | PostgreSQL | Design Systems",
+        "connections": 411,
+        "followers": 519,
+        "email": null,
+        "mobileNumber": null,
+        "jobTitle": "Founder & Software Engineer",
+        "companyName": "Trypp",
+        "companyIndustry": "Internet",
+        "companyWebsite": "trypp.com",
+        "companyLinkedin": "linkedin.com/company/trypp",
+        "companyFoundedIn": 2016,
+        "companySize": "1-10",
+        "currentJobDuration": "1 yr 6 mos",
+        "currentJobDurationInYrs": 1.5,
+        "topSkillsByEndorsements": null,
+        "addressCountryOnly": "United States",
+        "addressWithCountry": "Greater Sacramento",
+        "addressWithoutCountry": "Greater Sacramento",
+        "profilePic": "https://media.licdn.com/dms/image/v2/D5603AQFpHP_StArrxA/profile-displayphoto-shrink_200_200/B56Zam7rWtHUAY-/0/1746557385006?e=1758153600&v=beta&t=dnVk5nk5REsthzgUZ57a65hBXqVeD9eC4_MJOXxEN1g",
+        "profilePicHighQuality": "https://media.licdn.com/dms/image/v2/D5603AQFpHP_StArrxA/profile-displayphoto-shrink_800_800/B56Zam7rWtHUAc-/0/1746557385017?e=1758153600&v=beta&t=wL3abnParIzm07jWL01uAyQMp0MzCXg8OBkv-NBdR5Y",
+        "about": "Senior Frontend Engineer with 12+ years of experience building scalable web applications using React, TypeScript, and Web Components. Designed a centralized UI library that reduced development time across five products. Passionate about accessibility, mentorship, and driving performance through modern architectures.",
+        "publicIdentifier": "jose-r-carrillo",
+        "openConnection": true,
+        "urn": "ACoAAAQ4VuoBjIrPxKBdSDHDYuDCKSIq205aWU8",
+        "creatorWebsite": {
+            "name": "Trypp.com  ",
+            "link": "https://www.trypp.com"
+        },
+        "experiences": [
+            {
+                "companyId": "12900692",
+                "companyUrn": "urn:li:fsd_company:12900692",
+                "companyLink1": "https://www.linkedin.com/company/12900692/",
+                "logo": "https://media.licdn.com/dms/image/v2/D560BAQHxABz_ewSuzg/company-logo_200_200/company-logo_200_200/0/1731363735304/trypp_logo?e=1758153600&v=beta&t=cyjmutBgX7dtjCSpHXXbFt2EzOPiunL00tLE_SExgQQ",
+                "title": "Founder & Software Engineer",
+                "subtitle": "Trypp · Full-time",
+                "caption": "Mar 2024 - Present · 1 yr 6 mos",
+                "metadata": "United States · Remote",
+                "breakdown": false,
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "textComponent",
+                                "text": "Designed and developed a React-based single-page application for managing UX metrics tracking, focusing on user authentication and management features.\n\nImplemented real-time data visualization using Shadcn/ui to display session tracking and task performance metrics.\n\nUtilized Typescript for type safety and better maintainability in the frontend codebase.\n\nMade API calls to a Golang backend using Axios for fetching and updating data, ensuring seamless integration with backend processes.\n\nIntegrated AI-powered insights from the backend into the frontend, providing users with automated UX recommendations based on LLM analysis.\n\nImplemented a JavaScript pixel for tracking user events and sending data to the backend, enhancing client-side data collection."
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "companyId": "132347",
+                "companyUrn": "urn:li:fsd_company:132347",
+                "companyLink1": "https://www.linkedin.com/company/132347/",
+                "logo": "https://media.licdn.com/dms/image/v2/D560BAQF0bMbKKYV7SQ/company-logo_200_200/company-logo_200_200/0/1689362745332/medrio_logo?e=1758153600&v=beta&t=POsAgnUfZLtBk_LnwNH_2umJsy-hHkoU7THFFNK0LMU",
+                "title": "Medrio",
+                "subtitle": "Full-time · 8 yrs 3 mos",
+                "breakdown": true,
+                "subComponents": [
+                    {
+                        "title": "Senior UX Lead & Front-End Engineer",
+                        "caption": "Feb 2023 - Jan 2024 · 1 yr",
+                        "metadata": "United States · Remote",
+                        "description": [
+                            {
+                                "type": "textComponent",
+                                "text": "Developed and maintained a scalable UI component library, ensuring accessibility and consistency across five web applications.\n\nCollaborated with product and design teams to prototype and deploy innovative features, boosting user satisfaction.\n\nDrove accessibility efforts, creating WCAG-compliant components and design patterns.\n\nGuided three UX designers and worked with engineers to enhance frontend workflows and development."
+                            }
+                        ]
+                    },
+                    {
+                        "title": "UX Lead & Front-End Engineer ",
+                        "caption": "May 2018 - Feb 2023 · 4 yrs 10 mos",
+                        "metadata": "Remote",
+                        "description": [
+                            {
+                                "type": "textComponent",
+                                "text": "Led creation of a centralized design system with a reusable UI component library, Figma kit, and style guide, accelerating feature delivery.\n\nBuilt accessible, reusable UI components via Web Components API, supporting React, Angular, and legacy frameworks.\n\nModernized frontend architectures with engineers, enhancing scalability and performance across multiple products.\n\nMentored three designers, aligning design and dev workflows to improve UX consistency."
+                            }
+                        ]
+                    },
+                    {
+                        "title": "Senior Software Engineer",
+                        "caption": "Jan 2017 - May 2018 · 1 yr 5 mos",
+                        "metadata": "San Francisco Bay Area · Remote",
+                        "description": [
+                            {
+                                "type": "textComponent",
+                                "text": "Migrated multiple applications to modern frontend architectures, boosting scalability and performance through workflow optimization.\n\nPartnered with designers to deliver accessible, consistent UI/UX across platforms.\n\nMentored junior developers, led code reviews, and promoted frontend best practices."
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "companyId": "2868",
+                "companyUrn": "urn:li:fsd_company:2868",
+                "companyLink1": "https://www.linkedin.com/company/2868/",
+                "logo": "https://media.licdn.com/dms/image/v2/D560BAQE__Ircfe1wCw/company-logo_200_200/company-logo_200_200/0/1719861554226/seagate_technology_logo?e=1758153600&v=beta&t=xXl6xJc8tmhRyVOUybeYoDnOkh8LadxTmyEHhqLK1XI",
+                "title": "Web Developer",
+                "subtitle": "Seagate Technology · Full-time",
+                "caption": "Jun 2013 - Nov 2015 · 2 yrs 6 mos",
+                "metadata": "On-site",
+                "breakdown": false,
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "textComponent",
+                                "text": "Converted Seagate’s website to responsive design, enhancing user experience across devices.\n\nDesigned UX for product selection and shopping cart, using decision trees to improve customer navigation.\n\nBoosted e-commerce conversions through UX design, A/B testing, and frontend style guide contributions."
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "updates": [],
+        "skills": [
+            {
+                "title": "AI Integration",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "Founder & Software Engineer at Trypp"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "Accessibility (WCAG)",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "5 experiences across Trypp and 1 other company"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "React Query",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "Founder & Software Engineer at Trypp"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "PostgreSQL",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "Founder & Software Engineer at Trypp"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "Micro-Frontends",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "Senior Software Engineer at Medrio"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "Angular Material",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "Senior Software Engineer at Medrio"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "Web Content Accessibility Guidelines (WCAG)",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "Senior UX Lead & Front-End Engineer at Medrio"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "React",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "2 experiences across Trypp and 1 other company"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "Go (Programming Language)",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "Founder & Software Engineer at Trypp"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "Go",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "Founder & Software Engineer at Trypp"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "Golang",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "Founder & Software Engineer at Trypp"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "Tailwind CSS",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "Founder & Software Engineer at Trypp"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "Front-End Development",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "Web Developer at Seagate Technology"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "React.js",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "Founder & Software Engineer at Trypp"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "RxJS",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "4 experiences at Medrio"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "Team Management",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "2 experiences at Medrio"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "Figma (Software)",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "3 experiences at Medrio"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "Technical Direction",
+                "subComponents": [
+                    {
+                        "description": []
+                    }
+                ]
+            },
+            {
+                "title": "Web Technologies",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "3 experiences at Medrio"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "I18n",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "4 experiences at Medrio"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "profilePicAllDimensions": [
+            {
+                "width": 200,
+                "height": 200,
+                "url": "https://media.licdn.com/dms/image/v2/D5603AQFpHP_StArrxA/profile-displayphoto-shrink_200_200/B56Zam7rWtHUAY-/0/1746557385006?e=1758153600&v=beta&t=dnVk5nk5REsthzgUZ57a65hBXqVeD9eC4_MJOXxEN1g"
+            },
+            {
+                "width": 400,
+                "height": 400,
+                "url": "https://media.licdn.com/dms/image/v2/D5603AQFpHP_StArrxA/profile-displayphoto-shrink_400_400/B56Zam7rWtHUAg-/0/1746557385006?e=1758153600&v=beta&t=VlborWd_SvQ8V9YoyDoT_QNHDIb_-1a1eISH3VaQMVU"
+            },
+            {
+                "width": 100,
+                "height": 100,
+                "url": "https://media.licdn.com/dms/image/v2/D5603AQFpHP_StArrxA/profile-displayphoto-shrink_100_100/B56Zam7rWtHUAU-/0/1746557385006?e=1758153600&v=beta&t=ecvbVcFdo7-nsOoUHTYVRB6MeZbXfGQ0IRk-G6rTEUg"
+            },
+            {
+                "width": 638,
+                "height": 638,
+                "url": "https://media.licdn.com/dms/image/v2/D5603AQFpHP_StArrxA/profile-displayphoto-shrink_800_800/B56Zam7rWtHUAc-/0/1746557385017?e=1758153600&v=beta&t=wL3abnParIzm07jWL01uAyQMp0MzCXg8OBkv-NBdR5Y"
+            }
+        ],
+        "educations": [
+            {
+                "companyId": "15208517",
+                "companyUrn": "urn:li:fsd_company:15208517",
+                "companyLink1": "https://www.linkedin.com/company/15208517/",
+                "logo": "https://media.licdn.com/dms/image/v2/D560BAQGak_Qj293vVA/company-logo_200_200/B56ZhgyD1oHQAM-/0/1753970392728/keller_graduate_school_of_management_of_devry_univ_logo?e=1758153600&v=beta&t=yHq5uJK46DbAiZ_IlNJ5BTmber57kwGgXd88iXGJAug",
+                "title": "Keller Graduate School of Management of DeVry University",
+                "subtitle": "Master's of Business Administration, Concentration in Marketing",
+                "caption": "2010 - 2011",
+                "breakdown": false,
+                "subComponents": [
+                    {
+                        "description": []
+                    }
+                ]
+            },
+            {
+                "companyId": "4427",
+                "companyUrn": "urn:li:fsd_company:4427",
+                "companyLink1": "https://www.linkedin.com/company/4427/",
+                "logo": "https://media.licdn.com/dms/image/v2/D560BAQFRSYOcyXdivA/company-logo_200_200/B56Zhgxl0ZHUAQ-/0/1753970269792/devry_university_logo?e=1758153600&v=beta&t=yBoh78mxq3pmc2-cJwdkf6LK3gj6Z7glUz6-R8moEQQ",
+                "title": "DeVry University",
+                "subtitle": "Bachelor’s, Computer Information Systems",
+                "caption": "2011 - 2012",
+                "breakdown": false,
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "textComponent",
+                                "text": "(Completed over 70% of the degree)"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "licenseAndCertificates": [
+            {
+                "companyId": "52749",
+                "companyUrn": "urn:li:fsd_company:52749",
+                "companyLink1": "https://www.linkedin.com/company/52749/",
+                "logo": "https://media.licdn.com/dms/image/v2/C560BAQFLXRPA-n2H0Q/company-logo_200_200/company-logo_200_200/0/1631657822736/pragmatic_marketing_logo?e=1758153600&v=beta&t=0K6fZ1yTMkxXf6HLl0DpLO11EhAJNeqi6VsV2hmCpWc",
+                "title": "PMC Level I",
+                "subtitle": "Pragmatic Institute",
+                "caption": "Issued Dec 2023",
+                "breakdown": false,
+                "subComponents": [
+                    {
+                        "description": []
+                    }
+                ]
+            },
+            {
+                "companyId": "52749",
+                "companyUrn": "urn:li:fsd_company:52749",
+                "companyLink1": "https://www.linkedin.com/company/52749/",
+                "logo": "https://media.licdn.com/dms/image/v2/C560BAQFLXRPA-n2H0Q/company-logo_200_200/company-logo_200_200/0/1631657822736/pragmatic_marketing_logo?e=1758153600&v=beta&t=0K6fZ1yTMkxXf6HLl0DpLO11EhAJNeqi6VsV2hmCpWc",
+                "title": "PMC Level II",
+                "subtitle": "Pragmatic Institute",
+                "caption": "Issued Dec 2023",
+                "breakdown": false,
+                "subComponents": [
+                    {
+                        "description": []
+                    }
+                ]
+            }
+        ],
+        "honorsAndAwards": [],
+        "languages": [
+            {
+                "title": "English",
+                "breakdown": false,
+                "subComponents": [
+                    {
+                        "description": []
+                    }
+                ]
+            },
+            {
+                "title": "English",
+                "caption": "Native or bilingual proficiency",
+                "breakdown": false,
+                "subComponents": [
+                    {
+                        "description": []
+                    }
+                ]
+            }
+        ],
+        "volunteerAndAwards": [],
+        "verifications": [],
+        "promos": [],
+        "highlights": [],
+        "projects": [
+            {
+                "title": "Web Testing Team",
+                "subtitle": "Apr 2013 - Present",
+                "breakdown": false,
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "textComponent",
+                                "text": "Optimizing both paid and organic traffic for Seagate.com with a range of conversion rate optimization testing techniques.  Targeting devices, partners, seasonality, and a range of other profile data to personalize and optimize for the ideal user experience."
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "integrated Memory Logic",
+                "subtitle": "Nov 2012 - Present",
+                "breakdown": false,
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "textComponent",
+                                "text": "A strong and fast growing company world wide."
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "publications": [],
+        "patents": [],
+        "courses": [
+            {
+                "title": "Introduction to Databases",
+                "breakdown": false,
+                "subComponents": [
+                    {
+                        "description": []
+                    }
+                ]
+            },
+            {
+                "title": "Object Oriented Programing with C#",
+                "breakdown": false,
+                "subComponents": [
+                    {
+                        "description": []
+                    }
+                ]
+            }
+        ],
+        "testScores": [],
+        "organizations": [],
+        "volunteerCauses": [],
+        "interests": [
+            {
+                "section_name": "Companies",
+                "section_components": [
+                    {
+                        "titleV2": "Ringside Talent",
+                        "caption": "108,516 followers",
+                        "size": "LARGE",
+                        "textActionTarget": "https://www.linkedin.com/company/1011035/",
+                        "subComponents": []
+                    },
+                    {
+                        "titleV2": "Trypp",
+                        "caption": "26 followers",
+                        "size": "LARGE",
+                        "textActionTarget": "https://www.linkedin.com/company/12900692/",
+                        "subComponents": []
+                    }
+                ]
+            },
+            {
+                "section_name": "Groups",
+                "section_components": [
+                    {
+                        "titleV2": "User experience (UX) design, Product Design, Conversation Design | UXThisWeek ",
+                        "caption": "412,677 members",
+                        "size": "LARGE",
+                        "textActionTarget": "https://www.linkedin.com/groups/1875717",
+                        "subComponents": []
+                    }
+                ]
+            }
+        ],
+        "recommendations": [
+            {
+                "section_name": "Received",
+                "section_components": [
+                    {
+                        "titleV2": "Pooja Thanki",
+                        "caption": "January 25, 2024, Pooja was senior to Refugio(Jose) but didn't manage Refugio(Jose) directly",
+                        "subtitle": "Engineering Leader | Technology Strategist |  Building High-Performing Engineering Teams",
+                        "size": "LARGE",
+                        "textActionTarget": "https://www.linkedin.com/in/poojathanki",
+                        "image": "https://media.licdn.com/dms/image/v2/D5603AQEHpICCNjcdxw/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1700109984811?e=1758153600&v=beta&t=01HUQs_2VzO4tNhreM9gRtWq9iy-vf4R-JfVxQbam3E",
+                        "subComponents": [
+                            {
+                                "fixedListComponent": [
+                                    {
+                                        "type": "textComponent",
+                                        "text": "Having had the privilege of working closely with Jose for the past 8+ years, I can attest that he is one of the best front end engineers and a leader/mentor that I have ever had the opportunity to collaborate with. He brings the perfect blend of technical expertise, creativity, and collaboration to the team. I wholeheartedly recommend him for the front end UI/UX engineering roles.\n\nHis contributions to our projects have consistently exceeded our expectations by demonstrating the deep understanding of modern front end frameworks. He played a pivotal role in defining and executing the UI/UX strategy that delighted both - our customers as well as the software development teams. His ability to quickly adapt emerging technologies and coach the team across multiple time zones continued the team towards the path of innovation.\n\nBeyond his technical expertise, he is an excellent team player, problem solver and an effective communicator for both, technical as well as non-technical stakeholders. His willingness to share knowledge and foster a collaborative and inclusive work environment has contributed significantly towards the team's growth, retention and success.\n\nJose is an asset to any organization. It is always a pleasure working with him!"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "titleV2": "Srinivasan Venkataraman",
+                        "caption": "January 25, 2024, Srinivasan worked with Refugio(Jose) but on different teams",
+                        "subtitle": "Staff Software Engineer",
+                        "size": "LARGE",
+                        "textActionTarget": "https://www.linkedin.com/in/svengr",
+                        "image": "https://media.licdn.com/dms/image/v2/D5603AQF60QELNPlSRQ/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1709081986643?e=1758153600&v=beta&t=IwnTuOEll5Fl2nntlUQUjUjC8M2hzlPuXyQhEXpsJZI",
+                        "subComponents": [
+                            {
+                                "fixedListComponent": [
+                                    {
+                                        "type": "textComponent",
+                                        "text": "Refugio (Jose) is a  brilliant UX visionary who can drive the growth of large products by delivering modern UX. I enjoyed working with him in Medrio as he led our UX  to build a common design language,  common UX components that worked flawlessly across multiple Javascript Frameworks. He worked with multiple cross functional teams to incorporate UX reviews in our SDLC by using Milo and JIRA. He has a great eye for detail and the passion to get things right.  He led a motivated team who respected him and liked his leadership that he had earned through experience and hard work."
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "section_name": "Given",
+                "section_components": [
+                    {
+                        "titleV2": "Vinky Mehta",
+                        "caption": "January 24, 2024, Refugio(Jose) worked with Vinky on the same team",
+                        "subtitle": "Technical Program Management at Netflix | Agile Enthusiast | Operational Excellence Expert | MBA, PMP, CSM, ICP",
+                        "size": "LARGE",
+                        "textActionTarget": "https://www.linkedin.com/in/vinkymehta",
+                        "image": "https://media.licdn.com/dms/image/v2/D5603AQFMMPnGtW-bzA/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1678831904282?e=1758153600&v=beta&t=zR0MaVAK9imAK0_vkEMmfl2YvueggGgwIydN0Ka2u3E",
+                        "subComponents": [
+                            {
+                                "fixedListComponent": [
+                                    {
+                                        "type": "textComponent",
+                                        "text": "I've had the pleasure of working alongside Vinky for over eight years, witnessing her remarkable journey through pivotal roles in program management. Her expertise in Agile methodologies and profound understanding of the intricacies of engineering program management have been instrumental in steering our team's success.\n\nVinky's leadership in the Program Management Office was not just about managing projects; it was about inspiring a culture of excellence and innovation. Her ability to establish streamlined processes transformed the way our team delivered products, ensuring efficiency and quality in every aspect of our work.\n\nWhat truly sets Vinky apart is her strategic vision combined with a pragmatic approach. She has an exceptional talent for dissecting complex projects into manageable tasks, making the insurmountable seem achievable. Her collaborative spirit, complemented by her excellent communication skills, made her a revered leader and a trusted colleague.\n\nUnder Vinky's guidance, our team not only met but often exceeded our project goals. Her contributions went beyond mere project completion; they fostered an environment of continuous improvement and growth. Her impact on our team's dynamics and our product's success is indelible.\n\nI am confident that Vinky's blend of strategic foresight, technical acumen, and leadership qualities will continue to make her an invaluable asset in any endeavor she undertakes. Any organization would be fortunate to have her at the helm of their program management efforts."
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "titleV2": "Greg Martin (he/him)",
+                        "caption": "July 15, 2015, Refugio(Jose) worked with Greg on the same team",
+                        "subtitle": "UX Content Leader: Empowering individuals, engaging teams, and elevating user experiences.",
+                        "size": "LARGE",
+                        "textActionTarget": "https://www.linkedin.com/in/gregomylego",
+                        "image": "https://media.licdn.com/dms/image/v2/D4D03AQH22PPnEoZXSA/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1665005306967?e=1758153600&v=beta&t=Y4UwljpUzbkMoQ98Ge2hM2VjdaWteLse4VugbbCuTRE",
+                        "subComponents": [
+                            {
+                                "fixedListComponent": [
+                                    {
+                                        "type": "textComponent",
+                                        "text": "I really enjoyed my two years working with Greg. As a web developer I learned a lot about content management and content strategy from him. As a team member he was a a key contributor and very easy to work with. As a professional he carried himself with nothing less than excellence. I worked with Greg in many projects to improve the user experience and reach business goals. He was always looking for different ways to solve business problems. Working with him was a learning opportunity. \r\n\r\nGreg is an experienced Content Manager who is able to navigate through problems to find a solution and worked closely with others in cross functional teams to achieve business goals. My time working with Greg was a pleasure. I would work and recommend Greg any day. "
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]
