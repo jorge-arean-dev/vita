@@ -76,6 +76,23 @@ interface MatchAnalysisResponse {
     score: number
     status: "strong" | "adequate" | "weak" | "missing"
     feedback: string
+    enhanced_analysis?: {
+      matched_skills: Array<{
+        skill: string
+        match_type: 'exact' | 'semantic' | 'inferred'
+        similarity: number
+        source: string
+        context?: string
+      }>
+      proficiency_assessment: {
+        candidate_level: string
+        required_level: string
+        gap: number
+        years_evidence: number
+      }
+      evidence: string[]
+      confidence: number
+    }
   }>
   summary: {
     strengths: string[]
@@ -91,6 +108,47 @@ interface MatchAnalysisResponse {
     candidate_id: string
     algorithm_version: string
     total_processing_time_ms: number
+    enhanced_features?: {
+      semantic_analysis_enabled: boolean
+      qualitative_analysis_enabled: boolean
+      openai_calls: {
+        embeddings: number
+        chat_completions: number
+      }
+      cost_estimate_usd: number
+      confidence_factors: {
+        profile_completeness: number
+        skill_extraction_quality: number
+        semantic_matching_quality: number
+      }
+    }
+  }
+  enhanced_insights?: {
+    discovered_skills: Array<{
+      skill: string
+      type: string
+      confidence: number
+      evidence: string[]
+    }>
+    semantic_matches: Array<{
+      requirement: string
+      candidate_skill: string
+      similarity: number
+      match_type: string
+    }>
+    qualitative_analysis: {
+      leadership_indicators: Array<{
+        evidence: string
+        level: string
+        confidence: number
+      }>
+      soft_skills_discovered: Array<{
+        skill: string
+        evidence: string[]
+        confidence: number
+      }>
+      domain_expertise: any[]
+    }
   }
 }
 
@@ -628,6 +686,82 @@ export async function saveMatchAnalysis(
 }
 
 /**
+ * Run enhanced match analysis v2 with semantic matching and qualitative analysis
+ */
+export async function runEnhancedMatchAnalysis(
+  candidate: ParsedCandidate,
+  job: JobData,
+  rawProfile?: Record<string, unknown>
+): Promise<MatchAnalysisResponse> {
+  try {
+    const requestBody = { 
+      candidate: {
+        ...candidate,
+        raw_profile: rawProfile || null
+      }, 
+      job 
+    }
+    
+    // Log the enhanced API input
+    console.log("🔍 Enhanced Match Analysis v2 API Input:", JSON.stringify(requestBody, null, 2))
+    
+    const response = await fetch(
+      "https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/match-analysis-2",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify(requestBody)
+      }
+    )
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: "Unknown error" }))
+      
+      if (response.status === 400) {
+        throw new Error(errorData.error || "Invalid input data for enhanced match analysis")
+      }
+      if (response.status === 429) {
+        throw new Error("Enhanced analysis service is busy. Please try again in a moment.")
+      }
+      if (response.status >= 500) {
+        throw new Error("Enhanced match analysis service error. Please try again later.")
+      }
+      
+      throw new Error(errorData.error || "Failed to run enhanced candidate match analysis")
+    }
+
+    const result = await response.json()
+    
+    // Log the enhanced API output with detailed breakdown
+    console.log("✅ Enhanced Match Analysis v2 API Output:", JSON.stringify(result, null, 2))
+    console.log("\n🎯 ENHANCED ANALYSIS SUMMARY:")
+    console.log("=====================================")
+    console.log(`📊 Overall Score: ${result.match_analysis?.overall_score}% (${result.match_analysis?.status})`)
+    console.log(`✅ Mandatory Requirements Met: ${result.match_analysis?.matched_mandatory_requirements}/${result.match_analysis?.total_mandatory_requirements}`)
+    console.log(`🕒 Processing Time: ${result.metadata?.total_processing_time_ms}ms`)
+    
+    if (result.metadata?.enhanced_features) {
+      console.log(`💰 Estimated Cost: $${result.metadata.enhanced_features.cost_estimate_usd?.toFixed(4)}`)
+      console.log(`🔧 API Calls: ${result.metadata.enhanced_features.openai_calls?.embeddings} embeddings, ${result.metadata.enhanced_features.openai_calls?.chat_completions} chat`)
+    }
+    
+    if (result.enhanced_insights) {
+      console.log(`🧠 Discovered Skills: ${result.enhanced_insights.discovered_skills?.length || 0}`)
+      console.log(`🎯 Semantic Matches: ${result.enhanced_insights.semantic_matches?.length || 0}`)
+      console.log(`👑 Leadership Indicators: ${result.enhanced_insights.qualitative_analysis?.leadership_indicators?.length || 0}`)
+    }
+    
+    return result
+  } catch (error) {
+    console.error("❌ Enhanced match analysis error:", error)
+    throw error
+  }
+}
+
+/**
  * Complete LinkedIn parsing flow (3 APIs in sequence)
  */
 export async function parseLinkedInProfile(linkedinUrl: string): Promise<ParsedCandidate> {
@@ -643,6 +777,65 @@ export async function parseLinkedInProfile(linkedinUrl: string): Promise<ParsedC
     
     return parsedCandidate
   } catch (error) {
+    throw error
+  }
+}
+
+/**
+ * Complete enhanced flow: Parse LinkedIn, run enhanced analysis with raw profile data
+ */
+export async function analyzeLinkedInCandidateEnhanced(
+  linkedinUrl: string,
+  jobId: string,
+  saveResults: boolean = false
+): Promise<{
+  candidate: ParsedCandidate
+  analysis: MatchAnalysisResponse
+  candidateId?: string
+  rawProfile?: Record<string, unknown>
+}> {
+  try {
+    console.log("🚀 Starting Enhanced LinkedIn Analysis Flow")
+    console.log(`🔗 LinkedIn URL: ${linkedinUrl}`)
+    console.log(`💼 Job ID: ${jobId}`)
+    console.log(`💾 Save Results: ${saveResults}`)
+    
+    // Get job data
+    const jobData = await fetchJobDataForAnalysis(jobId)
+    if (!jobData) {
+      throw new Error("Job not found")
+    }
+
+    // Step 1: Scrape LinkedIn profile (raw data)
+    console.log("🔍 Step 1: Scraping LinkedIn profile...")
+    const rawLinkedInData = await scrapeLinkedInProfile(linkedinUrl)
+    
+    // Step 2: Reduce LinkedIn profile to structured format
+    console.log("🔄 Step 2: Reducing LinkedIn profile data...")
+    const reducedData = await reduceLinkedInProfile(rawLinkedInData)
+    
+    // Step 3: Parse skills and extract candidate data
+    console.log("🧠 Step 3: Parsing LinkedIn skills...")
+    const candidate = await parseLinkedInSkills(reducedData)
+    
+    // Step 4: Run enhanced match analysis with raw profile data
+    console.log("⚡ Step 4: Running enhanced match analysis...")
+    const analysis = await runEnhancedMatchAnalysis(candidate, jobData, reducedData)
+    
+    // Step 5: Save if requested
+    if (saveResults) {
+      console.log("💾 Step 5: Saving candidate and analysis...")
+      const candidateId = await saveCandidate(candidate, linkedinUrl, "linkedin")
+      await saveMatchAnalysis(jobId, candidateId, analysis)
+      
+      console.log("✅ Enhanced LinkedIn analysis completed with save")
+      return { candidate, analysis, candidateId, rawProfile: reducedData }
+    }
+    
+    console.log("✅ Enhanced LinkedIn analysis completed")
+    return { candidate, analysis, rawProfile: reducedData }
+  } catch (error) {
+    console.error("❌ Enhanced LinkedIn analysis failed:", error)
     throw error
   }
 }

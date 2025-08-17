@@ -4,6 +4,8 @@ import {
   parseLinkedInProfile,
   fetchJobDataForAnalysis,
   runMatchAnalysis,
+  runEnhancedMatchAnalysis,
+  analyzeLinkedInCandidateEnhanced,
   saveCandidate,
   saveMatchAnalysis,
   parseResumeSkills,
@@ -69,19 +71,58 @@ export function useMatchAnalysis(
       let candidateName = "Unknown Candidate"
       
       if (candidateType === "new" && newCandidateMethod === "linkedin") {
-        // LinkedIn parsing flow
-        updateProgress("Reviewing LinkedIn profile...")
-        parsedCandidate = await parseLinkedInProfile(linkedinUrl)
+        // Enhanced LinkedIn analysis flow
+        updateProgress("🔍 Scraping LinkedIn profile...")
+        await new Promise(resolve => setTimeout(resolve, 300))
         
-        candidateName = `${parsedCandidate.main.first_name} ${parsedCandidate.main.last_name}`.trim()
+        updateProgress("🔄 Processing profile data...")
+        await new Promise(resolve => setTimeout(resolve, 300))
         
-        updateProgress("Extracting information...")
-        await new Promise(resolve => setTimeout(resolve, 500)) // Brief pause for UX
-        
-        updateProgress("Analyzing skills and experience...")
+        updateProgress("🧠 Extracting skills with AI...")
         await new Promise(resolve => setTimeout(resolve, 500))
         
-        updateProgress("Comparing against job requirements...")
+        updateProgress("⚡ Running enhanced semantic analysis...")
+        await new Promise(resolve => setTimeout(resolve, 300))
+        
+        updateProgress("🎯 Performing qualitative analysis...")
+        await new Promise(resolve => setTimeout(resolve, 300))
+        
+        updateProgress("📊 Generating comprehensive insights...")
+        
+        // Use enhanced analysis flow
+        const enhancedResult = await analyzeLinkedInCandidateEnhanced(linkedinUrl, jobId, false)
+        parsedCandidate = enhancedResult.candidate
+        candidateName = `${parsedCandidate.main.first_name} ${parsedCandidate.main.last_name}`.trim()
+        
+        // Store the enhanced analysis results and raw profile
+        setMatchAnalyses(prevAnalyses =>
+          prevAnalyses.map(ma => 
+            ma.id === analysisId 
+              ? { 
+                  ...ma, 
+                  results: enhancedResult.analysis,
+                  parsedCandidate,
+                  rawProfile: enhancedResult.rawProfile, // Store for saving
+                  candidateInfo: {
+                    name: candidateName,
+                    type: candidateType,
+                    source: newCandidateMethod
+                  },
+                  title: `Enhanced Match Analysis for ${candidateName}`,
+                  progressMessage: undefined
+                }
+              : ma
+          )
+        )
+
+        // Trigger animations for the enhanced results
+        setTimeout(() => {
+          triggerAnimationsForAnalysis(analysisId, enhancedResult.analysis.requirement_evaluations.length)
+        }, 100)
+        
+        // Early return since we've already set the results
+        setIsRunningAnalysis({ ...isRunningAnalysis, [analysisId]: false })
+        return
       } else if (candidateType === "existing") {
         // Existing candidate flow
         const existingCandidate = candidates.find(c => c.id === selectedExistingCandidate)
