@@ -62,14 +62,14 @@ interface Requirement {
   weight: number
 }
 
-// Mock companies data - TODO: Replace with real data from Supabase
-const mockCompanies = [
-  { id: "1", name: "TechCorp Inc.", website: "techcorp.com", industry: "Technology" },
-  { id: "2", name: "StartupXYZ", website: "startupxyz.com", industry: "Software" },
-  { id: "3", name: "Design Studio", website: "designstudio.com", industry: "Design" },
-  { id: "4", name: "Analytics Pro", website: "analyticspro.com", industry: "Data Analytics" },
-  { id: "5", name: "CloudTech Solutions", website: "cloudtech.com", industry: "Cloud Computing" },
-]
+// Legacy Company interface for backward compatibility
+interface Company {
+  id: string
+  name: string
+  website: string
+  industry: string
+  culture: string
+}
 
 export default function JobDetailsDialog({ open, onOpenChange, jobData }: JobDetailsDialogProps) {
   const [activeTab, setActiveTab] = useState("initial-data")
@@ -90,9 +90,11 @@ export default function JobDetailsDialog({ open, onOpenChange, jobData }: JobDet
   
   // Company dropdown state
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null)
+  const [companies, setCompanies] = useState<Company[]>([])
   const [companySearch, setCompanySearch] = useState("")
   const [comboOpen, setComboOpen] = useState(false)
   const [showCompanyForm, setShowCompanyForm] = useState(false)
+  const [isLoadingCompanies, setIsLoadingCompanies] = useState(true)
   
   // New company form fields
   const [newCompanyName, setNewCompanyName] = useState("")
@@ -123,6 +125,53 @@ export default function JobDetailsDialog({ open, onOpenChange, jobData }: JobDet
   // Track if there are unsaved changes
   const hasUnsavedChanges = isInitialDataEditMode || isRoleAnalysisEditMode
 
+  // Function to fetch companies from database
+  const fetchCompanies = async () => {
+    try {
+      const supabase = createClient()
+      
+      const { data, error } = await supabase
+        .from('companies')
+        .select(`
+          id,
+          name,
+          website,
+          culture,
+          industries:industry_id (
+            display_name
+          )
+        `)
+        .order('name')
+      
+      if (error) {
+        console.error('Error fetching companies:', error)
+        return
+      }
+      
+      // Transform database data to match legacy Company interface
+      const transformedCompanies: Company[] = (data || []).map(company => ({
+        id: company.id,
+        name: company.name,
+        website: company.website || '',
+        industry: Array.isArray(company.industries) 
+          ? company.industries[0]?.display_name || ''
+          : (company.industries as { display_name?: string } | null)?.display_name || '',
+        culture: company.culture || ''
+      }))
+      
+      setCompanies(transformedCompanies)
+    } catch (error) {
+      console.error('Error fetching companies:', error)
+    } finally {
+      setIsLoadingCompanies(false)
+    }
+  }
+
+  // Fetch companies when component mounts
+  useEffect(() => {
+    fetchCompanies()
+  }, [])
+
   // Initialize data from jobData prop
   useEffect(() => {
     if (jobData) {
@@ -136,11 +185,7 @@ export default function JobDetailsDialog({ open, onOpenChange, jobData }: JobDet
       setFormData(initialData)
       setOriginalFormData(initialData)
       
-      // Set company if available
-      const company = mockCompanies.find(c => c.name === jobData.companyName)
-      if (company) {
-        setSelectedCompany(company)
-      }
+      // Company will be set in separate useEffect when companies are loaded
       
       // Initialize attributes and requirements if available
       if (jobData.attributes) {
@@ -156,8 +201,18 @@ export default function JobDetailsDialog({ open, onOpenChange, jobData }: JobDet
     }
   }, [jobData])
 
+  // Set selected company when companies are loaded
+  useEffect(() => {
+    if (companies.length > 0 && jobData?.companyName && !selectedCompany) {
+      const company = companies.find(c => c.name === jobData.companyName)
+      if (company) {
+        setSelectedCompany(company)
+      }
+    }
+  }, [companies, jobData?.companyName, selectedCompany])
+
   // Filter companies based on search
-  const filteredCompanies = mockCompanies.filter((company) =>
+  const filteredCompanies = companies.filter((company) =>
     company.name.toLowerCase().includes(companySearch.toLowerCase())
   )
 
@@ -248,7 +303,7 @@ export default function JobDetailsDialog({ open, onOpenChange, jobData }: JobDet
 
   const handleCancelInitialData = () => {
     setFormData({ ...originalFormData })
-    setSelectedCompany(mockCompanies.find(c => c.name === originalFormData.companyName) || null)
+    setSelectedCompany(companies.find(c => c.name === originalFormData.companyName) || null)
     setIsInitialDataEditMode(false)
     setShowCompanyForm(false)
     setNewCompanyName("")
@@ -329,14 +384,14 @@ export default function JobDetailsDialog({ open, onOpenChange, jobData }: JobDet
       const supabase = createClient()
       
       // Get the company details for the API call
-      const company = mockCompanies.find(c => c.name === originalFormData.companyName)
+      const company = companies.find(c => c.name === originalFormData.companyName)
       
       // Call the job-details-extractor API
       const requestBody = {
         content: originalFormData.initialNotes,
         company_name: originalFormData.companyName,
         industry: company?.industry || '',
-        culture: '' // Company culture not available in mock data
+        culture: company?.culture || ''
       }
       
       console.log("🚀 API Request Body:", requestBody)
@@ -500,8 +555,12 @@ export default function JobDetailsDialog({ open, onOpenChange, jobData }: JobDet
                           role="combobox"
                           aria-expanded={comboOpen}
                           className="w-full justify-between"
+                          disabled={isLoadingCompanies}
                         >
-                          {selectedCompany?.name || "Select company..."}
+                          {isLoadingCompanies 
+                            ? "Loading companies..." 
+                            : selectedCompany?.name || "Select company..."
+                          }
                           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </PopoverTrigger>
@@ -602,6 +661,7 @@ export default function JobDetailsDialog({ open, onOpenChange, jobData }: JobDet
                               name: newCompanyName,
                               website: newCompanyWebsite,
                               industry: newCompanyIndustry,
+                              culture: '', // TODO: Add culture field to new company form
                             }
                             
                             // Select the newly created company

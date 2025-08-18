@@ -19,6 +19,7 @@ function cleanJsonString(jsonString) {
 async function generateJobDescription(content, companyName, industry, culture = '') {
   console.log("Function generateJobDescription started");
   console.log(`Received parameters - Content: ${content?.substring(0, 30)}..., Company: ${companyName}, Industry: ${industry}, Culture: ${culture}`);
+  console.log(`Industry parameter type: ${typeof industry}, value: '${industry}', isEmpty: ${!industry}`);
   console.log(`Culture parameter type: ${typeof culture}, value: '${culture}'`);
   const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
   if (!openaiApiKey) {
@@ -124,10 +125,8 @@ async function generateJobDescription(content, companyName, industry, culture = 
     ${content}
 
     Company Name: ${companyName}
-    Industry: ${industry}
+    ${industry ? `Industry: ${industry}` : 'Industry: Not provided'}
     ${culture ? `Company Culture: ${culture}` : 'Company Culture: Not provided'}
-
-    IMPORTANT: When analyzing requirements, pay special attention to the Company Culture information provided above. Use it to identify relevant soft skills that would be important for this role based on the company's values and work environment.
 
     Please generate a JSON that includes the following parent groups: attributes and requirements. Each parent group should follow these guidelines:
 	
@@ -145,7 +144,10 @@ async function generateJobDescription(content, companyName, industry, culture = 
 		- "requirements" is an array of requirement objects. Each object in the array follows a standard structure with the following fields:
 			- requirement (string): Requirement name.
 			- type (string): The category of the requirement which must be one of: "technical_skill", "technology_domain", "soft_skill", "role", "certification", or "industry". Follow these guidelines to categorize each requirement you identify: ${requirementCategories}
-			- is_mandatory (boolean): Indicates whether the requirement is mandatory. Determine this based on the information provided. If no explicit information is available for a specific requirement, default to true.
+			- is_mandatory (boolean): Indicates whether the requirement is mandatory. Follow these specific rules:
+			  * For requirements extracted from the "content" field: Analyze the language used. If explicitly stated as non-mandatory (e.g., "nice to have", "preferred but not required", "optional"), set to false. If explicitly stated as mandatory (e.g., "required", "must have", "essential"), set to true. If no clear indication is given (e.g., just "React", "Python experience"), default to true.
+			  * For requirements extracted from the "industry" input field: Always set to false, regardless of how they are mentioned.
+			  * For requirements extracted from the "culture" input field: Always set to false, regardless of how they are mentioned.
 			- proficiency_level (string): The expected level of proficiency which must be one of: "beginner", "advanced", "expert". Follow these guidelines to assign a proficiency level for each requirement you identify: ${proficiencyLevelCriteria}. If you can't assign a proficiency level by following the provided guidelines, default it to "advanced"
 			- weight (number): A numeric value between 0.00 and 1.00 that indicates the relative importance of the requirement. Determine the weight based on factors such as frequency in the input content, emphasis during mentions, and contextual relevance. Use the following scale as a guideline: Critical → 1.00, High → 0.75, Medium → 0.50, Low → 0.25, Optional → 0.10. Important: Do not confuse weight with proficiency_level. If a specific weight cannot be determined, default to 0.50.
 
@@ -227,11 +229,11 @@ serve(async (req)=>{
     console.log("*** NEW CODE VERSION WITH CULTURE SUPPORT IS RUNNING ***");
     // Parse request body
     const requestData = await req.json();
-    // Validate input
-    if (!requestData || !requestData.content || !requestData.company_name || !requestData.industry) {
+    // Validate input - industry is optional
+    if (!requestData || !requestData.content || !requestData.company_name) {
       console.error("Invalid input received");
       return new Response(JSON.stringify({
-        error: "Invalid input. Please provide 'content', 'company_name', and 'industry' fields."
+        error: "Invalid input. Please provide 'content' and 'company_name' fields. 'industry' is optional."
       }), {
         status: 400,
         headers: {
@@ -240,7 +242,7 @@ serve(async (req)=>{
         }
       });
     }
-    const { content, company_name: companyName, industry, culture = '' } = requestData;
+    const { content, company_name: companyName, industry = '', culture = '' } = requestData;
     console.log(`Company Name: ${companyName}`);
     console.log(`Industry: ${industry}`);
     // Process the job description
