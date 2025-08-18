@@ -1,11 +1,9 @@
 import { useState } from "react"
 import { useToast } from "@/components/ui/use-toast"
 import {
-  parseLinkedInProfile,
   fetchJobDataForAnalysis,
   runMatchAnalysis,
-  runEnhancedMatchAnalysis,
-  analyzeLinkedInCandidateEnhanced,
+  analyzeLinkedInCandidateSimplifiedEnhanced,
   saveCandidate,
   saveMatchAnalysis,
   parseResumeSkills,
@@ -71,7 +69,7 @@ export function useMatchAnalysis(
       let candidateName = "Unknown Candidate"
       
       if (candidateType === "new" && newCandidateMethod === "linkedin") {
-        // Enhanced LinkedIn analysis flow
+        // Simplified Enhanced LinkedIn analysis flow (v3)
         updateProgress("🔍 Scraping LinkedIn profile...")
         await new Promise(resolve => setTimeout(resolve, 300))
         
@@ -79,18 +77,15 @@ export function useMatchAnalysis(
         await new Promise(resolve => setTimeout(resolve, 300))
         
         updateProgress("🧠 Extracting skills with AI...")
-        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 400))
         
-        updateProgress("⚡ Running enhanced semantic analysis...")
-        await new Promise(resolve => setTimeout(resolve, 300))
+        updateProgress("⚡ Running embedding-based skill matching...")
+        await new Promise(resolve => setTimeout(resolve, 400))
         
-        updateProgress("🎯 Performing qualitative analysis...")
-        await new Promise(resolve => setTimeout(resolve, 300))
+        updateProgress("📊 Generating enhanced analysis...")
         
-        updateProgress("📊 Generating comprehensive insights...")
-        
-        // Use enhanced analysis flow
-        const enhancedResult = await analyzeLinkedInCandidateEnhanced(linkedinUrl, jobId, false)
+        // Use simplified enhanced analysis flow (v3)
+        const enhancedResult = await analyzeLinkedInCandidateSimplifiedEnhanced(linkedinUrl, jobId, false)
         parsedCandidate = enhancedResult.candidate
         candidateName = `${parsedCandidate.main.first_name} ${parsedCandidate.main.last_name}`.trim()
         
@@ -101,7 +96,7 @@ export function useMatchAnalysis(
               ? { 
                   ...ma, 
                   results: enhancedResult.analysis,
-                  parsedCandidate,
+                  parsedCandidate: parsedCandidate || undefined,
                   rawProfile: enhancedResult.rawProfile, // Store for saving
                   candidateInfo: {
                     name: candidateName,
@@ -193,7 +188,7 @@ export function useMatchAnalysis(
             ? { 
                 ...ma, 
                 results: analysisResults,
-                parsedCandidate, // Store for later saving
+                parsedCandidate: parsedCandidate || undefined, // Store for later saving
                 candidateInfo: {
                   name: candidateName,
                   type: candidateType,

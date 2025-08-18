@@ -28,6 +28,7 @@
     "node_modules",
     "docs/additional-docs/**/*",
     "docs/apis/code/**/*",
-    "components/backup-old-phases/**/*"
+    "components/backup-old-phases/**/*",
+    "supabase/functions/**/*"
   ]
 }

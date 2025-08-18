@@ -72,7 +72,7 @@ export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }:
         isNew: false as const
       }))
       setExistingAnalysesState(analysesWithState)
-    } catch (error) {
+    } catch {
       toast({
         title: "Note",
         description: "Analysis saved successfully. Please refresh to see it in the list.",
@@ -101,7 +101,7 @@ export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }:
     try {
       const fetchedCandidates = await fetchCandidatesForUser()
       setCandidates(fetchedCandidates)
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to load candidates. Please refresh the page.",
@@ -245,7 +245,7 @@ export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }:
       }
       
       setDeleteConfirmId(null)
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "An unexpected error occurred while deleting.",

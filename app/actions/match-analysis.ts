@@ -147,7 +147,10 @@ interface MatchAnalysisResponse {
         evidence: string[]
         confidence: number
       }>
-      domain_expertise: any[]
+      domain_expertise: Array<{
+        domain: string
+        confidence: number
+      }>
     }
   }
 }
@@ -209,14 +212,14 @@ export async function fetchJobDataForAnalysis(jobId: string): Promise<JobData | 
         requirement: req.requirement,
         type: req.type,
         is_mandatory: req.is_mandatory,
-        proficiency_level: req.proficiency_level || "intermediate",
+        proficiency_level: req.proficiency_level,
         weight: Number(req.weight) || 0.5
       })) || [],
       job_description: job.job_descriptions?.[0]?.description || job.job_description || ""
     }
 
     return formattedJob
-  } catch (error) {
+  } catch {
     return null
   }
 }
@@ -782,6 +785,73 @@ export async function parseLinkedInProfile(linkedinUrl: string): Promise<ParsedC
 }
 
 /**
+ * Run simplified enhanced match analysis v3 (embedding-based with same output format)
+ */
+export async function runSimplifiedEnhancedMatchAnalysis(
+  candidate: ParsedCandidate,
+  job: JobData,
+  rawProfile?: Record<string, unknown>
+): Promise<MatchAnalysisResponse> {
+  try {
+    const requestBody = { 
+      candidate: {
+        ...candidate,
+        raw_profile: rawProfile || null
+      }, 
+      job 
+    }
+    
+    // Log the enhanced API input
+    console.log("🔍 Simplified Enhanced Match Analysis v3 API Input:", JSON.stringify(requestBody, null, 2))
+    
+    const response = await fetch(
+      "https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/match-analysis-3",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify(requestBody)
+      }
+    )
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: "Unknown error" }))
+      
+      if (response.status === 400) {
+        throw new Error(errorData.error || "Invalid input data for simplified enhanced match analysis")
+      }
+      if (response.status === 429) {
+        throw new Error("Enhanced analysis service is busy. Please try again in a moment.")
+      }
+      if (response.status >= 500) {
+        throw new Error("Simplified enhanced match analysis service error. Please try again later.")
+      }
+      
+      throw new Error(errorData.error || "Failed to run simplified enhanced candidate match analysis")
+    }
+
+    const result = await response.json()
+    
+    // Log the enhanced API output with detailed breakdown
+    console.log("✅ Simplified Enhanced Match Analysis v3 API Output:", JSON.stringify(result, null, 2))
+    console.log("\n🎯 SIMPLIFIED ENHANCED ANALYSIS SUMMARY:")
+    console.log("==========================================")
+    console.log(`📊 Overall Score: ${result.match_analysis?.overall_score}% (${result.match_analysis?.status})`)
+    console.log(`✅ Mandatory Requirements Met: ${result.match_analysis?.matched_mandatory_requirements}/${result.match_analysis?.total_mandatory_requirements}`)
+    console.log(`🕒 Processing Time: ${result.metadata?.total_processing_time_ms}ms`)
+    console.log(`🧠 Algorithm: ${result.metadata?.algorithm_version}`)
+    console.log(`📋 Requirements Analyzed: ${result.requirement_evaluations?.length || 0}`)
+    
+    return result
+  } catch (error) {
+    console.error("❌ Simplified enhanced match analysis error:", error)
+    throw error
+  }
+}
+
+/**
  * Complete enhanced flow: Parse LinkedIn, run enhanced analysis with raw profile data
  */
 export async function analyzeLinkedInCandidateEnhanced(
@@ -836,6 +906,65 @@ export async function analyzeLinkedInCandidateEnhanced(
     return { candidate, analysis, rawProfile: reducedData }
   } catch (error) {
     console.error("❌ Enhanced LinkedIn analysis failed:", error)
+    throw error
+  }
+}
+
+/**
+ * Complete simplified enhanced flow: Parse LinkedIn, run v3 analysis (same format, better accuracy)
+ */
+export async function analyzeLinkedInCandidateSimplifiedEnhanced(
+  linkedinUrl: string,
+  jobId: string,
+  saveResults: boolean = false
+): Promise<{
+  candidate: ParsedCandidate
+  analysis: MatchAnalysisResponse
+  candidateId?: string
+  rawProfile?: Record<string, unknown>
+}> {
+  try {
+    console.log("🚀 Starting Simplified Enhanced LinkedIn Analysis Flow (v3)")
+    console.log(`🔗 LinkedIn URL: ${linkedinUrl}`)
+    console.log(`💼 Job ID: ${jobId}`)
+    console.log(`💾 Save Results: ${saveResults}`)
+    
+    // Get job data
+    const jobData = await fetchJobDataForAnalysis(jobId)
+    if (!jobData) {
+      throw new Error("Job not found")
+    }
+
+    // Step 1: Scrape LinkedIn profile (raw data)
+    console.log("🔍 Step 1: Scraping LinkedIn profile...")
+    const rawLinkedInData = await scrapeLinkedInProfile(linkedinUrl)
+    
+    // Step 2: Reduce LinkedIn profile to structured format
+    console.log("🔄 Step 2: Reducing LinkedIn profile data...")
+    const reducedData = await reduceLinkedInProfile(rawLinkedInData)
+    
+    // Step 3: Parse skills and extract candidate data
+    console.log("🧠 Step 3: Parsing LinkedIn skills...")
+    const candidate = await parseLinkedInSkills(reducedData)
+    
+    // Step 4: Run simplified enhanced match analysis v3 with raw profile data
+    console.log("⚡ Step 4: Running simplified enhanced match analysis v3...")
+    const analysis = await runSimplifiedEnhancedMatchAnalysis(candidate, jobData, reducedData)
+    
+    // Step 5: Save if requested
+    if (saveResults) {
+      console.log("💾 Step 5: Saving candidate and analysis...")
+      const candidateId = await saveCandidate(candidate, linkedinUrl, "linkedin")
+      await saveMatchAnalysis(jobId, candidateId, analysis)
+      
+      console.log("✅ Simplified enhanced LinkedIn analysis completed with save")
+      return { candidate, analysis, candidateId, rawProfile: reducedData }
+    }
+    
+    console.log("✅ Simplified enhanced LinkedIn analysis completed")
+    return { candidate, analysis, rawProfile: reducedData }
+  } catch (error) {
+    console.error("❌ Simplified enhanced LinkedIn analysis failed:", error)
     throw error
   }
 }

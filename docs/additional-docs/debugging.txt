@@ -1,0 +1,788 @@
+"candidate": {
+    "main": {
+      "first_name": "Javier",
+      "last_name": "Young",
+      "country": "UY",
+      "email": "javier.young@austinsoftware.com",
+      "phone": "",
+      "linkedin": "https://www.linkedin.com/in/javier-young-711450113/",
+      "github": ""
+    },
+    "skills": [
+      {
+        "name": "Full Stack Developer",
+        "type": "role",
+        "yoe": 6.3,
+        "proficiency_level": "expert"
+      },
+      {
+        "name": "Angular",
+        "type": "technical_skill",
+        "yoe": 4.5,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "Reactjs",
+        "type": "technical_skill",
+        "yoe": 4.5,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "Laravel",
+        "type": "technical_skill",
+        "yoe": 4.5,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "Django",
+        "type": "technical_skill",
+        "yoe": 4.5,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "Amazon Web Services",
+        "type": "technical_skill",
+        "yoe": 4.5,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "PHP",
+        "type": "technical_skill",
+        "yoe": 4.5,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "MySQL",
+        "type": "technical_skill",
+        "yoe": 4.5,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "Ruby",
+        "type": "technical_skill",
+        "yoe": 3.3,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "Ionic Framework",
+        "type": "technical_skill",
+        "yoe": 3.3,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "Ruby on Rails",
+        "type": "technical_skill",
+        "yoe": 3.3,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "JavaScript",
+        "type": "technical_skill",
+        "yoe": 4.5,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "CSS",
+        "type": "technical_skill",
+        "yoe": 4.5,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "SQL",
+        "type": "technical_skill",
+        "yoe": 1.3,
+        "proficiency_level": "beginner"
+      },
+      {
+        "name": "Team Leadership",
+        "type": "soft_skill",
+        "yoe": null,
+        "proficiency_level": null
+      },
+      {
+        "name": "Problem Solving",
+        "type": "soft_skill",
+        "yoe": null,
+        "proficiency_level": null
+      }
+    ],
+    "years_of_experience": 6.3,
+    "raw_profile": {
+      "firstName": "Javier",
+      "lastName": "Young",
+      "email": "javier.young@austinsoftware.com",
+      "mobileNumber": null,
+      "linkedinUrl": "https://www.linkedin.com/in/javier-young-711450113/",
+      "publicIdentifier": "javier-young-711450113",
+      "about": "Javier Young Eguren\nyoung.javier@gmail.com",
+      "addressCountryOnly": "Uruguay",
+      "experiences": [
+        {
+          "companyId": "35465708",
+          "companyUrn": "urn:li:fsd_company:35465708",
+          "companyLink1": "https://www.linkedin.com/company/35465708/",
+          "logo": "https://media.licdn.com/dms/image/v2/D560BAQEg9J1SnYOwdg/company-logo_200_200/B56ZYXXPgUGUAM-/0/1744148692078/howdy_logo?e=1758153600&v=beta&t=1f0fgV6vSNi4I4wBilQurvHEJyJOIsxj-6Ip1GOzyto",
+          "title": "Senior Software Developer",
+          "subtitle": "Howdy.com · Full-time",
+          "caption": "Sep 2023 - Present · 2 yrs",
+          "metadata": "Remote",
+          "breakdown": false,
+          "description": ""
+        },
+        {
+          "companyId": "65025390",
+          "companyUrn": "urn:li:fsd_company:65025390",
+          "companyLink1": "https://www.linkedin.com/company/65025390/",
+          "logo": "https://media.licdn.com/dms/image/v2/C4D0BAQFGWsVxhXy0Gg/company-logo_200_200/company-logo_200_200/0/1655402541883/lumetrio_logo?e=1758153600&v=beta&t=82Id5uiucdec4UmuBazkmeXy3hDVrUzSl7zlgk5sN1E",
+          "title": "CTO",
+          "subtitle": "Lumetrio · Full-time",
+          "caption": "Jul 2021 - May 2024 · 2 yrs 11 mos",
+          "breakdown": false,
+          "description": "Full-Stack development using Angular, ReactJS, Laravel, Django y AWS."
+        },
+        {
+          "companyId": "2731714",
+          "companyUrn": "urn:li:fsd_company:2731714",
+          "companyLink1": "https://www.linkedin.com/company/2731714/",
+          "logo": "https://media.licdn.com/dms/image/v2/D4D0BAQEoRxap3DFinA/company-logo_200_200/company-logo_200_200/0/1702630183514/productos_infantiles_tutete_s_l__logo?e=1758153600&v=beta&t=c9JbVGa8CYeKKnVxPl5Z2_akcjh8pSCOzmthymtkfvs",
+          "title": "Sr Full Stack developer",
+          "subtitle": "Productos Infantiles Tutete S.L. · Part-time",
+          "caption": "Aug 2019 - Feb 2020 · 7 mos",
+          "metadata": "España · Remote",
+          "breakdown": false,
+          "description": "I worked to enhance the e-commerce platform, streamlining functionalities and improving the overall user experience. Helped developing multiple features in the website, ERP and e-commerce.\nStack used: AWS - MySQL - PHP - jQuery"
+        },
+        {
+          "companyId": "3589487",
+          "companyUrn": "urn:li:fsd_company:3589487",
+          "companyLink1": "https://www.linkedin.com/company/3589487/",
+          "logo": "https://media.licdn.com/dms/image/v2/D4D0BAQFfKiSZcVL_xw/company-logo_200_200/company-logo_200_200/0/1720116635363/kreitech_software_logo?e=1758153600&v=beta&t=CsSy-87A5qO4IIqSNJHXxaOsXVxNWlzCP77X47HGUBQ",
+          "title": "Software developer",
+          "subtitle": "Kreitech IoT & VR · Full-time",
+          "caption": "Apr 2016 - Jun 2019 · 3 yrs 3 mos",
+          "metadata": "Guaná & Requena",
+          "breakdown": false,
+          "description": "Web and mobile application development. Using Angular, Ionic, ReactJS, Ruby on Rails and Laravel."  
+        },
+        {
+          "companyId": "2550565",
+          "companyUrn": "urn:li:fsd_company:2550565",
+          "companyLink1": "https://www.linkedin.com/company/2550565/",
+          "logo": "https://media.licdn.com/dms/image/v2/C560BAQEAE0NlPRl_zA/company-logo_200_200/company-logo_200_200/0/1631386810398?e=1758153600&v=beta&t=W6jqbzH5N6ns32VrqIqETn2kT29rqIbzbm_b2ZtnA2o",
+          "title": "Software developer",
+          "subtitle": "INFOKE",
+          "caption": "Jan 2015 - Apr 2016 · 1 yr 4 mos",
+          "metadata": "Montevideo",
+          "breakdown": false,
+          "description": "JavaScript, JQuery, PHP, MySQL."
+        }
+      ],
+      "courses": [],
+      "licenseAndCertificates": [],
+      "recommendations": [],
+      "fullName": "Javier Young",
+      "headline": "Full Stack developer | ReactJS | Angular | Laravel | Django | AWS",
+      "connections": 644,
+      "followers": 654,
+      "jobTitle": "Senior Software Developer",
+      "companyName": "Austin Software®",
+      "companyIndustry": "Computer Software",
+      "companyWebsite": "austinsoftware.com",
+      "companyLinkedin": "linkedin.com/company/hurrayforhowdy",
+      "companyFoundedIn": 2018,
+      "companySize": "1-10",
+      "currentJobDuration": "2 yrs",
+      "currentJobDurationInYrs": 2,
+      "topSkillsByEndorsements": "PHP",
+      "addressWithoutCountry": "Uruguay",
+      "profilePic": null,
+      "profilePicHighQuality": null,
+      "openConnection": null,
+      "urn": "ACoAABxdOP0BI_b_9gPRlMuzaypJD1UFQe-Jy_E",
+      "updates": [],
+      "skills": [
+        {
+          "title": "Lenguaje SASS",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "Sr Full Stack developer at Productos Infantiles Tutete S.L."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Ruby",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "Software developer at Kreitech IoT & VR"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Git",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "3 experiences across Lumetrio and 2 other companies"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Angular",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "CTO at Lumetrio"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Python",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "CTO at Lumetrio"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Startup",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "CTO at Lumetrio"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Django",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "CTO at Lumetrio"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "AngularJS",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "Software developer at Kreitech IoT & VR"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "React.js",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "2 experiences across Lumetrio and 1 other company"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Laravel",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "2 experiences across Lumetrio and 1 other company"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Ionic Framework",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "Software developer at Kreitech IoT & VR"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Ruby on Rails",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "Software developer at Kreitech IoT & VR"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Amazon Web Services (AWS)",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "3 experiences across Lumetrio and 2 other companies"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Hojas de estilos en cascada (CSS)",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "Web Developer at Siniestro - Agencia Digital"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "WordPress",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "Web Developer at Siniestro - Agencia Digital"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "MySQL",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "2 experiences across Productos Infantiles Tutete S.L. and 1 other company"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "SQL",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "Software developer at INFOKE"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "PHP",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "4 experiences across Productos Infantiles Tutete S.L. and 3 other companies"
+                },
+                {
+                  "type": "insightComponent",
+                  "text": "2 endorsements"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "PhpMyAdmin",
+          "subComponents": [
+            {
+              "description": []
+            }
+          ]
+        },
+        {
+          "title": "C++",
+          "subComponents": [
+            {
+              "description": []
+            }
+          ]
+        }
+      ],
+      "profilePicAllDimensions": [],
+      "educations": [
+        {
+          "companyId": "38258",
+          "companyUrn": "urn:li:fsd_company:38258",
+          "companyLink1": "https://www.linkedin.com/company/38258/",
+          "logo": "https://media.licdn.com/dms/image/v2/C510BAQFIbMFvzLNRmQ/company-logo_200_200/company-logo_200_200/0/1631341226505?e=1758153600&v=beta&t=l4aXH3sjpNge2lP19VukYp9pRI3MmafgarnFk_PzLDY",
+          "title": "Universidad de la República",
+          "subtitle": "Ingeniería en Sistemas",
+          "caption": "Jan 2018 - Jan 2024",
+          "breakdown": false,
+          "subComponents": [
+            {
+              "description": []
+            }
+          ]
+        }
+      ],
+      "honorsAndAwards": [],
+      "languages": [
+        {
+          "title": "Español",
+          "caption": "Native or bilingual proficiency",
+          "breakdown": false,
+          "subComponents": [
+            {
+              "description": []
+            }
+          ]
+        },
+        {
+          "title": "Inglés",
+          "caption": "Full professional proficiency",
+          "breakdown": false,
+          "subComponents": [
+            {
+              "description": []
+            }
+          ]
+        }
+      ],
+      "volunteerAndAwards": [],
+      "verifications": [],
+      "promos": [],
+      "highlights": [],
+      "projects": [],
+      "publications": [],
+      "patents": [],
+      "testScores": [],
+      "organizations": [],
+      "volunteerCauses": [],
+      "interests": [
+        {
+          "section_name": "Top Voices",
+          "section_components": [
+            {
+              "titleV2": "René Lomelí Ojeda",
+              "caption": "14,846 followers",
+              "subtitle": "Partner at 500 Global",
+              "size": "LARGE",
+              "textActionTarget": "https://www.linkedin.com/in/rlomeli88",
+              "subComponents": []
+            },
+            {
+              "titleV2": "Santiago Zavala",
+              "caption": "29,760 followers",
+              "subtitle": "We invest in the world's potential.",
+              "size": "LARGE",
+              "textActionTarget": "https://www.linkedin.com/in/santiago-zavala-47a68b7",
+              "subComponents": []
+            }
+          ]
+        },
+        {
+          "section_name": "Companies",
+          "section_components": [
+            {
+              "titleV2": "Abbott",
+              "caption": "4,006,271 followers",
+              "size": "LARGE",
+              "textActionTarget": "https://www.linkedin.com/company/1612/",
+              "subComponents": []
+            },
+            {
+              "titleV2": "EPAM Systems",
+              "caption": "2,472,206 followers",
+              "size": "LARGE",
+              "textActionTarget": "https://www.linkedin.com/company/4972/",
+              "subComponents": []
+            }
+          ]
+        },
+        {
+          "section_name": "Newsletters",
+          "section_components": [
+            {
+              "titleV2": "Inside Xmartlabs",
+              "caption": "Published monthly",
+              "subtitle": "Welcome to our official newsletter! A space where we share what we’re building, learning, and exploring at Xmartlabs.",
+              "size": "LARGE",
+              "textActionTarget": "https://www.linkedin.com/newsletters/7341825160670248960",
+              "subComponents": [
+                {
+                  "insightComponent": {
+                    "text": "Xmartlabs",
+                    "actionTarget": "https://www.linkedin.com/company/2600928/"
+                  }
+                }
+              ]
+            },
+            {
+              "titleV2": "Pensar(se) en lo laboral",
+              "caption": "Published daily",
+              "subtitle": "Es un espacio para pensar(nos) en lo laboral: el deseo, los mandatos, el vacío y la frustración.", 
+              "size": "LARGE",
+              "textActionTarget": "https://www.linkedin.com/newsletters/7351617922240331777",
+              "subComponents": [
+                {
+                  "insightComponent": {
+                    "text": "Sofía Odda",
+                    "actionTarget": "https://www.linkedin.com/in/licsofiaodda"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section_name": "Schools",
+          "section_components": [
+            {
+              "titleV2": "Universidad de la República",
+              "caption": "182,662 followers",
+              "size": "LARGE",
+              "textActionTarget": "https://www.linkedin.com/school/38258/",
+              "subComponents": []
+            },
+            {
+              "titleV2": "Talently",
+              "caption": "115,718 followers",
+              "size": "LARGE",
+              "textActionTarget": "https://www.linkedin.com/school/40719818/",
+              "subComponents": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "job": {
+    "attributes": {
+      "title": "Fullstack React+Python Developer",
+      "rate": {
+        "value": "",
+        "freq": "hourly"
+      },
+      "commitment": "full_time",
+      "duration": "permanent",
+      "location": {
+        "category": "remote_global",
+        "regions": [],
+        "countries": []
+      }
+    },
+    "requirements": [
+      {
+        "requirement": "React",
+        "type": "technical_skill",
+        "is_mandatory": true,
+        "proficiency_level": "advanced",
+        "weight": 1
+      },
+      {
+        "requirement": "Python",
+        "type": "technical_skill",
+        "is_mandatory": true,
+        "proficiency_level": "advanced",
+        "weight": 1
+      },
+      {
+        "requirement": "AWS",
+        "type": "technical_skill",
+        "is_mandatory": false,
+        "proficiency_level": "advanced",
+        "weight": 0.5
+      },
+      {
+        "requirement": "Fullstack Developer",
+        "type": "role",
+        "is_mandatory": true,
+        "proficiency_level": "advanced",
+        "weight": 1
+      },
+      {
+        "requirement": "Real Estate / PropTech",
+        "type": "industry",
+        "is_mandatory": false,
+        "proficiency_level": "advanced",
+        "weight": 0.75
+      },
+      {
+        "requirement": "Teamwork",
+        "type": "soft_skill",
+        "is_mandatory": true,
+        "proficiency_level": "intermediate",
+        "weight": 0.75
+      },
+      {
+        "requirement": "Resilience",
+        "type": "soft_skill",
+        "is_mandatory": true,
+        "proficiency_level": "intermediate",
+        "weight": 0.75
+      },
+      {
+        "requirement": "Adaptability",
+        "type": "soft_skill",
+        "is_mandatory": false,
+        "proficiency_level": "intermediate",
+        "weight": 0.75
+      },
+      {
+        "requirement": "Time Management",
+        "type": "soft_skill",
+        "is_mandatory": false,
+        "proficiency_level": "intermediate",
+        "weight": 0.75
+      }
+    ],
+    "job_description": "About the company:\nOur client is a leading innovator in the Real Estate and PropTech industry, dedicated to transforming the way real estate professionals operate through cutting-edge technology solutions. They are committed to providing seamless and efficient tools that enhance the real estate experience for both professionals and clients alike.\n\nAbout the role:\nWe are looking for a Fullstack React+Python Developer to join our client's dynamic team. This role involves developing and maintaining robust web applications using React and Python. The successful candidate will collaborate with cross-functional teams to design, develop, and implement scalable software solutions. Key responsibilities include writing clean, maintainable code, participating in code reviews, and contributing to all phases of the development lifecycle.\n\nRequired skills:\n- React\n- Fullstack Developer\n- Python\n- Teamwork\n- Resilience\n\nBonus skills (not mandatory):\n- Time Management\n- Real Estate / PropTech\n- Adaptability\n- AWS\n\nPosition Highlights:\n- Remote, global opportunity"
+  }
+}
+✅ Simplified Enhanced Match Analysis v3 API Output: {
+  "match_analysis": {
+    "overall_score": null,
+    "status": "missing",
+    "overall_feedback": "Javier Young is a strong candidate for the Fullstack React+Python Developer position, particularly due to his solid experience in React and Python. However, concerns regarding teamwork and resilience may need to be addressed during the interview process.",
+    "matched_mandatory_requirements": 3,
+    "total_mandatory_requirements": 5
+  },
+  "requirement_evaluations": [
+    {
+      "requirement_name": "React",
+      "score": 100,
+      "status": "strong",
+      "feedback": "The candidate has 4.5 years of direct React experience. Additional relevant experience includes JavaScript. This represents strong alignment with the job requirements."
+    },
+    {
+      "requirement_name": "Python",
+      "score": 100,
+      "status": "strong",
+      "feedback": "The candidate has 1 years of direct Python experience. Additional relevant experience includes Django and JavaScript. This represents strong alignment with the job requirements."
+    },
+    {
+      "requirement_name": "AWS",
+      "score": 65,
+      "status": "adequate",
+      "feedback": "The candidate has 2 years of direct AWS experience."
+    },
+    {
+      "requirement_name": "Fullstack Developer",
+      "score": 97,
+      "status": "strong",
+      "feedback": "The candidate demonstrates Fullstack Developer capabilities through 6.3 years of experience with Full Stack Developer. This represents strong alignment with the job requirements."
+    },
+    {
+      "requirement_name": "Real Estate / PropTech",
+      "score": 0,
+      "status": "missing",
+      "feedback": "No Real Estate / PropTech experience found in the candidate's profile."
+    },
+    {
+      "requirement_name": "Teamwork",
+      "score": null,
+      "status": "missing",
+      "feedback": "The candidate shows Teamwork capabilities through related experience with Team Leadership."
+    },
+    {
+      "requirement_name": "Resilience",
+      "score": 0,
+      "status": "missing",
+      "feedback": "No Resilience experience found in the candidate's profile."
+    },
+    {
+      "requirement_name": "Adaptability",
+      "score": 0,
+      "status": "missing",
+      "feedback": "No Adaptability experience found in the candidate's profile."
+    },
+    {
+      "requirement_name": "Time Management",
+      "score": 0,
+      "status": "missing",
+      "feedback": "No Time Management experience found in the candidate's profile."
+    }
+  ],
+  "summary": {
+    "strengths": [
+      "Proficient in React with strong project experience.",
+      "Solid Python development skills with a focus on backend integration.",
+      "Demonstrated ability as a Fullstack Developer, capable of handling both frontend and backend tasks."
+    ],
+    "gaps": [
+      "Limited experience in the Real Estate / PropTech sector.",
+      "Lacks demonstrated teamwork skills, which are critical for collaborative projects.",
+      "Needs to improve on resilience and adaptability in fast-paced environments."
+    ]
+  },
+  "recruiter_recommendations": {
+    "interview_strategy": [
+      "Explore past teamwork experiences and how he has handled collaborative projects.",
+      "Assess his approach to problem-solving under pressure to gauge resilience.",
+      "Discuss scenarios that require adaptability and time management to understand his coping strategies.",
+      "Inquire about any relevant experience or knowledge in the Real Estate / PropTech industry."
+    ],
+    "other_options": [
+      "Consider positioning him for roles that emphasize technical skills over teamwork if he excels in technical assessments.",
+      "Evaluate his potential for growth in teamwork and resilience through targeted training programs.",
+      "Look into project-based roles where he can work independently while still contributing to a team.",
+      "Explore mentorship opportunities within the team to help him develop necessary soft skills."
+    ]
+  },
+  "metadata": {
+    "analysis_timestamp": "2025-08-18T00:05:45.163Z",
+    "job_id": "placeholder_job_id",
+    "candidate_id": "placeholder_candidate_id",
+    "algorithm_version": "3.0-embedding-enhanced",
+    "total_processing_time_ms": 53829
+  }
+}
