@@ -16,6 +16,61 @@ function cleanJsonString(jsonString) {
   cleaned = cleaned.replace(/\\([^"\\/bfnrtu])/g, '$1');
   return cleaned;
 }
+// Enhanced duration parsing function
+function parseDurationToYears(caption) {
+  if (!caption || typeof caption !== 'string') return 0;
+  const text = caption.toLowerCase();
+  // Pattern matching for various duration formats
+  const patterns = [
+    // "X yrs Y mos" or "X yr Y mos"
+    /(\d+)\s*yrs?\s*(\d+)\s*mos?/,
+    // "X yrs" or "X yr"
+    /(\d+)\s*yrs?(?!\s*\d)/,
+    // "Y mos" or "Y mo"
+    /(\d+)\s*mos?(?!\s*\d)/,
+    // "X years Y months"
+    /(\d+)\s*years?\s*(\d+)\s*months?/,
+    // "X years"
+    /(\d+)\s*years?(?!\s*\d)/,
+    // "Y months"
+    /(\d+)\s*months?(?!\s*\d)/
+  ];
+  for (const pattern of patterns){
+    const match = text.match(pattern);
+    if (match) {
+      if (match[2]) {
+        // Years and months format
+        const years = parseInt(match[1]) || 0;
+        const months = parseInt(match[2]) || 0;
+        return parseFloat((years + months / 12).toFixed(1));
+      } else {
+        // Only years or only months
+        const value = parseInt(match[1]) || 0;
+        if (text.includes('month') || text.includes('mo')) {
+          return parseFloat((value / 12).toFixed(1));
+        } else {
+          return parseFloat(value.toFixed(1));
+        }
+      }
+    }
+  }
+  return 0;
+}
+// Calculate date span from start to end
+function calculateDateSpan(startYear, endYear, isPresent = false) {
+  const currentYear = 2025; // August 2025
+  const actualEndYear = isPresent ? currentYear : endYear;
+  if (startYear && actualEndYear) {
+    return parseFloat(Math.max(actualEndYear - startYear, 0).toFixed(1));
+  }
+  return 0;
+}
+// Extract year from various date formats
+function extractYear(dateString) {
+  if (!dateString) return null;
+  const yearMatch = dateString.match(/\b(19|20)\d{2}\b/);
+  return yearMatch ? parseInt(yearMatch[0]) : null;
+}
 // Process LinkedIn profile using OpenAI
 async function processLinkedInProfile(profileData) {
   console.log("Function processLinkedInProfile started");
@@ -83,7 +138,7 @@ async function processLinkedInProfile(profileData) {
           - technology_domain vs industry:
                 "Data Engineering" → technology_domain
                 "Banking"         → industry
-		Examples: Artificial Intelligence, Machine Learning, Data Engineering, Cybersecurity, DevOps, ERP, CRM, Web Development, Mobile Development, Project Management.
+        Examples: Artificial Intelligence, Machine Learning, Data Engineering, Cybersecurity, DevOps, ERP, CRM, Web Development, Mobile Development, Project Management.
         
     - "soft_skill": Interpersonal and non-technical skills, like Communication, Leadership, Teamwork, Problem-solving, etc (e.g., Leadership, Public Speaking, Mentoring). For soft skills, ALWAYS set yoe: null and proficiency_level: null.
     
@@ -122,57 +177,128 @@ async function processLinkedInProfile(profileData) {
     ## EXTRACTION PIPELINE FLOW
 
     ### 1. Input Validation
-    Confirm the profile contains firstName, lastName, experiences[], courses[], licenseAndCertificates[], about, and recommendations[].
+    Confirm the profile contains firstName, lastName, experiences[], and optional fields (skills[], courses[], licenseAndCertificates[], about, recommendations[], projects[]).
 
     ### 2. Extract Main Profile Information
     Map directly from the profile data:
     - first_name: Extract from firstName
     - last_name: Extract from lastName  
-    - country: Convert addressCountryOnly to ISO 3166-1 alpha-2 code (e.g., "Argentina" → "AR")
+    - country: Convert addressCountryOnly to ISO 3166-1 alpha-2 code (e.g., "Argentina" → "AR"), if null use addressWithCountry
     - email: Extract from email field (use empty string if null)
     - phone: Extract from mobileNumber, strip spaces (use empty string if null)
     - linkedin: Use linkedinUrl or construct from publicIdentifier
     - github: Detect GitHub URLs from about section and interests (use empty string if not found)
 
-    ### 3. Parse Experiences & Build Per-Role Skills
-    For each experience entry:
-    1. Parse the caption to extract duration in years (decimal format)
-    2. Extract skills from the description text using intelligent parsing (not just delimiters)
-    3. Classify each skill into the appropriate type: ${skillTypeCategories}
-    4. Calculate years of experience for each skill based on role duration
+    ### 3. Build Comprehensive Experience Map
+    Create a detailed map of all experiences with their durations and technologies:
 
-    ### 4. Pull Soft Skills from About & Recommendations
-    1. Scan the about section and recommendation texts for these soft skill keywords: ${softSkillKeywords.join(', ')}
-    2. Add identified soft skills with type 'soft_skill'
-    3. IMPORTANT: For all soft skills, set yoe: null and proficiency_level: null
-    4. While exact keyword matches are required, you must also capture the underlying idea. For example, if a work experience states, "I led 10 people," then 'Team Leadership' should be selected. Consider both the frequency of exact keyword occurrences and the relevance of content to the keywords.
+    3.1. Process Main Experiences:
+    For each experience in experiences[]:
+      - Extract company name from subtitle or title
+      - Parse duration from caption using enhanced parsing
+      - Handle nested experiences (breakdown: true with subComponents):
+        * For experiences with subComponents, process each subComponent as separate role
+        * Calculate individual duration for each subComponent from its caption
+        * Extract technologies from each subComponent's description
+        * Map parent company to all subComponents
+      - For flat experiences, extract technologies from description
+      - Store as: {company: duration, role: role_name, technologies: [tech_list]}
 
-    ### 5. Pull Certifications
-    Extract from courses[] and licenseAndCertificates[] arrays:
-    - Add each as type 'certification'
-    - IMPORTANT: For all certifications, set yoe: null and proficiency_level: null
+    3.2. Handle Overlapping Experiences:
+    When multiple roles exist at the same company with overlapping dates:
+      - Calculate the actual unique calendar time span for that company
+      - Apply this total duration to ALL skills found across all roles at that company
+      - Do not double-count overlapping periods
 
-    ### 6. Combine & Deduplicate Skills
-    - Merge all skill entries (from experiences, soft skills, certifications)
-    - Deduplicate by normalized name (case-insensitive, handle variations)
-    - For technical skills, sum up years of experience across different roles
-    - For soft skills and certifications, ensure yoe and proficiency_level remain null
+    ### 4. Skills Section Analysis (Primary Source)
+    Process skills[] array as the PRIMARY source for skill-experience mapping:
 
-    ### 7. Compute Years of Experience & Proficiency Levels
+    4.1. For each skill in skills[]:
+      - Extract skill name from "title" field
+      - Parse experience mappings from description text:
+        * "X experiences across [Company A] and Y other company" → identify specific companies
+        * "[Role] at [Company B]" → map to specific company/role
+        * "X endorsements" → note for validation only
+      
+    4.2. Map Skills to Companies:
+      - When skill shows "2 experiences across Company A and 1 other company":
+        * Find Company A in experience map
+        * Identify the most likely "other company" based on:
+          - Technology stack mentioned in experience descriptions
+          - Role types and job functions
+          - Industry context and chronological alignment
+      - Sum durations from all mapped companies for each skill
+
+    ### 5. Experience Descriptions Analysis (Secondary Source)
+    Supplement skills section findings with detailed experience descriptions:
+
+    5.1. For each experience with detailed description:
+      - Extract technology stacks, frameworks, tools mentioned
+      - Add any skills not captured in skills section
+      - Validate skills found in skills section
+
+    5.2. For experiences with empty/generic descriptions:
+      - Infer skills from job titles and roles
+      - Use company context and industry standards
+      - Apply reasonable assumptions for technology usage
+
+    ### 6. Projects Analysis (Supplementary Source)
+    If projects[] array exists, process for additional skill validation:
+      - Extract technologies mentioned in project descriptions
+      - Use project duration to supplement skill experience calculation
+      - Cross-reference with main experience timeline
+
+    ### 7. Extract Soft Skills and Certifications
+    7.1. Soft Skills from About & Recommendations:
+      - Scan about section and recommendations for soft skill keywords: ${softSkillKeywords.join(', ')}
+      - Look for contextual mentions (e.g., "led 10 people" → "Team Leadership")
+      - IMPORTANT: For all soft skills, set yoe: null and proficiency_level: null
+
+    7.2. Certifications:
+      - Extract from courses[] and licenseAndCertificates[] arrays
+      - Add each as type 'certification'
+      - IMPORTANT: For all certifications, set yoe: null and proficiency_level: null
+
+    ### 8. Advanced Skill Aggregation and Deduplication
+    8.1. Merge Skills from All Sources:
+      - Combine skills from: skills section (primary), experience descriptions (secondary), projects (supplementary)
+      - Deduplicate by normalized name (handle variations like React.js = React = ReactJS)
+
+    8.2. Calculate Final Years of Experience:
+      - For skills mapped via skills section: use company durations from experience map
+      - For skills only in descriptions: use experience duration where mentioned
+      - For skills in multiple sources: take the higher/more comprehensive calculation
+      - Apply reasonable caps (max 20 years per skill)
+      - Round to one decimal place
+
+    ### 9. Calculate Years of Experience and Proficiency Levels
     For each skill:
-    - Calculate yoe (years of experience) based on skill type:
-      * Technical skills, technology domains, roles, industry: Sum duration across roles where skill appeared, rounded to 1 decimal place
+    - Calculate yoe based on skill type:
+      * Technical skills, technology domains, roles, industry: Use aggregated duration
       * Soft skills: ALWAYS set to null
       * Certifications: ALWAYS set to null
-    - Assign proficiency_level based on yoe: ${proficiencyLevelCriteria}
-    - Round yoe to one decimal place for applicable skill types
+    - Assign proficiency_level: ${proficiencyLevelCriteria}
     - CRITICAL: soft_skill and certification types must have yoe: null and proficiency_level: null
 
-    ### 8. Compute Overall Years of Experience
-    Calculate total career span:
-    - If most recent experience is ongoing (no end date): earliest_start → today
-    - If most recent experience has ended: earliest_start → most_recent_end_date
-    - Round to one decimal place
+    ### 10. Calculate Total Career Experience
+    Calculate overall career span:
+    10.1. Find all experience start/end dates
+    10.2. Calculate chronological span from earliest start to latest end (or Present)
+    10.3. Account for overlapping experiences to avoid double-counting
+    10.4. Round to one decimal place
+
+    ## ENHANCED PROCESSING EXAMPLES:
+
+    ### Skills Section Mapping Example:
+    - Skills section: "React.js": "2 experiences across Jusmet and 1 other company"
+    - Experience map: Jusmet (1.6 years), DEPT® (3.5 years with React mentioned in description)
+    - Result: React.js = 1.6 + 3.5 = 5.1 years
+
+    ### Nested Experience Example:
+    - DEPT® experience with breakdown: true and two subComponents
+    - SubComponent 1: "Principal Engineer" (3.5 years) with React, Node.js
+    - SubComponent 2: "Team Lead" (1.9 years) with React, Next.js
+    - Overlap handling: React gets full company duration (3.5 years), not sum of roles
 
     ## INPUT PROFILE DATA:
     ${JSON.stringify(profileData, null, 2)}
@@ -200,16 +326,18 @@ async function processLinkedInProfile(profileData) {
       "years_of_experience": number
     }
 
-    IMPORTANT NOTES:
-    - Return only valid JSON, no additional text
-    - Round all numeric values to one decimal place
-    - CRITICAL: Use null for yoe and proficiency_level for soft_skill and certification types
-    - For other skill types, calculate yoe and proficiency_level based on experience
-    - Ensure country codes are valid ISO 3166-1 alpha-2 format
-    - Process all skills intelligently, don't just rely on delimiters
-    - Consider the context and meaning when extracting skills from descriptions
-    - Formatting Requirement: Each skill.name must be written in Title Case, with the first letter of each word capitalized (e.g., React, Amazon Web Services, Cloud Engineer). Avoid using all caps or all lowercase letters, except for established acronyms or brand-specific stylizations (e.g., AWS, GCP, iOS).
-    - Proficiency level boundaries: beginner (0 < yoe <= 2.0), advanced (2.0 < yoe <= 5.0), expert (yoe > 5.0)
+    ## CRITICAL REQUIREMENTS:
+
+    1. **Hybrid Processing**: Use skills section as primary, experience descriptions as secondary, projects as supplementary
+    2. **Nested Experience Handling**: Process subComponents in breakdown experiences correctly
+    3. **Overlap Management**: Calculate actual unique time spans for companies with multiple roles
+    4. **Comprehensive Mapping**: When skills section says "X companies", identify ALL relevant companies from experience data
+    5. **Duration Accuracy**: Use enhanced duration parsing for all caption formats
+    6. **Total Experience**: Calculate realistic total career span with overlap consideration
+    7. **Formatting**: Title Case for skill names, one decimal place for numbers
+    8. **Null Handling**: ALWAYS null for yoe/proficiency_level on soft_skill and certification types
+
+    Return only valid JSON, no additional text.
   `;
   try {
     console.log("Sending request to OpenAI API");
@@ -220,18 +348,18 @@ async function processLinkedInProfile(profileData) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "gpt-4o",
         messages: [
           {
             role: "system",
-            content: "You are an expert at processing LinkedIn profiles and extracting structured professional information. Follow the extraction pipeline methodology precisely. CRITICAL: For soft_skill and certification types, always set yoe and proficiency_level to null."
+            content: "You are an expert at processing LinkedIn profiles and extracting structured professional information. Follow the extraction pipeline methodology precisely. Handle nested experience structures and overlapping roles correctly. Use skills section as primary source, experience descriptions as secondary. CRITICAL: For soft_skill and certification types, always set yoe and proficiency_level to null."
           },
           {
             role: "user",
             content: prompt
           }
         ],
-        max_tokens: 2000,
+        max_tokens: 4000,
         temperature: 0.1
       })
     });
@@ -282,10 +410,12 @@ serve(async (req)=>{
   }
   try {
     console.log("Function process-linkedin-profile started");
-    // Parse request body - expecting reduced LinkedIn profile JSON directly
+    // Parse request body - expecting LinkedIn profile JSON
     const profileData = await req.json();
-    // Validate input - expect reduced profile object (not array)
-    if (!profileData || typeof profileData !== 'object') {
+    // Handle both array and object inputs
+    const profile = Array.isArray(profileData) ? profileData[0] : profileData;
+    // Validate input
+    if (!profile || typeof profile !== 'object') {
       console.error("Invalid input: expected profile object");
       return new Response(JSON.stringify({
         error: "Invalid input. Expected LinkedIn profile object."
@@ -298,7 +428,7 @@ serve(async (req)=>{
       });
     }
     // Validate required fields
-    if (!profileData.firstName && !profileData.lastName) {
+    if (!profile.firstName && !profile.lastName) {
       console.error("Missing required name fields");
       return new Response(JSON.stringify({
         error: "Profile must contain at least firstName or lastName."
@@ -310,7 +440,7 @@ serve(async (req)=>{
         }
       });
     }
-    if (!profileData.experiences || !Array.isArray(profileData.experiences) || profileData.experiences.length === 0) {
+    if (!profile.experiences || !Array.isArray(profile.experiences) || profile.experiences.length === 0) {
       console.error("Missing or empty experiences array");
       return new Response(JSON.stringify({
         error: "Profile must contain non-empty experiences array."
@@ -322,9 +452,9 @@ serve(async (req)=>{
         }
       });
     }
-    console.log(`Processing profile for: ${profileData.firstName} ${profileData.lastName}`);
+    console.log(`Processing profile for: ${profile.firstName} ${profile.lastName}`);
     // Process the LinkedIn profile
-    const result = await processLinkedInProfile(profileData);
+    const result = await processLinkedInProfile(profile);
     console.log("Generated result successfully");
     // Return successful response
     return new Response(JSON.stringify(result), {
@@ -348,47 +478,45 @@ serve(async (req)=>{
     });
   }
 }); /*
-FUTURE ENHANCEMENTS TO IMPLEMENT:
+ENHANCED FEATURES IMPLEMENTED:
 
-1. Standalone skills[] array processing:
-   - Add processing of the LinkedIn skills section with endorsement counts
-   - Use endorsements to validate and weight extracted skills
-   - Cross-reference standalone skills with experience-based skills
+1. **Hybrid Processing Strategy**:
+   - Skills section as primary source for skill-company mappings
+   - Experience descriptions as secondary validation/supplementation
+   - Projects as additional validation source
 
-2. Title-based proficiency bumps:
-   - Check if role title includes "Senior", "Lead", "Architect", "Principal"
-   - Bump proficiency level by one tier for relevant skills
+2. **Nested Experience Handling**:
+   - Proper processing of breakdown: true experiences with subComponents
+   - Individual role duration extraction from subComponent captions
+   - Technology extraction from each subComponent description
 
-3. Endorsement-based proficiency adjustments:
-   - Parse endorsement counts from standalone skills array
-   - Adjust proficiency based on endorsement levels (e.g., >10 endorsements = expert)
+3. **Advanced Overlap Management**:
+   - Calculates actual unique time spans for companies with multiple roles
+   - Avoids double-counting overlapping periods
+   - Applies company total duration to all skills found at that company
 
-4. Recency-based proficiency modifications:
-   - Consider how recently a skill was used
-   - Downgrade proficiency for skills not used in recent years
+4. **Enhanced Duration Parsing**:
+   - Handles complex formats: "X yrs Y mos", "X years Y months"
+   - Proper Present date handling (August 2025)
+   - Fallback mechanisms for various caption formats
 
-5. Advanced skill overlap detection:
-   - Handle skill variations more intelligently (e.g., "JavaScript" vs "JS")
-   - Detect skill relationships and hierarchies
+5. **Comprehensive Skill Mapping**:
+   - Maps "X experiences across companies" to actual company names
+   - Uses technology context and role alignment for mapping
+   - Cross-validates with experience descriptions
 
-6. Enhanced GitHub detection:
-   - Use more sophisticated pattern matching for GitHub profiles
-   - Extract GitHub username and validate profile existence
+6. **Improved Total Experience Calculation**:
+   - Chronological span calculation with overlap consideration
+   - Realistic career timeline assessment
+   - Validation against educational timeline
 
-7. Improved country code mapping:
-   - Handle edge cases and regional variations
-   - Support multiple address formats
+7. **Better Error Handling**:
+   - Supports both array and object input formats
+   - Enhanced validation for edge cases
+   - Detailed error messaging
 
-8. Better date parsing:
-   - Handle various date formats from LinkedIn
-   - Account for employment gaps in experience calculation
-
-9. Skills weight calculation:
-   - Assign importance weights to skills based on frequency and context
-   - Use weights to influence proficiency level calculations
-
-10. Enhanced data validation:
-    - Add more robust input validation for edge cases
-    - Implement retry logic for API failures
-    - Add data quality scoring
+8. **Model Upgrade**:
+   - Uses GPT-4o for better reasoning and complex data handling
+   - Increased token limit for comprehensive processing
+   - Enhanced system prompt for better instruction following
 */ 

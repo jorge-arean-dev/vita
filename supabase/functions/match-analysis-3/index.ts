@@ -1,5 +1,5 @@
-// Enhanced Match Analysis API v3 - Simplified Embedding-Based Analysis
-// Maintains exact same output format as original match-analysis.ts but with improved accuracy
+// Enhanced Match Analysis API v3 - Two-Tier Scoring with Evidence Extraction
+// Implements mandatory vs non-mandatory scoring logic with detailed LinkedIn evidence
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
@@ -66,6 +66,11 @@ interface SkillMatch {
   yearsExperience: number;
   evidence: string[];
   confidence: number;
+  specificEvidence?: {
+    quote: string;
+    source: string;
+    context: string;
+  }[];
 }
 
 // Skill hierarchy for relationship understanding
@@ -164,6 +169,29 @@ const SKILL_ALIASES = {
   'k8s': 'kubernetes',
   'vue.js': 'vue',
   'vuejs': 'vue'
+};
+
+// Evidence extraction patterns for LinkedIn profile analysis
+const EVIDENCE_PATTERNS = {
+  leadership: /(?:led|managed|supervised|directed)\s+(?:team|group)\s+of\s+(\d+)|(?:managed|led)\s+(\d+)\s+(?:people|employees|developers|engineers)/i,
+  teamSize: /(\d+)\s*(?:\+|plus)?\s*(?:member|person|people|developer|engineer)\s*team/i,
+  experience: /(\d+)\+?\s*years?\s*(?:of\s+)?(?:experience|exp)\s*(?:with|in|using)?/i,
+  technology: /(?:built|developed|implemented|created|designed|architected)\s+.*?(?:using|with|in)\s+([A-Z][a-zA-Z]+)/i,
+  scale: /(\d+(?:,\d+)*(?:\.\d+)?[KMB]?)\s+(?:users|customers|transactions|requests|records)/i,
+  metrics: /(?:increased|improved|reduced|achieved|delivered)\s+.*?(?:by\s+)?(\d+%|\$[\d,]+)/i,
+  projects: /(?:delivered|completed|launched)\s+(\d+)\s+projects?/i,
+  certifications: /(?:certified|certification)\s+(?:in\s+)?([A-Z][a-zA-Z\s]+)/i
+};
+
+// Scoring thresholds and constants
+const SCORING_CONFIG = {
+  MANDATORY_THRESHOLD: 70, // Minimum score to be considered "qualified"
+  STRONG_THRESHOLD: 75,
+  ADEQUATE_THRESHOLD: 50,
+  WEAK_THRESHOLD: 25,
+  MANDATORY_WEIGHT: 0.8, // Weight for mandatory requirements in overall score
+  ENHANCEMENT_WEIGHT: 0.2, // Weight for non-mandatory requirements
+  MAX_ENHANCEMENT_BONUS: 30 // Maximum bonus points from non-mandatory requirements
 };
 
 // Proficiency level mapping
@@ -365,8 +393,113 @@ function getSkillRelationship(skillA: string, skillB: string): {
   return { isRelated: false, relationship: 'exact', confidence: 0 };
 }
 
+// Enhanced evidence extraction from LinkedIn profile text
+function extractSpecificEvidence(
+  text: string, 
+  skill: string, 
+  source: string
+): Array<{ quote: string; source: string; context: string; type: string }> {
+  const evidence = [];
+  const lowercaseText = text.toLowerCase();
+  const lowercaseSkill = skill.toLowerCase();
+  
+  // Look for skill mentions with context
+  if (lowercaseText.includes(lowercaseSkill)) {
+    // Extract sentences containing the skill
+    const sentences = text.split(/[.!?]+/);
+    
+    for (const sentence of sentences) {
+      if (sentence.toLowerCase().includes(lowercaseSkill)) {
+        const trimmedSentence = sentence.trim();
+        if (trimmedSentence.length > 10) {
+          let evidenceType = 'mention';
+          let context = '';
+          
+          // Determine evidence type based on patterns
+          if (EVIDENCE_PATTERNS.leadership.test(trimmedSentence)) {
+            evidenceType = 'leadership';
+            const match = trimmedSentence.match(EVIDENCE_PATTERNS.leadership);
+            context = match && (match[1] || match[2]) ? `Team size: ${match[1] || match[2]}` : '';
+          } else if (EVIDENCE_PATTERNS.technology.test(trimmedSentence)) {
+            evidenceType = 'implementation';
+            context = 'Technical implementation';
+          } else if (EVIDENCE_PATTERNS.experience.test(trimmedSentence)) {
+            evidenceType = 'experience';
+            const match = trimmedSentence.match(EVIDENCE_PATTERNS.experience);
+            context = match && match[1] ? `${match[1]} years experience` : '';
+          } else if (EVIDENCE_PATTERNS.scale.test(trimmedSentence)) {
+            evidenceType = 'scale';
+            const match = trimmedSentence.match(EVIDENCE_PATTERNS.scale);
+            context = match && match[1] ? `Scale: ${match[1]}` : '';
+          } else if (EVIDENCE_PATTERNS.metrics.test(trimmedSentence)) {
+            evidenceType = 'achievement';
+            const match = trimmedSentence.match(EVIDENCE_PATTERNS.metrics);
+            context = match && match[1] ? `Impact: ${match[1]}` : '';
+          }
+          
+          evidence.push({
+            quote: trimmedSentence,
+            source: source,
+            context: context,
+            type: evidenceType
+          });
+        }
+      }
+    }
+  }
+  
+  return evidence;
+}
+
+// Extract quantifiable metrics from text
+function extractMetrics(text: string): Array<{ type: string; value: string; context: string }> {
+  const metrics = [];
+  
+  // Leadership metrics
+  const leadershipMatch = text.match(EVIDENCE_PATTERNS.leadership);
+  if (leadershipMatch && (leadershipMatch[1] || leadershipMatch[2])) {
+    metrics.push({
+      type: 'leadership',
+      value: leadershipMatch[1] || leadershipMatch[2],
+      context: 'Team management'
+    });
+  }
+  
+  // Experience metrics
+  const experienceMatch = text.match(EVIDENCE_PATTERNS.experience);
+  if (experienceMatch && experienceMatch[1]) {
+    metrics.push({
+      type: 'experience',
+      value: experienceMatch[1],
+      context: 'Years of experience'
+    });
+  }
+  
+  // Scale metrics
+  const scaleMatch = text.match(EVIDENCE_PATTERNS.scale);
+  if (scaleMatch && scaleMatch[1]) {
+    metrics.push({
+      type: 'scale',
+      value: scaleMatch[1],
+      context: 'System scale'
+    });
+  }
+  
+  // Achievement metrics
+  const metricsMatch = text.match(EVIDENCE_PATTERNS.metrics);
+  if (metricsMatch && metricsMatch[1]) {
+    metrics.push({
+      type: 'achievement',
+      value: metricsMatch[1],
+      context: 'Performance improvement'
+    });
+  }
+  
+  return metrics;
+}
+
 // Extract skills and experience from LinkedIn profile
-function extractSkillsFromProfile(profile: LinkedInProfile): Array<{ skill: string; years: number; evidence: string[] }> {
+function extractSkillsFromProfile(profile: LinkedInProfile): Array<{ skill: string; years: number; evidence: string[]; specificEvidence?: Array<{ quote: string; source: string; context: string; type: string }> }> {
   const skillsFound: Array<{ skill: string; years: number; evidence: string[] }> = [];
   
   // Extract from explicit skills section
@@ -391,16 +524,21 @@ function extractSkillsFromProfile(profile: LinkedInProfile): Array<{ skill: stri
         // Estimate years from experience descriptions or default to 1
         let estimatedYears = 1;
         
-        // Try to extract years from evidence
-        const yearsMatch = evidence.join(' ').match(/(\d+)\s*(?:years?|yrs?)/i);
-        if (yearsMatch) {
-          estimatedYears = parseInt(yearsMatch[1]);
-        }
+        // Years extraction now handled by parse-linkedin-skill API
+        // Use default estimation if no specific evidence
+        
+        // Extract specific evidence for this skill
+        const specificEvidence = extractSpecificEvidence(
+          evidence.join(' '), 
+          skillItem.title, 
+          'Skills Section'
+        );
         
         skillsFound.push({
           skill: skillItem.title.toLowerCase().trim(),
           years: estimatedYears,
-          evidence: evidence.length > 0 ? evidence : [`Listed as skill: ${skillItem.title}`]
+          evidence: evidence.length > 0 ? evidence : [`Listed as skill: ${skillItem.title}`],
+          specificEvidence: specificEvidence
         });
       }
     });
@@ -412,11 +550,15 @@ function extractSkillsFromProfile(profile: LinkedInProfile): Array<{ skill: stri
       if (exp.description) {
         const description = exp.description.toLowerCase();
         
-        // Calculate years from caption (e.g., "Mar 2020 - Present · 4 yrs")
+        // Years extraction now handled by parse-linkedin-skill API
+        // Use simple estimation for profile skills extraction
         let expYears = 1;
-        const yearMatch = exp.caption.match(/(\d+)\s*(?:yrs?|years?)/i);
-        if (yearMatch) {
-          expYears = parseInt(yearMatch[1]);
+        if (exp.caption && exp.caption.includes('yr')) {
+          // Basic fallback parsing for profile enhancement only
+          const simpleMatch = exp.caption.match(/(\d+)/i);
+          if (simpleMatch && simpleMatch[1]) {
+            expYears = parseInt(simpleMatch[1]);
+          }
         }
         
         // Look for technology mentions in description
@@ -429,16 +571,37 @@ function extractSkillsFromProfile(profile: LinkedInProfile): Array<{ skill: stri
         
         techKeywords.forEach(tech => {
           if (description.includes(tech)) {
+            const experienceContext = `${exp.title} at ${exp.subtitle}`;
+            const fullDescription = exp.description || '';
+            
+            // Extract specific evidence for this technology
+            const specificEvidence = extractSpecificEvidence(
+              fullDescription,
+              tech,
+              experienceContext
+            );
+            
+            // Extract metrics from this experience
+            const metrics = extractMetrics(fullDescription);
+            
             const existingSkill = skillsFound.find(s => s.skill === tech);
             if (existingSkill) {
               // Add to existing skill years
               existingSkill.years = Math.max(existingSkill.years, expYears);
-              existingSkill.evidence.push(`${exp.title} at ${exp.subtitle}: ${exp.description.substring(0, 100)}...`);
+              existingSkill.evidence.push(`${experienceContext}: ${fullDescription.substring(0, 100)}...`);
+              
+              // Merge specific evidence
+              if (existingSkill.specificEvidence) {
+                existingSkill.specificEvidence.push(...specificEvidence);
+              } else {
+                existingSkill.specificEvidence = specificEvidence;
+              }
             } else {
               skillsFound.push({
                 skill: tech,
                 years: expYears,
-                evidence: [`${exp.title} at ${exp.subtitle}: ${exp.description.substring(0, 100)}...`]
+                evidence: [`${experienceContext}: ${fullDescription.substring(0, 100)}...`],
+                specificEvidence: specificEvidence
               });
             }
           }
@@ -454,7 +617,7 @@ function extractSkillsFromProfile(profile: LinkedInProfile): Array<{ skill: stri
 async function findMatchingSkills(
   requirement: string,
   candidateSkills: CandidateSkill[],
-  profileSkills: Array<{ skill: string; years: number; evidence: string[] }>,
+  profileSkills: Array<{ skill: string; years: number; evidence: string[]; specificEvidence?: Array<{ quote: string; source: string; context: string; type: string }> }>,
   supabase: any,
   openaiApiKey: string
 ): Promise<SkillMatch[]> {
@@ -473,7 +636,8 @@ async function findMatchingSkills(
           matchType: relationship.relationship === 'exact' ? 'exact' : 'related',
           yearsExperience: candidateSkill.yoe || 1,
           evidence: [`Listed skill: ${candidateSkill.name}`],
-          confidence: relationship.confidence
+          confidence: relationship.confidence,
+          specificEvidence: []
         });
       }
     }
@@ -489,7 +653,8 @@ async function findMatchingSkills(
           matchType: relationship.relationship === 'exact' ? 'exact' : 'related',
           yearsExperience: profileSkill.years,
           evidence: profileSkill.evidence,
-          confidence: relationship.confidence
+          confidence: relationship.confidence,
+          specificEvidence: profileSkill.specificEvidence || []
         });
       }
     }
@@ -500,7 +665,7 @@ async function findMatchingSkills(
       
       // Check all candidate skills + profile skills for semantic similarity
       const allSkills = [
-        ...candidateSkills.map(s => ({ skill: s.name, years: s.yoe || 1, evidence: [`Listed skill: ${s.name}`] })),
+        ...candidateSkills.map(s => ({ skill: s.name, years: s.yoe || 1, evidence: [`Listed skill: ${s.name}`], specificEvidence: [] })),
         ...profileSkills.filter(ps => !candidateSkills.find(cs => normalizeSkillName(cs.name) === normalizeSkillName(ps.skill)))
       ];
       
@@ -528,7 +693,8 @@ async function findMatchingSkills(
               matchType: 'semantic',
               yearsExperience: skillItem.years,
               evidence: skillItem.evidence,
-              confidence: similarity
+              confidence: similarity,
+              specificEvidence: skillItem.specificEvidence || []
             });
           }
         } catch (embeddingError) {
@@ -547,7 +713,7 @@ async function findMatchingSkills(
   }
 }
 
-// Generate recruiter-friendly feedback
+// Generate enhanced recruiter-friendly feedback with LinkedIn evidence
 function generateRecruiterFeedback(
   requirement: string,
   matches: SkillMatch[],
@@ -582,29 +748,74 @@ function generateRecruiterFeedback(
   // Technical skills, roles, industry, technology_domain
   let feedback = '';
   
+  // Get specific evidence for enhanced feedback
+  const specificEvidence = primaryMatch.specificEvidence || [];
+  const hasEvidence = specificEvidence.length > 0;
+  
   if (primaryMatch.matchType === 'exact') {
-    feedback = `The candidate has ${primaryMatch.yearsExperience} years of direct ${requirement} experience.`;
+    feedback = `The candidate has ${primaryMatch.yearsExperience} years of direct ${requirement} experience`;
+    
+    // Add specific evidence if available
+    if (hasEvidence) {
+      const bestEvidence = specificEvidence.find(e => e.type === 'leadership') || 
+                          specificEvidence.find(e => e.type === 'implementation') || 
+                          specificEvidence[0];
+      
+      if (bestEvidence) {
+        feedback += `, as demonstrated by their role at ${bestEvidence.source}: "${bestEvidence.quote.substring(0, 80)}..."`;
+        if (bestEvidence.context) {
+          feedback += ` (${bestEvidence.context})`;
+        }
+      }
+    }
+    feedback += '.';
   } else if (primaryMatch.matchType === 'related') {
     // Use skill relationships to explain the connection
     const relationship = getSkillRelationship(requirement, primaryMatch.skill);
     
     if (relationship.relationship === 'child') {
-      feedback = `The candidate has experience with ${primaryMatch.skill}, which is a ${requirement} framework/technology, demonstrating ${requirement} capabilities.`;
+      feedback = `The candidate has experience with ${primaryMatch.skill}, which is a ${requirement} framework/technology, demonstrating ${requirement} capabilities`;
     } else if (relationship.relationship === 'parent') {
-      feedback = `The candidate's ${primaryMatch.skill} experience (${primaryMatch.yearsExperience} years) includes ${requirement} proficiency.`;
+      feedback = `The candidate's ${primaryMatch.skill} experience (${primaryMatch.yearsExperience} years) includes ${requirement} proficiency`;
     } else if (relationship.relationship === 'sibling') {
-      feedback = `The candidate has ${primaryMatch.yearsExperience} years of experience with ${primaryMatch.skill}, which is closely related to ${requirement}.`;
+      feedback = `The candidate has ${primaryMatch.yearsExperience} years of experience with ${primaryMatch.skill}, which is closely related to ${requirement}`;
     } else {
-      feedback = `The candidate has ${primaryMatch.yearsExperience} years of experience with ${primaryMatch.skill}, which aligns with ${requirement} requirements.`;
+      feedback = `The candidate has ${primaryMatch.yearsExperience} years of experience with ${primaryMatch.skill}, which aligns with ${requirement} requirements`;
     }
+    
+    // Add LinkedIn evidence for related matches
+    if (hasEvidence) {
+      const implementationEvidence = specificEvidence.find(e => e.type === 'implementation');
+      if (implementationEvidence) {
+        feedback += `. Evidence from ${implementationEvidence.source}: "${implementationEvidence.quote.substring(0, 60)}..."`;
+      }
+    }
+    feedback += '.';
   } else {
     // Semantic match
-    feedback = `The candidate demonstrates ${requirement} capabilities through ${primaryMatch.yearsExperience} years of experience with ${primaryMatch.skill}.`;
+    feedback = `The candidate demonstrates ${requirement} capabilities through ${primaryMatch.yearsExperience} years of experience with ${primaryMatch.skill}`;
+    
+    // Add best available evidence
+    if (hasEvidence) {
+      const bestEvidence = specificEvidence[0];
+      feedback += `. Supporting evidence from ${bestEvidence.source}: "${bestEvidence.quote.substring(0, 60)}..."`;
+    }
+    feedback += '.';
   }
   
-  // Add information about additional matches if present
+  // Add information about additional matches with evidence if present
   if (additionalMatches.length > 0) {
-    const additionalSkills = additionalMatches.slice(0, 2).map(m => m.skill).join(' and ');
+    const additionalSkills = additionalMatches.slice(0, 2).map(m => {
+      let skillInfo = m.skill;
+      // Add evidence context for additional skills if available
+      if (m.specificEvidence && m.specificEvidence.length > 0) {
+        const evidence = m.specificEvidence[0];
+        if (evidence.context) {
+          skillInfo += ` (${evidence.context})`;
+        }
+      }
+      return skillInfo;
+    }).join(' and ');
     feedback += ` Additional relevant experience includes ${additionalSkills}.`;
   }
   
@@ -614,6 +825,126 @@ function generateRecruiterFeedback(
   } else if (status === 'strong') {
     feedback += ' This represents strong alignment with the job requirements.';
   }
+  
+  return feedback;
+}
+
+// Generate enhanced recruiter-friendly feedback with detailed rationale and LinkedIn evidence
+function generateEnhancedRecruiterFeedback(
+  requirement: string,
+  matches: SkillMatch[],
+  skillType: string,
+  score: number,
+  status: string,
+  isMandatory: boolean
+): string {
+  if (matches.length === 0) {
+    if (isMandatory) {
+      return `No evidence of ${requirement} experience was found across the candidate's profile, including their work history, listed skills, or project descriptions. This creates a significant gap since this skill is essential for the role and would need to be developed or acquired.`;
+    } else {
+      return `The candidate's profile doesn't show ${requirement} experience, but given this is an optional qualification, it doesn't impact their core suitability. This could be an area for future development or on-the-job learning.`;
+    }
+  }
+  
+  const primaryMatch = matches[0];
+  const additionalMatches = matches.slice(1);
+  const hasStrongEvidence = primaryMatch.specificEvidence && primaryMatch.specificEvidence.length > 0;
+  
+  let feedback = '';
+  
+  // Provide detailed rationale based on experience depth and type
+  const getExperienceDepthRationale = (years: number, matchType: string) => {
+    if (years >= 5) {
+      return `substantial ${years}-year background`;
+    } else if (years >= 3) {
+      return `solid ${years}-year foundation`;
+    } else if (years >= 1) {
+      return `${years}-year experience base`;
+    } else {
+      return 'limited but relevant exposure';
+    }
+  };
+  
+  const experienceDepth = getExperienceDepthRationale(primaryMatch.yearsExperience, primaryMatch.matchType);
+  
+  // Core competency assessment with detailed reasoning
+  if (primaryMatch.matchType === 'exact') {
+    feedback += `The candidate shows a ${experienceDepth} in ${requirement}, indicating they have direct hands-on experience with this specific skill. This experience level suggests they can contribute immediately without requiring significant onboarding in this area`;
+  } else if (primaryMatch.matchType === 'related') {
+    const relationship = getSkillRelationship(requirement, primaryMatch.skill);
+    
+    if (relationship.relationship === 'child') {
+      feedback += `The candidate's ${experienceDepth} in ${primaryMatch.skill} demonstrates ${requirement} proficiency, since ${primaryMatch.skill} is built on ${requirement} fundamentals. This indicates they have the underlying knowledge and can apply ${requirement} concepts in practical scenarios`;
+    } else if (relationship.relationship === 'parent') {
+      feedback += `Through their ${experienceDepth} in ${primaryMatch.skill}, the candidate has necessarily developed ${requirement} capabilities, as this broader skillset encompasses ${requirement}. This suggests comprehensive understanding that goes beyond basic ${requirement} knowledge`;
+    } else {
+      feedback += `Their ${experienceDepth} in ${primaryMatch.skill} provides relevant transferable knowledge for ${requirement}. These complementary skills share similar principles and methodologies, indicating the candidate can adapt their existing expertise`;
+    }
+  } else {
+    feedback += `The candidate demonstrates ${requirement} alignment through their ${experienceDepth} in ${primaryMatch.skill}. While not a direct match, the conceptual overlap and shared problem-solving approaches suggest they have the foundational thinking required`;
+  }
+  
+  // Add specific LinkedIn evidence with context
+  if (hasStrongEvidence) {
+    const bestEvidence = primaryMatch.specificEvidence!.find(e => e.type === 'leadership') || 
+                        primaryMatch.specificEvidence!.find(e => e.type === 'implementation') || 
+                        primaryMatch.specificEvidence!.find(e => e.type === 'achievement') || 
+                        primaryMatch.specificEvidence![0];
+    
+    if (bestEvidence) {
+      const evidenceContext = bestEvidence.type === 'leadership' ? 'leadership responsibility' :
+                             bestEvidence.type === 'implementation' ? 'hands-on implementation work' :
+                             bestEvidence.type === 'achievement' ? 'measurable achievement' : 'professional experience';
+      
+      feedback += `. Their profile shows ${evidenceContext} at ${bestEvidence.source}, specifically: "${bestEvidence.quote.substring(0, 120)}`;
+      if (bestEvidence.quote.length > 120) feedback += '...';
+      feedback += '". This demonstrates practical application rather than just theoretical knowledge';
+      
+      if (bestEvidence.context) {
+        feedback += ` and shows ${bestEvidence.context.toLowerCase()}`;
+      }
+    }
+  }
+  
+  // Add comprehensive view of additional experience
+  if (additionalMatches.length > 0) {
+    const experienceDescriptions = additionalMatches.slice(0, 2).map(m => {
+      if (m.specificEvidence && m.specificEvidence.length > 0) {
+        const evidence = m.specificEvidence[0];
+        return `their ${m.skill} work at ${evidence.source}, which involved ${evidence.type === 'leadership' ? 'team leadership' : evidence.type === 'implementation' ? 'hands-on development' : 'practical application'}`;
+      } else {
+        return `${m.yearsExperience} years of ${m.skill} experience across multiple roles`;
+      }
+    });
+    
+    feedback += `. The assessment also considers ${experienceDescriptions.join(' and ')}, creating a comprehensive view of their capabilities in this domain`;
+  }
+  
+  // Provide specific rationale for the assessment level
+  const getAssessmentRationale = (status: string, isMandatory: boolean, primaryMatch: SkillMatch) => {
+    if (status === 'strong') {
+      if (primaryMatch.matchType === 'exact' && primaryMatch.yearsExperience >= 3) {
+        return isMandatory ? 
+          'The combination of direct experience and substantial tenure creates high confidence in their ability to excel in this critical area.' :
+          'While optional, this represents a significant strength that would add considerable value to their contribution.';
+      } else {
+        return isMandatory ?
+          'The depth and relevance of their experience provides strong assurance they can handle this essential requirement.' :
+          'This optional qualification is well-supported by their background and enhances their overall profile.';
+      }
+    } else if (status === 'adequate') {
+      return isMandatory ?
+        'While they meet the basic requirement, you may want to explore specific examples and depth during interviews to ensure they can handle complex scenarios.' :
+        'This optional qualification adds value to their profile, though not at an expert level.';
+    } else if (status === 'weak') {
+      return isMandatory ?
+        'The limited or indirect experience raises questions about their readiness for this essential requirement. Consider whether additional training or support would be needed.' :
+        'Given this is optional, the limited experience here is not concerning and could be developed over time.';
+    }
+    return '';
+  };
+  
+  feedback += ` ${getAssessmentRationale(status, isMandatory, primaryMatch)}`;
   
   return feedback;
 }
@@ -679,7 +1010,7 @@ async function evaluateRequirement(
         requirement_name: requirement.requirement,
         score: 0,
         status: 'missing',
-        feedback: generateRecruiterFeedback(requirement.requirement, [], requirement.type, 0, 'missing')
+        feedback: generateEnhancedRecruiterFeedback(requirement.requirement, [], requirement.type, 0, 'missing', requirement.is_mandatory)
       };
     }
     
@@ -711,7 +1042,7 @@ async function evaluateRequirement(
     // Cap unrealistic total experience
     totalYears = Math.min(totalYears, 15);
     
-    // Handle soft skills without proficiency requirements differently
+    // Enhanced scoring logic considering mandatory vs non-mandatory requirements
     let finalScore: number;
     
     if (requirement.type === 'soft_skill' && requirement.proficiency_level === null) {
@@ -741,23 +1072,47 @@ async function evaluateRequirement(
       const bestMatch = matches[0];
       const qualityBonus = bestMatch.confidence * 30;
       
-      // Final score
-      finalScore = Math.min(Math.round(baseScore + qualityBonus), 100);
+      // Calculate base final score
+      let calculatedScore = Math.min(Math.round(baseScore + qualityBonus), 100);
+      
+      // Apply mandatory vs non-mandatory scoring logic
+      if (requirement.is_mandatory) {
+        // Mandatory requirements: score normally, but ensure higher standards
+        finalScore = calculatedScore;
+      } else {
+        // Non-mandatory requirements: be more generous with scoring since they're "nice to have"
+        // Give bonus points for any match found
+        if (calculatedScore > 0) {
+          finalScore = Math.min(calculatedScore + 10, 100); // +10 bonus for non-mandatory matches
+        } else {
+          finalScore = 0; // Still 0 if no match found
+        }
+      }
     }
     
-    // Determine status
+    // Determine status with mandatory requirement considerations
     let status: 'strong' | 'adequate' | 'weak' | 'missing' = 'missing';
-    if (finalScore >= 75) status = 'strong';
-    else if (finalScore >= 50) status = 'adequate';
-    else if (finalScore >= 25) status = 'weak';
     
-    // Generate feedback
-    const feedback = generateRecruiterFeedback(
+    if (requirement.is_mandatory) {
+      // Stricter thresholds for mandatory requirements
+      if (finalScore >= 80) status = 'strong';
+      else if (finalScore >= 60) status = 'adequate';
+      else if (finalScore >= 30) status = 'weak';
+    } else {
+      // More lenient thresholds for non-mandatory requirements
+      if (finalScore >= 70) status = 'strong';
+      else if (finalScore >= 40) status = 'adequate';
+      else if (finalScore >= 20) status = 'weak';
+    }
+    
+    // Generate enhanced feedback with evidence and rationale
+    const feedback = generateEnhancedRecruiterFeedback(
       requirement.requirement,
       matches,
       requirement.type,
       finalScore,
-      status
+      status,
+      requirement.is_mandatory
     );
     
     console.log(`✅ ${requirement.requirement}: ${finalScore}% (${status}) - ${matches.length} matches`);
@@ -775,7 +1130,9 @@ async function evaluateRequirement(
       requirement_name: requirement.requirement,
       score: 0,
       status: 'missing',
-      feedback: `Unable to evaluate ${requirement.requirement} - please review manually.`
+      feedback: `Unable to evaluate ${requirement.requirement} - please review manually.`,
+      is_mandatory: requirement.is_mandatory,
+      evidence_details: []
     };
   }
 }
@@ -801,12 +1158,28 @@ async function generateOverallFeedback(
     const candidateName = `${candidateData.main.first_name} ${candidateData.main.last_name}`;
     const jobTitle = jobData.attributes.title;
     
-    // Prepare analysis summary
-    const strongRequirements = requirementEvaluations.filter(req => req.status === 'strong');
-    const weakRequirements = requirementEvaluations.filter(req => req.status === 'weak' || req.status === 'missing');
-    const mandatoryRequirements = requirementEvaluations.filter(req => 
-      jobData.requirements.find((jr: JobRequirement) => jr.requirement === req.requirement_name)?.is_mandatory
+    // Prepare enhanced analysis summary with mandatory focus
+    const allMandatoryReqs = jobData.requirements.filter((req: JobRequirement) => req.is_mandatory);
+    const allOptionalReqs = jobData.requirements.filter((req: JobRequirement) => !req.is_mandatory);
+    
+    // Separate mandatory and optional evaluations
+    const mandatoryEvaluations = requirementEvaluations.filter(req => 
+      allMandatoryReqs.find((jr: JobRequirement) => jr.requirement === req.requirement_name)
     );
+    const optionalEvaluations = requirementEvaluations.filter(req => 
+      allOptionalReqs.find((jr: JobRequirement) => jr.requirement === req.requirement_name)
+    );
+    
+    // Categorize by strength with mandatory priority
+    const strongMandatory = mandatoryEvaluations.filter(req => req.status === 'strong');
+    const adequateMandatory = mandatoryEvaluations.filter(req => req.status === 'adequate');
+    const weakMandatory = mandatoryEvaluations.filter(req => req.status === 'weak' || req.status === 'missing');
+    
+    const strongOptional = optionalEvaluations.filter(req => req.status === 'strong');
+    const adequateOptional = optionalEvaluations.filter(req => req.status === 'adequate');
+    
+    const strongRequirements = [...strongMandatory, ...strongOptional];
+    const weakRequirements = [...weakMandatory, ...optionalEvaluations.filter(req => req.status === 'weak' || req.status === 'missing')];
     
     const prompt = `
 You are an expert recruiter analyzing how well a candidate matches a job opening. Generate human-readable content for recruiter decision-making.
@@ -817,9 +1190,16 @@ You are an expert recruiter analyzing how well a candidate matches a job opening
 **Candidate Experience**: ${candidateData.years_of_experience} years total
 
 ## ANALYSIS RESULTS:
-**Strong Matches**: ${strongRequirements.map(r => r.requirement_name).join(', ') || 'None'}
-**Gaps/Weak Areas**: ${weakRequirements.map(r => r.requirement_name).join(', ') || 'None'}
-**Mandatory Requirements**: ${mandatoryRequirements.map(r => `${r.requirement_name} (${r.status})`).join(', ')}
+**MANDATORY Requirements Status**: 
+- Strong: ${strongMandatory.map(r => r.requirement_name).join(', ') || 'None'}
+- Adequate: ${adequateMandatory.map(r => r.requirement_name).join(', ') || 'None'}
+- Gaps: ${weakMandatory.map(r => r.requirement_name).join(', ') || 'None'}
+
+**Optional/Preferred Qualifications**:
+- Strong: ${strongOptional.map(r => r.requirement_name).join(', ') || 'None'}
+- Adequate: ${adequateOptional.map(r => r.requirement_name).join(', ') || 'None'}
+
+**Overall Assessment**: Mandatory score impact on candidacy
 
 ## REQUIRED OUTPUT:
 Return a JSON object with this structure:
@@ -827,12 +1207,12 @@ Return a JSON object with this structure:
 {
   "overall_feedback": "1-2 sentence summary for recruiters",
   "summary": {
-    "strengths": ["3-5 specific strengths based on strong matches"],
-    "gaps": ["3-5 specific gaps or areas of concern"]
+    "strengths": ["Focus on mandatory requirements met + top optional qualifications"],
+    "gaps": ["Prioritize mandatory requirement gaps, then significant optional misses"]
   },
   "recruiter_recommendations": {
-    "interview_strategy": ["3-4 specific interview focus areas"],
-    "other_options": ["3-4 alternative positioning suggestions"]
+    "interview_strategy": ["Validate mandatory requirements first, then explore strengths"],
+    "other_options": ["Consider role adjustments if mandatory gaps exist, highlight optional strengths"]
   }
 }
 
@@ -938,10 +1318,11 @@ async function runMatchAnalysis(candidateData: any, jobData: any, supabase: any)
       requirementEvaluations.push(evaluation);
     }
 
-    // Calculate overall metrics
+    // Enhanced two-tier scoring: Weight mandatory requirements heavily
     const mandatoryReqs = jobData.requirements.filter((req: JobRequirement) => req.is_mandatory);
     const optionalReqs = jobData.requirements.filter((req: JobRequirement) => !req.is_mandatory);
     
+    // Calculate weighted scores for mandatory and optional requirements separately
     const calculateWeightedAverage = (requirements: JobRequirement[], evaluations: any[]) => {
       if (requirements.length === 0) return 0;
       let totalWeight = 0;
@@ -960,19 +1341,36 @@ async function runMatchAnalysis(candidateData: any, jobData: any, supabase: any)
     
     const mandatoryScore = calculateWeightedAverage(mandatoryReqs, requirementEvaluations);
     const optionalScore = calculateWeightedAverage(optionalReqs, requirementEvaluations);
-    const overallScore = Math.round(mandatoryScore * 0.8 + optionalScore * 0.2);
     
-    const getOverallStatus = (score: number) => {
-      if (score >= 75) return "strong";
-      if (score >= 50) return "adequate";
-      if (score >= 25) return "weak";
+    // Weight mandatory requirements much more heavily (80/20 split)
+    let overallScore;
+    if (mandatoryReqs.length === 0) {
+      // If no mandatory requirements, use optional score
+      overallScore = Math.round(optionalScore);
+    } else if (optionalReqs.length === 0) {
+      // If no optional requirements, use mandatory score
+      overallScore = Math.round(mandatoryScore);
+    } else {
+      // Standard case: weight mandatory 80%, optional 20%
+      overallScore = Math.round(mandatoryScore * 0.8 + optionalScore * 0.2);
+    }
+    
+    const getOverallStatus = (score: number, mandatoryScore: number) => {
+      // If mandatory requirements are very low, cap the status
+      if (mandatoryScore < SCORING_CONFIG.ADEQUATE_THRESHOLD && mandatoryReqs.length > 0) {
+        return score >= SCORING_CONFIG.ADEQUATE_THRESHOLD ? "weak" : "missing";
+      }
+      
+      if (score >= SCORING_CONFIG.STRONG_THRESHOLD) return "strong";
+      if (score >= SCORING_CONFIG.ADEQUATE_THRESHOLD) return "adequate";
+      if (score >= SCORING_CONFIG.WEAK_THRESHOLD) return "weak";
       return "missing";
     };
     
-    const overallStatus = getOverallStatus(overallScore);
+    const overallStatus = getOverallStatus(overallScore, mandatoryScore);
     const matchedMandatory = mandatoryReqs.filter((req: JobRequirement) => {
       const evaluation = requirementEvaluations.find(evalItem => evalItem.requirement_name === req.requirement);
-      return evaluation && evaluation.score >= 50;
+      return evaluation && evaluation.score >= SCORING_CONFIG.ADEQUATE_THRESHOLD;
     }).length;
 
     // Generate overall feedback and recommendations
@@ -1002,19 +1400,21 @@ async function runMatchAnalysis(candidateData: any, jobData: any, supabase: any)
         analysis_timestamp: new Date().toISOString(),
         job_id: "placeholder_job_id",
         candidate_id: "placeholder_candidate_id",
-        algorithm_version: "3.0-embedding-enhanced",
+        algorithm_version: "3.1-integrated-parsing",
         total_processing_time_ms: processingTime
       }
     };
 
     // Enhanced console logging
-    console.log("\n🎯 ENHANCED MATCH ANALYSIS v3 RESULTS:");
-    console.log("=====================================");
+    console.log("\n🎯 ENHANCED MATCH ANALYSIS v3.1 RESULTS:");
+    console.log("=========================================");
     console.log(`📊 Overall Score: ${overallScore}% (${overallStatus})`);
+    console.log(`🎯 Mandatory Score: ${Math.round(mandatoryScore)}% | Optional Score: ${Math.round(optionalScore)}%`);
     console.log(`✅ Mandatory Requirements Met: ${matchedMandatory}/${mandatoryReqs.length}`);
     console.log(`🕒 Processing Time: ${processingTime}ms`);
     console.log(`🧠 Profile Skills Extracted: ${profileSkills.length}`);
-    console.log(`🎯 Enhanced Feedback Generated: Yes`);
+    console.log(`📝 Evidence-Based Feedback: Yes`);
+    console.log(`⚖️ Scoring Logic: 80% Mandatory + 20% Optional`);
     
     console.log("\n📋 REQUIREMENT BREAKDOWN:");
     requirementEvaluations.forEach((req, i) => {
