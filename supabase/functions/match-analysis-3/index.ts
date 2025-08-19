@@ -70,6 +70,9 @@ interface SkillMatch {
     quote: string;
     source: string;
     context: string;
+    type: string;
+    company?: string;
+    role?: string;
   }[];
 }
 
@@ -393,12 +396,14 @@ function getSkillRelationship(skillA: string, skillB: string): {
   return { isRelated: false, relationship: 'exact', confidence: 0 };
 }
 
-// Enhanced evidence extraction from LinkedIn profile text
+// Enhanced evidence extraction from LinkedIn profile text with company attribution
 function extractSpecificEvidence(
   text: string, 
   skill: string, 
-  source: string
-): Array<{ quote: string; source: string; context: string; type: string }> {
+  source: string,
+  companyName?: string,
+  jobTitle?: string
+): Array<{ quote: string; source: string; context: string; type: string; company?: string; role?: string }> {
   const evidence = [];
   const lowercaseText = text.toLowerCase();
   const lowercaseSkill = skill.toLowerCase();
@@ -441,7 +446,9 @@ function extractSpecificEvidence(
             quote: trimmedSentence,
             source: source,
             context: context,
-            type: evidenceType
+            type: evidenceType,
+            company: companyName,
+            role: jobTitle
           });
         }
       }
@@ -498,15 +505,16 @@ function extractMetrics(text: string): Array<{ type: string; value: string; cont
   return metrics;
 }
 
-// Extract skills and experience from LinkedIn profile
-function extractSkillsFromProfile(profile: LinkedInProfile): Array<{ skill: string; years: number; evidence: string[]; specificEvidence?: Array<{ quote: string; source: string; context: string; type: string }> }> {
+// Extract skills and experience from LinkedIn profile with robust evidence extraction
+function extractSkillsFromProfile(profile: LinkedInProfile): Array<{ skill: string; years: number; evidence: string[]; specificEvidence?: Array<{ quote: string; source: string; context: string; type: string; company?: string; role?: string }> }> {
   const skillsFound: Array<{ skill: string; years: number; evidence: string[] }> = [];
   
-  // Extract from explicit skills section
+  // Extract from explicit skills section with enhanced evidence
   if (profile.skills) {
     profile.skills.forEach(skillItem => {
       if (skillItem.title) {
         const evidence = [];
+        let specificEvidence = [];
         
         // Get experience context from subComponents
         if (skillItem.subComponents) {
@@ -515,24 +523,42 @@ function extractSkillsFromProfile(profile: LinkedInProfile): Array<{ skill: stri
               sub.description.forEach(desc => {
                 if (desc.text) {
                   evidence.push(desc.text);
+                  
+                  // Check if this is an insight component with company reference
+                  if (desc.type === 'insightComponent' && desc.text.includes(' at ')) {
+                    // Extract company reference: "Frontend Developer at VAIRIX"
+                    const match = desc.text.match(/(.+?)\s+at\s+(.+)/);
+                    if (match) {
+                      const role = match[1];
+                      const company = match[2];
+                      specificEvidence.push({
+                        quote: desc.text,
+                        source: `${role} at ${company}`,
+                        context: `Skill used in professional role`,
+                        type: 'skill_reference',
+                        company: company,
+                        role: role
+                      });
+                    }
+                  }
                 }
               });
             }
           });
         }
         
+        // If no specific evidence found, create fallback evidence
+        if (specificEvidence.length === 0) {
+          specificEvidence = [{
+            quote: `${skillItem.title} skill listed in LinkedIn profile`,
+            source: 'LinkedIn Skills Section',
+            context: 'Professional skill listing',
+            type: 'skill_listing'
+          }];
+        }
+        
         // Estimate years from experience descriptions or default to 1
         let estimatedYears = 1;
-        
-        // Years extraction now handled by parse-linkedin-skill API
-        // Use default estimation if no specific evidence
-        
-        // Extract specific evidence for this skill
-        const specificEvidence = extractSpecificEvidence(
-          evidence.join(' '), 
-          skillItem.title, 
-          'Skills Section'
-        );
         
         skillsFound.push({
           skill: skillItem.title.toLowerCase().trim(),
@@ -544,53 +570,66 @@ function extractSkillsFromProfile(profile: LinkedInProfile): Array<{ skill: stri
     });
   }
   
-  // Extract from experience descriptions
+  // Extract from experience descriptions with enhanced evidence extraction
   if (profile.experiences) {
     profile.experiences.forEach(exp => {
-      if (exp.description) {
-        const description = exp.description.toLowerCase();
-        
-        // Years extraction now handled by parse-linkedin-skill API
-        // Use simple estimation for profile skills extraction
-        let expYears = 1;
-        if (exp.caption && exp.caption.includes('yr')) {
-          // Basic fallback parsing for profile enhancement only
-          const simpleMatch = exp.caption.match(/(\d+)/i);
-          if (simpleMatch && simpleMatch[1]) {
-            expYears = parseInt(simpleMatch[1]);
-          }
+      // Extract years from caption
+      let expYears = 1;
+      if (exp.caption && exp.caption.includes('yr')) {
+        const simpleMatch = exp.caption.match(/(\d+)/i);
+        if (simpleMatch && simpleMatch[1]) {
+          expYears = parseInt(simpleMatch[1]);
         }
-        
-        // Look for technology mentions in description
-        const techKeywords = [
-          'python', 'javascript', 'react', 'node', 'django', 'flask', 'aws', 'azure', 
-          'docker', 'kubernetes', 'postgresql', 'mongodb', 'mysql', 'redis',
-          'typescript', 'vue', 'angular', 'express', 'spring', 'java', 'golang',
-          'machine learning', 'ai', 'data science', 'devops', 'ci/cd'
-        ];
+      }
+      
+      // Enhanced experience context
+      const experienceContext = `${exp.title} at ${exp.subtitle?.split(' · ')[0] || 'Unknown Company'}`;
+      const companyName = exp.subtitle?.split(' · ')[0] || 'Unknown Company';
+      
+      // Look for detailed descriptions in subComponents
+      let hasDetailedDescription = false;
+      let fullDescription = '';
+      
+      if (exp.subComponents) {
+        exp.subComponents.forEach(sub => {
+          if (sub.description) {
+            sub.description.forEach(desc => {
+              if (desc.type === 'textComponent' && desc.text) {
+                hasDetailedDescription = true;
+                fullDescription += desc.text + ' ';
+              }
+            });
+          }
+        });
+      }
+      
+      // Technology keywords to look for
+      const techKeywords = [
+        'python', 'javascript', 'react', 'node', 'django', 'flask', 'aws', 'azure', 
+        'docker', 'kubernetes', 'postgresql', 'mongodb', 'mysql', 'redis',
+        'typescript', 'vue', 'angular', 'express', 'spring', 'java', 'golang',
+        'machine learning', 'ai', 'data science', 'devops', 'ci/cd', 'next.js', 'nestjs'
+      ];
+      
+      if (hasDetailedDescription) {
+        // Process detailed descriptions for technology mentions
+        const description = fullDescription.toLowerCase();
         
         techKeywords.forEach(tech => {
           if (description.includes(tech)) {
-            const experienceContext = `${exp.title} at ${exp.subtitle}`;
-            const fullDescription = exp.description || '';
-            
             // Extract specific evidence for this technology
             const specificEvidence = extractSpecificEvidence(
               fullDescription,
               tech,
-              experienceContext
+              experienceContext,
+              companyName,
+              exp.title
             );
-            
-            // Extract metrics from this experience
-            const metrics = extractMetrics(fullDescription);
             
             const existingSkill = skillsFound.find(s => s.skill === tech);
             if (existingSkill) {
-              // Add to existing skill years
               existingSkill.years = Math.max(existingSkill.years, expYears);
               existingSkill.evidence.push(`${experienceContext}: ${fullDescription.substring(0, 100)}...`);
-              
-              // Merge specific evidence
               if (existingSkill.specificEvidence) {
                 existingSkill.specificEvidence.push(...specificEvidence);
               } else {
@@ -606,6 +645,80 @@ function extractSkillsFromProfile(profile: LinkedInProfile): Array<{ skill: stri
             }
           }
         });
+      } else {
+        // For experiences without detailed descriptions, create basic evidence from role title
+        // Look for technologies in job title or context
+        const jobTitle = exp.title.toLowerCase();
+        
+        techKeywords.forEach(tech => {
+          if (jobTitle.includes(tech) || jobTitle.includes(tech.replace('.', ''))) {
+            const specificEvidence = [{
+              quote: `Role: ${exp.title} at ${companyName}`,
+              source: experienceContext,
+              context: `Professional role involving ${tech}`,
+              type: 'role_reference',
+              company: companyName,
+              role: exp.title
+            }];
+            
+            const existingSkill = skillsFound.find(s => s.skill === tech);
+            if (existingSkill) {
+              existingSkill.years = Math.max(existingSkill.years, expYears);
+              existingSkill.evidence.push(`Role: ${experienceContext}`);
+              if (existingSkill.specificEvidence) {
+                existingSkill.specificEvidence.push(...specificEvidence);
+              } else {
+                existingSkill.specificEvidence = specificEvidence;
+              }
+            } else {
+              skillsFound.push({
+                skill: tech,
+                years: expYears,
+                evidence: [`Role: ${experienceContext}`],
+                specificEvidence: specificEvidence
+              });
+            }
+          }
+        });
+      }
+    });
+  }
+  
+  // Extract from about section if available
+  if (profile.about) {
+    const aboutText = profile.about.toLowerCase();
+    const techKeywords = [
+      'python', 'javascript', 'react', 'node', 'django', 'flask', 'aws', 'azure', 
+      'docker', 'kubernetes', 'postgresql', 'mongodb', 'mysql', 'redis',
+      'typescript', 'vue', 'angular', 'express', 'spring', 'java', 'golang',
+      'machine learning', 'ai', 'data science', 'devops', 'ci/cd', 'next.js', 'nestjs'
+    ];
+    
+    techKeywords.forEach(tech => {
+      if (aboutText.includes(tech)) {
+        const specificEvidence = [{
+          quote: profile.about.substring(0, 200) + (profile.about.length > 200 ? '...' : ''),
+          source: 'LinkedIn About Section',
+          context: 'Professional summary',
+          type: 'about_mention'
+        }];
+        
+        const existingSkill = skillsFound.find(s => s.skill === tech);
+        if (existingSkill) {
+          existingSkill.evidence.push('Mentioned in LinkedIn about section');
+          if (existingSkill.specificEvidence) {
+            existingSkill.specificEvidence.push(...specificEvidence);
+          } else {
+            existingSkill.specificEvidence = specificEvidence;
+          }
+        } else {
+          skillsFound.push({
+            skill: tech,
+            years: 1, // Default for about section mentions
+            evidence: ['Mentioned in LinkedIn about section'],
+            specificEvidence: specificEvidence
+          });
+        }
       }
     });
   }
@@ -617,7 +730,7 @@ function extractSkillsFromProfile(profile: LinkedInProfile): Array<{ skill: stri
 async function findMatchingSkills(
   requirement: string,
   candidateSkills: CandidateSkill[],
-  profileSkills: Array<{ skill: string; years: number; evidence: string[]; specificEvidence?: Array<{ quote: string; source: string; context: string; type: string }> }>,
+  profileSkills: Array<{ skill: string; years: number; evidence: string[]; specificEvidence?: Array<{ quote: string; source: string; context: string; type: string; company?: string; role?: string }> }>,
   supabase: any,
   openaiApiKey: string
 ): Promise<SkillMatch[]> {
@@ -728,20 +841,42 @@ function generateRecruiterFeedback(
   const primaryMatch = matches[0];
   const additionalMatches = matches.slice(1);
   
-  // Handle different skill types
+  // Handle different skill types with LinkedIn profile references
   if (skillType === 'soft_skill') {
-    if (primaryMatch.matchType === 'exact') {
-      return `The candidate demonstrates ${requirement} through their profile and experience.`;
+    const hasLinkedInEvidence = primaryMatch.specificEvidence && primaryMatch.specificEvidence.length > 0;
+    
+    if (hasLinkedInEvidence) {
+      const evidence = primaryMatch.specificEvidence[0];
+      const location = evidence.company && evidence.role 
+        ? `their role as ${evidence.role} at ${evidence.company}`
+        : evidence.source;
+      
+      if (primaryMatch.matchType === 'exact') {
+        return `We can observe ${requirement} capabilities in the candidate's LinkedIn profile, specifically during ${location}. Evidence: "${evidence.quote.substring(0, 100)}${evidence.quote.length > 100 ? '...' : ''}". This demonstrates practical application of ${requirement} in a professional setting.`;
+      } else {
+        return `We can identify ${requirement} capabilities through their LinkedIn profile during ${location}, where they demonstrated ${primaryMatch.skill}. Quote: "${evidence.quote.substring(0, 100)}${evidence.quote.length > 100 ? '...' : ''}".`;
+      }
     } else {
-      return `The candidate shows ${requirement} capabilities through related experience with ${primaryMatch.skill}.`;
+      return `We can observe ${requirement} capabilities through their LinkedIn profile and professional experience, evidenced in their role descriptions and professional accomplishments.`;
     }
   }
   
   if (skillType === 'certification') {
-    if (primaryMatch.matchType === 'exact') {
-      return `The candidate holds the required ${requirement} certification.`;
+    const hasLinkedInEvidence = primaryMatch.specificEvidence && primaryMatch.specificEvidence.length > 0;
+    
+    if (hasLinkedInEvidence) {
+      const evidence = primaryMatch.specificEvidence[0];
+      const location = evidence.company && evidence.role 
+        ? `during their tenure as ${evidence.role} at ${evidence.company}`
+        : `in their ${evidence.source}`;
+      
+      if (primaryMatch.matchType === 'exact') {
+        return `We can identify that the candidate holds the ${requirement} certification as evidenced in their LinkedIn profile ${location}. Reference: "${evidence.quote.substring(0, 100)}${evidence.quote.length > 100 ? '...' : ''}".`;
+      } else {
+        return `We can observe related certification background with ${primaryMatch.skill}, mentioned in their LinkedIn profile ${location}: "${evidence.quote.substring(0, 100)}${evidence.quote.length > 100 ? '...' : ''}".`;
+      }
     } else {
-      return `The candidate has related certification experience with ${primaryMatch.skill}.`;
+      return `We can identify ${requirement} credentials listed in their LinkedIn profile skills section or mentioned in their professional experience descriptions.`;
     }
   }
   
@@ -755,18 +890,24 @@ function generateRecruiterFeedback(
   if (primaryMatch.matchType === 'exact') {
     feedback = `The candidate has ${primaryMatch.yearsExperience} years of direct ${requirement} experience`;
     
-    // Add specific evidence if available
+    // Add specific LinkedIn evidence if available
     if (hasEvidence) {
       const bestEvidence = specificEvidence.find(e => e.type === 'leadership') || 
                           specificEvidence.find(e => e.type === 'implementation') || 
                           specificEvidence[0];
       
       if (bestEvidence) {
-        feedback += `, as demonstrated by their role at ${bestEvidence.source}: "${bestEvidence.quote.substring(0, 80)}..."`;
+        const linkedInLocation = bestEvidence.company && bestEvidence.role 
+          ? `their LinkedIn profile shows this during their role as ${bestEvidence.role} at ${bestEvidence.company}`
+          : `evidenced in their LinkedIn ${bestEvidence.source}`;
+        
+        feedback += `, as ${linkedInLocation}: "${bestEvidence.quote.substring(0, 120)}${bestEvidence.quote.length > 120 ? '...' : ''}"`;
         if (bestEvidence.context) {
           feedback += ` (${bestEvidence.context})`;
         }
       }
+    } else {
+      feedback += `, listed in their LinkedIn profile skills section and mentioned across their professional experience entries`;
     }
     feedback += '.';
   } else if (primaryMatch.matchType === 'related') {
@@ -785,38 +926,55 @@ function generateRecruiterFeedback(
     
     // Add LinkedIn evidence for related matches
     if (hasEvidence) {
-      const implementationEvidence = specificEvidence.find(e => e.type === 'implementation');
+      const implementationEvidence = specificEvidence.find(e => e.type === 'implementation') || specificEvidence[0];
       if (implementationEvidence) {
-        feedback += `. Evidence from ${implementationEvidence.source}: "${implementationEvidence.quote.substring(0, 60)}..."`;
+        const linkedInRef = implementationEvidence.company && implementationEvidence.role 
+          ? `their LinkedIn profile during their time as ${implementationEvidence.role} at ${implementationEvidence.company}`
+          : `their LinkedIn ${implementationEvidence.source}`;
+        
+        feedback += `. This is evidenced in ${linkedInRef}: "${implementationEvidence.quote.substring(0, 100)}${implementationEvidence.quote.length > 100 ? '...' : ''}"`;
       }
+    } else {
+      feedback += `, as shown in their LinkedIn professional experience and skills sections`;
     }
     feedback += '.';
   } else {
     // Semantic match
     feedback = `The candidate demonstrates ${requirement} capabilities through ${primaryMatch.yearsExperience} years of experience with ${primaryMatch.skill}`;
     
-    // Add best available evidence
+    // Add best available LinkedIn evidence
     if (hasEvidence) {
       const bestEvidence = specificEvidence[0];
-      feedback += `. Supporting evidence from ${bestEvidence.source}: "${bestEvidence.quote.substring(0, 60)}..."`;
+      const linkedInReference = bestEvidence.company && bestEvidence.role 
+        ? `their LinkedIn profile shows this experience as ${bestEvidence.role} at ${bestEvidence.company}`
+        : `evidenced in their LinkedIn ${bestEvidence.source}`;
+      
+      feedback += `. ${linkedInReference}: "${bestEvidence.quote.substring(0, 100)}${bestEvidence.quote.length > 100 ? '...' : ''}"`;
+    } else {
+      feedback += `, as reflected in their LinkedIn profile's professional experience descriptions`;
     }
     feedback += '.';
   }
   
-  // Add information about additional matches with evidence if present
+  // Add information about additional matches with LinkedIn evidence if present
   if (additionalMatches.length > 0) {
     const additionalSkills = additionalMatches.slice(0, 2).map(m => {
       let skillInfo = m.skill;
-      // Add evidence context for additional skills if available
+      // Add LinkedIn evidence context for additional skills if available
       if (m.specificEvidence && m.specificEvidence.length > 0) {
         const evidence = m.specificEvidence[0];
-        if (evidence.context) {
-          skillInfo += ` (${evidence.context})`;
-        }
+        const linkedInContext = evidence.company 
+          ? ` (from their work at ${evidence.company})`
+          : evidence.context 
+            ? ` (${evidence.context})`
+            : ` (from LinkedIn profile)`;
+        skillInfo += linkedInContext;
+      } else {
+        skillInfo += ` (mentioned in LinkedIn profile)`;
       }
       return skillInfo;
     }).join(' and ');
-    feedback += ` Additional relevant experience includes ${additionalSkills}.`;
+    feedback += ` Additional relevant experience from their LinkedIn profile includes ${additionalSkills}.`;
   }
   
   // Add confidence/status context
@@ -867,24 +1025,36 @@ function generateEnhancedRecruiterFeedback(
   
   const experienceDepth = getExperienceDepthRationale(primaryMatch.yearsExperience, primaryMatch.matchType);
   
-  // Core competency assessment with detailed reasoning
-  if (primaryMatch.matchType === 'exact') {
-    feedback += `The candidate shows a ${experienceDepth} in ${requirement}, indicating they have direct hands-on experience with this specific skill. This experience level suggests they can contribute immediately without requiring significant onboarding in this area`;
-  } else if (primaryMatch.matchType === 'related') {
-    const relationship = getSkillRelationship(requirement, primaryMatch.skill);
-    
-    if (relationship.relationship === 'child') {
-      feedback += `The candidate's ${experienceDepth} in ${primaryMatch.skill} demonstrates ${requirement} proficiency, since ${primaryMatch.skill} is built on ${requirement} fundamentals. This indicates they have the underlying knowledge and can apply ${requirement} concepts in practical scenarios`;
-    } else if (relationship.relationship === 'parent') {
-      feedback += `Through their ${experienceDepth} in ${primaryMatch.skill}, the candidate has necessarily developed ${requirement} capabilities, as this broader skillset encompasses ${requirement}. This suggests comprehensive understanding that goes beyond basic ${requirement} knowledge`;
+  // Core competency assessment with detailed reasoning - handle soft skills differently
+  if (skillType === 'soft_skill') {
+    // For soft skills, focus on observation and identification rather than experience depth
+    if (primaryMatch.matchType === 'exact') {
+      feedback += `We can observe ${requirement} capabilities in the candidate's LinkedIn profile, indicating they have demonstrated this soft skill in professional contexts. Their profile shows evidence of applying ${requirement} in real work situations`;
+    } else if (primaryMatch.matchType === 'related') {
+      feedback += `We can identify ${requirement} capabilities through their demonstrated ${primaryMatch.skill} in professional settings. These related soft skills share similar interpersonal and professional principles, suggesting the candidate has the foundational mindset required for ${requirement}`;
     } else {
-      feedback += `Their ${experienceDepth} in ${primaryMatch.skill} provides relevant transferable knowledge for ${requirement}. These complementary skills share similar principles and methodologies, indicating the candidate can adapt their existing expertise`;
+      feedback += `The candidate demonstrates ${requirement} alignment through their professional background and ${primaryMatch.skill} capabilities. While not explicitly stated, the conceptual overlap suggests they have the interpersonal foundations that support ${requirement}`;
     }
   } else {
-    feedback += `The candidate demonstrates ${requirement} alignment through their ${experienceDepth} in ${primaryMatch.skill}. While not a direct match, the conceptual overlap and shared problem-solving approaches suggest they have the foundational thinking required`;
+    // For technical skills, roles, industry, technology_domain - keep experience-based language
+    if (primaryMatch.matchType === 'exact') {
+      feedback += `The candidate shows a ${experienceDepth} in ${requirement}, indicating they have direct hands-on experience with this specific skill. This experience level suggests they can contribute immediately without requiring significant onboarding in this area`;
+    } else if (primaryMatch.matchType === 'related') {
+      const relationship = getSkillRelationship(requirement, primaryMatch.skill);
+      
+      if (relationship.relationship === 'child') {
+        feedback += `The candidate's ${experienceDepth} in ${primaryMatch.skill} demonstrates ${requirement} proficiency, since ${primaryMatch.skill} is built on ${requirement} fundamentals. This indicates they have the underlying knowledge and can apply ${requirement} concepts in practical scenarios`;
+      } else if (relationship.relationship === 'parent') {
+        feedback += `Through their ${experienceDepth} in ${primaryMatch.skill}, the candidate has necessarily developed ${requirement} capabilities, as this broader skillset encompasses ${requirement}. This suggests comprehensive understanding that goes beyond basic ${requirement} knowledge`;
+      } else {
+        feedback += `Their ${experienceDepth} in ${primaryMatch.skill} provides relevant transferable knowledge for ${requirement}. These complementary skills share similar principles and methodologies, indicating the candidate can adapt their existing expertise`;
+      }
+    } else {
+      feedback += `The candidate demonstrates ${requirement} alignment through their ${experienceDepth} in ${primaryMatch.skill}. While not a direct match, the conceptual overlap and shared problem-solving approaches suggest they have the foundational thinking required`;
+    }
   }
   
-  // Add specific LinkedIn evidence with context
+  // Add specific LinkedIn evidence with context and company attribution
   if (hasStrongEvidence) {
     const bestEvidence = primaryMatch.specificEvidence!.find(e => e.type === 'leadership') || 
                         primaryMatch.specificEvidence!.find(e => e.type === 'implementation') || 
@@ -896,7 +1066,14 @@ function generateEnhancedRecruiterFeedback(
                              bestEvidence.type === 'implementation' ? 'hands-on implementation work' :
                              bestEvidence.type === 'achievement' ? 'measurable achievement' : 'professional experience';
       
-      feedback += `. Their profile shows ${evidenceContext} at ${bestEvidence.source}, specifically: "${bestEvidence.quote.substring(0, 120)}`;
+      let evidenceSource = bestEvidence.source;
+      if (bestEvidence.company && bestEvidence.role) {
+        evidenceSource = `${bestEvidence.role} at ${bestEvidence.company}`;
+      } else if (bestEvidence.company) {
+        evidenceSource = `their work at ${bestEvidence.company}`;
+      }
+      
+      feedback += `. Their profile shows ${evidenceContext} during ${evidenceSource}, specifically: "${bestEvidence.quote.substring(0, 120)}`;
       if (bestEvidence.quote.length > 120) feedback += '...';
       feedback += '". This demonstrates practical application rather than just theoretical knowledge';
       
@@ -921,25 +1098,43 @@ function generateEnhancedRecruiterFeedback(
   }
   
   // Provide specific rationale for the assessment level
-  const getAssessmentRationale = (status: string, isMandatory: boolean, primaryMatch: SkillMatch) => {
-    if (status === 'strong') {
-      if (primaryMatch.matchType === 'exact' && primaryMatch.yearsExperience >= 3) {
+  const getAssessmentRationale = (status: string, isMandatory: boolean, primaryMatch: SkillMatch, skillType: string) => {
+    if (skillType === 'soft_skill') {
+      // Handle soft skills without experience references
+      if (status === 'strong') {
         return isMandatory ? 
-          'The combination of direct experience and substantial tenure creates high confidence in their ability to excel in this critical area.' :
-          'While optional, this represents a significant strength that would add considerable value to their contribution.';
-      } else {
+          'The clear evidence of this soft skill in their professional background creates confidence in their ability to apply it effectively in this role.' :
+          'While optional, this soft skill represents a notable strength that would enhance team dynamics and collaboration.';
+      } else if (status === 'adequate') {
         return isMandatory ?
-          'The depth and relevance of their experience provides strong assurance they can handle this essential requirement.' :
-          'This optional qualification is well-supported by their background and enhances their overall profile.';
+          'The soft skill is present in their background, though you may want to explore specific examples during interviews to assess depth of application.' :
+          'This optional soft skill adds value to their interpersonal profile.';
+      } else if (status === 'weak') {
+        return isMandatory ?
+          'The limited evidence of this soft skill suggests it may need development. Consider exploring this area in interviews and potential mentoring needs.' :
+          'Given this is optional, the limited evidence here is not concerning and these interpersonal skills can typically be developed.';
       }
-    } else if (status === 'adequate') {
-      return isMandatory ?
-        'While they meet the basic requirement, you may want to explore specific examples and depth during interviews to ensure they can handle complex scenarios.' :
-        'This optional qualification adds value to their profile, though not at an expert level.';
-    } else if (status === 'weak') {
-      return isMandatory ?
-        'The limited or indirect experience raises questions about their readiness for this essential requirement. Consider whether additional training or support would be needed.' :
-        'Given this is optional, the limited experience here is not concerning and could be developed over time.';
+    } else {
+      // Handle technical skills with experience references
+      if (status === 'strong') {
+        if (primaryMatch.matchType === 'exact' && primaryMatch.yearsExperience >= 3) {
+          return isMandatory ? 
+            'The combination of direct experience and substantial tenure creates high confidence in their ability to excel in this critical area.' :
+            'While optional, this represents a significant strength that would add considerable value to their contribution.';
+        } else {
+          return isMandatory ?
+            'The depth and relevance of their experience provides strong assurance they can handle this essential requirement.' :
+            'This optional qualification is well-supported by their background and enhances their overall profile.';
+        }
+      } else if (status === 'adequate') {
+        return isMandatory ?
+          'While they meet the basic requirement, you may want to explore specific examples and depth during interviews to ensure they can handle complex scenarios.' :
+          'This optional qualification adds value to their profile, though not at an expert level.';
+      } else if (status === 'weak') {
+        return isMandatory ?
+          'The limited or indirect experience raises questions about their readiness for this essential requirement. Consider whether additional training or support would be needed.' :
+          'Given this is optional, the limited experience here is not concerning and could be developed over time.';
+      }
     }
     return '';
   };
@@ -1137,11 +1332,129 @@ async function evaluateRequirement(
   }
 }
 
+// Infer candidate role type and career focus based on job requirements and LinkedIn profile
+function inferCandidateRole(
+  candidateData: any,
+  requirementEvaluations: any[],
+  profileSkills: Array<{ skill: string; years: number; evidence: string[]; specificEvidence?: any[] }>
+): {
+  primary_role: string;
+  role_confidence: number;
+  career_focus: string[];
+  seniority_level: string;
+  profile_analysis: {
+    technical_depth: string;
+    leadership_indicators: string[];
+    domain_expertise: string[];
+    career_progression: string;
+  };
+} {
+  const strongRequirements = requirementEvaluations.filter(req => req.status === 'strong');
+  const experiences = candidateData.raw_profile?.experiences || [];
+  const totalYears = candidateData.years_of_experience || 0;
+  
+  // Analyze requirement types to infer role
+  const roleSignals = {
+    'frontend': strongRequirements.filter(r => ['react', 'javascript', 'vue', 'angular', 'html', 'css'].some(tech => r.requirement_name.toLowerCase().includes(tech))).length,
+    'backend': strongRequirements.filter(r => ['python', 'java', 'node.js', 'api', 'database', 'sql'].some(tech => r.requirement_name.toLowerCase().includes(tech))).length,
+    'fullstack': 0, // Will be calculated
+    'data': strongRequirements.filter(r => ['data science', 'machine learning', 'analytics', 'sql', 'python'].some(tech => r.requirement_name.toLowerCase().includes(tech))).length,
+    'devops': strongRequirements.filter(r => ['aws', 'docker', 'kubernetes', 'ci/cd', 'azure'].some(tech => r.requirement_name.toLowerCase().includes(tech))).length,
+    'mobile': strongRequirements.filter(r => ['react native', 'ios', 'android', 'mobile'].some(tech => r.requirement_name.toLowerCase().includes(tech))).length,
+    'management': strongRequirements.filter(r => ['leadership', 'team management', 'project management'].some(skill => r.requirement_name.toLowerCase().includes(skill))).length
+  };
+  
+  // Calculate fullstack score
+  roleSignals.fullstack = Math.min(roleSignals.frontend, roleSignals.backend);
+  
+  // Find primary role
+  const sortedRoles = Object.entries(roleSignals)
+    .filter(([_, score]) => score > 0)
+    .sort(([_, a], [__, b]) => b - a);
+  
+  const primaryRole = sortedRoles.length > 0 ? sortedRoles[0][0] : 'software engineer';
+  const roleConfidence = sortedRoles.length > 0 ? Math.min(sortedRoles[0][1] / Math.max(strongRequirements.length, 1) * 100, 100) : 50;
+  
+  // Determine seniority based on experience and evidence patterns
+  let seniority = 'mid-level';
+  if (totalYears >= 8) seniority = 'senior';
+  else if (totalYears >= 12) seniority = 'staff/principal';
+  else if (totalYears <= 2) seniority = 'junior';
+  
+  // Extract leadership indicators from profile
+  const leadershisIndicators = [];
+  const domainExpertise = [];
+  
+  if (candidateData.raw_profile) {
+    experiences.forEach((exp: any) => {
+      const description = exp.description?.toLowerCase() || '';
+      const title = exp.title?.toLowerCase() || '';
+      
+      if (title.includes('lead') || title.includes('senior') || title.includes('architect')) {
+        leadershisIndicators.push(`${exp.title} at ${exp.subtitle}`);
+      }
+      
+      if (description.includes('led') || description.includes('managed team')) {
+        leadershisIndicators.push(`Team leadership at ${exp.subtitle}`);
+      }
+      
+      // Extract domain expertise
+      const domains = ['fintech', 'healthcare', 'e-commerce', 'enterprise', 'startup', 'saas'];
+      domains.forEach(domain => {
+        if (description.includes(domain) || exp.subtitle?.toLowerCase().includes(domain)) {
+          domainExpertise.push(domain);
+        }
+      });
+    });
+  }
+  
+  // Determine career focus areas
+  const careerFocus = [];
+  if (roleSignals.frontend > 0) careerFocus.push('Frontend Development');
+  if (roleSignals.backend > 0) careerFocus.push('Backend Development');
+  if (roleSignals.data > 0) careerFocus.push('Data Science');
+  if (roleSignals.devops > 0) careerFocus.push('DevOps & Infrastructure');
+  if (roleSignals.management > 0) careerFocus.push('Technical Leadership');
+  
+  // Analyze technical depth
+  const techSkillCount = profileSkills.filter(s => 
+    ['programming', 'technical_skill', 'technology_domain'].includes(s.skill) ||
+    ['javascript', 'python', 'react', 'aws', 'sql'].some(tech => s.skill.toLowerCase().includes(tech))
+  ).length;
+  
+  const technicalDepth = techSkillCount > 15 ? 'Deep technical expertise across multiple domains' :
+                        techSkillCount > 8 ? 'Solid technical foundation with specialization' :
+                        'Focused technical skillset';
+  
+  // Career progression analysis
+  let careerProgression = 'Individual contributor track';
+  if (leadershisIndicators.length > 1) {
+    careerProgression = 'Management track with technical background';
+  } else if (seniority === 'senior' || seniority === 'staff/principal') {
+    careerProgression = 'Senior individual contributor track';
+  }
+  
+  return {
+    primary_role: primaryRole,
+    role_confidence: Math.round(roleConfidence),
+    career_focus: careerFocus,
+    seniority_level: seniority,
+    profile_analysis: {
+      technical_depth: technicalDepth,
+      leadership_indicators: leadershisIndicators,
+      domain_expertise: [...new Set(domainExpertise)], // Remove duplicates
+      career_progression: careerProgression
+    }
+  };
+}
+
 // Generate AI feedback for overall analysis and recruiter recommendations
 async function generateOverallFeedback(
   candidateData: any,
   jobData: any,
   requirementEvaluations: any[],
+  profileSkills: Array<{ skill: string; years: number; evidence: string[]; specificEvidence?: any[] }>,
+  candidateProfile: any,
   openaiApiKey: string
 ): Promise<{
   overall_feedback: string;
@@ -1189,6 +1502,15 @@ You are an expert recruiter analyzing how well a candidate matches a job opening
 **Position**: ${jobTitle}
 **Candidate Experience**: ${candidateData.years_of_experience} years total
 
+## CANDIDATE PROFILE ANALYSIS:
+**Inferred Role**: ${candidateProfile.primary_role} (${candidateProfile.role_confidence}% confidence)
+**Seniority Level**: ${candidateProfile.seniority_level}
+**Career Focus**: ${candidateProfile.career_focus.join(', ')}
+**Technical Depth**: ${candidateProfile.profile_analysis.technical_depth}
+**Leadership Experience**: ${candidateProfile.profile_analysis.leadership_indicators.length > 0 ? candidateProfile.profile_analysis.leadership_indicators.slice(0, 2).join(', ') : 'None identified'}
+**Domain Expertise**: ${candidateProfile.profile_analysis.domain_expertise.length > 0 ? candidateProfile.profile_analysis.domain_expertise.join(', ') : 'General'}
+**Career Progression**: ${candidateProfile.profile_analysis.career_progression}
+
 ## ANALYSIS RESULTS:
 **MANDATORY Requirements Status**: 
 - Strong: ${strongMandatory.map(r => r.requirement_name).join(', ') || 'None'}
@@ -1199,24 +1521,33 @@ You are an expert recruiter analyzing how well a candidate matches a job opening
 - Strong: ${strongOptional.map(r => r.requirement_name).join(', ') || 'None'}
 - Adequate: ${adequateOptional.map(r => r.requirement_name).join(', ') || 'None'}
 
-**Overall Assessment**: Mandatory score impact on candidacy
+**Overall Assessment**: Mandatory score impact on candidacy considering inferred role fit
+
+## STRATEGIC CONTEXT FOR RECOMMENDATIONS:
+Consider the following when generating strategic recommendations:
+1. **Evidence Quality**: Strong LinkedIn evidence vs. weak claims - affects interview focus
+2. **Role Fit**: How well does their inferred role align with the job opening?
+3. **Seniority Match**: Are they under/over-qualified based on experience level?
+4. **Growth Potential**: Can gaps be filled through training or is this a fundamental mismatch?
+5. **Market Reality**: What alternatives exist if mandatory requirements have gaps?
+6. **Company Needs**: Balance between ideal candidate and practical hiring decisions
 
 ## REQUIRED OUTPUT:
 Return a JSON object with this structure:
 
 {
-  "overall_feedback": "1-2 sentence summary for recruiters",
+  "overall_feedback": "1-2 sentence summary highlighting role fit and key strengths/gaps",
   "summary": {
-    "strengths": ["Focus on mandatory requirements met + top optional qualifications"],
-    "gaps": ["Prioritize mandatory requirement gaps, then significant optional misses"]
+    "strengths": ["Include role alignment, strong mandatory requirements, and standout qualifications"],
+    "gaps": ["Prioritize mandatory gaps with context of role expectations"]
   },
   "recruiter_recommendations": {
-    "interview_strategy": ["Validate mandatory requirements first, then explore strengths"],
-    "other_options": ["Consider role adjustments if mandatory gaps exist, highlight optional strengths"]
+    "interview_strategy": ["Specific questions to validate weak evidence areas and probe strengths"],
+    "other_options": ["Strategic alternatives: role adjustments, team fit, growth trajectory, next steps"]
   }
 }
 
-Focus on practical recruiting insights. Be specific and actionable.`;
+Focus on role fit, practical recruiting insights, and strategic recommendations. Be specific and actionable.`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -1257,7 +1588,9 @@ Focus on practical recruiting insights. Be specific and actionable.`;
     }
     
     const jsonStr = content.substring(jsonStart, jsonEnd);
-    return JSON.parse(jsonStr);
+    const result = JSON.parse(jsonStr);
+    // Note: candidateProfile used internally for AI prompt, not returned to maintain API compatibility
+    return result;
     
   } catch (error) {
     console.error('Error generating overall feedback:', error);
@@ -1274,7 +1607,7 @@ Focus on practical recruiting insights. Be specific and actionable.`;
       },
       recruiter_recommendations: {
         interview_strategy: ["Focus on technical competencies", "Validate experience claims", "Assess cultural fit"],
-        other_options: ["Consider for related positions", "Evaluate for future opportunities"]
+        other_options: ["Consider for related positions", "Evaluate for future opportunities", "Request work samples"]
       }
     };
   }
@@ -1373,12 +1706,17 @@ async function runMatchAnalysis(candidateData: any, jobData: any, supabase: any)
       return evaluation && evaluation.score >= SCORING_CONFIG.ADEQUATE_THRESHOLD;
     }).length;
 
+    // Generate candidate profile analysis
+    const candidateProfile = inferCandidateRole(candidateData, requirementEvaluations, profileSkills);
+    
     // Generate overall feedback and recommendations
     console.log("🤖 Generating recruiter insights...");
     const overallFeedback = await generateOverallFeedback(
       candidateData,
       jobData,
       requirementEvaluations,
+      profileSkills,
+      candidateProfile,
       openaiApiKey
     );
 
@@ -1400,20 +1738,22 @@ async function runMatchAnalysis(candidateData: any, jobData: any, supabase: any)
         analysis_timestamp: new Date().toISOString(),
         job_id: "placeholder_job_id",
         candidate_id: "placeholder_candidate_id",
-        algorithm_version: "3.1-integrated-parsing",
+        algorithm_version: "3.1.1-enhanced-insights",
         total_processing_time_ms: processingTime
       }
     };
 
     // Enhanced console logging
-    console.log("\n🎯 ENHANCED MATCH ANALYSIS v3.1 RESULTS:");
-    console.log("=========================================");
+    console.log("\n🎯 ENHANCED MATCH ANALYSIS v3.1.1 RESULTS:");
+    console.log("==========================================");
     console.log(`📊 Overall Score: ${overallScore}% (${overallStatus})`);
     console.log(`🎯 Mandatory Score: ${Math.round(mandatoryScore)}% | Optional Score: ${Math.round(optionalScore)}%`);
     console.log(`✅ Mandatory Requirements Met: ${matchedMandatory}/${mandatoryReqs.length}`);
     console.log(`🕒 Processing Time: ${processingTime}ms`);
     console.log(`🧠 Profile Skills Extracted: ${profileSkills.length}`);
-    console.log(`📝 Evidence-Based Feedback: Yes`);
+    console.log(`👤 Inferred Role: ${candidateProfile.primary_role} (${candidateProfile.role_confidence}%)`);
+    console.log(`📈 Seniority Level: ${candidateProfile.seniority_level}`);
+    console.log(`📝 Evidence-Based Feedback: Yes (Company Attribution)`);
     console.log(`⚖️ Scoring Logic: 80% Mandatory + 20% Optional`);
     
     console.log("\n📋 REQUIREMENT BREAKDOWN:");

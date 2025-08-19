@@ -325,12 +325,12 @@ export async function parseLinkedInSkills(rawProfileData: Record<string, unknown
     console.log(`🛠️ Skills Extracted:`)
     console.log(`   - Total Skills: ${parsedData.skills?.length || 0}`)
     if (parsedData.skills?.length > 0) {
-      const skillsByType = parsedData.skills.reduce((acc: any, skill: any) => {
+      const skillsByType = parsedData.skills.reduce((acc: Record<string, number>, skill: { type: string; name: string; yoe: number | null }) => {
         acc[skill.type] = (acc[skill.type] || 0) + 1
         return acc
       }, {})
       console.log(`   - Skills by Type:`, skillsByType)
-      console.log(`   - Top 5 Skills: ${parsedData.skills.slice(0, 5).map((s: any) => `${s.name} (${s.yoe}y)`).join(', ')}`)
+      console.log(`   - Top 5 Skills: ${parsedData.skills.slice(0, 5).map((s: { name: string; yoe: number | null }) => `${s.name} (${s.yoe || 0}y)`).join(', ')}`)
     }
     console.log(`📊 Processing Summary:`)
     console.log(`   - Response Size: ${JSON.stringify(parsedData).length} characters`)
@@ -751,7 +751,7 @@ export async function runEnhancedMatchAnalysis(
     if (result.enhanced_insights) {
       console.log(`🧠 Discovered Skills: ${result.enhanced_insights.discovered_skills?.length || 0}`)
       console.log(`🎯 Semantic Matches: ${result.enhanced_insights.semantic_matches?.length || 0}`)
-      console.log(`👑 Leadership Indicators: ${result.enhanced_insights.qualitative_analysis?.leadership_indicators?.length || 0}`)
+      console.log(`👑 Leadership Indicators: ${Array.isArray(result.enhanced_insights.qualitative_analysis?.leadership_indicators) ? result.enhanced_insights.qualitative_analysis.leadership_indicators.length : 0}`)
     }
     
     return result
@@ -775,11 +775,11 @@ export async function parseLinkedInProfile(linkedinUrl: string): Promise<ParsedC
     console.log(`👤 Profile Structure:`)
     console.log(`   - Name: ${profileData?.firstName} ${profileData?.lastName}`)
     console.log(`   - Headline: ${profileData?.headline ? 'Yes' : 'No'}`)
-    console.log(`   - Experiences: ${profileData?.experiences?.length || 0} entries`)
-    console.log(`   - Skills: ${profileData?.skills?.length || 0} entries`)
-    console.log(`   - Education: ${profileData?.educations?.length || 0} entries`)
+    console.log(`   - Experiences: ${Array.isArray(profileData?.experiences) ? profileData.experiences.length : 0} entries`)
+    console.log(`   - Skills: ${Array.isArray(profileData?.skills) ? profileData.skills.length : 0} entries`)
+    console.log(`   - Education: ${Array.isArray(profileData?.educations) ? profileData.educations.length : 0} entries`)
     console.log(`   - About Section: ${profileData?.about ? 'Yes' : 'No'}`)
-    console.log(`   - Languages: ${profileData?.languages?.length || 0} entries`)
+    console.log(`   - Languages: ${Array.isArray(profileData?.languages) ? profileData.languages.length : 0} entries`)
     
     // Step 2: Parse skills directly from raw profile (SKIP reducer)
     const parsedCandidate = await parseLinkedInSkills(profileData)
@@ -860,65 +860,6 @@ export async function runSimplifiedEnhancedMatchAnalysis(
 }
 
 /**
- * Complete enhanced flow: Parse LinkedIn, run enhanced analysis with raw profile data
- */
-export async function analyzeLinkedInCandidateEnhanced(
-  linkedinUrl: string,
-  jobId: string,
-  saveResults: boolean = false
-): Promise<{
-  candidate: ParsedCandidate
-  analysis: MatchAnalysisResponse
-  candidateId?: string
-  rawProfile?: Record<string, unknown>
-}> {
-  try {
-    console.log("🚀 Starting Enhanced LinkedIn Analysis Flow")
-    console.log(`🔗 LinkedIn URL: ${linkedinUrl}`)
-    console.log(`💼 Job ID: ${jobId}`)
-    console.log(`💾 Save Results: ${saveResults}`)
-    
-    // Get job data
-    const jobData = await fetchJobDataForAnalysis(jobId)
-    if (!jobData) {
-      throw new Error("Job not found")
-    }
-
-    // Step 1: Scrape LinkedIn profile (raw data)
-    console.log("🔍 Step 1: Scraping LinkedIn profile...")
-    const rawLinkedInData = await scrapeLinkedInProfile(linkedinUrl)
-    
-    // Step 2: Reduce LinkedIn profile to structured format
-    console.log("🔄 Step 2: Reducing LinkedIn profile data...")
-    const reducedData = await reduceLinkedInProfile(rawLinkedInData)
-    
-    // Step 3: Parse skills and extract candidate data
-    console.log("🧠 Step 3: Parsing LinkedIn skills...")
-    const candidate = await parseLinkedInSkills(reducedData)
-    
-    // Step 4: Run enhanced match analysis with raw profile data
-    console.log("⚡ Step 4: Running enhanced match analysis...")
-    const analysis = await runEnhancedMatchAnalysis(candidate, jobData, reducedData)
-    
-    // Step 5: Save if requested
-    if (saveResults) {
-      console.log("💾 Step 5: Saving candidate and analysis...")
-      const candidateId = await saveCandidate(candidate, linkedinUrl, "linkedin")
-      await saveMatchAnalysis(jobId, candidateId, analysis)
-      
-      console.log("✅ Enhanced LinkedIn analysis completed with save")
-      return { candidate, analysis, candidateId, rawProfile: reducedData }
-    }
-    
-    console.log("✅ Enhanced LinkedIn analysis completed")
-    return { candidate, analysis, rawProfile: reducedData }
-  } catch (error) {
-    console.error("❌ Enhanced LinkedIn analysis failed:", error)
-    throw error
-  }
-}
-
-/**
  * Complete simplified enhanced flow: Parse LinkedIn, run v3 analysis (DIRECT - no reducer)
  */
 export async function analyzeLinkedInCandidateSimplifiedEnhanced(
@@ -950,8 +891,8 @@ export async function analyzeLinkedInCandidateSimplifiedEnhanced(
     console.log("📊 Raw LinkedIn Profile Summary for Enhanced Analysis:")
     console.log(`   📏 Profile Size: ${JSON.stringify(rawLinkedInData).length} characters`)
     console.log(`   👤 Name: ${rawLinkedInData?.firstName} ${rawLinkedInData?.lastName}`)
-    console.log(`   💼 Experiences: ${rawLinkedInData?.experiences?.length || 0} entries`)
-    console.log(`   🎯 Skills Listed: ${rawLinkedInData?.skills?.length || 0} entries`)
+    console.log(`   💼 Experiences: ${Array.isArray(rawLinkedInData?.experiences) ? rawLinkedInData.experiences.length : 0} entries`)
+    console.log(`   🎯 Skills Listed: ${Array.isArray(rawLinkedInData?.skills) ? rawLinkedInData.skills.length : 0} entries`)
     
     // Step 2: Parse skills directly from raw profile (SKIP reducer)
     console.log("🧠 Step 2: Parsing LinkedIn skills from raw profile...")
