@@ -1,0 +1,146 @@
+{
+    "main": {
+        "first_name": "José Ignacio",
+        "last_name": "Gutiérrez",
+        "country": "AR",
+        "email": "jos.gutirrez@genium.io",
+        "phone": "",
+        "linkedin": "https://www.linkedin.com/in/joseigutierrez/",
+        "github": ""
+    },
+    "skills": [
+        {
+            "name": "Front-End Development",
+            "type": "technical_skill",
+            "yoe": 1.7,
+            "proficiency_level": "beginner"
+        },
+        {
+            "name": "Tailwind Css",
+            "type": "technical_skill",
+            "yoe": 1.7,
+            "proficiency_level": "beginner"
+        },
+        {
+            "name": "Next.js",
+            "type": "technology_domain",
+            "yoe": 5.1,
+            "proficiency_level": "expert"
+        },
+        {
+            "name": "React.js",
+            "type": "technology_domain",
+            "yoe": 5.1,
+            "proficiency_level": "expert"
+        },
+        {
+            "name": "Angular",
+            "type": "technology_domain",
+            "yoe": 3.5,
+            "proficiency_level": "advanced"
+        },
+        {
+            "name": "Typescript",
+            "type": "technology_domain",
+            "yoe": 5.1,
+            "proficiency_level": "expert"
+        },
+        {
+            "name": "Firebase",
+            "type": "technology_domain",
+            "yoe": 3.5,
+            "proficiency_level": "advanced"
+        },
+        {
+            "name": "Javascript",
+            "type": "technology_domain",
+            "yoe": 10.2,
+            "proficiency_level": "expert"
+        },
+        {
+            "name": "Angular 2+",
+            "type": "technology_domain",
+            "yoe": 1.8,
+            "proficiency_level": "beginner"
+        },
+        {
+            "name": "Iot",
+            "type": "technology_domain",
+            "yoe": null,
+            "proficiency_level": null
+        },
+        {
+            "name": "Metodologías Ágiles",
+            "type": "soft_skill",
+            "yoe": null,
+            "proficiency_level": null
+        },
+        {
+            "name": "Angularjs",
+            "type": "technology_domain",
+            "yoe": 1.1,
+            "proficiency_level": "beginner"
+        },
+        {
+            "name": "Lenguaje Sass",
+            "type": "technology_domain",
+            "yoe": 1.8,
+            "proficiency_level": "beginner"
+        },
+        {
+            "name": "Html 5",
+            "type": "technology_domain",
+            "yoe": 10.2,
+            "proficiency_level": "expert"
+        },
+        {
+            "name": "Node.js",
+            "type": "technology_domain",
+            "yoe": 3.5,
+            "proficiency_level": "advanced"
+        },
+        {
+            "name": "Php",
+            "type": "technology_domain",
+            "yoe": 10.2,
+            "proficiency_level": "expert"
+        },
+        {
+            "name": "Jquery",
+            "type": "technology_domain",
+            "yoe": 10.2,
+            "proficiency_level": "expert"
+        },
+        {
+            "name": "Asp.net Mvc",
+            "type": "technology_domain",
+            "yoe": null,
+            "proficiency_level": null
+        },
+        {
+            "name": "Mysql",
+            "type": "technology_domain",
+            "yoe": null,
+            "proficiency_level": null
+        },
+        {
+            "name": "Css",
+            "type": "technology_domain",
+            "yoe": null,
+            "proficiency_level": null
+        },
+        {
+            "name": "Leadership",
+            "type": "soft_skill",
+            "yoe": null,
+            "proficiency_level": null
+        },
+        {
+            "name": "Teamwork",
+            "type": "soft_skill",
+            "yoe": null,
+            "proficiency_level": null
+        }
+    ],
+    "years_of_experience": 10.2
+}

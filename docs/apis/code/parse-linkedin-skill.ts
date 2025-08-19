@@ -58,7 +58,7 @@ function parseDurationToYears(caption) {
 }
 // Calculate date span from start to end
 function calculateDateSpan(startYear, endYear, isPresent = false) {
-  const currentYear = 2025; // August 2025
+  const currentYear = 2025; // August 19, 2025
   const actualEndYear = isPresent ? currentYear : endYear;
   if (startYear && actualEndYear) {
     return parseFloat(Math.max(actualEndYear - startYear, 0).toFixed(1));
@@ -172,14 +172,11 @@ async function processLinkedInProfile(profileData) {
     IMPORTANT: For soft_skill and certification types, ALWAYS set proficiency_level to null regardless of experience.
   `;
   const prompt = `
-    You are processing a LinkedIn profile to extract structured information. Follow the extraction pipeline methodology exactly as described below:
+    You are processing a LinkedIn profile to extract structured information. Follow this simplified extraction methodology:
 
     ## EXTRACTION PIPELINE FLOW
 
-    ### 1. Input Validation
-    Confirm the profile contains firstName, lastName, experiences[], and optional fields (skills[], courses[], licenseAndCertificates[], about, recommendations[], projects[]).
-
-    ### 2. Extract Main Profile Information
+    ### 1. Extract Main Profile Information
     Map directly from the profile data:
     - first_name: Extract from firstName
     - last_name: Extract from lastName  
@@ -189,116 +186,87 @@ async function processLinkedInProfile(profileData) {
     - linkedin: Use linkedinUrl or construct from publicIdentifier
     - github: Detect GitHub URLs from about section and interests (use empty string if not found)
 
-    ### 3. Build Comprehensive Experience Map
-    Create a detailed map of all experiences with their durations and technologies:
-
-    3.1. Process Main Experiences:
+    ### 2. Extract Skills from Experience Descriptions
     For each experience in experiences[]:
-      - Extract company name from subtitle or title
-      - Parse duration from caption using enhanced parsing
-      - Handle nested experiences (breakdown: true with subComponents):
-        * For experiences with subComponents, process each subComponent as separate role
-        * Calculate individual duration for each subComponent from its caption
-        * Extract technologies from each subComponent's description
-        * Map parent company to all subComponents
-      - For flat experiences, extract technologies from description
-      - Store as: {company: duration, role: role_name, technologies: [tech_list]}
+    - Parse duration from caption (e.g., "1 yr 7 mos" → 1.6 years)
+    - Extract ALL technologies, frameworks, and tools mentioned in description text
+    - Assign the full experience duration to EVERY skill found in that experience
+    - Handle nested experiences (breakdown: true with subComponents):
+      * Process each subComponent separately
+      * Extract skills from each subComponent's description
+      * Assign the subComponent's duration to each skill found
 
-    3.2. Handle Overlapping Experiences:
-    When multiple roles exist at the same company with overlapping dates:
-      - Calculate the actual unique calendar time span for that company
-      - Apply this total duration to ALL skills found across all roles at that company
-      - Do not double-count overlapping periods
+    ### 3. Extract Skills from Skills Section (Reference-Based Only)
+    For each skill in skills[]:
+    - Only include skills that reference specific experiences:
+      * Company names: "2 experiences across Jusmet and 1 other company"
+      * Job titles: "Principal Engineer at DEPT®"
+    - EXCLUDE skills with only endorsements: "23 endorsements"
+    - Map referenced experiences to actual experience durations
+    - Assign full experience duration to each qualifying skill
 
-    ### 4. Skills Section Analysis (Primary Source)
-    Process skills[] array as the PRIMARY source for skill-experience mapping:
+    ### 4. Extract Skills from Projects
+    For each project in projects[]:
+    - Parse project duration from subtitle (e.g., "Jan 2014 - Present" → calculate years)
+    - If "Present", use current date (August 19, 2025)
+    - Extract ALL technologies mentioned in project descriptions
+    - Assign the full project duration to EVERY skill found in that project
 
-    4.1. For each skill in skills[]:
-      - Extract skill name from "title" field
-      - Parse experience mappings from description text:
-        * "X experiences across [Company A] and Y other company" → identify specific companies
-        * "[Role] at [Company B]" → map to specific company/role
-        * "X endorsements" → note for validation only
-      
-    4.2. Map Skills to Companies:
-      - When skill shows "2 experiences across Company A and 1 other company":
-        * Find Company A in experience map
-        * Identify the most likely "other company" based on:
-          - Technology stack mentioned in experience descriptions
-          - Role types and job functions
-          - Industry context and chronological alignment
-      - Sum durations from all mapped companies for each skill
+    ### 5. Sum Skill Durations
+    For each unique skill found across all sources:
+    - Add up ALL durations where the skill was mentioned
+    - No overlap handling - simple addition
+    - Round to one decimal place
 
-    ### 5. Experience Descriptions Analysis (Secondary Source)
-    Supplement skills section findings with detailed experience descriptions:
-
-    5.1. For each experience with detailed description:
-      - Extract technology stacks, frameworks, tools mentioned
-      - Add any skills not captured in skills section
-      - Validate skills found in skills section
-
-    5.2. For experiences with empty/generic descriptions:
-      - Infer skills from job titles and roles
-      - Use company context and industry standards
-      - Apply reasonable assumptions for technology usage
-
-    ### 6. Projects Analysis (Supplementary Source)
-    If projects[] array exists, process for additional skill validation:
-      - Extract technologies mentioned in project descriptions
-      - Use project duration to supplement skill experience calculation
-      - Cross-reference with main experience timeline
-
-    ### 7. Extract Soft Skills and Certifications
-    7.1. Soft Skills from About & Recommendations:
-      - Scan about section and recommendations for soft skill keywords: ${softSkillKeywords.join(', ')}
+    ### 6. Extract Soft Skills and Certifications
+    6.1. Soft Skills:
+      - Scan about section and recommendations for keywords: ${softSkillKeywords.join(', ')}
       - Look for contextual mentions (e.g., "led 10 people" → "Team Leadership")
-      - IMPORTANT: For all soft skills, set yoe: null and proficiency_level: null
+      - IMPORTANT: Set yoe: null and proficiency_level: null
 
-    7.2. Certifications:
+    6.2. Certifications:
       - Extract from courses[] and licenseAndCertificates[] arrays
-      - Add each as type 'certification'
-      - IMPORTANT: For all certifications, set yoe: null and proficiency_level: null
+      - IMPORTANT: Set yoe: null and proficiency_level: null
 
-    ### 8. Advanced Skill Aggregation and Deduplication
-    8.1. Merge Skills from All Sources:
-      - Combine skills from: skills section (primary), experience descriptions (secondary), projects (supplementary)
-      - Deduplicate by normalized name (handle variations like React.js = React = ReactJS)
-
-    8.2. Calculate Final Years of Experience:
-      - For skills mapped via skills section: use company durations from experience map
-      - For skills only in descriptions: use experience duration where mentioned
-      - For skills in multiple sources: take the higher/more comprehensive calculation
-      - Apply reasonable caps (max 20 years per skill)
-      - Round to one decimal place
-
-    ### 9. Calculate Years of Experience and Proficiency Levels
-    For each skill:
-    - Calculate yoe based on skill type:
-      * Technical skills, technology domains, roles, industry: Use aggregated duration
-      * Soft skills: ALWAYS set to null
-      * Certifications: ALWAYS set to null
-    - Assign proficiency_level: ${proficiencyLevelCriteria}
+    ### 7. Assign Proficiency Levels
+    For technical skills, technology domains, roles, and industry skills:
+    - ${proficiencyLevelCriteria}
     - CRITICAL: soft_skill and certification types must have yoe: null and proficiency_level: null
 
-    ### 10. Calculate Total Career Experience
-    Calculate overall career span:
-    10.1. Find all experience start/end dates
-    10.2. Calculate chronological span from earliest start to latest end (or Present)
-    10.3. Account for overlapping experiences to avoid double-counting
-    10.4. Round to one decimal place
+    ### 8. Calculate Total Career Experience
+    Calculate overall career span using the following specific logic:
+    8.1. Find the start date of the EARLIEST experience across all experiences
+    8.2. Find the end date of the LATEST experience across all experiences
+    8.3. If the latest experience is "Present" or ongoing, use today's date (August 19, 2025) as the end date
+    8.4. Calculate the difference: (Latest experience end date) - (Earliest experience start date)
+    8.5. Express the result in years with one decimal place
+    
+    IMPORTANT: This calculation represents the career span from first job start to current job end, regardless of gaps or overlaps.
 
-    ## ENHANCED PROCESSING EXAMPLES:
+    ## PROCESSING EXAMPLES:
 
-    ### Skills Section Mapping Example:
-    - Skills section: "React.js": "2 experiences across Jusmet and 1 other company"
-    - Experience map: Jusmet (1.6 years), DEPT® (3.5 years with React mentioned in description)
-    - Result: React.js = 1.6 + 3.5 = 5.1 years
+    ### Experience Skills Example:
+    - DEPT® experience (3.5 years) mentions "React, Node.js, Firebase"
+    - Result: React = 3.5 years, Node.js = 3.5 years, Firebase = 3.5 years
 
-    ### Nested Experience Example:
-    - DEPT® experience with breakdown: true and two subComponents
-    - SubComponent 1: "Principal Engineer" (3.5 years) with React, Node.js
-    - SubComponent 2: "Team Lead" (1.9 years) with React, Next.js
-    - Overlap handling: React gets full company duration (3.5 years), not sum of roles
+    ### Skills Section Example:
+    - "Next.js": "2 experiences across Jusmet and 1 other company"
+    - Map to: Jusmet (1.6 years) + DEPT® (3.5 years) = 5.1 years
+    - "JavaScript": "23 endorsements" → EXCLUDE (endorsement only)
+
+    ### Project Skills Example:
+    - "Velocity" project (Jan 2014 - Present = 11.7 years) mentions "EmberJs, NodeJs"
+    - Result: EmberJs = 11.7 years, NodeJs = 11.7 years
+
+    ### Skill Duration Summing Example:
+    - React found in: DEPT® experience (3.5 years) + Jusmet experience (1.6 years)
+    - Result: React = 3.5 + 1.6 = 5.1 years
+
+    ### Total Years of Experience Example:
+    - Earliest experience: "Making Sense LLC - AngularJS developer" starts Jun 2015
+    - Latest experience: "Genium - Senior Fullstack Engineer" starts Aug 2025, marked as "Present"
+    - Calculation: Aug 2025 (current date for "Present") - Jun 2015 = 10.2 years
+    - Result: years_of_experience = 10.2
 
     ## INPUT PROFILE DATA:
     ${JSON.stringify(profileData, null, 2)}
@@ -328,12 +296,12 @@ async function processLinkedInProfile(profileData) {
 
     ## CRITICAL REQUIREMENTS:
 
-    1. **Hybrid Processing**: Use skills section as primary, experience descriptions as secondary, projects as supplementary
-    2. **Nested Experience Handling**: Process subComponents in breakdown experiences correctly
-    3. **Overlap Management**: Calculate actual unique time spans for companies with multiple roles
-    4. **Comprehensive Mapping**: When skills section says "X companies", identify ALL relevant companies from experience data
-    5. **Duration Accuracy**: Use enhanced duration parsing for all caption formats
-    6. **Total Experience**: Calculate realistic total career span with overlap consideration
+    1. **Evidence-Based Skills**: Extract skills ONLY from experience descriptions, reference-based skills entries, and projects
+    2. **Full Duration Assignment**: Assign complete experience/project duration to every skill found in that source
+    3. **Simple Addition**: Sum all durations for each skill across all sources (no overlap handling)
+    4. **Reference Filtering**: Include skills section entries ONLY if they reference specific companies/roles
+    5. **Exclude Endorsements**: NEVER include skills with only endorsement counts
+    6. **Nested Processing**: Handle subComponents in breakdown experiences separately
     7. **Formatting**: Title Case for skill names, one decimal place for numbers
     8. **Null Handling**: ALWAYS null for yoe/proficiency_level on soft_skill and certification types
 
@@ -352,7 +320,7 @@ async function processLinkedInProfile(profileData) {
         messages: [
           {
             role: "system",
-            content: "You are an expert at processing LinkedIn profiles and extracting structured professional information. Follow the extraction pipeline methodology precisely. Handle nested experience structures and overlapping roles correctly. Use skills section as primary source, experience descriptions as secondary. CRITICAL: For soft_skill and certification types, always set yoe and proficiency_level to null."
+            content: "You are an expert at processing LinkedIn profiles and extracting structured professional information. Extract skills ONLY from experience descriptions, reference-based skills section entries, and projects. Assign full duration to every skill found in each source. Sum all durations for each skill. CRITICAL: For soft_skill and certification types, always set yoe and proficiency_level to null."
           },
           {
             role: "user",
@@ -478,45 +446,43 @@ serve(async (req)=>{
     });
   }
 }); /*
-ENHANCED FEATURES IMPLEMENTED:
+SIMPLIFIED FEATURES IMPLEMENTED:
 
-1. **Hybrid Processing Strategy**:
-   - Skills section as primary source for skill-company mappings
-   - Experience descriptions as secondary validation/supplementation
-   - Projects as additional validation source
+1. **Evidence-Based Skill Extraction**:
+   - Skills from experience descriptions (with full experience duration)
+   - Skills from reference-based skills section entries (company/role mentions)
+   - Skills from project descriptions (with full project duration)
+   - Exclusion of endorsement-only skills
 
-2. **Nested Experience Handling**:
-   - Proper processing of breakdown: true experiences with subComponents
-   - Individual role duration extraction from subComponent captions
-   - Technology extraction from each subComponent description
+2. **Straightforward Duration Assignment**:
+   - Full experience duration assigned to every skill in that experience
+   - Full project duration assigned to every skill in that project
+   - Simple addition across all sources (no overlap complexity)
 
-3. **Advanced Overlap Management**:
-   - Calculates actual unique time spans for companies with multiple roles
-   - Avoids double-counting overlapping periods
-   - Applies company total duration to all skills found at that company
+3. **Simplified Processing Logic**:
+   - Direct skill extraction from descriptions
+   - Basic reference filtering for skills section
+   - Streamlined nested experience handling
 
-4. **Enhanced Duration Parsing**:
-   - Handles complex formats: "X yrs Y mos", "X years Y months"
-   - Proper Present date handling (August 2025)
-   - Fallback mechanisms for various caption formats
+4. **Maintained Core Features**:
+   - Enhanced duration parsing for various formats
+   - Proper Present date handling (August 19, 2025)
+   - Total career span calculation (earliest start to latest end)
+   - Soft skills and certifications extraction with null values
 
-5. **Comprehensive Skill Mapping**:
-   - Maps "X experiences across companies" to actual company names
-   - Uses technology context and role alignment for mapping
-   - Cross-validates with experience descriptions
+5. **Reduced Complexity**:
+   - Removed complex skill-company mapping algorithms
+   - Eliminated overlap management logic
+   - Simplified validation and cross-referencing
+   - Streamlined prompt and processing flow
 
-6. **Improved Total Experience Calculation**:
-   - Chronological span calculation with overlap consideration
-   - Realistic career timeline assessment
-   - Validation against educational timeline
-
-7. **Better Error Handling**:
+6. **Better Error Handling**:
    - Supports both array and object input formats
    - Enhanced validation for edge cases
    - Detailed error messaging
 
-8. **Model Upgrade**:
-   - Uses GPT-4o for better reasoning and complex data handling
-   - Increased token limit for comprehensive processing
-   - Enhanced system prompt for better instruction following
+7. **Model Configuration**:
+   - Uses GPT-4o for reliable processing
+   - Optimized token limit for simplified workflow
+   - Clear system prompt for straightforward instruction following
 */ 

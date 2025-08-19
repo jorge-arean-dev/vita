@@ -3198,32 +3198,236 @@ is this clear? pleaes confirm this sounds reasonable before proceeding
 
 ========
 
-I LEFT EVERYTHING HERE"
-
-Let’s simplify the approach, as the new API returns too much information. 
+Let’s simplify the approach, as the new API returns too much information.
 
 Goal:
-- Make the new API return the exact same output as @docs\apis\code\match-analysis.ts. It should analyze the job requirements in the same way as @docs\apis\code\match-analysis.ts, but use embedding-based analysis to improve accuracy.
+- Make the new API return the exact same output as `@docs/apis/code/match-analysis.ts`.
+- It should analyze job requirements in the same way as `@docs/apis/code/match-analysis.ts`, but use embedding-based analysis to improve accuracy.
+- Raw LinkedIn data will still be provided.
+- The expected output must match the format of `@docs/apis/code/match-analysis.ts`, but be enriched and improved through embedding-based analysis.
+- this new version input for the api must be: existing input for match-analysis.ts + linkedin raw data
 
 Process:
-1) Identify a job requirement (provided in the input).
-2) Use embedding-based analysis to evaluate the raw LinkedIn data and run the match analysis against that requirement by:
-   - Correctly identifying word variations (e.g., React/ReactJS, Node/Node.js, Postgres/PostgreSQL).
-   - Capturing related developer skills (e.g., if the requirement is Python and the LinkedIn data includes Django, count it as a match since Django is a Python framework; similarly, Node ↔ NestJS). However, if Django is required and the candidate only has Python, this may not be valid. Handle these cases intelligently.
-   - Capturing role- or industry-related variations (e.g., if the requirement is “cloud technologies” and the candidate has AWS or Azure experience, mark as matched; the reverse is not necessarily a match).
-3) After identifying all related skills/requirements that satisfy a specific job requirement, determine years of experience with that requirement by considering all related skills.
-4) Repeat for the next job requirement.
+1) Identify each job requirement from the input.
+2) For each job requirement:
+   2.1) Use embedding-based analysis to evaluate the raw LinkedIn data and perform match analysis by:
+       - Correctly recognizing word variations (e.g., React/ReactJS, Node/Node.js, Postgres/PostgreSQL).
+       - Capturing related developer skills (e.g., if the requirement is Python and the LinkedIn data includes Django, count it as a match. However, if Django is required and only Python is listed, it may not be valid. Handle these cases intelligently).
+       - Capturing role- or industry-related variations (e.g., if the requirement is “cloud technologies” and the candidate has AWS or Azure experience, count it as matched. The reverse may not qualify).
+   2.2) Once all related skills or terms satisfying the job requirement are identified, determine:
+       - Total years of experience with that requirement by aggregating related skills.
+       - Proficiency level based on the logic defined below.
+3) Repeat the process until all job requirements are evaluated.
+
+Important Notes:
+- This analysis applies to the following skill types: `technical_skill`, `role`, `industry`, and `technology_domain`.
+- For skill type `soft_skill`: detect presence or absence by identifying related terms. For example, if "leadership" is required and the profile says "led 5 people", mark as matched. Do not assign proficiency levels or years of experience.
+- For skill type `certification`: detect literal presence of the certification. No proficiency or years of experience should be evaluated.
 
 Additionally:
-- Use the job description (provided as input) to identify any more specific requirements—such as required years of experience—and use this to determine whether the candidate matches the role.
+- Use the job description input to identify more specific requirements (e.g., required years of experience), and use that to determine whether the candidate qualifies.
+
+Proficiency Level Logic:
+   "beginner":
+        - Less than or equal to 2 years (0 < yoe <= 2.0) of hands-on experience with the skill OR
+        - Just starting to learn and apply the skill in real-world situations
+
+    "advanced":
+        - More than 2 years to less than or equal to 5 years (2.0 < yoe <= 5.0) of consistent, practical experience OR
+        - Has contributed to multiple projects and is able to work independently
+
+    "expert":
+        - More than 5 years (yoe > 5.0) of in-depth, specialized experience OR
+        - May include responsibilities such as mentoring, providing architectural guidance, or leading initiatives"
 
 
 
-Please:
-- ask the ai-recruiting-engineer subagent to share feedback on this approach
-- ask any clarifying questions one by one until my instruction is fully understood.
-- before starting share a plan on what needs to be done
+Before proceeding with any step or implementation:
+- provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood
+- Ask the ai recruiting engineer to provide feedback on this approach
+
+===========
+
+Remember to use the "feedback" field in the per-skill analysis to explain the results identified through embedding-based analysis. 
+
+The feedback:
+- Must not mention embeddings or any AI-related concepts.
+- Should explain, for example, if a related or supporting skill was found that satisfies the main requirement.
+- Should be recruiter-oriented, using clear, not excessively technical language.
+- Should describe how the match was determined (e.g., "The candidate has experience with Django, which is a Python framework, satisfying the Python requirement").
+
+Avoid any technical references to AI, LLMs, or embedding mechanisms in the explanation.
+
+========
+
+before testing, i want to ask a question related to the supabase function code you built:
+- i see you defined skill relationships, hierarchies, skill aliases - if we are using embeddings and ai, it doesn make sense to programmatically define this, what do you think? or this is very necessary?
+(dont do anything, just let me know your toguts, if needed invoke the subagent ai recruiting engineer to share feedback on this approach)
+
+=======
 
 
 
+===
 
+Before moving forward with deploying the new api version, id like to adjust this:
+the api extracts info about the company "industry" and based on it sets reuqirements. this is valid, the only thing is that those reqs are set to mandatory.
+instead, i'd like this to be: any requirement extracted from "industry" or culture" must be set as "not mandatory"
+
+
+-----
+
+My answers:
+
+0. Before answering, I'd like to clarify that for the "content" field in the JSON input, the requirement's mandatory status (`is_mandatory`) must be determined based on the text. For example, if the content says "AWS is nice to have but not mandatory," then `is_mandatory` should be set to false. (What I mean is that the mere mention of a requirement in the "content" element does not necessarily imply that it is mandatory)
+
+1. The value of `is_mandatory` should reflect what is explicitly stated in the content. If there is no clear mention of whether it's mandatory or not (e.g., it simply says "React"), then default to setting `is_mandatory` to true.
+
+2. Yes, but please be very specific that this rule applies only to requirements extracted from the "industry" or "culture" elements in the JSON input. Clearly indicate that this behavior is tied to the input structure.
+
+3. Correct!
+
+=======
+
+
+please ask the ai-recruiting-engineer to do a quick review of the match-analysis api that we recently implemented:
+code: @supabase\functions\match-analysis-3
+how it works: @docs\apis\docs\enhanced-match-analysis-v3-technical-reference.md
+how/where match analysis feature plugs into the vita app: @docs\features\vita-features.csv
+
+dont return any output, just review and tell me once its done as i have some questions, improvement suggestions to do
+
+
+===
+
+
+sharing comments/questions:
+1. does the match analysis implementation differentiate mandatory (is_mandatory = true) vs non mandatory (is_mandatory = false) requirements when returning/calculating the score?
+2. in the per-requirement analysis, i don't see too much detail. i would like to see a bit more of information based on the reasoning/thought process the "agent" did when determining how well a candidate matches a requirement.
+3. does the input of the api includes the job description?
+
+Dont do anything, just share your thoughts/respond the raised questions
+
+
+================
+
+
+Perfect. Let me share my expectations based on your answers:
+1. Mandatory vs Non-Mandatory Requirements: we must definitely take this into account. what matters most is the candidate meeting or not meeting the mandatory reqs, so the score must be assigned based on mandatory reqs. for non mandatory, the analysis should be different: candidate meeting non mandatory reqs should elevate the score, but candidates not meeting the non mandatory reqs should not be punished or its score must not be affected due to this. we need to implement the logic to maek this happen
+2. for now, lets jsut be a bit more deep into the feedback on why a candidate gets a given score, you can include some details of the reasoning that recur to linkedin profile. For example: candidate has expert elvel of react as 3 roles in his linkeding profile prove it. or, candidate has leadership experience because in company A they led a team of 5.
+3. for now lets not focus on this job description suggestion. lets leave it for later.
+
+
+Dont build anything yet. just tell me your thoguhgts (use the ai recruiting engineer agent for better responses)
+
+---------
+
+Improved Instruction:
+I have a 4th point to share/discuss:
+
+Currently, the match analysis API receives an input structured as follows:
+
+- **Candidate section:**
+  - `main`: Basic info (first name, last name, etc.)
+  - `skills`: Array of `CandidateSkill` objects (each with `name`, `type`, `yoe`, `proficiency_level`)
+  - `raw_profile`: Optional, but improves matching (LinkedIn-style structure)
+
+- **Job section:**
+  - `attributes`: Contains `title` (additional attributes can be added if needed)
+  - `requirements`: Array of `JobRequirement` objects (each with `requirement name`, `type`, `is_mandatory`, `proficiency_level`, `weight`)
+  - `job_description`: *Not yet implemented; we plan to include the JD in the analysis later*
+
+In the candidate section, `main` and `skills` are generated by an API that processes the LinkedIn-style `raw_profile`. This API performs extraction and parsing to identify specific skills, returning their `name`, `type`, `yoe`, and `proficiency_level`. The extraction logic is handled by the @docs\apis\code\parse-linkedin-skill.ts API (see `@docs/apis/docs/parse-linkedin-skill.md` for more details).
+
+Given that the analysis is derived from the `raw_profile`, which is already an input to this API, do you think including `main` and `skills` as separate inputs adds any value to the match analysis API? Or are they redundant?
+
+Dont build anything yet. just tell me your thoguhgts
+
+=====
+
+Perfect, lets keep this then.
+Based on the chat we had please proceed with the improvements:
+1. Scoring Algorithm Strategy for mandatory and non mandatory reqs
+2. Evidence Extraction Approach
+
+before starting briefly share what is your plan to make this happen
+========
+
+
+I don’t like how you did this. The API output structure must be preserved. (i mean the api structure must be the same as the one we had before you made the last edits)
+
+Please adjust your approach with the following considerations:
+
+- The API output structure must not be changed.
+- Use the `feedback` field in the per-requirement analysis to explain why a candidate received a given score. This should include the rationale and, if available, supporting evidence.
+- Both the overall score and the per-requirement score must be influenced by whether the requirement is marked as mandatory or not.
+- You should not add any new elements to the API structure.
+
+Please confirm your understanding of these instructions before proceeding.
+
+=======
+Improved Instruction:
+I'd like to address the following issues:
+
+- In the per-skill analysis, do not start the feedback with labels like "MANDATORY" or "OPTIONAL." Instead, write the feedback in a more natural tone. For optional requirements, you can mention something like, "Given this is an optional requirement, this doesn't represent a significant gap," or, "While optional, it's great that the candidate meets this requirement."
+
+- Do not mention the score in the feedback.
+
+- When referencing relevant experience that supports why the candidate meets a requirement, provide an explanation rather than listing technologies. For example, instead of saying "Additional relevant experience: React Native, Node.js," explain how or where the candidate gained and applied that experience.
+
+========
+
+Thanks for the analysis. Let me clarify the context I envisioned for `parse-linkedin-skill` and `match-analysis`:
+
+- **parse-linkedin-skill** (`@docs/apis/code/parse-linkedin-skill.ts`): Handles the extraction of candidate skills by parsing the LinkedIn raw profile.
+- **match-analysis**: Performs the match analysis based on candidate skills and job requirements. In the app’s workflow, if the candidate is new (not yet in the database), we must first run `parse-linkedin-skill` to extract the skills. However, since the `parse-linkedin-skill` extraction may omit valid details from the profile, we still include the candidate’s LinkedIn raw data as part of the input.
+
+(you can get more details about vita features and how they relate with the apis by checking this file: @docs\features\vita-features.csv)
+
+Is my explanation clear?
+
+Based on your response, I believe the `yearsmatch` (or any function responsible for assigning years of experience to a requirement) should be handled by `parse-linkedin-skill`. Therefore, I suggest placing all features related to skill extraction and years of experience calculation within the scope of `parse-linkedin-skill`.
+
+Following this, let’s have the AI Recruiting Engineer review this API to determine if it is well-structured and appropriately designed for skill extraction (including years of experience and proficiency level).
+
+===========
+
+I don’t think evidence collection should be part of `parse-linkedin-skill`. Instead, this should be handled by the `match-analysis` API. What do you think?
+
+Also, another comment:
+
+In the match analysis feature, there are two options:
+
+1. **Existing candidates**: If this option is selected, we use the data already stored in the database. In this case, only the `match-analysis` API is run.
+   
+2. **New candidates**: If this option is selected, both APIs come into play. We run `parse-linkedin-skill` followed by `match-analysis`. If a PDF resume is provided instead of a LinkedIn profile, then `parse-resume-skill` will be run instead of `parse-linkedin-skill`.
+
+===========
+
+question on Phase 2: Intelligence Enhancement (Week 2): if we are extracting skills, why would we detect skill relationships? can you share examples? for doing this would you need additional textual skill definitons about hierarchies, relations, etc?
+
+=============
+
+before answering this question, let me ask another: these skill relations will be just present here in parse-linkedin-skill api? or we would need them too in match-analysis api?
+
+=============
+
+
+I agree, lets keep the skill extraction in parse-linkedin-skill and the skill relationships in match-analysis. is this what you suggest?
+Also, you suggest keep relationships, hierarchies, etc in match analysis, right?
+
+======
+
+for the overall years of exp, cant we jsut focus on the xperience component and calculate based on them and not on the nested elments that are more related to specific roes within a same experience?
+
+
+===============
+
+
+important:
+Thanks for this explanation. Lets keep with this approach.
+Also, i plan Vita to be a tool tailorable to multiple industry segments. This version will be tailored to software engineering, but i might release new versions tailored to other industries (eg: industrial automation, pharma, real estate, SAP)
+Questions:
+1. given the approach of releasing tailored bersions: could we create separate "knowledge bases" that include industry/sector specific skill relationships, hierarchies, and skill aliases? do you think this might work? if so, what about creating a separate file (separet from the core suapabse function file) for putting this industry/sector specific information?
+2. if my approach sounds good please: adjust the code of the supabaes function so it works along with separate "knowledge bases"
+3. lets create a knowledge base for software engineering. this knowledge base should be more comprehensive. please propose a structure and lets follow it
