@@ -84,7 +84,7 @@ export function useMatchAnalysis(
         
         updateProgress("📊 Generating enhanced analysis...")
         
-        // Use simplified enhanced analysis flow (v3)
+        // Use simplified enhanced analysis flow (v3) - now direct without reducer
         const enhancedResult = await analyzeLinkedInCandidateSimplifiedEnhanced(linkedinUrl, jobId, false)
         parsedCandidate = enhancedResult.candidate
         candidateName = `${parsedCandidate.main.first_name} ${parsedCandidate.main.last_name}`.trim()

@@ -7,6 +7,7 @@ import {
   updateCandidateResumeUrl 
 } from "./candidates"
 
+
 // Types for API responses
 interface LinkedInProfileData {
   firstName?: string
@@ -60,7 +61,6 @@ interface JobData {
     proficiency_level: string
     weight: number
   }>
-  job_description: string
 }
 
 interface MatchAnalysisResponse {
@@ -162,6 +162,8 @@ export async function fetchJobDataForAnalysis(jobId: string): Promise<JobData | 
   try {
     const supabase = await createClient()
     
+    console.log(`🔍 Fetching job data for analysis. Job ID: ${jobId}`)
+    
     // Fetch job details with requirements
     const { data: job, error: jobError } = await supabase
       .from("jobs")
@@ -174,17 +176,22 @@ export async function fetchJobDataForAnalysis(jobId: string): Promise<JobData | 
           is_mandatory,
           proficiency_level,
           weight
-        ),
-        job_descriptions (
-          description
         )
       `)
       .eq("id", jobId)
       .single()
 
-    if (jobError || !job) {
+    if (jobError) {
+      console.error("❌ Database error fetching job:", jobError)
       return null
     }
+    
+    if (!job) {
+      console.error("❌ No job found with ID:", jobId)
+      return null
+    }
+    
+    console.log(`✅ Job found: "${job.job_title}" with ${job.job_requirements?.length || 0} requirements`)
 
     // Format the data according to match-analysis API requirements
     const formattedJob: JobData = {
@@ -215,7 +222,6 @@ export async function fetchJobDataForAnalysis(jobId: string): Promise<JobData | 
         proficiency_level: req.proficiency_level,
         weight: Number(req.weight) || 0.5
       })) || [],
-      job_description: job.job_descriptions?.[0]?.description || job.job_description || ""
     }
 
     return formattedJob
@@ -265,53 +271,21 @@ export async function scrapeLinkedInProfile(linkedinUrl: string): Promise<Linked
 }
 
 /**
- * Step 2: Reduce LinkedIn profile data
+ * Parse LinkedIn skills directly from raw profile data
  */
-export async function reduceLinkedInProfile(profileData: LinkedInProfileData): Promise<Record<string, unknown>> {
+export async function parseLinkedInSkills(rawProfileData: Record<string, unknown>): Promise<ParsedCandidate> {
   try {
-    const response = await fetch(
-      "https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/linkedin-profile-reducer",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`
-        },
-        body: JSON.stringify(profileData)
-      }
-    )
-
-    if (!response.ok) {
-      try {
-        await response.json()
-      } catch {
-        const textError = await response.text()
-        throw new Error(`LinkedIn profile reducer returned ${response.status}: ${textError || "Unknown error"}`)
-      }
-      
-      if (response.status === 400) {
-        throw new Error("Invalid profile data format. Please try a different LinkedIn URL.")
-      }
-      if (response.status === 405) {
-        throw new Error("Method not allowed - LinkedIn profile reducer configuration error.")
-      }
-      if (response.status >= 500) {
-        throw new Error("LinkedIn profile reducer service error. Please try again later.")
-      }
-      throw new Error(`Failed to format profile data (${response.status}). Please try again.`)
-    }
-
-    return await response.json()
-  } catch (error) {
-    throw error
-  }
-}
-
-/**
- * Step 3: Parse LinkedIn skills and extract structured data
- */
-export async function parseLinkedInSkills(reducedData: Record<string, unknown>): Promise<ParsedCandidate> {
-  try {
+    // 📤 Log data being sent to parse-linkedin-skill API
+    console.log("📤 Data Sent to parse-linkedin-skill API:")
+    console.log(`📏 Payload Size: ${JSON.stringify(rawProfileData).length} characters`)
+    console.log(`🔗 API Endpoint: https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/parse-linkedin-skill`)
+    console.log(`📋 Data Structure Being Sent:`)
+    console.log(`   - firstName: ${rawProfileData?.firstName || 'N/A'}`)
+    console.log(`   - lastName: ${rawProfileData?.lastName || 'N/A'}`)
+    console.log(`   - experiences: ${Array.isArray(rawProfileData?.experiences) ? rawProfileData.experiences.length : 0} items`)
+    console.log(`   - skills: ${Array.isArray(rawProfileData?.skills) ? rawProfileData.skills.length : 0} items`)
+    console.log(`   - Raw Profile Keys: ${Object.keys(rawProfileData).join(', ')}`)
+    
     const response = await fetch(
       "https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/parse-linkedin-skill",
       {
@@ -320,7 +294,7 @@ export async function parseLinkedInSkills(reducedData: Record<string, unknown>):
           "Content-Type": "application/json",
           "Authorization": `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`
         },
-        body: JSON.stringify(reducedData)
+        body: JSON.stringify(rawProfileData)
       }
     )
 
@@ -338,6 +312,29 @@ export async function parseLinkedInSkills(reducedData: Record<string, unknown>):
     }
 
     const parsedData = await response.json()
+    
+    // 📥 Log parsed candidate data received from parse-linkedin-skill API
+    console.log("📥 Parsed Candidate Data Received from parse-linkedin-skill API:")
+    console.log(`✅ API Response Status: ${response.status}`)
+    console.log(`👤 Candidate Details:`)
+    console.log(`   - Name: ${parsedData.main?.first_name} ${parsedData.main?.last_name}`)
+    console.log(`   - Country: ${parsedData.main?.country || 'N/A'}`)
+    console.log(`   - Email: ${parsedData.main?.email || 'N/A'}`)
+    console.log(`   - LinkedIn: ${parsedData.main?.linkedin || 'N/A'}`)
+    console.log(`   - Years of Experience: ${parsedData.years_of_experience || 0}`)
+    console.log(`🛠️ Skills Extracted:`)
+    console.log(`   - Total Skills: ${parsedData.skills?.length || 0}`)
+    if (parsedData.skills?.length > 0) {
+      const skillsByType = parsedData.skills.reduce((acc: any, skill: any) => {
+        acc[skill.type] = (acc[skill.type] || 0) + 1
+        return acc
+      }, {})
+      console.log(`   - Skills by Type:`, skillsByType)
+      console.log(`   - Top 5 Skills: ${parsedData.skills.slice(0, 5).map((s: any) => `${s.name} (${s.yoe}y)`).join(', ')}`)
+    }
+    console.log(`📊 Processing Summary:`)
+    console.log(`   - Response Size: ${JSON.stringify(parsedData).length} characters`)
+    console.log(`   - Data Structure Valid: ${!!(parsedData.main && parsedData.skills)}`)
     
     // Validate the parsed data has required fields
     if (!parsedData.main || (!parsedData.main.first_name && !parsedData.main.last_name)) {
@@ -765,24 +762,35 @@ export async function runEnhancedMatchAnalysis(
 }
 
 /**
- * Complete LinkedIn parsing flow (3 APIs in sequence)
+ * Complete LinkedIn parsing flow (2 APIs - DIRECT, skips reducer)
  */
 export async function parseLinkedInProfile(linkedinUrl: string): Promise<ParsedCandidate> {
   try {
-    // Step 1: Scrape LinkedIn profile
+    // Step 1: Scrape LinkedIn profile (raw data)
     const profileData = await scrapeLinkedInProfile(linkedinUrl)
     
-    // Step 2: Reduce profile data
-    const reducedData = await reduceLinkedInProfile(profileData)
+    // 📊 Log raw LinkedIn profile details
+    console.log("🔍 Raw LinkedIn Profile Analysis:")
+    console.log(`📏 Profile Size: ${JSON.stringify(profileData).length} characters`)
+    console.log(`👤 Profile Structure:`)
+    console.log(`   - Name: ${profileData?.firstName} ${profileData?.lastName}`)
+    console.log(`   - Headline: ${profileData?.headline ? 'Yes' : 'No'}`)
+    console.log(`   - Experiences: ${profileData?.experiences?.length || 0} entries`)
+    console.log(`   - Skills: ${profileData?.skills?.length || 0} entries`)
+    console.log(`   - Education: ${profileData?.educations?.length || 0} entries`)
+    console.log(`   - About Section: ${profileData?.about ? 'Yes' : 'No'}`)
+    console.log(`   - Languages: ${profileData?.languages?.length || 0} entries`)
     
-    // Step 3: Parse skills and structure data
-    const parsedCandidate = await parseLinkedInSkills(reducedData)
+    // Step 2: Parse skills directly from raw profile (SKIP reducer)
+    const parsedCandidate = await parseLinkedInSkills(profileData)
     
     return parsedCandidate
   } catch (error) {
     throw error
   }
 }
+
+
 
 /**
  * Run simplified enhanced match analysis v3 (embedding-based with same output format)
@@ -911,7 +919,7 @@ export async function analyzeLinkedInCandidateEnhanced(
 }
 
 /**
- * Complete simplified enhanced flow: Parse LinkedIn, run v3 analysis (same format, better accuracy)
+ * Complete simplified enhanced flow: Parse LinkedIn, run v3 analysis (DIRECT - no reducer)
  */
 export async function analyzeLinkedInCandidateSimplifiedEnhanced(
   linkedinUrl: string,
@@ -924,7 +932,7 @@ export async function analyzeLinkedInCandidateSimplifiedEnhanced(
   rawProfile?: Record<string, unknown>
 }> {
   try {
-    console.log("🚀 Starting Simplified Enhanced LinkedIn Analysis Flow (v3)")
+    console.log("🚀 Starting Simplified Enhanced LinkedIn Analysis Flow (v3) - DIRECT")
     console.log(`🔗 LinkedIn URL: ${linkedinUrl}`)
     console.log(`💼 Job ID: ${jobId}`)
     console.log(`💾 Save Results: ${saveResults}`)
@@ -939,38 +947,47 @@ export async function analyzeLinkedInCandidateSimplifiedEnhanced(
     console.log("🔍 Step 1: Scraping LinkedIn profile...")
     const rawLinkedInData = await scrapeLinkedInProfile(linkedinUrl)
     
-    // Step 2: Reduce LinkedIn profile to structured format
-    console.log("🔄 Step 2: Reducing LinkedIn profile data...")
-    const reducedData = await reduceLinkedInProfile(rawLinkedInData)
+    console.log("📊 Raw LinkedIn Profile Summary for Enhanced Analysis:")
+    console.log(`   📏 Profile Size: ${JSON.stringify(rawLinkedInData).length} characters`)
+    console.log(`   👤 Name: ${rawLinkedInData?.firstName} ${rawLinkedInData?.lastName}`)
+    console.log(`   💼 Experiences: ${rawLinkedInData?.experiences?.length || 0} entries`)
+    console.log(`   🎯 Skills Listed: ${rawLinkedInData?.skills?.length || 0} entries`)
     
-    // Step 3: Parse skills and extract candidate data
-    console.log("🧠 Step 3: Parsing LinkedIn skills...")
-    const candidate = await parseLinkedInSkills(reducedData)
+    // Step 2: Parse skills directly from raw profile (SKIP reducer)
+    console.log("🧠 Step 2: Parsing LinkedIn skills from raw profile...")
+    const candidate = await parseLinkedInSkills(rawLinkedInData)
     
-    // Step 4: Run simplified enhanced match analysis v3 with raw profile data
-    console.log("⚡ Step 4: Running simplified enhanced match analysis v3...")
-    const analysis = await runSimplifiedEnhancedMatchAnalysis(candidate, jobData, reducedData)
+    console.log("📋 Parsed Candidate Summary for Enhanced Analysis:")
+    console.log(`   👤 Parsed Name: ${candidate.main?.first_name} ${candidate.main?.last_name}`)
+    console.log(`   📊 Skills Parsed: ${candidate.skills?.length || 0} total`)
+    console.log(`   💼 Years Experience: ${candidate.years_of_experience || 0}`)
+    console.log(`   🔗 Profile Complete: ${!!(candidate.main && candidate.skills && candidate.skills.length > 0)}`)
     
-    // Step 5: Save if requested
+    // Step 3: Run simplified enhanced match analysis v3 with RAW profile data
+    console.log("⚡ Step 3: Running simplified enhanced match analysis v3 with raw profile...")
+    const analysis = await runSimplifiedEnhancedMatchAnalysis(candidate, jobData, rawLinkedInData)
+    
+    // Step 4: Save if requested
     if (saveResults) {
-      console.log("💾 Step 5: Saving candidate and analysis...")
+      console.log("💾 Step 4: Saving candidate and analysis...")
       const candidateId = await saveCandidate(candidate, linkedinUrl, "linkedin")
       await saveMatchAnalysis(jobId, candidateId, analysis)
       
       console.log("✅ Simplified enhanced LinkedIn analysis completed with save")
-      return { candidate, analysis, candidateId, rawProfile: reducedData }
+      return { candidate, analysis, candidateId, rawProfile: rawLinkedInData }
     }
     
     console.log("✅ Simplified enhanced LinkedIn analysis completed")
-    return { candidate, analysis, rawProfile: reducedData }
+    return { candidate, analysis, rawProfile: rawLinkedInData }
   } catch (error) {
     console.error("❌ Simplified enhanced LinkedIn analysis failed:", error)
     throw error
   }
 }
 
+
 /**
- * Complete flow: Parse LinkedIn, analyze match, and optionally save
+ * Complete flow: Parse LinkedIn, analyze match, and optionally save - LEGACY VERSION
  */
 export async function analyzeLinkedInCandidate(
   linkedinUrl: string,

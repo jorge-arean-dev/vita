@@ -1,0 +1,745 @@
+[
+    {
+        "linkedinUrl": "https://www.linkedin.com/in/joseigutierrez",
+        "firstName": "José Ignacio",
+        "lastName": "Gutiérrez",
+        "fullName": "José Ignacio Gutiérrez",
+        "headline": "Software Engineer",
+        "connections": 783,
+        "followers": 783,
+        "email": "jos.gutirrez@genium.io",
+        "mobileNumber": null,
+        "jobTitle": "Senior Fullstack Engineer",
+        "companyName": "Genium",
+        "companyIndustry": "Information Technology And Services",
+        "companyWebsite": "genium.io",
+        "companyLinkedin": "linkedin.com/company/genium.io",
+        "companyFoundedIn": 2011,
+        "companySize": "51-200",
+        "currentJobDuration": "1 mo",
+        "currentJobDurationInYrs": 0.08,
+        "topSkillsByEndorsements": "JavaScript, PHP, jQuery, AngularJS, HTML 5",
+        "addressCountryOnly": null,
+        "addressWithCountry": "Argentina",
+        "addressWithoutCountry": "Argentina",
+        "profilePic": "https://media.licdn.com/dms/image/v2/C4D03AQFCFBbxF9O4kQ/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1655470013952?e=1758758400&v=beta&t=4ahkjb_b1uV__nFcqAmwLFNJxugRPgvaIu_yZb8kSwo",
+        "profilePicHighQuality": "https://media.licdn.com/dms/image/v2/C4D03AQFCFBbxF9O4kQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1655470013952?e=1758758400&v=beta&t=kdKDaU-E1IOqNoNPaSPlTK00oIufmW_a0DkOVB0oFg0",
+        "about": null,
+        "publicIdentifier": "joseigutierrez",
+        "openConnection": null,
+        "urn": "ACoAAAmFgCwB3ZT-3b6l4joAfKVEDiDFQCz4dms",
+        "experiences": [
+            {
+                "companyId": "7937164",
+                "companyUrn": "urn:li:fsd_company:7937164",
+                "companyLink1": "https://www.linkedin.com/company/7937164/",
+                "logo": "https://media.licdn.com/dms/image/v2/C4D0BAQFoDj4KlFwgzA/company-logo_200_200/company-logo_200_200/0/1631301905154?e=1758758400&v=beta&t=tx6R8Z9ziG7BVG-pgFg7QeeUf0Ffhduu5LbQD7H4tGo",
+                "title": "Senior Fullstack Engineer",
+                "subtitle": "Genium · Full-time",
+                "caption": "Aug 2025 - Present · 1 mo",
+                "metadata": "Remote",
+                "breakdown": false,
+                "subComponents": [
+                    {
+                        "description": []
+                    }
+                ]
+            },
+            {
+                "companyId": "90910243",
+                "companyUrn": "urn:li:fsd_company:90910243",
+                "companyLink1": "https://www.linkedin.com/company/90910243/",
+                "logo": "https://media.licdn.com/dms/image/v2/C4D0BAQH8A34GuGNivg/company-logo_200_200/company-logo_200_200/0/1676389885252?e=1758758400&v=beta&t=nGT27qDq4DKOpxhxFhTOukX1N7v57Ls79O7n0TETuCQ",
+                "title": "Software Engineer",
+                "subtitle": "Jusmet · Full-time",
+                "caption": "Feb 2024 - Aug 2025 · 1 yr 7 mos",
+                "breakdown": false,
+                "subComponents": [
+                    {
+                        "description": []
+                    }
+                ]
+            },
+            {
+                "companyId": "10643678",
+                "companyUrn": "urn:li:fsd_company:10643678",
+                "companyLink1": "https://www.linkedin.com/company/10643678/",
+                "logo": "https://media.licdn.com/dms/image/v2/C4D0BAQGjY47rng2M9Q/company-logo_200_200/company-logo_200_200/0/1649344264503/deptagency_logo?e=1758758400&v=beta&t=ZWxbOnSMN3cu2kYQPULNr7xdCM_ZyDey7t5av9nne1M",
+                "title": "DEPT®",
+                "subtitle": "Full-time · 3 yrs 6 mos",
+                "breakdown": true,
+                "subComponents": [
+                    {
+                        "title": "Team Lead - Principal Engineer",
+                        "caption": "Apr 2022 - Feb 2024 · 1 yr 11 mos",
+                        "description": [
+                            {
+                                "type": "textComponent",
+                                "text": "Cleveland Browns Foundation\n\nIt’s a project for Cleveland Browns football team foundation to manage the communications campaigns sent by districts to all the schools in the district trying to get more studients in the football team.\nAs a teachical lead I’m in charge of infrastructure, releases and manage all the team as technical perspective including UX/UI desicions, estimations and business goals.\nTechnologies/Skills: Next.js, React.js, Cosmic CMS, Firebase and Heroku"
+                            }
+                        ]
+                    },
+                    {
+                        "title": "Principal Engineer",
+                        "caption": "Sep 2020 - Feb 2024 · 3 yrs 6 mos",
+                        "description": [
+                            {
+                                "type": "textComponent",
+                                "text": "Moodys Analytics\n\nOn this time working in Rocket (Rocket is part of DEPT®), I have been working in Real Estate Solutions project by MOODYS ANALYTICS (https://cre.reis.com/). REIS is the nation's most trusted source for property and market intelligence, including vacancy rates, rent levels, cap rates, new construction, rent comparables, sales comparables, valuation estimates, and capital market trends.\nThis application is built on React consuming a Rest API buit on Node.js. Also, the database used is PostgreSQL.\nTechnologies/Skills: HTML5, SCSS, React.js, Rest API, Node.js, Typescript, Snowflake and Docker."
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "companyId": "11006040",
+                "companyUrn": "urn:li:fsd_company:11006040",
+                "companyLink1": "https://www.linkedin.com/company/11006040/",
+                "logo": "https://media.licdn.com/dms/image/v2/C4D0BAQFAMBOkKBPD_Q/company-logo_200_200/company-logo_200_200/0/1630490693968/coi_energy_services_logo?e=1758758400&v=beta&t=9dbnDofIlsN8sSkaZm7G8egphBvuGh4B7fqrLG6hOwQ",
+                "title": "Front End Lead Developer",
+                "subtitle": "COI Energy Services",
+                "caption": "Mar 2019 - Sep 2020 · 1 yr 7 mos",
+                "breakdown": false,
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "textComponent",
+                                "text": "Front-end lead developer\nI am working on the COI platform. This platform helps the customer to monitor and optimize energy consumption. Using IoT we receive the electrical meter readings per minute and then analyze the data to show advice to the customer to reduce energy demand.\nFramework: Angular and JAVA\n\nIn addition, we have an internal administration tool for users, accounts, meters and devices built into React.js.\nFramework: React.js and Laravel PHP"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "companyId": "219833",
+                "companyUrn": "urn:li:fsd_company:219833",
+                "companyLink1": "https://www.linkedin.com/company/219833/",
+                "logo": "https://media.licdn.com/dms/image/v2/C4D0BAQG88FAcaHJ7Kg/company-logo_200_200/company-logo_200_200/0/1631908490467/making_sense_llc_logo?e=1758758400&v=beta&t=WT8om6OHKToIDgba7y-IH38CumXLw62RNKNxCJ1Y3as",
+                "title": "Making Sense LLC",
+                "subtitle": "6 yrs 1 mo",
+                "breakdown": true,
+                "subComponents": [
+                    {
+                        "title": "Full Stack Engineer",
+                        "caption": "Mar 2018 - Feb 2019 · 1 yr",
+                        "metadata": "Argentina",
+                        "description": [
+                            {
+                                "type": "textComponent",
+                                "text": "RW - http://rw.co/\n\nProject: Barnes & Noble College\nTechnologies: AngularJs, Cloudmine, Node, HTML5, SaSS"
+                            }
+                        ]
+                    },
+                    {
+                        "title": "Angular 2+ Developer",
+                        "caption": "Jun 2016 - Mar 2018 · 1 yr 10 mos",
+                        "description": [
+                            {
+                                "type": "textComponent",
+                                "text": "RW - http://rw.co/\n\nProjects: BNC IT and Marmon\nTechnologies: Angular 4, Socket.io - HTML5 - SaSS."
+                            }
+                        ]
+                    },
+                    {
+                        "title": "AngularJS developer",
+                        "caption": "Jun 2015 - Jun 2016 · 1 yr 1 mo",
+                        "description": []
+                    }
+                ]
+            }
+        ],
+        "updates": [],
+        "skills": [
+            {
+                "title": "Front-End Development",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "Software Engineer at Jusmet"
+                            },
+                            {
+                                "type": "insightComponent",
+                                "text": "Endorsed by 1 person in the last 6 months"
+                            },
+                            {
+                                "type": "insightComponent",
+                                "text": "1 endorsement"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "Tailwind CSS",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "Software Engineer at Jusmet"
+                            },
+                            {
+                                "type": "insightComponent",
+                                "text": "Endorsed by 1 person in the last 6 months"
+                            },
+                            {
+                                "type": "insightComponent",
+                                "text": "1 endorsement"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "Next.js",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "2 experiences across Jusmet and 1 other company"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "React.js",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "2 experiences across Jusmet and 1 other company"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "Angular",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "Principal Engineer at DEPT®"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "TypeScript",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "2 experiences across Jusmet and 1 other company"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "Firebase",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "Principal Engineer at DEPT®"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "JavaScript",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "23 endorsements"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "Angular 2+",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "2 endorsements"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "IoT",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "1 endorsement"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "Metodologías ágiles",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "1 endorsement"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "AngularJS",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "11 endorsements"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "Lenguaje SASS",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "1 endorsement"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "HTML 5",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "9 endorsements"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "Node.js",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "Principal Engineer at DEPT®"
+                            },
+                            {
+                                "type": "insightComponent",
+                                "text": "7 endorsements"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "PHP",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "21 endorsements"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "jQuery",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "16 endorsements"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "ASP.NET MVC",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "9 endorsements"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "MySQL",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "9 endorsements"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "CSS",
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "9 endorsements"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "profilePicAllDimensions": [
+            {
+                "width": 100,
+                "height": 100,
+                "url": "https://media.licdn.com/dms/image/v2/C4D03AQFCFBbxF9O4kQ/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1655470013952?e=1758758400&v=beta&t=4ahkjb_b1uV__nFcqAmwLFNJxugRPgvaIu_yZb8kSwo"
+            },
+            {
+                "width": 200,
+                "height": 200,
+                "url": "https://media.licdn.com/dms/image/v2/C4D03AQFCFBbxF9O4kQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1655470013952?e=1758758400&v=beta&t=-JFXyVSrvM-bhAnPiyhJ_ECaYAvFhYTg-QqZr6AAQFw"
+            },
+            {
+                "width": 400,
+                "height": 400,
+                "url": "https://media.licdn.com/dms/image/v2/C4D03AQFCFBbxF9O4kQ/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1655470013952?e=1758758400&v=beta&t=ZB2lkm5sq_c3VgdKAFIRPWGr5QX576o-RT_tBbrxsJI"
+            },
+            {
+                "width": 800,
+                "height": 800,
+                "url": "https://media.licdn.com/dms/image/v2/C4D03AQFCFBbxF9O4kQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1655470013952?e=1758758400&v=beta&t=kdKDaU-E1IOqNoNPaSPlTK00oIufmW_a0DkOVB0oFg0"
+            }
+        ],
+        "educations": [
+            {
+                "companyId": "57124",
+                "companyUrn": "urn:li:fsd_company:57124",
+                "companyLink1": "https://www.linkedin.com/company/57124/",
+                "logo": "https://media.licdn.com/dms/image/v2/C560BAQEApmbg0PyCfg/company-logo_200_200/company-logo_200_200/0/1631349986953?e=1758758400&v=beta&t=7enb1mI-Gp24mfKm0WPf98nT6IiiFw-XnOcyCuKi2Lk",
+                "title": "Universidad Nacional del Centro de la Provincia de Buenos Aires",
+                "subtitle": "Ingeniería en sistemas",
+                "caption": "2002 - 2011",
+                "breakdown": false,
+                "subComponents": [
+                    {
+                        "description": []
+                    }
+                ]
+            }
+        ],
+        "licenseAndCertificates": [],
+        "honorsAndAwards": [],
+        "languages": [
+            {
+                "title": "Inglés",
+                "caption": "Professional working proficiency",
+                "breakdown": false,
+                "subComponents": [
+                    {
+                        "description": []
+                    }
+                ]
+            }
+        ],
+        "volunteerAndAwards": [],
+        "verifications": [],
+        "promos": [],
+        "highlights": [
+            {
+                "companyId": "7937164",
+                "companyUrn": "urn:li:fsd_company:7937164",
+                "companyLink1": "https://www.linkedin.com/premium/products/?upsellOrderOrigin=sales_navigator_profile_highlights_upsell&utype=sales&referenceId=uXKeMwBuRa2kK64op52ySg%3D%3D",
+                "logo": "https://media.licdn.com/dms/image/v2/C4D0BAQFoDj4KlFwgzA/company-logo_200_200/company-logo_200_200/0/1631301905154?e=1758758400&v=beta&t=tx6R8Z9ziG7BVG-pgFg7QeeUf0Ffhduu5LbQD7H4tGo",
+                "title": "José Ignacio was recently hired",
+                "subtitle": "José Ignacio started their role at Genium less than one month ago.",
+                "breakdown": false,
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "Free insight from Sales Navigator"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "breakdown": false,
+                "subComponents": [
+                    {
+                        "description": []
+                    }
+                ]
+            }
+        ],
+        "projects": [
+            {
+                "title": "Velocity",
+                "subtitle": "Jan 2014 - Present",
+                "breakdown": false,
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "Associated with Making Sense LLC"
+                            },
+                            {
+                                "type": "textComponent",
+                                "text": "EmberJs (Javascript framework)\nNodeJs & npm (Node Packaged Modules)\nBower (Package manager)\nGrunt (Javascript task runner)\nHTML5, CSS3, jQuery\nQUnit (JavaScript Unit Testing framework)"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "Marmon",
+                "subtitle": "Dec 2016 - Sep 2017",
+                "breakdown": false,
+                "subComponents": [
+                    {
+                        "description": [
+                            {
+                                "type": "insightComponent",
+                                "text": "Associated with Making Sense LLC"
+                            },
+                            {
+                                "type": "textComponent",
+                                "text": "We has built custom sensors that are installed on shelving units to turn them into smart shelves that track stock levels, movement, restocking, and out-of-stock events in real-time. With advanced analytics, this data is aggregated and provided to brands and retailers. \n\nFrom my side, I was working on the Client App, it have built with Angular 2+ and consume a node REST API, using socket.io to manage all events in real-time. "
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "publications": [],
+        "patents": [],
+        "courses": [],
+        "testScores": [],
+        "organizations": [],
+        "volunteerCauses": [],
+        "interests": [
+            {
+                "section_name": "Companies",
+                "section_components": [
+                    {
+                        "titleV2": "Universidad Nacional del Centro de la Provincia de Buenos Aires",
+                        "caption": "27,716 followers",
+                        "size": "LARGE",
+                        "textActionTarget": "https://www.linkedin.com/company/57124/",
+                        "subComponents": []
+                    },
+                    {
+                        "titleV2": "Making Sense LLC",
+                        "caption": "19,931 followers",
+                        "size": "LARGE",
+                        "textActionTarget": "https://www.linkedin.com/company/219833/",
+                        "subComponents": []
+                    }
+                ]
+            },
+            {
+                "section_name": "Groups",
+                "section_components": [
+                    {
+                        "titleV2": "Dojo Ajax Toolkit Developers",
+                        "caption": "1,613 members",
+                        "size": "LARGE",
+                        "textActionTarget": "https://www.linkedin.com/groups/71399",
+                        "subComponents": []
+                    },
+                    {
+                        "titleV2": "Making Sense",
+                        "caption": "79 members",
+                        "size": "LARGE",
+                        "textActionTarget": "https://www.linkedin.com/groups/2411373",
+                        "subComponents": []
+                    }
+                ]
+            },
+            {
+                "section_name": "Newsletters",
+                "section_components": [
+                    {
+                        "titleV2": "🧠 De Cero a Experto en AI",
+                        "caption": "Published weekly",
+                        "subtitle": "\"De Cero a Experto en Inteligencia Artificial\" es una guía práctica para quienes quieren aprender IA desde cero,",
+                        "size": "LARGE",
+                        "textActionTarget": "https://www.linkedin.com/newsletters/7323754220711497728",
+                        "subComponents": [
+                            {
+                                "insightComponent": {
+                                    "text": "Luis Daniel Gomez",
+                                    "actionTarget": "https://www.linkedin.com/in/luis-daniel-gomez-149146a5"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "titleV2": "AI delivery just arrived!📦😎",
+                        "caption": "Published monthly",
+                        "subtitle": "An AI-packed newsletter for AI-driven teams and AI nerds. ",
+                        "size": "LARGE",
+                        "textActionTarget": "https://www.linkedin.com/newsletters/7331396403954454529",
+                        "subComponents": [
+                            {
+                                "insightComponent": {
+                                    "text": "NewCombin",
+                                    "actionTarget": "https://www.linkedin.com/company/18495419/"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "section_name": "Schools",
+                "section_components": [
+                    {
+                        "titleV2": "Universidad Nacional del Centro de la Provincia de Buenos Aires",
+                        "caption": "27,716 followers",
+                        "size": "LARGE",
+                        "textActionTarget": "https://www.linkedin.com/school/57124/",
+                        "subComponents": []
+                    },
+                    {
+                        "titleV2": "IxDF - The Interaction Design Foundation",
+                        "caption": "193,902 followers",
+                        "size": "LARGE",
+                        "textActionTarget": "https://www.linkedin.com/school/15098063/",
+                        "subComponents": []
+                    }
+                ]
+            }
+        ],
+        "recommendations": [
+            {
+                "section_name": "Received",
+                "section_components": [
+                    {
+                        "titleV2": "Damian Magani",
+                        "caption": "October 10, 2017, Damian worked with José Ignacio on the same team",
+                        "subtitle": "Full Stack .Net Developer",
+                        "size": "LARGE",
+                        "textActionTarget": "https://www.linkedin.com/in/damianmagani",
+                        "image": "https://media.licdn.com/dms/image/v2/C5603AQE4C5-su8ADfw/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1516466211313?e=1758758400&v=beta&t=KdRhqfOrchQBl3yWsJI7Yg71LCvQicfC_YOqPGZ8Ow8",
+                        "subComponents": [
+                            {
+                                "fixedListComponent": [
+                                    {
+                                        "type": "textComponent",
+                                        "text": "I worked with Jose in Doppler for more than a year, he's an excellent \ndeveloper and a great guy to work with, always with the best attitude to resolved problems and work with team mates, a great asset to any team."
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "titleV2": "Walter Zalazar",
+                        "caption": "May 30, 2014, Walter worked with José Ignacio on the same team",
+                        "subtitle": "🚀 Full Stack Engineer | React | NodeJS",
+                        "size": "LARGE",
+                        "textActionTarget": "https://www.linkedin.com/in/wzalazar",
+                        "image": "https://media.licdn.com/dms/image/v2/D4D03AQGPmkwef1y9mA/profile-displayphoto-shrink_400_400/B4DZRRw8uvGkAg-/0/1736538574351?e=1758758400&v=beta&t=svteFlgsFPPjEjMJ2Ix9hX5ujO3HMf7jpDE9gQui-Ks",
+                        "subComponents": [
+                            {
+                                "fixedListComponent": [
+                                    {
+                                        "type": "textComponent",
+                                        "text": "José es un gran profesional. Tiene una base técnica muy buena, se ha desenvuelto en muchos proyectos como un gran experto. Tiene capacidad de liderazgo, y un buen espiritu aventurero en nuevas tecnologías. Es muy buen compañero simpre dispuesto a ayudar y dar su punto de vista. Recomiendo a José."
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "section_name": "Given",
+                "section_components": [
+                    {
+                        "titleV2": "Damián Muti",
+                        "caption": "October 10, 2017, José Ignacio worked with Damián on the same team",
+                        "subtitle": "Senior Web Engineer at Atomic Health",
+                        "size": "LARGE",
+                        "textActionTarget": "https://www.linkedin.com/in/damianmuti",
+                        "image": "https://media.licdn.com/dms/image/v2/D4D03AQE-zms0LPGAlw/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1728311878545?e=1758758400&v=beta&t=j4P41i1jSnGdv_wCqcbK8GkE4j82bVrwnl089tX8dTg",
+                        "subComponents": [
+                            {
+                                "fixedListComponent": [
+                                    {
+                                        "type": "textComponent",
+                                        "text": "Damian is an excellent professional and teammate. He is a great leader because he always tried to help me when I had any issue. It's a pleasure working with him."
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "titleV2": "Damian Magani",
+                        "caption": "October 10, 2017, José Ignacio worked with Damian on the same team",
+                        "subtitle": "Full Stack .Net Developer",
+                        "size": "LARGE",
+                        "textActionTarget": "https://www.linkedin.com/in/damianmagani",
+                        "image": "https://media.licdn.com/dms/image/v2/C5603AQE4C5-su8ADfw/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1516466211313?e=1758758400&v=beta&t=KdRhqfOrchQBl3yWsJI7Yg71LCvQicfC_YOqPGZ8Ow8",
+                        "subComponents": [
+                            {
+                                "fixedListComponent": [
+                                    {
+                                        "type": "textComponent",
+                                        "text": "Trabajamos juntos en Doppler. La verdad que demostró compromiso y profesionalismo para desempeñar las tareas que se le asignaban."
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]
