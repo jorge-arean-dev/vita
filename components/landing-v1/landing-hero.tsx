@@ -63,15 +63,15 @@ export default function LandingHero({}: LandingHeroProps) {
   }
   return (
     <section className="flex items-center justify-center px-4 py-6">
-      <div className="max-w-4xl mx-auto text-center space-y-6">
+      <div className="max-w-4xl mx-auto text-center">
         {/* Main Heading */}
-        <h1 className="text-4xl md:text-5xl lg:text-6xl text-gray-900 leading-tight">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl text-gray-900 leading-tight mb-6">
           <span className="font-normal">Streamline recruiting with </span>
           <span className="font-bold">Vita</span>
         </h1>
 
         {/* Description */}
-        <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed mb-12">
           Your AI toolkit to optimize every step of the recruitment process, from job creation to candidate submission.
         </p>
 
@@ -125,18 +125,6 @@ export default function LandingHero({}: LandingHeroProps) {
           </form>
         </div>
 
-        {/* Book Call Button */}
-        <div className="pt-4">
-          <Link href="https://calendar.app.google/PZab9EFZmHffd7Ya8" target="_blank" rel="noopener noreferrer">
-            <Button
-              variant="outline"
-              size="lg"
-              className="text-gray-700 hover:text-gray-900 border-gray-300 hover:border-gray-400 px-8 py-3 text-base font-medium bg-white/80"
-            >
-              Book a Call
-            </Button>
-          </Link>
-        </div>
       </div>
     </section>
   )
