@@ -16,10 +16,16 @@ import {
   CheckCircle
 } from "lucide-react"
 
-interface PlansSectionProps {}
-
-export default function PlansSection({}: PlansSectionProps) {
-  const scrollToHero = () => {
+export default function PlansSection() {
+  const scrollToHero = (triggerSource: "vita_core" | "vita_custom") => {
+    try {
+      // Store the trigger source in localStorage
+      localStorage.setItem('waitlist_trigger_source', triggerSource)
+      console.log('Stored trigger source:', triggerSource)
+    } catch (error) {
+      console.error('Failed to store trigger source:', error)
+    }
+    
     const element = document.getElementById("hero")
     if (element) {
       element.scrollIntoView({ behavior: "smooth" })
@@ -81,7 +87,7 @@ export default function PlansSection({}: PlansSectionProps) {
                   <Button 
                     className="w-full bg-black hover:bg-gray-800 text-white"
                     size="lg"
-                    onClick={scrollToHero}
+                    onClick={() => scrollToHero("vita_core")}
                   >
                     I want to know more
                   </Button>
@@ -130,7 +136,7 @@ export default function PlansSection({}: PlansSectionProps) {
                   <Button 
                     className="w-full bg-black hover:bg-gray-800 text-white"
                     size="lg"
-                    onClick={scrollToHero}
+                    onClick={() => scrollToHero("vita_custom")}
                   >
                     This is the right fit for me!
                   </Button>

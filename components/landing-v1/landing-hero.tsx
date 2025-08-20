@@ -6,17 +6,29 @@ import { Label } from "@/components/ui/label"
 import { ArrowRight } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { submitWaitlistForm } from "@/app/actions/waitlist"
-import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
-interface LandingHeroProps {}
-
-export default function LandingHero({}: LandingHeroProps) {
+export default function LandingHero() {
   const { toast } = useToast()
   const [formData, setFormData] = useState({ name: "", email: "" })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [emailError, setEmailError] = useState("")
   const [nameError, setNameError] = useState("")
+  const [triggerSource, setTriggerSource] = useState<"join_waitlist" | "vita_core" | "vita_custom">("join_waitlist")
+
+  // Check for trigger source when component mounts
+  useEffect(() => {
+    try {
+      const storedTriggerSource = localStorage.getItem('waitlist_trigger_source') as "join_waitlist" | "vita_core" | "vita_custom" | null
+      console.log('Retrieved stored trigger source:', storedTriggerSource)
+      if (storedTriggerSource) {
+        setTriggerSource(storedTriggerSource)
+        console.log('Set trigger source to:', storedTriggerSource)
+      }
+    } catch (error) {
+      console.error('Failed to retrieve trigger source:', error)
+    }
+  }, [])
 
   // Email validation function
   const validateEmail = (email: string): boolean => {
@@ -112,14 +124,34 @@ export default function LandingHero({}: LandingHeroProps) {
     try {
       setIsSubmitting(true)
       
+      // Double-check for stored trigger source right before submission
+      let finalTriggerSource = triggerSource
+      try {
+        const storedTriggerSource = localStorage.getItem('waitlist_trigger_source') as "join_waitlist" | "vita_core" | "vita_custom" | null
+        if (storedTriggerSource && storedTriggerSource !== "join_waitlist") {
+          finalTriggerSource = storedTriggerSource
+        }
+      } catch (error) {
+        console.error('Failed to get final trigger source:', error)
+      }
+      
+      console.log('Submitting form with trigger source:', finalTriggerSource)
       const result = await submitWaitlistForm({
         name: formData.name,
         email: formData.email,
-        triggerSource: "join_waitlist"
+        triggerSource: finalTriggerSource
       })
       
       if (result.success) {
         setFormData({ name: "", email: "" })
+        // Clear the stored trigger source after successful submission
+        try {
+          localStorage.removeItem('waitlist_trigger_source')
+        } catch (error) {
+          console.error('Failed to clear trigger source:', error)
+        }
+        setTriggerSource("join_waitlist")
+        
         toast({
           title: "Welcome to the Waitlist!",
           description: result.message || "Thank you for your interest. We'll contact you when Vita is ready.",
@@ -157,8 +189,7 @@ export default function LandingHero({}: LandingHeroProps) {
         </p>
 
         {/* Join Waitlist Form */}
-        <div className="max-w-lg mx-auto bg-white/10 backdrop-blur-sm border border-gray-200 rounded-lg p-6 space-y-4">
-          
+        <div className="max-w-lg mx-auto bg-white/10 backdrop-blur-sm border border-gray-200 rounded-lg p-6 space-y-4">        
           
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Responsive input fields - side by side on desktop, stacked on mobile */}

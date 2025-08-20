@@ -5,9 +5,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
 
-interface LandingHeaderProps {}
-
-export default function LandingHeader({}: LandingHeaderProps) {
+export default function LandingHeader() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [activeSection, setActiveSection] = useState("")
   const [isHeroVisible, setIsHeroVisible] = useState(true)
