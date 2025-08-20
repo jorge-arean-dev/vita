@@ -1,3 +1,5 @@
+"use client"
+
 import {
   Card,
   CardContent,
@@ -14,11 +16,15 @@ import {
   CheckCircle
 } from "lucide-react"
 
-interface PlansSectionProps {
-  onJoinWaitlist?: (source: "vita_core" | "vita_custom") => void
-}
+interface PlansSectionProps {}
 
-export default function PlansSection({ onJoinWaitlist }: PlansSectionProps) {
+export default function PlansSection({}: PlansSectionProps) {
+  const scrollToHero = () => {
+    const element = document.getElementById("hero")
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" })
+    }
+  }
   return (
     <div className="max-w-5xl mx-auto px-5 w-full">
       <div className="bg-white/50 backdrop-blur-lg border border-gray-300/30 rounded-lg shadow-2xl p-8">
@@ -75,7 +81,7 @@ export default function PlansSection({ onJoinWaitlist }: PlansSectionProps) {
                   <Button 
                     className="w-full bg-black hover:bg-gray-800 text-white"
                     size="lg"
-                    onClick={() => onJoinWaitlist?.("vita_core")}
+                    onClick={scrollToHero}
                   >
                     I want to know more
                   </Button>
@@ -124,7 +130,7 @@ export default function PlansSection({ onJoinWaitlist }: PlansSectionProps) {
                   <Button 
                     className="w-full bg-black hover:bg-gray-800 text-white"
                     size="lg"
-                    onClick={() => onJoinWaitlist?.("vita_custom")}
+                    onClick={scrollToHero}
                   >
                     This is the right fit for me!
                   </Button>

@@ -4,11 +4,9 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
 
-interface LandingHeaderProps {
-  onJoinWaitlist?: () => void
-}
+interface LandingHeaderProps {}
 
-export default function LandingHeader({ onJoinWaitlist }: LandingHeaderProps) {
+export default function LandingHeader({}: LandingHeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [activeSection, setActiveSection] = useState("")
 
@@ -114,15 +112,8 @@ export default function LandingHeader({ onJoinWaitlist }: LandingHeaderProps) {
           </button>
         </div>
 
-        {/* CTA Button */}
-        <div className="hidden md:flex items-center">
-          <Button 
-            className="bg-black hover:bg-gray-800 text-white"
-            onClick={onJoinWaitlist}
-          >
-            Join Waitlist
-          </Button>
-        </div>
+        {/* Spacer for layout balance */}
+        <div className="hidden md:flex items-center w-24"></div>
       </div>
 
       {/* Mobile Navigation Menu */}
@@ -146,14 +137,6 @@ export default function LandingHeader({ onJoinWaitlist }: LandingHeaderProps) {
           >
             Plans
           </button>
-          <div className="pt-2">
-            <Button 
-              className="w-full bg-black hover:bg-gray-800 text-white"
-              onClick={onJoinWaitlist}
-            >
-              Join Waitlist
-            </Button>
-          </div>
         </nav>
       </div>
     </header>
