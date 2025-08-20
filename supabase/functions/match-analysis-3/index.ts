@@ -1350,7 +1350,7 @@ function inferCandidateRole(
   };
 } {
   const strongRequirements = requirementEvaluations.filter(req => req.status === 'strong');
-  const experiences = candidateData.raw_profile?.experiences || [];
+  const experiences = candidateData.raw_linkedin_profile?.experiences || [];
   const totalYears = candidateData.years_of_experience || 0;
   
   // Analyze requirement types to infer role
@@ -1385,7 +1385,7 @@ function inferCandidateRole(
   const leadershisIndicators = [];
   const domainExpertise = [];
   
-  if (candidateData.raw_profile) {
+  if (candidateData.raw_linkedin_profile) {
     experiences.forEach((exp: any) => {
       const description = exp.description?.toLowerCase() || '';
       const title = exp.title?.toLowerCase() || '';
@@ -1620,7 +1620,7 @@ async function runMatchAnalysis(candidateData: any, jobData: any, supabase: any)
   console.log(`👤 Candidate: ${candidateData.main.first_name} ${candidateData.main.last_name}`);
   console.log(`💼 Job: ${jobData.attributes?.title}`);
   console.log(`📋 Requirements: ${jobData.requirements.length}`);
-  console.log(`🧠 LinkedIn Profile Available: ${!!candidateData.raw_profile}`);
+  console.log(`🧠 LinkedIn Profile Available: ${!!candidateData.raw_linkedin_profile}`);
 
   const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
   if (!openaiApiKey) {
@@ -1630,9 +1630,9 @@ async function runMatchAnalysis(candidateData: any, jobData: any, supabase: any)
   try {
     // Extract skills from LinkedIn profile if available
     let profileSkills: Array<{ skill: string; years: number; evidence: string[] }> = [];
-    if (candidateData.raw_profile) {
+    if (candidateData.raw_linkedin_profile) {
       console.log("🔍 Extracting skills from LinkedIn profile...");
-      profileSkills = extractSkillsFromProfile(candidateData.raw_profile);
+      profileSkills = extractSkillsFromProfile(candidateData.raw_linkedin_profile);
       console.log(`📊 Extracted ${profileSkills.length} skills from profile`);
     }
 
@@ -1835,7 +1835,7 @@ serve(async (req) => {
     }
 
     console.log(`📥 Processing: ${candidate.main.first_name} ${candidate.main.last_name} vs ${job.attributes?.title}`);
-    console.log(`📋 Requirements: ${job.requirements.length}, LinkedIn Profile: ${!!candidate.raw_profile ? 'Yes' : 'No'}`);
+    console.log(`📋 Requirements: ${job.requirements.length}, LinkedIn Profile: ${!!candidate.raw_linkedin_profile ? 'Yes' : 'No'}`);
 
     // Run enhanced analysis
     const result = await runMatchAnalysis(candidate, job, supabase);

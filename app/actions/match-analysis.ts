@@ -37,6 +37,7 @@ export interface ParsedCandidate {
     proficiency_level: string | null
   }>
   years_of_experience: number
+  raw_pdf_profile_text?: string // For PDF candidates - raw text from resume
 }
 
 interface JobData {
@@ -697,7 +698,7 @@ export async function runEnhancedMatchAnalysis(
     const requestBody = { 
       candidate: {
         ...candidate,
-        raw_profile: rawProfile || null
+        raw_linkedin_profile: rawProfile || null
       }, 
       job 
     }
@@ -794,57 +795,72 @@ export async function parseLinkedInProfile(linkedinUrl: string): Promise<ParsedC
 
 /**
  * Run simplified enhanced match analysis v3 (embedding-based with same output format)
+ * Routes to LinkedIn or PDF API based on source type
  */
 export async function runSimplifiedEnhancedMatchAnalysis(
   candidate: ParsedCandidate,
   job: JobData,
-  rawProfile?: Record<string, unknown>
+  rawProfile?: Record<string, unknown> | string,
+  source: "linkedin" | "pdf" = "linkedin"
 ): Promise<MatchAnalysisResponse> {
   try {
-    const requestBody = { 
-      candidate: {
-        ...candidate,
-        raw_profile: rawProfile || null
-      }, 
-      job 
+    // Determine API endpoint and payload structure based on source
+    let apiUrl: string
+    let requestBody: Record<string, unknown>
+    
+    if (source === "linkedin") {
+      apiUrl = "https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/match-analysis-linkedin"
+      requestBody = { 
+        candidate: {
+          ...candidate,
+          raw_linkedin_profile: (typeof rawProfile === 'object' ? rawProfile : null)
+        }, 
+        job 
+      }
+    } else {
+      apiUrl = "https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/match-analysis-pdf"
+      requestBody = { 
+        candidate: {
+          ...candidate,
+          raw_pdf_profile_text: (typeof rawProfile === 'string' ? rawProfile : null)
+        }, 
+        job 
+      }
     }
     
     // Log the enhanced API input
-    console.log("🔍 Simplified Enhanced Match Analysis v3 API Input:", JSON.stringify(requestBody, null, 2))
+    console.log(`🔍 ${source.toUpperCase()} Match Analysis API Input:`, JSON.stringify(requestBody, null, 2))
     
-    const response = await fetch(
-      "https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/match-analysis-3",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`
-        },
-        body: JSON.stringify(requestBody)
-      }
-    )
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify(requestBody)
+    })
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ error: "Unknown error" }))
       
       if (response.status === 400) {
-        throw new Error(errorData.error || "Invalid input data for simplified enhanced match analysis")
+        throw new Error(errorData.error || `Invalid input data for ${source} match analysis`)
       }
       if (response.status === 429) {
         throw new Error("Enhanced analysis service is busy. Please try again in a moment.")
       }
       if (response.status >= 500) {
-        throw new Error("Simplified enhanced match analysis service error. Please try again later.")
+        throw new Error(`${source} match analysis service error. Please try again later.`)
       }
       
-      throw new Error(errorData.error || "Failed to run simplified enhanced candidate match analysis")
+      throw new Error(errorData.error || `Failed to run ${source} candidate match analysis`)
     }
 
     const result = await response.json()
     
     // Log the enhanced API output with detailed breakdown
-    console.log("✅ Simplified Enhanced Match Analysis v3 API Output:", JSON.stringify(result, null, 2))
-    console.log("\n🎯 SIMPLIFIED ENHANCED ANALYSIS SUMMARY:")
+    console.log(`✅ ${source.toUpperCase()} Match Analysis API Output:`, JSON.stringify(result, null, 2))
+    console.log(`\n🎯 ${source.toUpperCase()} ANALYSIS SUMMARY:`)
     console.log("==========================================")
     console.log(`📊 Overall Score: ${result.match_analysis?.overall_score}% (${result.match_analysis?.status})`)
     console.log(`✅ Mandatory Requirements Met: ${result.match_analysis?.matched_mandatory_requirements}/${result.match_analysis?.total_mandatory_requirements}`)
@@ -854,7 +870,7 @@ export async function runSimplifiedEnhancedMatchAnalysis(
     
     return result
   } catch (error) {
-    console.error("❌ Simplified enhanced match analysis error:", error)
+    console.error(`❌ ${source} match analysis error:`, error)
     throw error
   }
 }
@@ -906,7 +922,7 @@ export async function analyzeLinkedInCandidateSimplifiedEnhanced(
     
     // Step 3: Run simplified enhanced match analysis v3 with RAW profile data
     console.log("⚡ Step 3: Running simplified enhanced match analysis v3 with raw profile...")
-    const analysis = await runSimplifiedEnhancedMatchAnalysis(candidate, jobData, rawLinkedInData)
+    const analysis = await runSimplifiedEnhancedMatchAnalysis(candidate, jobData, rawLinkedInData, "linkedin")
     
     // Step 4: Save if requested
     if (saveResults) {
@@ -971,7 +987,11 @@ export async function analyzeLinkedInCandidate(
  */
 export async function parseResumeSkills(pdfUrl: string): Promise<ParsedCandidate> {
   try {
+    console.log("🧠 Starting PDF parsing...")
+    console.log(`📄 PDF URL: ${pdfUrl}`)
+    console.log("🕒 Timeout set to 60 seconds")
     
+    const startTime = Date.now()
     const response = await fetch(
       "https://parse-resume-skill-709637652952.europe-west1.run.app",
       {
@@ -980,9 +1000,13 @@ export async function parseResumeSkills(pdfUrl: string): Promise<ParsedCandidate
           "Content-Type": "application/json"
         },
         body: JSON.stringify({ pdf_url: pdfUrl }),
-        signal: AbortSignal.timeout(35000) // 35 second timeout
+        signal: AbortSignal.timeout(60000) // 60 second timeout for PDF processing
       }
     )
+    
+    const duration = Date.now() - startTime
+    console.log(`⏱️ PDF parsing API response time: ${duration}ms`)
+    console.log(`✅ PDF parsing API status: ${response.status}`)
 
     if (!response.ok) {
       let errorData
@@ -1008,14 +1032,29 @@ export async function parseResumeSkills(pdfUrl: string): Promise<ParsedCandidate
       throw new Error("Could not extract name from resume. Please check the file and try again.")
     }
 
+    console.log(`✅ PDF parsing completed successfully`)
+    console.log(`👤 Extracted: ${parsedData.main?.first_name} ${parsedData.main?.last_name}`)
+    console.log(`🛠️ Skills found: ${parsedData.skills?.length || 0}`)
+
     return parsedData
   } catch (error) {
+    console.error("❌ PDF parsing error:", error)
+    
+    if (error instanceof Error) {
+      if (error.name === "TimeoutError" || error.message.includes("timeout")) {
+        throw new Error("PDF processing is taking longer than expected. Please try again or use a smaller file.")
+      }
+      if (error.message.includes("fetch")) {
+        throw new Error("Unable to connect to PDF processing service. Please try again later.")
+      }
+    }
+    
     throw error
   }
 }
 
 /**
- * Complete PDF parsing and analysis flow
+ * Complete PDF parsing and analysis flow with enhanced PDF match analysis
  */
 export async function analyzePDFCandidate(
   file: File,
@@ -1026,28 +1065,46 @@ export async function analyzePDFCandidate(
   analysis: MatchAnalysisResponse
   candidateId?: string
   tempFilePath?: string
+  rawPdfText?: string
 }> {
   try {
+    console.log("🚀 Starting PDF Candidate Analysis Flow")
+    console.log(`📄 File: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`)
+    console.log(`💼 Job ID: ${jobId}`)
+    console.log(`💾 Save Results: ${saveResults}`)
+    
     // Step 1: Upload PDF to temp_resumes (public bucket)
+    console.log("📤 Step 1: Uploading PDF to temp storage...")
     const uploadResult = await uploadTemporaryResume(file)
     if (!uploadResult.success || !uploadResult.tempUrl) {
       throw new Error(uploadResult.error || "Failed to upload resume")
     }
 
     // Step 2: Parse resume using public URL
+    console.log("🧠 Step 2: Parsing PDF resume...")
     const candidate = await parseResumeSkills(uploadResult.tempUrl)
     
+    console.log("📋 Parsed PDF Candidate Summary:")
+    console.log(`   👤 Name: ${candidate.main?.first_name} ${candidate.main?.last_name}`)
+    console.log(`   📊 Skills Parsed: ${candidate.skills?.length || 0} total`)
+    console.log(`   💼 Years Experience: ${candidate.years_of_experience || 0}`)
+    console.log(`   📄 Raw PDF Text Available: ${!!candidate.raw_pdf_profile_text}`)
+    
     // Step 3: Get job data
+    console.log("💼 Step 3: Fetching job data...")
     const jobData = await fetchJobDataForAnalysis(jobId)
     if (!jobData) {
       throw new Error("Job not found")
     }
 
-    // Step 4: Run match analysis
-    const analysis = await runMatchAnalysis(candidate, jobData)
+    // Step 4: Run enhanced PDF match analysis with raw PDF text
+    console.log("⚡ Step 4: Running enhanced PDF match analysis...")
+    const rawPdfText = candidate.raw_pdf_profile_text
+    const analysis = await runSimplifiedEnhancedMatchAnalysis(candidate, jobData, rawPdfText, "pdf")
     
     // Step 5: Save if requested
     if (saveResults) {
+      console.log("💾 Step 5: Saving candidate and analysis...")
       // Create candidate
       const candidateId = await saveCandidate(candidate, undefined, "resume")
       
@@ -1063,11 +1120,14 @@ export async function analyzePDFCandidate(
       // Save match analysis
       await saveMatchAnalysis(jobId, candidateId, analysis)
       
-      return { candidate, analysis, candidateId }
+      console.log("✅ PDF candidate analysis completed with save")
+      return { candidate, analysis, candidateId, rawPdfText }
     }
     
-    return { candidate, analysis, tempFilePath: uploadResult.tempPath }
+    console.log("✅ PDF candidate analysis completed")
+    return { candidate, analysis, tempFilePath: uploadResult.tempPath, rawPdfText }
   } catch (error) {
+    console.error("❌ PDF candidate analysis failed:", error)
     throw error
   }
 }

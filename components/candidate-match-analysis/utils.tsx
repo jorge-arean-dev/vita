@@ -54,10 +54,18 @@ export function getAnalysisData(analysis: MatchAnalysis | ExistingMatchAnalysis)
 
 // Scroll to requirement evaluation card
 export function scrollToRequirement(requirementId: string) {
-  const element = document.getElementById(`requirement-${requirementId}`)
-  if (element) {
-    element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  // Check if we're in the browser and document is ready
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return
   }
+  
+  // Use setTimeout to ensure DOM is fully rendered
+  setTimeout(() => {
+    const element = document.getElementById(`requirement-${requirementId}`)
+    if (element && element.parentNode) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, 100)
 }
 
 // Card expansion state persistence utilities

@@ -4,14 +4,13 @@ import {
   fetchJobDataForAnalysis,
   runMatchAnalysis,
   analyzeLinkedInCandidateSimplifiedEnhanced,
+  analyzePDFCandidate,
   saveCandidate,
   saveMatchAnalysis,
-  parseResumeSkills,
   savePDFCandidateWithResume,
   fetchCandidateForAnalysis,
   type ParsedCandidate
 } from "@/app/actions/match-analysis"
-import { uploadTemporaryResume } from "@/app/actions/candidates"
 import { MatchAnalysis, Candidate } from "../types"
 
 export function useMatchAnalysis(
@@ -132,41 +131,58 @@ export function useMatchAnalysis(
         updateProgress("Comparing against job requirements...")
         await new Promise(resolve => setTimeout(resolve, 500))
       } else if (candidateType === "new" && newCandidateMethod === "pdf") {
-        // PDF parsing flow
+        // Enhanced PDF analysis flow
         if (!uploadedFile) {
           throw new Error("No PDF file uploaded")
         }
         
-        updateProgress("Uploading your resume...")
-        const uploadResult = await uploadTemporaryResume(uploadedFile)
+        updateProgress("📤 Uploading your resume...")
+        await new Promise(resolve => setTimeout(resolve, 300))
         
-        if (!uploadResult.success || !uploadResult.tempUrl) {
-          throw new Error(uploadResult.error || "Failed to upload resume")
-        }
-        
-        updateProgress("Analyzing your resume with AI...")
+        updateProgress("🧠 Analyzing resume with AI...")
         await new Promise(resolve => setTimeout(resolve, 500))
         
-        parsedCandidate = await parseResumeSkills(uploadResult.tempUrl)
+        updateProgress("⚡ Running enhanced PDF match analysis...")
+        await new Promise(resolve => setTimeout(resolve, 400))
+        
+        updateProgress("📊 Generating analysis results...")
+        
+        // Use enhanced PDF analysis flow
+        const pdfResult = await analyzePDFCandidate(uploadedFile, jobId, false)
+        parsedCandidate = pdfResult.candidate
         candidateName = `${parsedCandidate.main.first_name} ${parsedCandidate.main.last_name}`.trim()
         
-        updateProgress("Extracting skills and experience...")
-        await new Promise(resolve => setTimeout(resolve, 500))
-        
-        updateProgress("Comparing against job requirements...")
-        
-        // Store temp file path for later use
+        // Store the enhanced PDF analysis results and temp file info
         setMatchAnalyses(prevAnalyses =>
           prevAnalyses.map(ma => 
             ma.id === analysisId 
               ? { 
                   ...ma, 
-                  tempFilePath: uploadResult.tempPath,
-                  uploadedFile: uploadedFile
+                  results: pdfResult.analysis,
+                  parsedCandidate: parsedCandidate || undefined,
+                  tempFilePath: pdfResult.tempFilePath,
+                  uploadedFile: uploadedFile,
+                  rawProfile: pdfResult.rawPdfText, // Store raw PDF text
+                  candidateInfo: {
+                    name: candidateName,
+                    type: candidateType,
+                    source: newCandidateMethod
+                  },
+                  title: `Enhanced PDF Match Analysis for ${candidateName}`,
+                  progressMessage: undefined
                 }
               : ma
           )
         )
+
+        // Trigger animations for the enhanced results
+        setTimeout(() => {
+          triggerAnimationsForAnalysis(analysisId, pdfResult.analysis.requirement_evaluations.length)
+        }, 100)
+        
+        // Early return since we've already set the results
+        setIsRunningAnalysis({ ...isRunningAnalysis, [analysisId]: false })
+        return
       }
       
       // Fetch job data

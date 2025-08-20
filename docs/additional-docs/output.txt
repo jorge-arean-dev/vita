@@ -1,146 +1,98 @@
-{
-    "main": {
-        "first_name": "José Ignacio",
-        "last_name": "Gutiérrez",
-        "country": "AR",
-        "email": "jos.gutirrez@genium.io",
-        "phone": "",
-        "linkedin": "https://www.linkedin.com/in/joseigutierrez/",
-        "github": ""
+✅ Match Analysis API Output: {
+  "match_analysis": {
+    "overall_score": 0,
+    "status": "missing",
+    "overall_feedback": "This candidate is not a good fit; consider other options unless more information becomes available.",
+    "matched_mandatory_requirements": 0,
+    "total_mandatory_requirements": 2
+  },
+  "requirement_evaluations": [
+    {
+      "requirement_name": "React",
+      "score": 0,
+      "status": "missing",
+      "feedback": "The candidate has 5 years of experience with React, but the job requires an expert level of proficiency. This gap indicates that while Joe has foundational knowledge, he may not have the depth of experience needed for complex projects."
     },
-    "skills": [
-        {
-            "name": "Front-End Development",
-            "type": "technical_skill",
-            "yoe": 1.7,
-            "proficiency_level": "beginner"
-        },
-        {
-            "name": "Tailwind Css",
-            "type": "technical_skill",
-            "yoe": 1.7,
-            "proficiency_level": "beginner"
-        },
-        {
-            "name": "Next.js",
-            "type": "technology_domain",
-            "yoe": 5.1,
-            "proficiency_level": "expert"
-        },
-        {
-            "name": "React.js",
-            "type": "technology_domain",
-            "yoe": 5.1,
-            "proficiency_level": "expert"
-        },
-        {
-            "name": "Angular",
-            "type": "technology_domain",
-            "yoe": 3.5,
-            "proficiency_level": "advanced"
-        },
-        {
-            "name": "Typescript",
-            "type": "technology_domain",
-            "yoe": 5.1,
-            "proficiency_level": "expert"
-        },
-        {
-            "name": "Firebase",
-            "type": "technology_domain",
-            "yoe": 3.5,
-            "proficiency_level": "advanced"
-        },
-        {
-            "name": "Javascript",
-            "type": "technology_domain",
-            "yoe": 10.2,
-            "proficiency_level": "expert"
-        },
-        {
-            "name": "Angular 2+",
-            "type": "technology_domain",
-            "yoe": 1.8,
-            "proficiency_level": "beginner"
-        },
-        {
-            "name": "Iot",
-            "type": "technology_domain",
-            "yoe": null,
-            "proficiency_level": null
-        },
-        {
-            "name": "Metodologías Ágiles",
-            "type": "soft_skill",
-            "yoe": null,
-            "proficiency_level": null
-        },
-        {
-            "name": "Angularjs",
-            "type": "technology_domain",
-            "yoe": 1.1,
-            "proficiency_level": "beginner"
-        },
-        {
-            "name": "Lenguaje Sass",
-            "type": "technology_domain",
-            "yoe": 1.8,
-            "proficiency_level": "beginner"
-        },
-        {
-            "name": "Html 5",
-            "type": "technology_domain",
-            "yoe": 10.2,
-            "proficiency_level": "expert"
-        },
-        {
-            "name": "Node.js",
-            "type": "technology_domain",
-            "yoe": 3.5,
-            "proficiency_level": "advanced"
-        },
-        {
-            "name": "Php",
-            "type": "technology_domain",
-            "yoe": 10.2,
-            "proficiency_level": "expert"
-        },
-        {
-            "name": "Jquery",
-            "type": "technology_domain",
-            "yoe": 10.2,
-            "proficiency_level": "expert"
-        },
-        {
-            "name": "Asp.net Mvc",
-            "type": "technology_domain",
-            "yoe": null,
-            "proficiency_level": null
-        },
-        {
-            "name": "Mysql",
-            "type": "technology_domain",
-            "yoe": null,
-            "proficiency_level": null
-        },
-        {
-            "name": "Css",
-            "type": "technology_domain",
-            "yoe": null,
-            "proficiency_level": null
-        },
-        {
-            "name": "Leadership",
-            "type": "soft_skill",
-            "yoe": null,
-            "proficiency_level": null
-        },
-        {
-            "name": "Teamwork",
-            "type": "soft_skill",
-            "yoe": null,
-            "proficiency_level": null
-        }
+    {
+      "requirement_name": "Node",
+      "score": 0,
+      "status": "missing",
+      "feedback": "Joe has 4 years of experience with Node.js, yet the position demands expert-level proficiency. This suggests he may lack the advanced skills necessary for high-level backend development tasks."
+    },
+    {
+      "requirement_name": "WordPress",
+      "score": 0,
+      "status": "missing",
+      "feedback": "Although WordPress is not a mandatory requirement, Joe has no experience in this area. This could be a concern if the role involves any integration with WordPress sites."
+    },
+    {
+      "requirement_name": "Ecommerce",
+      "score": 0,
+      "status": "missing",
+      "feedback": "Joe does not have experience in the Ecommerce domain, which is not mandatory but could be beneficial for the role. This may limit his ability to contribute to projects in this area."
+    },
+    {
+      "requirement_name": "Financial Services",
+      "score": 0,
+      "status": "missing",
+      "feedback": "The candidate lacks specific experience in the Financial Services industry, which is not mandatory but would enhance his fit for the role, especially if the projects are finance-related."
+    },
+    {
+      "requirement_name": "Inclusion",
+      "score": 0,
+      "status": "missing",
+      "feedback": "Joe has not demonstrated any specific skills related to inclusion, which is not mandatory but could be valuable in fostering a diverse team environment."
+    },
+    {
+      "requirement_name": "Team Building",
+      "score": 0,
+      "status": "missing",
+      "feedback": "While Joe has not explicitly shown experience in team building, his background suggests potential in this area, particularly given his leadership roles."
+    },
+    {
+      "requirement_name": "Teamwork",
+      "score": 0,
+      "status": "missing",
+      "feedback": "Joe has experience in teamwork, which is beneficial for collaboration in a team setting. However, specific examples of this experience would need to be clarified."
+    },
+    {
+      "requirement_name": "Collaboration",
+      "score": 0,
+      "status": "missing",
+      "feedback": "There is no specific evidence of collaboration skills provided, which could be important for team dynamics and project success."
+    }
+  ],
+  "summary": {
+    "strengths": [
+      "18 years of overall experience in software development.",
+      "Advanced proficiency in multiple programming languages including JavaScript, Python, and Java.",
+      "Strong experience with databases such as PostgreSQL, MySQL, and MongoDB.",
+      "Experience in microservices architecture and REST APIs."
     ],
-    "years_of_experience": 10.2
+    "gaps": [
+      "Missing expert-level proficiency in both React and Node.js, which are critical for the role.",
+      "No experience with WordPress, which may be relevant for some projects.",
+      "Lack of experience in the Ecommerce domain, which could limit contributions.",
+      "No demonstrated experience in Financial Services, which could be relevant depending on the projects."       
+    ]
+  },
+  "recruiter_recommendations": {
+    "interview_strategy": [
+      "Assess Joe's practical experience with React and Node.js through coding challenges or project discussions.",
+      "Explore his teamwork and leadership experiences to gauge his ability to collaborate effectively.",
+      "Discuss any relevant projects that may involve Ecommerce or Financial Services to understand his adaptability."
+    ],
+    "other_options": [
+      "Consider positioning Joe for roles that require strong backend skills but may not be as focused on React and Node.js.",
+      "Explore opportunities in companies that value diverse skill sets and are willing to invest in training for specific technologies.",
+      "Look for roles that emphasize backend development and microservices, where his strengths can be maximized." 
+    ]
+  },
+  "metadata": {
+    "analysis_timestamp": "2025-08-20T00:28:59.132Z",
+    "job_id": "placeholder_job_id",
+    "candidate_id": "placeholder_candidate_id",
+    "algorithm_version": "1.0",
+    "total_processing_time_ms": 9664
+  }
 }

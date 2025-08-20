@@ -1,4 +1,4 @@
-// Enhanced Match Analysis API v3 - Two-Tier Scoring with Evidence Extraction
+// LinkedIn Match Analysis API - Two-Tier Scoring with Evidence Extraction
 // Implements mandatory vs non-mandatory scoring logic with detailed LinkedIn evidence
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
@@ -1738,7 +1738,7 @@ async function runMatchAnalysis(candidateData: any, jobData: any, supabase: any)
         analysis_timestamp: new Date().toISOString(),
         job_id: "placeholder_job_id",
         candidate_id: "placeholder_candidate_id",
-        algorithm_version: "3.1.1-enhanced-insights",
+        algorithm_version: "linkedin-v1.0",
         total_processing_time_ms: processingTime
       }
     };
@@ -1787,7 +1787,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log("🎬 Enhanced Match Analysis API v3 - Starting");
+    console.log("🎬 LinkedIn Match Analysis API - Starting");
     const startTime = Date.now();
 
     // Initialize Supabase client

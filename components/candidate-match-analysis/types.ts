@@ -55,7 +55,7 @@ export interface MatchAnalysis {
   parsedCandidate?: ParsedCandidate
   tempFilePath?: string
   uploadedFile?: File
-  rawProfile?: Record<string, unknown> // For enhanced LinkedIn analysis
+  rawProfile?: Record<string, unknown> | string // For enhanced analysis (LinkedIn object or PDF text)
 }
 
 export interface ExistingMatchAnalysis {

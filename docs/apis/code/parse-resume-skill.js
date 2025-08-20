@@ -189,7 +189,7 @@ async function parseResumeText(resumeText) {
     const response = await openai.chat.completions.create({
       model: "gpt-4o", // Keep consistent with original
       messages: [
-        { role: "system", content: "You are a resume parser that extracts structured resume data. Always return valid JSON without markdown formatting. CRITICAL: For soft_skill and certification types, always set yoe and proficiency_level to null. Round all numeric values to 1 decimal place." },
+        { role: "system", content: "You are a resume parser that extracts structured resume data. Always return valid JSON without markdown formatting. CRITICAL: For soft_skill and certification types, always set yoe and proficiency_level to null. MANDATORY: All numeric yoe values MUST be formatted with exactly 1 decimal place (e.g., 5.0, 3.0, 1.0, NOT 5, 3, 1). The years_of_experience field MUST also use 1 decimal place (e.g., 18.0, NOT 18)." },
         { role: "user", content: prompt }
       ],
       temperature: 0.1, // Lower temperature for more consistent outputs
@@ -244,7 +244,55 @@ async function parseResume(pdfUrl) {
     // Step 3: Parse the resume text with OpenAI
     const parsedData = await parseResumeText(resumeText);
     
-    return parsedData;
+    // Step 4: Ensure decimal formatting consistency (1 decimal place)
+    if (parsedData.skills && Array.isArray(parsedData.skills)) {
+      parsedData.skills.forEach(skill => {
+        // Force yoe to 1 decimal place for non-null values
+        if (skill.yoe !== null && (typeof skill.yoe === 'number' || typeof skill.yoe === 'string')) {
+          const numValue = parseFloat(skill.yoe);
+          if (!isNaN(numValue)) {
+            skill.yoe = parseFloat(numValue.toFixed(1));
+          }
+        }
+      });
+    }
+    
+    // Force years_of_experience to 1 decimal place
+    if (parsedData.years_of_experience !== null && parsedData.years_of_experience !== undefined) {
+      const numValue = parseFloat(parsedData.years_of_experience);
+      if (!isNaN(numValue)) {
+        parsedData.years_of_experience = parseFloat(numValue.toFixed(1));
+      }
+    }
+    
+    console.log('Post-processing applied. Sample yoe values:', 
+      parsedData.skills?.slice(0, 3)?.map(s => ({ name: s.name, yoe: s.yoe })));
+    console.log('Years of experience:', parsedData.years_of_experience);
+    
+    // Step 5: Add raw PDF text to the response for enhanced match analysis
+    parsedData.raw_pdf_profile_text = resumeText;
+    
+    // Step 6: Force JSON to maintain decimal format through custom serialization
+    const jsonString = JSON.stringify(parsedData, (key, value) => {
+      // For yoe fields that are numbers, ensure they display as .0 decimals
+      if (key === 'yoe' && typeof value === 'number' && value !== null) {
+        return parseFloat(value.toFixed(1));
+      }
+      // For years_of_experience field
+      if (key === 'years_of_experience' && typeof value === 'number') {
+        return parseFloat(value.toFixed(1));
+      }
+      return value;
+    });
+    
+    // Parse back to ensure decimal formatting is preserved
+    const finalData = JSON.parse(jsonString);
+    
+    console.log('Final formatting check - First 3 skills:', 
+      finalData.skills?.slice(0, 3)?.map(s => ({ name: s.name, yoe: s.yoe, type: typeof s.yoe })));
+    console.log('Final years_of_experience:', finalData.years_of_experience, typeof finalData.years_of_experience);
+    
+    return finalData;
   } catch (error) {
     console.error('Error in parseResume:', error);
     return { error: error.message };

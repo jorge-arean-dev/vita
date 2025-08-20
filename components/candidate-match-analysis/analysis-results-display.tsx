@@ -76,7 +76,15 @@ export function AnalysisResultsDisplay({ analysis, candidateName, isNewCandidate
                   name={req.requirement_name}
                   score={req.score}
                   status={req.status}
-                  onClick={() => scrollToRequirement(req.requirement_name)}
+                  onClick={() => {
+                    // Safely handle scroll to requirement
+                    try {
+                      scrollToRequirement(req.requirement_name)
+                    } catch (error) {
+                      // Silently handle any DOM access errors
+                      console.warn('Could not scroll to requirement:', error)
+                    }
+                  }}
                 />
               ))}
             </div>

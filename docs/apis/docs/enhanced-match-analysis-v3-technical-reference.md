@@ -187,7 +187,7 @@ interface MatchAnalysisRequest {
       proficiency_level: 'beginner' | 'advanced' | 'expert' | null;
     }>;
     years_of_experience: number;
-    raw_profile?: LinkedInProfile; // Enhanced: Raw LinkedIn data for deep analysis
+    raw_linkedin_profile?: LinkedInProfile; // Enhanced: Raw LinkedIn data for deep analysis
   };
   job: {
     attributes: {
@@ -372,7 +372,7 @@ export async function runSimplifiedEnhancedMatchAnalysis(
   const requestBody = { 
     candidate: {
       ...candidate,
-      raw_profile: rawProfile || null
+      raw_linkedin_profile: rawProfile || null
     }, 
     job 
   };
@@ -506,7 +506,7 @@ console.log("🚀 Starting Enhanced Match Analysis v3 (Simplified Embedding-Base
 console.log(`👤 Candidate: ${candidateData.main.first_name} ${candidateData.main.last_name}`);
 console.log(`💼 Job: ${jobData.attributes?.title}`);
 console.log(`📋 Requirements: ${jobData.requirements.length}`);
-console.log(`🧠 LinkedIn Profile Available: ${!!candidateData.raw_profile}`);
+console.log(`🧠 LinkedIn Profile Available: ${!!candidateData.raw_linkedin_profile}`);
 
 // Processing metrics
 console.log(`📊 Overall Score: ${overallScore}% (${overallStatus})`);

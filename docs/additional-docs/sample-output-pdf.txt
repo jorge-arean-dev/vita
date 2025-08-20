@@ -1,0 +1,189 @@
+{
+    "main": {
+        "first_name": "Joe",
+        "last_name": "Magon",
+        "country": "BR",
+        "email": "magonjr@gmail.com",
+        "phone": "+5544999448895",
+        "linkedin": "https://www.linkedin.com/in/joe-magon",
+        "github": ""
+    },
+    "skills": [
+        {
+            "name": "Golang",
+            "type": "technical_skill",
+            "yoe": 5,
+            "proficiency_level": "advanced"
+        },
+        {
+            "name": "JavaScript",
+            "type": "technical_skill",
+            "yoe": 10,
+            "proficiency_level": "expert"
+        },
+        {
+            "name": "Python",
+            "type": "technical_skill",
+            "yoe": 5,
+            "proficiency_level": "advanced"
+        },
+        {
+            "name": "Java",
+            "type": "technical_skill",
+            "yoe": 10,
+            "proficiency_level": "expert"
+        },
+        {
+            "name": "AI Agents",
+            "type": "technology_domain",
+            "yoe": 5,
+            "proficiency_level": "advanced"
+        },
+        {
+            "name": "Web3",
+            "type": "technology_domain",
+            "yoe": 3,
+            "proficiency_level": "advanced"
+        },
+        {
+            "name": "Microservices",
+            "type": "technology_domain",
+            "yoe": 5,
+            "proficiency_level": "advanced"
+        },
+        {
+            "name": "Rest APIs",
+            "type": "technical_skill",
+            "yoe": 10,
+            "proficiency_level": "expert"
+        },
+        {
+            "name": "GraphQL APIs",
+            "type": "technical_skill",
+            "yoe": 5,
+            "proficiency_level": "advanced"
+        },
+        {
+            "name": "PostgreSQL",
+            "type": "technical_skill",
+            "yoe": 5,
+            "proficiency_level": "advanced"
+        },
+        {
+            "name": "MySQL",
+            "type": "technical_skill",
+            "yoe": 5,
+            "proficiency_level": "advanced"
+        },
+        {
+            "name": "MongoDB",
+            "type": "technical_skill",
+            "yoe": 5,
+            "proficiency_level": "advanced"
+        },
+        {
+            "name": "Redis",
+            "type": "technical_skill",
+            "yoe": 5,
+            "proficiency_level": "advanced"
+        },
+        {
+            "name": "Oracle",
+            "type": "technical_skill",
+            "yoe": 2,
+            "proficiency_level": "beginner"
+        },
+        {
+            "name": "DynamoDB",
+            "type": "technical_skill",
+            "yoe": 1,
+            "proficiency_level": "beginner"
+        },
+        {
+            "name": "GCP",
+            "type": "technical_skill",
+            "yoe": 2,
+            "proficiency_level": "beginner"
+        },
+        {
+            "name": "Kubernetes",
+            "type": "technical_skill",
+            "yoe": 2,
+            "proficiency_level": "beginner"
+        },
+        {
+            "name": "ReactJS",
+            "type": "technical_skill",
+            "yoe": 5,
+            "proficiency_level": "advanced"
+        },
+        {
+            "name": "NodeJS",
+            "type": "technical_skill",
+            "yoe": 5,
+            "proficiency_level": "advanced"
+        },
+        {
+            "name": "AWS",
+            "type": "technical_skill",
+            "yoe": 1,
+            "proficiency_level": "beginner"
+        },
+        {
+            "name": "Kafka",
+            "type": "technical_skill",
+            "yoe": 1,
+            "proficiency_level": "beginner"
+        },
+        {
+            "name": "Leadership",
+            "type": "soft_skill",
+            "yoe": null,
+            "proficiency_level": null
+        },
+        {
+            "name": "Teamwork",
+            "type": "soft_skill",
+            "yoe": null,
+            "proficiency_level": null
+        },
+        {
+            "name": "Communication",
+            "type": "soft_skill",
+            "yoe": null,
+            "proficiency_level": null
+        },
+        {
+            "name": "Problem Solving",
+            "type": "soft_skill",
+            "yoe": null,
+            "proficiency_level": null
+        },
+        {
+            "name": "Fullstack Developer",
+            "type": "role",
+            "yoe": 5,
+            "proficiency_level": "advanced"
+        },
+        {
+            "name": "Software Engineer",
+            "type": "role",
+            "yoe": 10,
+            "proficiency_level": "expert"
+        },
+        {
+            "name": "Backend Developer",
+            "type": "role",
+            "yoe": 5,
+            "proficiency_level": "advanced"
+        },
+        {
+            "name": "Technical Leader",
+            "type": "role",
+            "yoe": 5,
+            "proficiency_level": "advanced"
+        }
+    ],
+    "years_of_experience": 18,
+    "raw_pdf_profile_text": "\n\nContact Information\nSummary Statement\nJoe is a passionate engineer with extensive experience in many industries (16+ years), he\ncan quickly adapt to new environments, he is a eager learner and like to embrace new \nchallenges. \nSkills\nFast learning and adapting.\nUsed to research as part of the solution.\nLeadership and team work\nInterest in cutting edge technologies\nAdvanced English \nLanguages: Golang, JavaScript, Python, Java\nAI agents, LLMs, Web3, Microservices, Rest \nAPIs, GraphQL APIs, Services integration\nPostgreeSQL, MySQL, MongoDB, Redis, \nOracle, DynamoDB\nWork Experience\nContractor work as Fullstack Senior Software Engineer\nRemote, 2020 – 2025\nIntegrated AI tools and LLMs for projects: AI WhatsApp interactive Agent, OCR \nProcessing, Image classifications models \nCreated back-end solutions with Java, PostgreSQL and REST APIs\nCreated serverless solutions with Python, MySQL, GCP, Kubernetes.\nCreated fullstack solutions with NodeJS, MySQL, ReactJS\nCreated back-end solutions with Go, PostgreSQL, Redis, REST Servers, GraphQL Servers,\nand REST APIs.\nDeveloped front-end solutions with JavaScript/React, GraphQL clients, and REST clients.\nProvided a GraphQL API to third parties that needed to integrate with the application.\nWorked with a NFT marketplace using Golang in the backend (APIs, Go Eth, GraphQL, \nJoe Magon\n Mandaguari PR, 86975-000, Brazil\nmagonjr@gmail.com\nwww.linkedin.com/in/joe-magon\n +55 44 99944-8895\n\nJoe Magon – Resume \nPostgreSQL) and React in the Frontend\nSenior Software Engineer at shardeum.org\nRemote, 2022-2024\nInteract with Web3 Related Technologies\nWork with a Layer One Web3 Ecosystem \nWorked on P2P network solutions \nCreated solutions with JavaScript (NodeJS, React, NextJS)\nSenior Software Engineer at pulley.com\nRemote, 2020-2022\nCreated back-end solutions with Go, PostgreSQL, Redis, REST Servers, GraphQL Servers,\nand REST APIs.\nDeveloped front-end solutions with JavaScript/React, GraphQL clients, and REST clients.\nIntegrated several tools, libraries, and external APIs. Some of then include: Stripe, \nClerky, Finch, ACH Payments, International Payments.  \nProvided a GraphQL API to third parties that needed to integrate with the application.\nDeveloped payment solutions using Stripe API and Wise API\nSenior Backend Developer at  materialize.pro\nRemote 2020-2021\nCreated back-end solutions with Go, PostgreSQL, MongoDB, SQL Server, AWS \nDeveloped back-end solutions for enterprise applications, eCommerce, and mobile \napplications.\nTracked tasks using Basecamp which included adapting to each client's demands and \ncommunicating, proposing, and delivering the best cost-benefit solutions for each issue.\nIntegrated many third-party solutions to achieve the goals and deliver MVPs as soon as \npossible.\nWorked as a senior full-stack developer and consumed external GraphQL APIs like \nShopify, Sendgrid, Pagarme.\nCreated payment solutions using pagar.me\nSenior Software Engineer at SiriusXM Satelite Radio \nRemote 2019-2020\nCreated back-end solutions with Go, Oracle, MongoDB, Redis, Kafka\nDeveloped high-performant, high-availability microservices.\n\nIntegrated resources that delivered results, e.g., REST services which consumed data \nfrom databases, other REST services, Soap services, Kafka messages, JMS queues, \namong others.\nDeveloped APIs that served as the groundwork for other projects.\nTeam technical Leader at Tecsinapse\nRemote 2014 – 2019\n Developed and maintained enterprise applications for several car manufacturers in Latin\nAmerica like BMW, Mercedes-Benz, Jaguar/Land Rover, and Nissan.\nCreated solutions that range from analyzing the problem with the PM to the definitions of\ntasks, development, validation, and delivery of releases.\nServed as a technical leader, helping each team member with their weakness and \nstrengths to achieve technical evolution but while also meeting deadlines.\nDeveloped Java and JavaScript/React web applications.\nCreated APIs and back-end services and integrated third-party APIs.\nSelf employed work\n2019 - 2022\nDeveloped and maintained sales app for private company.\nDeveloped and maintained delivery app for private company.\nDeveloped and maintained sales web application for private company.\nDeveloped and maintained metrics web application for clouth manufacturing company.\nDeveloped web application for farmer's market licensing.\nPrevious work\n2007-2020\nElaboration of tests and contests for public and university evaluations. AOCP Institute\nTechnology Manager - City hall, Mandaguari City\nTeaching in the subjects Programming for Mobile Devices, Object Oriented Analysis and \nSoftware Engineering, Java - UNIVALE University\nTemporary Professor, teaching in  Fundamentals of Programming (C and Python), \nProgramming Languages (Java), Data Structures and WEB Programming classes - UTFPR\nFederal University – Campo Mourão City\nDelphi and Java Developer - Command Perfect\nEducation\nMaster's degree in Computer Science With National Scholarship \n- Universidade Estadual de Maringá, UEM, Brazil. 2009 – 2011\nGraduation in Computer Science\n\nJoe Magon – Resume \n- Universidade Estadual de Maringá, UEM, Brazil. 2003 - 2006"
+}

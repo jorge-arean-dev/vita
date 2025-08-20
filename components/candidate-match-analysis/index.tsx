@@ -92,7 +92,10 @@ export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }:
 
   // Initialize after mount to prevent hydration mismatch
   useEffect(() => {
-    setMounted(true)
+    // Ensure DOM is ready before setting mounted
+    if (typeof window !== 'undefined') {
+      setMounted(true)
+    }
   }, [])
 
   // Define loadCandidates function
