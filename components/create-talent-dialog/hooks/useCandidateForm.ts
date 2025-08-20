@@ -5,10 +5,16 @@ import {
   moveTempResumeToCandidate, 
   insertCandidateSkills, 
   updateCandidateResumeUrl,
+  cleanupTempResume,
   searchCountries,
   CandidateData 
 } from "@/app/actions/candidates"
+import { 
+  storeLinkedInRawDataAction, 
+  storeResumeRawDataAction 
+} from "@/app/actions/raw-data"
 import type { CandidateFormData, ParsedSkill, Country } from "../types"
+import type { LinkedInProfile } from "@/types/linkedin.types"
 
 interface UseCandidateFormReturn {
   formData: CandidateFormData
@@ -29,9 +35,10 @@ interface UseCandidateFormReturn {
   handleCountrySelect: (countryCode: string, countryName: string) => void
   
   // Form actions
-  handleSubmit: (onSuccess?: (candidate: CandidateData) => void) => void
+  handleSubmit: (onSuccess?: (candidate: CandidateData) => void, rawData?: { linkedInProfile?: LinkedInProfile, resumeText?: string, linkedinUrl?: string, resumeUrl?: string, fileName?: string, fileSize?: number }) => void
   resetForm: () => void
   updateFormWithCountry: (countryCode: string) => Promise<void>
+  cleanupTempFile: (tempFilePath: string) => Promise<void>
 }
 
 const initialFormData: CandidateFormData = {
@@ -104,7 +111,7 @@ export function useCandidateForm(): UseCandidateFormReturn {
     }
   }
 
-  const handleSubmit = (onSuccess?: (candidate: CandidateData) => void) => {
+  const handleSubmit = (onSuccess?: (candidate: CandidateData) => void, rawData?: { linkedInProfile?: LinkedInProfile, resumeText?: string, linkedinUrl?: string, resumeUrl?: string, fileName?: string, fileSize?: number }) => {
     // Validate required fields
     if (!formData.firstName.trim()) {
       toast({
@@ -176,7 +183,22 @@ export function useCandidateForm(): UseCandidateFormReturn {
           return
         }
 
-        // Step 2: Move temporary file to final location (if we have one)
+        // Step 2: Store LinkedIn raw data if available
+        if (rawData?.linkedInProfile) {
+          const linkedInResult = await storeLinkedInRawDataAction(
+            candidateId, 
+            rawData.linkedInProfile, 
+            rawData.linkedinUrl
+          )
+          if (!linkedInResult.success) {
+            console.error("Failed to store LinkedIn raw data:", linkedInResult.error)
+          } else {
+            console.log("LinkedIn raw data stored successfully")
+          }
+        }
+
+        // Step 3: Move temporary file to final location (if we have one)
+        let finalResumeUrl = null
         if (tempFilePath) {
           const moveResult = await moveTempResumeToCandidate(tempFilePath, candidateId)
           if (!moveResult.success) {
@@ -187,7 +209,8 @@ export function useCandidateForm(): UseCandidateFormReturn {
               variant: "destructive",
             })
           } else if (moveResult.finalUrl) {
-            // Step 2a: Update candidate with resume URL
+            finalResumeUrl = moveResult.finalUrl
+            // Step 3a: Update candidate with resume URL
             const updateResult = await updateCandidateResumeUrl(candidateId, moveResult.finalUrl)
             if (!updateResult.success) {
               console.error("Failed to update resume URL:", updateResult.error)
@@ -199,8 +222,26 @@ export function useCandidateForm(): UseCandidateFormReturn {
             }
           }
         }
+        
+        // Step 4: Store resume raw data with permanent URL (after file move)
+        if (rawData?.resumeText && rawData.resumeText.trim()) {
+          const resumeResult = await storeResumeRawDataAction(
+            candidateId, 
+            rawData.resumeText,
+            {
+              url: finalResumeUrl || rawData.resumeUrl, // Use permanent URL if available
+              fileName: rawData.fileName,
+              fileSize: rawData.fileSize
+            }
+          )
+          if (!resumeResult.success) {
+            console.error("Failed to store resume raw data:", resumeResult.error)
+          } else {
+            console.log("Resume raw data stored successfully with permanent URL")
+          }
+        }
 
-        // Step 3: Insert skills (if we have any)
+        // Step 5: Insert skills (if we have any)
         if (parsedSkills.length > 0) {
           const skillsResult = await insertCandidateSkills(candidateId, parsedSkills)
           if (!skillsResult.success) {
@@ -226,6 +267,21 @@ export function useCandidateForm(): UseCandidateFormReturn {
     })
   }
 
+  const cleanupTempFile = async (tempFilePath: string) => {
+    if (!tempFilePath) return
+    
+    try {
+      const result = await cleanupTempResume(tempFilePath)
+      if (!result.success) {
+        console.error("Failed to cleanup temp file:", result.error)
+      } else {
+        console.log("Temporary file cleaned up successfully")
+      }
+    } catch (error) {
+      console.error("Error cleaning up temp file:", error)
+    }
+  }
+
   return {
     formData,
     setFormData,
@@ -243,6 +299,7 @@ export function useCandidateForm(): UseCandidateFormReturn {
     handleCountrySelect,
     handleSubmit,
     resetForm,
-    updateFormWithCountry
+    updateFormWithCountry,
+    cleanupTempFile
   }
 }

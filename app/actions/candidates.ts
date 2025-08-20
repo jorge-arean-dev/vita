@@ -881,6 +881,46 @@ export async function deleteCandidateSkill(
 }
 
 // Update candidate resume URL after file move
+export async function cleanupTempResume(
+  tempPath: string
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient()
+  
+  // Get the current user
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) {
+    return { success: false, error: "User not authenticated" }
+  }
+
+  try {
+    console.log("Cleaning up temporary resume file:", tempPath)
+    
+    // Remove the temporary file from temp_resumes bucket
+    const { error: removeFileError } = await supabase.storage
+      .from('temp_resumes')
+      .remove([tempPath])
+
+    if (removeFileError) {
+      console.error("Error removing temporary file:", removeFileError)
+      return { success: false, error: `Failed to remove temporary file: ${removeFileError.message}` }
+    }
+
+    // Note: In object storage, empty directories (path prefixes) don't consume space
+    // and typically don't appear in listings. The important cleanup is the file itself.
+    console.log("Temp file removed successfully. Empty directory prefixes are handled automatically by object storage.")
+
+    console.log("Successfully cleaned up temporary resume file")
+    return { success: true }
+  } catch (error) {
+    console.error("Error in cleanupTempResume:", error)
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Failed to cleanup temporary file" 
+    }
+  }
+}
+
 export async function updateCandidateResumeUrl(
   candidateId: string,
   resumeUrl: string

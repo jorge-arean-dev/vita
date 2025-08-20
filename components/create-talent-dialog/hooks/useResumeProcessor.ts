@@ -9,6 +9,8 @@ interface UseResumeProcessorReturn {
     formData?: Partial<CandidateFormData>
     skills?: ParsedSkill[]
     tempFilePath?: string
+    tempFileUrl?: string // Store the temporary file URL
+    rawResumeText?: string // Store the raw extracted text
   }>
   isProcessing: boolean
   uploadProgress: string
@@ -103,7 +105,9 @@ export function useResumeProcessor(): UseResumeProcessorReturn {
         success: true,
         formData,
         skills: resumeSkills,
-        tempFilePath
+        tempFilePath,
+        tempFileUrl: uploadResult.tempUrl || "", // Include temporary file URL
+        rawResumeText: parseData.raw_pdf_profile_text || "" // Include raw extracted PDF text
       }
     } catch (error) {
       console.error("Error processing resume:", error)

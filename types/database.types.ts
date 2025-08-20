@@ -1,31 +1,119 @@
-// Database type definitions generated from Supabase
-// Note: This should be regenerated using: npx supabase gen types typescript --local > types/database.types.ts
+// Database type definitions for Supabase
+// Based on current migration files - manually maintained for cloud instance
 
 export interface Database {
   public: {
     Tables: {
-      job_descriptions: {
+      candidates: {
         Row: {
           id: string
-          job_id: string
-          title: string
-          description: string
+          user_id: string
+          first_name: string | null
+          last_name: string | null
+          email: string | null
+          linkedin: string | null
+          github: string | null
+          resume_url: string | null
+          country: string | null
+          years_experience: number | null
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
-          job_id: string
-          title?: string
-          description?: string
+          user_id: string
+          first_name?: string | null
+          last_name?: string | null
+          email?: string | null
+          linkedin?: string | null
+          github?: string | null
+          resume_url?: string | null
+          country?: string | null
+          years_experience?: number | null
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
-          job_id?: string
-          title?: string
-          description?: string
+          user_id?: string
+          first_name?: string | null
+          last_name?: string | null
+          email?: string | null
+          linkedin?: string | null
+          github?: string | null
+          resume_url?: string | null
+          country?: string | null
+          years_experience?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      candidates_linkedin_raw: {
+        Row: {
+          id: string
+          candidate_id: string
+          content: any // JSONB - raw LinkedIn profile data
+          linkedin_url: string | null
+          data_hash: string | null
+          extraction_date: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          candidate_id: string
+          content: any // JSONB - raw LinkedIn profile data
+          linkedin_url?: string | null
+          data_hash?: string | null
+          extraction_date?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          candidate_id?: string
+          content?: any // JSONB - raw LinkedIn profile data
+          linkedin_url?: string | null
+          data_hash?: string | null
+          extraction_date?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      candidates_resume_raw: {
+        Row: {
+          id: string
+          candidate_id: string
+          content: string
+          url: string | null
+          file_name: string | null
+          file_size: number | null
+          data_hash: string | null
+          extraction_date: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          candidate_id: string
+          content: string
+          url?: string | null
+          file_name?: string | null
+          file_size?: number | null
+          data_hash?: string | null
+          extraction_date?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          candidate_id?: string
+          content?: string
+          url?: string | null
+          file_name?: string | null
+          file_size?: number | null
+          data_hash?: string | null
+          extraction_date?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -89,40 +177,28 @@ export interface Database {
           updated_at?: string
         }
       }
-      candidates: {
+      job_descriptions: {
         Row: {
           id: string
-          user_id: string
-          first_name: string | null
-          last_name: string | null
-          email: string | null
-          linkedin: string | null
-          resume_url: string | null
-          country: string | null
+          job_id: string
+          title: string
+          description: string
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
-          user_id: string
-          first_name?: string | null
-          last_name?: string | null
-          email?: string | null
-          linkedin?: string | null
-          resume_url?: string | null
-          country?: string | null
+          job_id: string
+          title?: string
+          description?: string
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
-          user_id?: string
-          first_name?: string | null
-          last_name?: string | null
-          email?: string | null
-          linkedin?: string | null
-          resume_url?: string | null
-          country?: string | null
+          job_id?: string
+          title?: string
+          description?: string
           created_at?: string
           updated_at?: string
         }
@@ -137,6 +213,7 @@ export interface Database {
           recall_bot_id: string | null
           status: 'created' | 'in_progress' | 'ready_for_analysis' | 'analyzing' | 'completed'
           meeting_link: string | null
+          full_transcript: string | null
           created_at: string
           updated_at: string
         }
@@ -149,6 +226,7 @@ export interface Database {
           recall_bot_id?: string | null
           status?: 'created' | 'in_progress' | 'ready_for_analysis' | 'analyzing' | 'completed'
           meeting_link?: string | null
+          full_transcript?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -161,6 +239,7 @@ export interface Database {
           recall_bot_id?: string | null
           status?: 'created' | 'in_progress' | 'ready_for_analysis' | 'analyzing' | 'completed'
           meeting_link?: string | null
+          full_transcript?: string | null
           created_at?: string
           updated_at?: string
         }

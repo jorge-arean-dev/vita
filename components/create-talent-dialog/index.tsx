@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { useToast } from "@/components/ui/use-toast"
+import type { LinkedInProfile } from "@/types/linkedin.types"
 
 // Local imports
 import type { CreateTalentDialogProps, InputMethod, DataSource, Step } from "./types"
@@ -30,6 +31,7 @@ export default function CreateTalentDialog({
     setFormData,
     parsedSkills,
     setParsedSkills,
+    tempFilePath,
     setTempFilePath,
     isDirty,
     setIsDirty,
@@ -41,7 +43,8 @@ export default function CreateTalentDialog({
     handleCountrySelect,
     handleSubmit,
     resetForm,
-    updateFormWithCountry
+    updateFormWithCountry,
+    cleanupTempFile
   } = useCandidateForm()
   
   // API processing hooks
@@ -57,6 +60,11 @@ export default function CreateTalentDialog({
   const [fileUploadError, setFileUploadError] = useState("")
   const [isCountriesOpen, setIsCountriesOpen] = useState(false)
   const [showUnsavedChangesDialog, setShowUnsavedChangesDialog] = useState(false)
+  
+  // Raw data state for enhanced match analysis
+  const [rawLinkedInProfile, setRawLinkedInProfile] = useState<LinkedInProfile | null>(null)
+  const [rawResumeText, setRawResumeText] = useState<string>("")
+  const [uploadedFileUrl, setUploadedFileUrl] = useState<string>("")
 
   // Reset dialog state when closed
   const handleOpenChange = (newOpen: boolean) => {
@@ -72,7 +80,12 @@ export default function CreateTalentDialog({
   }
 
   // Reset dialog state
-  const resetDialogState = () => {
+  const resetDialogState = async () => {
+    // Clean up temporary file if it exists
+    if (tempFilePath) {
+      await cleanupTempFile(tempFilePath)
+    }
+    
     setCurrentStep("data-source")
     setInputMethod("auto")
     setDataSource("linkedin")
@@ -80,13 +93,16 @@ export default function CreateTalentDialog({
     setUploadedFile(null)
     setFileUploadError("")
     setIsCountriesOpen(false)
+    setRawLinkedInProfile(null)
+    setRawResumeText("")
+    setUploadedFileUrl("")
     resetForm()
   }
 
   // Confirm close with unsaved changes
-  const handleConfirmClose = () => {
+  const handleConfirmClose = async () => {
     setShowUnsavedChangesDialog(false)
-    resetDialogState()
+    await resetDialogState()
     onOpenChange(false)
   }
 
@@ -133,6 +149,8 @@ export default function CreateTalentDialog({
         setFormData(prev => ({ ...prev, ...result.formData }))
         if (result.skills) setParsedSkills(result.skills)
         if (result.tempFilePath) setTempFilePath(result.tempFilePath)
+        if (result.tempFileUrl) setUploadedFileUrl(result.tempFileUrl) // Store temp file URL
+        if (result.rawResumeText) setRawResumeText(result.rawResumeText) // Store raw resume text
         if (result.formData.country) {
           await updateFormWithCountry(result.formData.country)
         }
@@ -144,6 +162,7 @@ export default function CreateTalentDialog({
       if (result.success && result.formData) {
         setFormData(prev => ({ ...prev, ...result.formData }))
         if (result.skills) setParsedSkills(result.skills)
+        if (result.rawLinkedInProfile) setRawLinkedInProfile(result.rawLinkedInProfile) // Store raw LinkedIn profile
         if (result.formData.country) {
           await updateFormWithCountry(result.formData.country)
         }
@@ -286,7 +305,13 @@ export default function CreateTalentDialog({
               <>
                 <Button 
                   variant="outline" 
-                  onClick={() => handleOpenChange(false)}
+                  onClick={async () => {
+                    // Clean up temp file if user cancels during processing
+                    if (tempFilePath) {
+                      await cleanupTempFile(tempFilePath)
+                    }
+                    handleOpenChange(false)
+                  }}
                   disabled={isProcessing}
                 >
                   Cancel
@@ -306,10 +331,16 @@ export default function CreateTalentDialog({
               <>
                 <Button 
                   variant="outline" 
-                  onClick={() => setCurrentStep("data-source")}
+                  onClick={async () => {
+                    // Clean up temp file if user cancels from personal info step
+                    if (tempFilePath) {
+                      await cleanupTempFile(tempFilePath)
+                    }
+                    handleOpenChange(false)
+                  }}
                   disabled={isPending}
                 >
-                  Back
+                  Cancel
                 </Button>
                 <Button 
                   onClick={() => setCurrentStep("skills")}
@@ -337,11 +368,21 @@ export default function CreateTalentDialog({
                   Back
                 </Button>
                 <Button 
-                  onClick={() => handleSubmit((candidate) => {
-                    onCandidateCreated?.(candidate)
-                    resetDialogState()
-                    onOpenChange(false)
-                  })}
+                  onClick={() => handleSubmit(
+                    (candidate) => {
+                      onCandidateCreated?.(candidate)
+                      resetDialogState()
+                      onOpenChange(false)
+                    },
+                    {
+                      linkedInProfile: rawLinkedInProfile || undefined,
+                      resumeText: rawResumeText || undefined,
+                      linkedinUrl: linkedinUrl || undefined,
+                      resumeUrl: uploadedFileUrl || undefined,
+                      fileName: uploadedFile?.name,
+                      fileSize: uploadedFile?.size
+                    }
+                  )}
                   disabled={isPending}
                 >
                   {isPending ? "Creating..." : "Create"}

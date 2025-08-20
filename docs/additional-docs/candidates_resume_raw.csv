@@ -1,0 +1,6 @@
+column,type,description
+id,uuid,Primary key
+candidate_id,uuid,Foreign key to candidates table - candidates.id
+content,text,content of resume extraction
+created_at,timestampz,Record creation timestamp
+updated_at,timestampz,Record update timestamp

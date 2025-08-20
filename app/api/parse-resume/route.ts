@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ pdf_url }),
-      signal: AbortSignal.timeout(35000) // 35 second timeout (API has 30s timeout)
+      signal: AbortSignal.timeout(60000) // 60 second timeout for complex PDFs
     })
 
     console.log("External API response status:", response.status)

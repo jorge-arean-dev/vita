@@ -1,12 +1,14 @@
 import { useState } from "react"
 import { useToast } from "@/components/ui/use-toast"
 import type { CandidateFormData, ParsedSkill } from "../types"
+import type { LinkedInProfile } from "@/types/linkedin.types"
 
 interface UseLinkedInProcessorReturn {
   processLinkedIn: (linkedinUrl: string) => Promise<{
     success: boolean
     formData?: Partial<CandidateFormData>
     skills?: ParsedSkill[]
+    rawLinkedInProfile?: LinkedInProfile // Store the raw scraped LinkedIn profile
   }>
   isProcessing: boolean
   linkedinProgress: string
@@ -58,51 +60,9 @@ export function useLinkedInProcessor(): UseLinkedInProcessorReturn {
       const profileData = scrapedData[0]
       setLinkedinProgress("Profile scraped successfully!")
       
-      // Step 2: Reduce/format the profile data
-      setLinkedinProgress("Formatting profile data...")
-      console.log("Step 2: Calling linkedin-profile-reducer...")
-      
-      const reduceResponse = await fetch('https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/linkedin-profile-reducer', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`
-        },
-        body: JSON.stringify(profileData)
-      })
-      
-      console.log("Reduce response status:", reduceResponse.status)
-      
-      if (!reduceResponse.ok) {
-        let errorData = {}
-        try {
-          errorData = await reduceResponse.json()
-        } catch {
-          const textError = await reduceResponse.text()
-          console.error("Reduce failed - not JSON response:", textError)
-          throw new Error(`LinkedIn profile reducer returned ${reduceResponse.status}: ${textError || 'Unknown error'}`)
-        }
-        
-        console.error("Reduce failed:", errorData)
-        
-        if (reduceResponse.status === 400) {
-          throw new Error("Invalid profile data format. Please try a different LinkedIn URL.")
-        }
-        if (reduceResponse.status === 405) {
-          throw new Error("Method not allowed - LinkedIn profile reducer configuration error.")
-        }
-        if (reduceResponse.status >= 500) {
-          throw new Error("LinkedIn profile reducer service error. Please try again later.")
-        }
-        throw new Error(`Failed to format profile data (${reduceResponse.status}). Please try again.`)
-      }
-      
-      const reducedData = await reduceResponse.json()
-      setLinkedinProgress("Profile formatted successfully!")
-      
-      // Step 3: Parse skills and extract structured data
+      // Step 2: Parse skills and extract structured data directly from raw profile
       setLinkedinProgress("Analyzing profile with AI...")
-      console.log("Step 3: Calling parse-linkedin-skill...")
+      console.log("Step 2: Calling parse-linkedin-skill with raw profile data...")
       
       const parseResponse = await fetch('https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/parse-linkedin-skill', {
         method: 'POST',
@@ -110,7 +70,7 @@ export function useLinkedInProcessor(): UseLinkedInProcessorReturn {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`
         },
-        body: JSON.stringify(reducedData)
+        body: JSON.stringify(profileData)
       })
       
       console.log("Parse response status:", parseResponse.status)
@@ -136,7 +96,7 @@ export function useLinkedInProcessor(): UseLinkedInProcessorReturn {
       
       setLinkedinProgress("Profile analysis complete!")
       
-      // Step 4: Format the data
+      // Step 3: Format the data
       const formData: Partial<CandidateFormData> = {
         firstName: parsedData.main?.first_name || "",
         lastName: parsedData.main?.last_name || "",
@@ -164,7 +124,8 @@ export function useLinkedInProcessor(): UseLinkedInProcessorReturn {
       return {
         success: true,
         formData,
-        skills: linkedinSkills
+        skills: linkedinSkills,
+        rawLinkedInProfile: profileData // Include the raw scraped profile
       }
     } catch (error) {
       console.error("Error processing LinkedIn:", error)
