@@ -47,7 +47,16 @@ export interface MatchAnalysis {
     type: "existing" | "new"
     source?: string
   }
-  results?: AnalysisResults
+  results?: AnalysisResults & {
+    analysisMetadata?: {
+      strategy: string
+      reason: string
+      rawDataSources: {
+        hasLinkedIn: boolean
+        hasResume: boolean
+      }
+    }
+  }
   created_at: string
   isExpanded?: boolean
   isNew?: boolean
@@ -56,6 +65,12 @@ export interface MatchAnalysis {
   tempFilePath?: string
   uploadedFile?: File
   rawProfile?: Record<string, unknown> | string // For enhanced analysis (LinkedIn object or PDF text)
+  analysisStrategy?: string // Which analysis strategy was used
+  rawDataSources?: {
+    hasLinkedIn: boolean
+    hasResume: boolean
+  }
+  needsCleanup?: boolean // Indicates if temp files need cleanup on discard
 }
 
 export interface ExistingMatchAnalysis {

@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Info } from "lucide-react"
 import { CircularProgress } from "./circular-progress"
 import { RequirementAnalysisBadge } from "./requirement-analysis-badge"
+import { AnalysisStrategyBadge } from "./analysis-strategy-badge"
 import { getAnalysisData, getStatusBadge, getBannerColor, scrollToRequirement } from "./utils"
 import { MatchAnalysis, ExistingMatchAnalysis } from "./types"
 
@@ -47,7 +48,27 @@ export function AnalysisResultsDisplay({ analysis, candidateName, isNewCandidate
           <div className="flex flex-col space-y-6 lg:w-1/2">
             {/* Element 1.1: Overall Match Score */}
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-left">Overall Match Score</h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-left">Overall Match Score</h2>
+                {(('results' in analysis && analysis.results && 'analysisMetadata' in analysis.results) || ('analysisStrategy' in analysis && analysis.analysisStrategy)) && (
+                  <AnalysisStrategyBadge
+                    strategy={
+                      ('results' in analysis && analysis.results && 'analysisMetadata' in analysis.results && analysis.results?.analysisMetadata?.strategy) ||
+                      ('analysisStrategy' in analysis ? analysis.analysisStrategy : undefined) ||
+                      undefined
+                    }
+                    reason={
+                      ('results' in analysis && analysis.results && 'analysisMetadata' in analysis.results && analysis.results?.analysisMetadata?.reason) ||
+                      undefined
+                    }
+                    rawDataSources={
+                      ('results' in analysis && analysis.results && 'analysisMetadata' in analysis.results && analysis.results?.analysisMetadata?.rawDataSources) ||
+                      ('rawDataSources' in analysis ? analysis.rawDataSources : undefined) ||
+                      undefined
+                    }
+                  />
+                )}
+              </div>
               <div className="flex justify-center">
                 <CircularProgress 
                   value={data.match_analysis.overall_score} 

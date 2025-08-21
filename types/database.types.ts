@@ -118,6 +118,41 @@ export interface Database {
           updated_at?: string
         }
       }
+      candidates_skills: {
+        Row: {
+          id: string
+          candidate_id: string
+          skill: string
+          type: string
+          source: string
+          proficiency_level: string | null
+          years_of_experience: number | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          candidate_id: string
+          skill: string
+          type: string
+          source: string
+          proficiency_level?: string | null
+          years_of_experience?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          candidate_id?: string
+          skill?: string
+          type?: string
+          source?: string
+          proficiency_level?: string | null
+          years_of_experience?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
       jobs: {
         Row: {
           id: string

@@ -5,12 +5,11 @@ import {
   runMatchAnalysis,
   analyzeLinkedInCandidateSimplifiedEnhanced,
   analyzePDFCandidate,
-  saveCandidate,
   saveMatchAnalysis,
-  savePDFCandidateWithResume,
-  fetchCandidateForAnalysis,
   type ParsedCandidate
 } from "@/app/actions/match-analysis"
+import { runEnhancedMatchAnalysis, saveNewCandidateWithRawData } from "@/app/actions/enhanced-match-analysis"
+import { cleanupTempResumeFile } from "@/app/actions/temp-file-cleanup"
 import { MatchAnalysis, Candidate } from "../types"
 
 export function useMatchAnalysis(
@@ -118,18 +117,53 @@ export function useMatchAnalysis(
         setIsRunningAnalysis({ ...isRunningAnalysis, [analysisId]: false })
         return
       } else if (candidateType === "existing") {
-        // Existing candidate flow
+        // Enhanced existing candidate flow - uses smart routing
         const existingCandidate = candidates.find(c => c.id === selectedExistingCandidate)
         candidateName = existingCandidate?.name || "Unknown Candidate"
         
-        updateProgress("Fetching candidate data...")
-        parsedCandidate = await fetchCandidateForAnalysis(selectedExistingCandidate)
+        updateProgress("🔍 Checking for enhanced data sources...")
+        await new Promise(resolve => setTimeout(resolve, 300))
         
-        updateProgress("Analyzing skills and experience...")
-        await new Promise(resolve => setTimeout(resolve, 500))
+        updateProgress("⚡ Running enhanced match analysis...")
+        await new Promise(resolve => setTimeout(resolve, 400))
         
-        updateProgress("Comparing against job requirements...")
-        await new Promise(resolve => setTimeout(resolve, 500))
+        updateProgress("📊 Generating analysis results...")
+        
+        // Use enhanced match analysis with smart routing
+        const enhancedResult = await runEnhancedMatchAnalysis(selectedExistingCandidate, jobId)
+        
+        if (!enhancedResult.success || !enhancedResult.data) {
+          throw new Error(enhancedResult.error || "Enhanced analysis failed")
+        }
+        
+        // Store the enhanced analysis results
+        setMatchAnalyses(prevAnalyses =>
+          prevAnalyses.map(ma => 
+            ma.id === analysisId 
+              ? { 
+                  ...ma, 
+                  results: enhancedResult.data!,
+                  candidateInfo: {
+                    name: candidateName,
+                    type: candidateType
+                  },
+                  title: `Enhanced Match Analysis for ${candidateName}`,
+                  progressMessage: undefined,
+                  analysisStrategy: enhancedResult.data?.analysisMetadata?.strategy,
+                  rawDataSources: enhancedResult.data?.analysisMetadata?.rawDataSources
+                }
+              : ma
+          )
+        )
+
+        // Trigger animations for the enhanced results
+        setTimeout(() => {
+          triggerAnimationsForAnalysis(analysisId, enhancedResult.data?.requirement_evaluations.length || 0)
+        }, 100)
+        
+        // Early return since we've already set the results
+        setIsRunningAnalysis({ ...isRunningAnalysis, [analysisId]: false })
+        return
       } else if (candidateType === "new" && newCandidateMethod === "pdf") {
         // Enhanced PDF analysis flow
         if (!uploadedFile) {
@@ -169,7 +203,8 @@ export function useMatchAnalysis(
                     source: newCandidateMethod
                   },
                   title: `Enhanced PDF Match Analysis for ${candidateName}`,
-                  progressMessage: undefined
+                  progressMessage: undefined,
+                  needsCleanup: true // Mark for cleanup since temp file was created
                 }
               : ma
           )
@@ -223,6 +258,18 @@ export function useMatchAnalysis(
       }, 100)
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to run analysis"
+      
+      // Clean up temp files if analysis failed and we have them
+      setMatchAnalyses(prevAnalyses => {
+        const analysis = prevAnalyses.find(ma => ma.id === analysisId)
+        if (analysis?.tempFilePath && analysis?.needsCleanup) {
+          cleanupTempResumeFile(analysis.tempFilePath)
+            .then(() => console.log('Cleaned up temp file after analysis error'))
+            .catch(cleanupError => console.error('Failed to cleanup temp file after analysis error:', cleanupError))
+        }
+        return prevAnalyses // Return unchanged state
+      })
+      
       toast({
         title: "Error",
         description: errorMessage,
@@ -246,7 +293,38 @@ export function useMatchAnalysis(
   ) => {
     const analysis = matchAnalyses.find(ma => ma.id === analysisId)
     
-    if (!analysis || !analysis.results || !analysis.parsedCandidate) {
+    console.log('=== SAVE ANALYSIS START ===')
+    console.log('analysisId:', analysisId)
+    console.log('analysis found:', !!analysis)
+    console.log('analysis.results:', !!analysis?.results)
+    console.log('analysis.parsedCandidate:', !!analysis?.parsedCandidate)
+    console.log('analysis.candidateInfo:', analysis?.candidateInfo)
+    
+    if (!analysis || !analysis.results) {
+      console.error('Missing analysis or results')
+      return
+    }
+    
+    if (!analysis.parsedCandidate && analysis.candidateInfo.type === "new") {
+      console.error('Missing parsedCandidate for new candidate')
+      console.error('Attempting to extract from analysis results...')
+      
+      // Try to extract candidate data from analysis results if available
+      if (analysis.results?.metadata?.candidate_id) {
+        console.log('Found candidate_id in metadata, might be already saved')
+        toast({
+          title: "Error", 
+          description: "Cannot re-save candidate: data structure mismatch",
+          variant: "destructive",
+        })
+        return
+      }
+      
+      toast({
+        title: "Error",
+        description: "Cannot save new candidate: missing candidate data from analysis",
+        variant: "destructive",
+      })
       return
     }
 
@@ -257,24 +335,62 @@ export function useMatchAnalysis(
       
       // Save new candidate if needed
       if (analysis.candidateInfo.type === "new") {
-        if (analysis.candidateInfo.source === "pdf" && analysis.tempFilePath) {
-          // PDF candidate - use special function that handles resume moving
-          candidateId = await savePDFCandidateWithResume(
-            analysis.parsedCandidate,
-            analysis.tempFilePath,
-            jobId,
-            analysis.results
-          )
-        } else {
-          // LinkedIn candidate - use regular save
-          candidateId = await saveCandidate(
-            analysis.parsedCandidate,
-            analysis.candidateInfo.source === "linkedin" ? linkedinUrl : undefined,
-            "linkedin"
-          )
-          // Save the match analysis separately for LinkedIn
-          await saveMatchAnalysis(jobId, candidateId, analysis.results)
+        // Use enhanced save function that captures raw data
+        const candidateData = {
+          firstName: analysis.parsedCandidate!.main.first_name,
+          lastName: analysis.parsedCandidate!.main.last_name,
+          email: analysis.parsedCandidate!.main.email,
+          yearsOfExperience: analysis.parsedCandidate!.years_of_experience,
+          country: analysis.parsedCandidate!.main.country
         }
+
+        const skills = analysis.parsedCandidate!.skills.map(skill => ({
+          name: skill.name,
+          type: skill.type,
+          yearsOfExperience: skill.yoe || undefined,
+          proficiencyLevel: skill.proficiency_level || undefined
+        }))
+
+        const rawData = {
+          linkedInProfile: analysis.candidateInfo.source === "linkedin" && analysis.rawProfile 
+            ? analysis.rawProfile as Record<string, unknown>
+            : undefined,
+          linkedInUrl: analysis.candidateInfo.source === "linkedin" ? linkedinUrl : undefined,
+          resumeText: analysis.candidateInfo.source === "pdf" && typeof analysis.rawProfile === "string"
+            ? analysis.rawProfile
+            : undefined,
+          resumeUrl: analysis.tempFilePath || undefined,
+          tempFilePath: analysis.tempFilePath || undefined, // For moving temp file to permanent location
+          fileName: analysis.uploadedFile?.name,
+          fileSize: analysis.uploadedFile?.size
+        }
+
+
+        
+        let saveResult
+        try {
+          saveResult = await saveNewCandidateWithRawData(candidateData, skills, rawData, analysis.candidateInfo.source as "linkedin" | "pdf")
+        } catch (serverActionError) {
+          console.error('Server action threw error:', serverActionError)
+          throw new Error(`Server action failed: ${serverActionError instanceof Error ? serverActionError.message : 'Unknown server error'}`)
+        }
+        
+        if (!saveResult) {
+          throw new Error("Save function returned no result")
+        }
+        
+        if (!saveResult.success) {
+          throw new Error(saveResult.error || "Save operation failed")
+        }
+        
+        if (!saveResult.candidateId) {
+          throw new Error("Save succeeded but no candidate ID returned")
+        }
+        
+        candidateId = saveResult.candidateId
+        
+        // Save the match analysis
+        await saveMatchAnalysis(jobId, candidateId, analysis.results)
       } else {
         // For existing candidates, we already have the ID
         candidateId = selectedExistingCandidate
@@ -283,20 +399,28 @@ export function useMatchAnalysis(
       
       const successMessage = analysis.candidateInfo.type === "new" 
         ? analysis.candidateInfo.source === "pdf"
-          ? "Candidate created with resume, and match analysis saved successfully."
-          : "Candidate created and match analysis saved successfully."
-        : "Match analysis saved successfully."
+          ? "Candidate created with enhanced resume data and match analysis saved successfully."
+          : "Candidate created with enhanced LinkedIn data and match analysis saved successfully."
+        : "Enhanced match analysis saved successfully."
       
       toast({
         title: "Success",
         description: successMessage,
       })
 
+      // Note: Temp file cleanup is handled automatically by moveTempResumeToCandidate for PDF files
+
       // Call the callback to handle post-save logic (e.g., reload analyses)
       if (onAnalysisSaved) {
         await onAnalysisSaved(analysisId)
       }
     } catch (error) {
+      console.error('=== SAVE ANALYSIS ERROR (CLIENT SIDE) ===')
+      console.error('Error details:', error)
+      console.error('Error message:', error instanceof Error ? error.message : 'Unknown error')
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace')
+      console.error('=== END CLIENT ERROR LOG ===')
+      
       const errorMessage = error instanceof Error ? error.message : "Failed to save analysis"
       toast({
         title: "Error",

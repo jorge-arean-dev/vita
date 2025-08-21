@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useToast } from "@/components/ui/use-toast"
 import { deleteMatchAnalysis, fetchCandidatesForUser, getExistingMatchAnalyses } from "@/app/actions/match-analysis"
+import { cleanupTempResumeFile } from "@/app/actions/temp-file-cleanup"
 
 // Import refactored components
 import { AnalysisCard } from "./analysis-card"
@@ -134,6 +135,23 @@ export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }:
       loadCandidates()
     }
   }, [mounted, loadCandidates])
+
+  // Cleanup temp PDF files on component unmount
+  useEffect(() => {
+    return () => {
+      // Cleanup temp files when component unmounts
+      matchAnalyses.forEach(async (analysis) => {
+        if (analysis.tempFilePath && analysis.needsCleanup) {
+          try {
+            await cleanupTempResumeFile(analysis.tempFilePath)
+            console.log('Cleaned up temp file on unmount:', analysis.tempFilePath)
+          } catch (error) {
+            console.error('Failed to cleanup temp file on unmount:', error)
+          }
+        }
+      })
+    }
+  }, [matchAnalyses])
 
   // Get next counter for analysis title
   const getNextAnalysisCounter = () => {
@@ -275,7 +293,20 @@ export default function CandidateMatchAnalysis({ jobId, existingAnalyses = [] }:
   }
 
   // Handle discarding analysis
-  const handleDiscardAnalysis = (analysisId: string) => {
+  const handleDiscardAnalysis = async (analysisId: string) => {
+    const analysis = matchAnalyses.find(ma => ma.id === analysisId)
+    
+    // Clean up temp PDF file if needed
+    if (analysis?.tempFilePath && analysis?.needsCleanup) {
+      try {
+        await cleanupTempResumeFile(analysis.tempFilePath)
+        console.log('Temp PDF file cleaned up successfully')
+      } catch (error) {
+        console.error('Failed to cleanup temp PDF file:', error)
+        // Don't block the discard operation if cleanup fails
+      }
+    }
+    
     setMatchAnalyses(matchAnalyses.filter(ma => ma.id !== analysisId))
     // Clean up animation states
     cleanupAnimationState(analysisId)
