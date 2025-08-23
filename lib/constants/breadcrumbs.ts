@@ -5,6 +5,7 @@ export const TOOL_NAME_MAPPING: Record<string, string> = {
   'linkedin-query-builder': 'LinkedIn Query Builder',
   'email-builder': 'Email Builder',
   'candidate-match-analysis': 'Candidate Match Analysis',
+  'interview-companion': 'Interview Companion',
 }
 
 export const BREADCRUMB_ROUTES = {
