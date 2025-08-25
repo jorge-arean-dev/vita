@@ -1,29 +1,34 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import "./interview-companion.css"
+import type { JSX } from "react"
 import { useToast } from "@/components/ui/use-toast"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
 import { 
   Video, 
-  Clock, 
-  CheckCircle, 
-  AlertCircle, 
   Loader2, 
   Play,
   FileText,
   BarChart,
-  RefreshCw
+  RefreshCw,
+  ChevronDown,
+  ChevronRight,
+  MoreHorizontal,
+  Trash2
 } from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { 
   getJobInterviews, 
   getInterviewDetails,
   simulateWebhookReceived 
 } from "@/app/actions/interviews"
 import { InterviewWithDetails } from "@/types/interview.types"
+import { InterviewStatusBadge } from "@/components/ui/interview-status-badge"
 import CreateInterviewDialog from "./create-interview-dialog"
 import InterviewTranscript from "./interview-transcript"
 import InterviewAnalysis from "./interview-analysis"
@@ -32,9 +37,10 @@ interface InterviewCompanionProps {
   jobId: string
 }
 
-export default function InterviewCompanion({ jobId }: InterviewCompanionProps) {
+export default function InterviewCompanion({ jobId }: InterviewCompanionProps): JSX.Element {
   const [interviews, setInterviews] = useState<InterviewWithDetails[]>([])
   const [selectedInterview, setSelectedInterview] = useState<InterviewWithDetails | null>(null)
+  const [expandedInterviewId, setExpandedInterviewId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const { toast } = useToast()
@@ -143,31 +149,35 @@ export default function InterviewCompanion({ jobId }: InterviewCompanionProps) {
     }
   }
 
-  const getStatusBadge = (interview: InterviewWithDetails) => {
-    const status = interview.status
-    const displayName = interview.interview_statuses?.display_name || status
-    
-    const statusConfig = {
-      created: { variant: "outline" as const, icon: Clock },
-      in_progress: { variant: "default" as const, icon: Loader2 },
-      ready_for_analysis: { variant: "secondary" as const, icon: AlertCircle },
-      analyzing: { variant: "default" as const, icon: Loader2 },
-      completed: { variant: "default" as const, icon: CheckCircle }
+  const handleDeleteInterview = async (interviewId: string) => {
+    // TODO: Implement delete functionality
+    console.log('Delete interview:', interviewId)
+  }
+
+  const handleToggleExpanded = (interviewId: string) => {
+    if (expandedInterviewId === interviewId) {
+      setExpandedInterviewId(null)
+      setSelectedInterview(null)
+    } else {
+      setExpandedInterviewId(interviewId)
+      loadInterviewDetails(interviewId)
     }
+  }
 
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.created
-    const Icon = config.icon
-
-    return (
-      <Badge 
-        variant={config.variant} 
-        className="gap-1"
-        title={interview.interview_statuses?.description || undefined}
-      >
-        <Icon className={`h-3 w-3 ${status === 'in_progress' || status === 'analyzing' ? 'animate-spin' : ''}`} />
-        {displayName}
-      </Badge>
-    )
+  const getInterviewStatusBadgeStatus = (status: string): "analyzing" | "completed" | "created" | "in_progress" | "ready_for_analysis" => {
+    switch (status) {
+      case 'ready_for_analysis':
+        return 'ready_for_analysis'
+      case 'in_progress':
+        return 'in_progress'
+      case 'analyzing':
+        return 'analyzing'
+      case 'completed':
+        return 'completed'
+      case 'created':
+      default:
+        return 'created'
+    }
   }
 
   if (loading) {
@@ -180,248 +190,270 @@ export default function InterviewCompanion({ jobId }: InterviewCompanionProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex-1 space-y-6 p-6">
       {/* Header */}
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-start">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Video className="h-5 w-5" />
-                Interview Companion
-              </CardTitle>
-              <CardDescription className="mt-2">
-                Record and analyze Google Meet interviews with AI-powered insights
-              </CardDescription>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleRefresh}
-                disabled={refreshing}
-              >
-                <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-                Refresh
-              </Button>
-              <CreateInterviewDialog 
-                jobId={jobId} 
-                onInterviewCreated={handleInterviewCreated}
-              />
-            </div>
-          </div>
-        </CardHeader>
-      </Card>
-
-      {/* No interviews state */}
-      {interviews.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <Video className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="text-lg font-semibold mb-2">No interviews yet</h3>
-            <p className="text-muted-foreground mb-4">
-              Schedule your first interview to get started with AI-powered analysis
-            </p>
-            <CreateInterviewDialog 
-              jobId={jobId} 
-              onInterviewCreated={handleInterviewCreated}
-              variant="default"
-            />
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Interview List */}
-          <div className="lg:col-span-1 space-y-4">
-            <h3 className="text-sm font-medium text-muted-foreground">Interview Sessions</h3>
-            {interviews.map((interview) => (
-              <Card
-                key={interview.id}
-                className={`cursor-pointer transition-all ${
-                  selectedInterview?.id === interview.id 
-                    ? 'ring-2 ring-primary' 
-                    : 'hover:shadow-md'
-                }`}
-                onClick={() => loadInterviewDetails(interview.id)}
-              >
-                <CardContent className="p-4">
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-start">
-                      <p className="text-sm font-medium">
-                        {interview.title || `Interview #${interviews.indexOf(interview) + 1}`}
-                      </p>
-                      {getStatusBadge(interview)}
-                    </div>
-                    
-                    {interview.candidates && (
-                      <p className="text-sm text-muted-foreground">
-                        {interview.candidates.first_name} {interview.candidates.last_name}
-                        {interview.candidates.email && (
-                          <span className="text-xs"> ({interview.candidates.email})</span>
-                        )}
-                      </p>
-                    )}
-                    
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(interview.created_at).toLocaleDateString()} at{' '}
-                      {new Date(interview.created_at).toLocaleTimeString()}
-                    </p>
-                    
-                    {interview.interview_scores && interview.interview_scores[0] && (
-                      <div className="flex items-center gap-2">
-                        <BarChart className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-sm font-medium">
-                          Score: {interview.interview_scores[0].overall_score}/4.0
-                        </span>
-                      </div>
-                    )}
-
-                    {(interview.transcript_count ?? 0) > 0 && (
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">
-                          {interview.transcript_count} transcript segments
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Mock data button for testing */}
-                    {interview.status === 'in_progress' && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="w-full"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleSimulateTranscript(interview.id)
-                        }}
-                      >
-                        <Play className="h-3 w-3 mr-2" />
-                        Simulate Transcript
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Interview Details */}
-          <div className="lg:col-span-2">
-            {selectedInterview ? (
-              <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle>{selectedInterview.title || 'Interview Details'}</CardTitle>
-                      <CardDescription>
-                        {selectedInterview.candidates && (
-                          <div>
-                            {selectedInterview.candidates.first_name} {selectedInterview.candidates.last_name}
-                            {selectedInterview.candidates.email && (
-                              <span> • {selectedInterview.candidates.email}</span>
-                            )}
-                          </div>
-                        )}
-                        {new Date(selectedInterview.created_at).toLocaleDateString()} at{' '}
-                        {new Date(selectedInterview.created_at).toLocaleTimeString()}
-                      </CardDescription>
-                    </div>
-                    {getStatusBadge(selectedInterview)}
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <Tabs defaultValue="overview" className="w-full">
-                    <TabsList className="grid w-full grid-cols-3">
-                      <TabsTrigger value="overview">Overview</TabsTrigger>
-                      <TabsTrigger value="transcript">Transcript</TabsTrigger>
-                      <TabsTrigger value="analysis">Analysis</TabsTrigger>
-                    </TabsList>
-                    
-                    <TabsContent value="overview" className="space-y-4">
-                      <div className="space-y-4">
-                        <div>
-                          <p className="text-sm font-medium mb-1">Title</p>
-                          <p className="text-sm text-muted-foreground">
-                            {selectedInterview.title}
-                          </p>
-                        </div>
-
-                        <div>
-                          <p className="text-sm font-medium mb-1">Candidate</p>
-                          <p className="text-sm text-muted-foreground">
-                            {selectedInterview.candidates ? (
-                              <>
-                                {selectedInterview.candidates.first_name} {selectedInterview.candidates.last_name}
-                                {selectedInterview.candidates.email && (
-                                  <span className="block text-xs">{selectedInterview.candidates.email}</span>
-                                )}
-                              </>
-                            ) : (
-                              'No candidate assigned'
-                            )}
-                          </p>
-                        </div>
-
-                        <div>
-                          <p className="text-sm font-medium mb-1">Meeting Link</p>
-                          <p className="text-sm text-muted-foreground">
-                            {selectedInterview.meeting_link || 'Not provided'}
-                          </p>
-                        </div>
-                        
-                        <div>
-                          <p className="text-sm font-medium mb-1">Bot ID</p>
-                          <p className="text-sm text-muted-foreground font-mono">
-                            {selectedInterview.recall_bot_id || 'Not assigned'}
-                          </p>
-                        </div>
-                        
-                        <div>
-                          <p className="text-sm font-medium mb-1">Status</p>
-                          <p className="text-sm text-muted-foreground">
-                            {selectedInterview.interview_statuses?.display_name || 
-                             selectedInterview.status.replace(/_/g, ' ').charAt(0).toUpperCase() + 
-                             selectedInterview.status.replace(/_/g, ' ').slice(1)}
-                          </p>
-                          {selectedInterview.interview_statuses?.description && (
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {selectedInterview.interview_statuses.description}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </TabsContent>
-                    
-                    <TabsContent value="transcript">
-                      <InterviewTranscript 
-                        interview={selectedInterview}
-                        onAnalyze={() => {
-                          loadInterviews()
-                          loadInterviewDetails(selectedInterview.id)
-                        }}
-                      />
-                    </TabsContent>
-                    
-                    <TabsContent value="analysis">
-                      <InterviewAnalysis interview={selectedInterview} />
-                    </TabsContent>
-                  </Tabs>
-                </CardContent>
-              </Card>
-            ) : (
-              <Card>
-                <CardContent className="py-12 text-center">
-                  <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-muted-foreground">
-                    Select an interview to view details
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-          </div>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Interview Companion</h1>
+          <p className="text-muted-foreground">Record and analyze Google Meet interviews with AI-powered insights</p>
         </div>
-      )}
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={refreshing}
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          <CreateInterviewDialog 
+            jobId={jobId} 
+            onInterviewCreated={handleInterviewCreated}
+            variant="default"
+          />
+        </div>
+      </div>
+
+      {/* Interviews List */}
+      <div className="space-y-4">
+        {interviews.length === 0 ? (
+          <Card>
+            <CardContent className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <Video className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h3 className="mt-4 text-lg font-semibold">No interviews found</h3>
+                <p className="text-muted-foreground">Create your first interview to get started</p>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          interviews.map((interview) => (
+            <Collapsible
+              key={interview.id}
+              open={expandedInterviewId === interview.id}
+              onOpenChange={() => handleToggleExpanded(interview.id)}
+            >
+              <Card className="transition-all hover:shadow-md">
+                <CollapsibleTrigger asChild>
+                  <div className="cursor-pointer">
+                    <CardContent className="px-4 py-0">
+                      <div className="flex items-center justify-between">
+                        {/* Main Row Content (Always visible) */}
+                        <div className="grid flex-1 cursor-pointer items-center gap-4 pr-4 sm:grid-cols-10">
+                          {/* Expand/Collapse Toggle */}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="col-span-1 h-8 w-8 p-0"
+                            aria-label={expandedInterviewId === interview.id ? "Collapse" : "Expand"}
+                          >
+                            {expandedInterviewId === interview.id ? (
+                              <ChevronDown className="h-4 w-4" />
+                            ) : (
+                              <ChevronRight className="h-4 w-4" />
+                            )}
+                          </Button>
+
+                          {/* Candidate Name & Interview Title */}
+                          <div className="col-span-4 flex flex-col items-start">
+                            <h3 className="text-base font-semibold leading-tight transition-colors">
+                              {interview.candidates ? (
+                                `${interview.candidates.first_name} ${interview.candidates.last_name}`
+                              ) : (
+                                'No candidate assigned'
+                              )}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              {interview.title || `Interview #${interviews.indexOf(interview) + 1}`}
+                            </p>
+                          </div>
+
+                          {/* Interview Date & Time */}
+                          <div className="col-span-3 text-sm text-muted-foreground">
+                            Created on {new Date(interview.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, at{' '}
+                            {new Date(interview.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).toLowerCase()}
+                          </div>
+
+                          {/* Status Badge */}
+                          <div className="col-span-2">
+                            <InterviewStatusBadge 
+                              status={getInterviewStatusBadgeStatus(interview.status)}
+                              isStatic={true}
+                              showIcon={false}
+                              className="text-xs"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Action Menu (MoreHorizontal) */}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger
+                            onClick={(e) => e.stopPropagation()}
+                            asChild
+                          >
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              aria-label={`Actions for ${interview.title} - ${interview.candidates?.first_name} ${interview.candidates?.last_name}`}
+                            >
+                              <span className="sr-only">Open menu</span>
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-[180px]">
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDeleteInterview(interview.id)
+                              }}
+                              className="cursor-pointer text-destructive"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </CardContent>
+                  </div>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <CardContent className="pt-0 pb-4 px-4">
+                    {selectedInterview && selectedInterview.id === interview.id ? (
+                      <div className="border-t pt-4">
+                        <Tabs defaultValue="overview" className="w-full">
+                          <TabsList className="grid w-full grid-cols-3">
+                            <TabsTrigger value="overview">Overview</TabsTrigger>
+                            <TabsTrigger value="transcript">Transcript</TabsTrigger>
+                            <TabsTrigger value="analysis">Analysis</TabsTrigger>
+                          </TabsList>
+                          
+                          <TabsContent value="overview" className="space-y-4">
+                            <div className="space-y-4">
+                              <div>
+                                <p className="text-sm font-medium mb-1">Title</p>
+                                <p className="text-sm text-muted-foreground">
+                                  {selectedInterview.title}
+                                </p>
+                              </div>
+
+                              <div>
+                                <p className="text-sm font-medium mb-1">Candidate</p>
+                                <p className="text-sm text-muted-foreground">
+                                  {selectedInterview.candidates ? (
+                                    <>
+                                      {selectedInterview.candidates.first_name} {selectedInterview.candidates.last_name}
+                                      {selectedInterview.candidates.email && (
+                                        <span className="block text-xs">{selectedInterview.candidates.email}</span>
+                                      )}
+                                    </>
+                                  ) : (
+                                    'No candidate assigned'
+                                  )}
+                                </p>
+                              </div>
+
+                              <div>
+                                <p className="text-sm font-medium mb-1">Meeting Link</p>
+                                <p className="text-sm text-muted-foreground">
+                                  {selectedInterview.meeting_link || 'Not provided'}
+                                </p>
+                              </div>
+                              
+                              <div>
+                                <p className="text-sm font-medium mb-1">Bot ID</p>
+                                <p className="text-sm text-muted-foreground font-mono">
+                                  {selectedInterview.recall_bot_id || 'Not assigned'}
+                                </p>
+                              </div>
+                              
+                              <div>
+                                <p className="text-sm font-medium mb-1">Status</p>
+                                <p className="text-sm text-muted-foreground">
+                                  {selectedInterview.interview_statuses?.display_name || 
+                                   selectedInterview.status.replace(/_/g, ' ').charAt(0).toUpperCase() + 
+                                   selectedInterview.status.replace(/_/g, ' ').slice(1)}
+                                </p>
+                                {selectedInterview.interview_statuses?.description && (
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    {selectedInterview.interview_statuses.description}
+                                  </p>
+                                )}
+                              </div>
+
+                              {interview.interview_scores && interview.interview_scores[0] && (
+                                <div>
+                                  <p className="text-sm font-medium mb-1">Score</p>
+                                  <div className="flex items-center gap-2">
+                                    <BarChart className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-sm font-medium">
+                                      {interview.interview_scores[0].overall_score}/4.0
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+
+                              {(interview.transcript_count ?? 0) > 0 && (
+                                <div>
+                                  <p className="text-sm font-medium mb-1">Transcript</p>
+                                  <div className="flex items-center gap-2">
+                                    <FileText className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-sm text-muted-foreground">
+                                      {interview.transcript_count} transcript segments
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Mock data button for testing */}
+                              {interview.status === 'in_progress' && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="w-full"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleSimulateTranscript(interview.id)
+                                  }}
+                                >
+                                  <Play className="h-3 w-3 mr-2" />
+                                  Simulate Transcript
+                                </Button>
+                              )}
+                            </div>
+                          </TabsContent>
+                          
+                          <TabsContent value="transcript">
+                            <InterviewTranscript 
+                              interview={selectedInterview}
+                              onAnalyze={() => {
+                                loadInterviews()
+                                loadInterviewDetails(selectedInterview.id)
+                              }}
+                            />
+                          </TabsContent>
+                          
+                          <TabsContent value="analysis">
+                            <InterviewAnalysis interview={selectedInterview} />
+                          </TabsContent>
+                        </Tabs>
+                      </div>
+                    ) : (
+                      <div className="border-t pt-4">
+                        <div className="flex items-center justify-center py-8">
+                          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </CollapsibleContent>
+              </Card>
+            </Collapsible>
+          ))
+        )}
+      </div>
     </div>
   )
 }

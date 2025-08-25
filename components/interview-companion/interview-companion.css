@@ -1,0 +1,15 @@
+@keyframes recording-blink {
+  0%, 60% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.recording-blink {
+  animation: recording-blink 2s infinite ease-in-out;
+}
