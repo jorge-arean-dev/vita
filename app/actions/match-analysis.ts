@@ -362,7 +362,7 @@ export async function runMatchAnalysis(
     console.log("🔍 Match Analysis API Input:", JSON.stringify(requestBody, null, 2))
     
     const response = await fetch(
-      "https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/match-analysis",
+      "https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/match-analysis-fallback-v2",
       {
         method: "POST",
         headers: {
@@ -707,7 +707,7 @@ export async function runEnhancedMatchAnalysis(
     console.log("🔍 Enhanced Match Analysis v2 API Input:", JSON.stringify(requestBody, null, 2))
     
     const response = await fetch(
-      "https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/match-analysis-2",
+      "https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/match-analysis-fallback-v2",
       {
         method: "POST",
         headers: {
@@ -809,7 +809,7 @@ export async function runSimplifiedEnhancedMatchAnalysis(
     let requestBody: Record<string, unknown>
     
     if (source === "linkedin") {
-      apiUrl = "https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/match-analysis-linkedin"
+      apiUrl = "https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/match-analysis-linkedin-v2"
       requestBody = { 
         candidate: {
           ...candidate,
@@ -818,7 +818,7 @@ export async function runSimplifiedEnhancedMatchAnalysis(
         job 
       }
     } else {
-      apiUrl = "https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/match-analysis-pdf"
+      apiUrl = "https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/match-analysis-pdf-v2"
       requestBody = { 
         candidate: {
           ...candidate,
@@ -843,6 +843,13 @@ export async function runSimplifiedEnhancedMatchAnalysis(
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ error: "Unknown error" }))
       
+      console.error(`❌ ${source.toUpperCase()} API Error Response:`, {
+        status: response.status,
+        statusText: response.statusText,
+        errorData,
+        url: apiUrl
+      })
+      
       if (response.status === 400) {
         throw new Error(errorData.error || `Invalid input data for ${source} match analysis`)
       }
@@ -850,7 +857,7 @@ export async function runSimplifiedEnhancedMatchAnalysis(
         throw new Error("Enhanced analysis service is busy. Please try again in a moment.")
       }
       if (response.status >= 500) {
-        throw new Error(`${source} match analysis service error. Please try again later.`)
+        throw new Error(`${source} match analysis service error: ${errorData.error || 'Internal server error'}. Please try again later.`)
       }
       
       throw new Error(errorData.error || `Failed to run ${source} candidate match analysis`)
@@ -910,7 +917,7 @@ export async function analyzeLinkedInCandidateSimplifiedEnhanced(
     console.log(`   💼 Experiences: ${Array.isArray(rawLinkedInData?.experiences) ? rawLinkedInData.experiences.length : 0} entries`)
     console.log(`   🎯 Skills Listed: ${Array.isArray(rawLinkedInData?.skills) ? rawLinkedInData.skills.length : 0} entries`)
     
-    // Step 2: Parse skills directly from raw profile (SKIP reducer)
+    // Step 2: Parse skills directly from raw profile using sophisticated parsing
     console.log("🧠 Step 2: Parsing LinkedIn skills from raw profile...")
     const candidate = await parseLinkedInSkills(rawLinkedInData)
     
@@ -920,8 +927,8 @@ export async function analyzeLinkedInCandidateSimplifiedEnhanced(
     console.log(`   💼 Years Experience: ${candidate.years_of_experience || 0}`)
     console.log(`   🔗 Profile Complete: ${!!(candidate.main && candidate.skills && candidate.skills.length > 0)}`)
     
-    // Step 3: Run simplified enhanced match analysis v3 with RAW profile data
-    console.log("⚡ Step 3: Running simplified enhanced match analysis v3 with raw profile...")
+    // Step 3: Run simplified enhanced match analysis v3 with parsed candidate
+    console.log("⚡ Step 3: Running simplified enhanced match analysis v3...")
     const analysis = await runSimplifiedEnhancedMatchAnalysis(candidate, jobData, rawLinkedInData, "linkedin")
     
     // Step 4: Save if requested

@@ -88,9 +88,9 @@ export interface MatchAnalysisResponse {
  * API endpoint URLs
  */
 const MATCH_ANALYSIS_ENDPOINTS = {
-  ENHANCED_PDF: 'https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/match-analysis-pdf',
-  ENHANCED_LINKEDIN: 'https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/match-analysis-linkedin',
-  DEPRECATED_FALLBACK: 'https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/match-analysis'
+  ENHANCED_PDF: 'https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/match-analysis-pdf-v2',
+  ENHANCED_LINKEDIN: 'https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/match-analysis-linkedin-v2',
+  DEPRECATED_FALLBACK: 'https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/match-analysis-fallback-v2'
 } as const
 
 /**
