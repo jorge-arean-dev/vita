@@ -1,0 +1,185 @@
+# Match Analysis System Documentation
+
+## Overview
+
+The Match Analysis system evaluates how well a candidate fits a specific job by comparing their skills, experience, and qualifications against job requirements. The system has been redesigned with a unified architecture that provides consistent, fair, and intelligent matching across different data sources.
+
+## Core Philosophy
+
+### Fair Scoring Approach
+The system uses an **additive scoring model** where candidates are never penalized for missing optional requirements. Your base score comes from mandatory requirements, and optional requirements can only boost your score higher - they never drag you down.
+
+### Data Source Priority
+The system prioritizes **structured data** (organized skill lists with clear proficiency levels) over **raw text analysis**. Raw data like resume text or LinkedIn profiles serves as a supplementary source to catch skills that might have been missed during initial parsing.
+
+### Intelligent Skill Recognition
+The system understands that skills exist in hierarchies and relationships. If you have Django experience, it knows you also have Python knowledge. If you're AWS certified, it understands you have cloud computing skills. This prevents unfair scoring when job requirements use different terminology than your resume.
+
+## System Architecture
+
+### Three API Endpoints
+
+**LinkedIn Analysis API** - Processes LinkedIn profile JSON data to extract skills, work history, and experience. It analyzes job descriptions and career progression to estimate proficiency levels for different technologies.
+
+**PDF Resume Analysis API** - Extracts information from resume text using language processing. It identifies technical skills, certifications, soft skills, and attempts to determine years of experience from job history.
+
+**Fallback Analysis API** - Handles existing candidates already stored in the database. It can supplement database information with any stored raw data (LinkedIn profiles or resume text) to provide comprehensive analysis.
+
+### Shared Intelligence Engine
+
+All three APIs use the same underlying intelligence, ensuring consistent scoring regardless of which data source is used. This shared engine includes:
+
+**Core Matching Engine** - Orchestrates the entire analysis process, from initial skill matching through final score calculation.
+
+**Skill Registry** - Contains a comprehensive database of software engineering skills, their relationships, common aliases, and hierarchical connections.
+
+**Skill Matcher** - Performs the actual comparison between job requirements and candidate skills, using different strategies based on skill type.
+
+**Proficiency Calculator** - Converts years of experience into standardized proficiency levels (beginner, advanced, expert).
+
+**Score Calculator** - Implements the fair scoring system with additive bonuses for optional requirements.
+
+## How Matching Works
+
+### Step 1: Data Processing
+The system first converts incoming data (LinkedIn JSON, resume text, or database records) into a standardized format. This ensures all three APIs work with the same data structure internally.
+
+### Step 2: Skill Identification
+Skills are extracted and categorized into three types:
+- **Technical Skills**: Programming languages, frameworks, tools (e.g., Python, React, Docker)
+- **Certifications**: Official credentials and certifications (e.g., AWS Certified, PMP)
+- **Soft Skills**: Interpersonal and management abilities (e.g., Leadership, Communication)
+
+### Step 3: Skill Matching
+For each job requirement, the system searches for matches using multiple strategies:
+
+**Exact Matching** - Direct skill name matches or known aliases (React = ReactJS = React.js)
+
+**Hierarchical Matching** - Understanding parent-child relationships (Django experience counts toward Python requirements, but not vice versa)
+
+**Semantic Matching** - Using AI to find related skills when exact matches aren't found
+
+### Step 4: Type-Specific Scoring
+
+**Technical Skills** use proficiency-based scoring:
+- Compares required experience level with candidate's experience
+- Awards bonus points for overqualification
+- Applies penalties for underqualification
+- Considers skill hierarchy relationships
+
+**Certifications** use binary scoring:
+- 100 points if the candidate has the certification
+- 0 points if they don't have it
+- No partial credit, but handles certification variations and aliases
+
+**Soft Skills** use evidence-based scoring:
+- Looks for multiple pieces of evidence across resume and profiles
+- Counts explicit mentions, action words, job titles, and context
+- More evidence sources = higher confidence and score
+- Scores based on strength of evidence (60-100 points)
+
+### Step 5: Final Score Calculation
+
+**Mandatory Requirements** form the base score (0-100 points)
+- These are must-have skills for the job
+- Scored by averaging all mandatory requirement scores
+- This becomes your foundation score
+
+**Optional Requirements** provide bonus points (0-20 additional points)
+- These are nice-to-have skills that make you stand out
+- Can only add to your score, never subtract
+- Based on how many optional requirements you meet well
+
+**Final Score** = Mandatory Score + Optional Bonus (capped at 100)
+
+### Step 6: Score Categorization
+Final scores are categorized into four clear tiers:
+- **Strong** (80-100): Excellent fit for the role
+- **Adequate** (60-79): Good fit with minor gaps
+- **Weak** (30-59): Some relevant skills but significant gaps
+- **Missing** (0-29): Poor fit with major skill gaps
+
+## Key Intelligence Features
+
+### Skill Relationship Understanding
+The system knows that:
+- Django developers have Python skills
+- React developers understand JavaScript
+- AWS certified professionals know cloud computing
+- Spring Boot experience implies Java knowledge
+- Leadership roles demonstrate management capabilities
+
+### Alias Recognition
+The system recognizes that these are the same:
+- JavaScript = JS = ECMAScript
+- PostgreSQL = Postgres = PostGIS
+- React = ReactJS = React.js
+- AWS Solutions Architect = SAA-C03 = AWS SA
+
+### Gap Filling from Raw Data
+When structured skills data is incomplete, the system analyzes raw text to find:
+- Skills mentioned in job descriptions but not listed separately
+- Years of experience embedded in work history
+- Soft skills demonstrated through action words and achievements
+- Certifications mentioned in narrative form
+
+### Multi-Source Evidence
+For soft skills especially, the system looks for evidence from multiple sources:
+- Explicit skill listings
+- Job titles (Manager, Lead, Coordinator)
+- Action verbs (led, managed, collaborated, presented)
+- Project descriptions showing skill application
+- Multiple mentions across different contexts
+
+## Quality Assurance
+
+### Consistency Across APIs
+All three APIs use identical scoring logic, ensuring a candidate gets the same score regardless of whether their data comes from LinkedIn, a resume, or an existing database record.
+
+### Confidence Tracking
+Every match includes a confidence score indicating how certain the system is about the connection. This helps distinguish between definitive matches and educated guesses.
+
+### Evidence Documentation
+All scoring decisions include human-readable explanations and evidence trails, making it easy to understand why a candidate received their score.
+
+### Fallback Protection
+If AI-powered components fail or are unavailable, the system gracefully falls back to rule-based matching, ensuring analysis can always complete.
+
+## Benefits for Recruiters
+
+### Fair Candidate Evaluation
+Candidates aren't penalized for missing nice-to-have skills, leading to more equitable comparisons.
+
+### Comprehensive Skill Recognition
+The system catches skills that might be missed by simple keyword matching, including related technologies and different terminology.
+
+### Consistent Results
+The same candidate evaluated against the same job will always receive the same score, regardless of data source.
+
+### Clear Explanations
+Every score comes with clear explanations of what matched, what didn't, and why, making it easy to understand and trust the results.
+
+### Time Savings
+Automated analysis handles the initial screening, allowing recruiters to focus on high-potential candidates rather than manual resume review.
+
+## Technical Implementation Details
+
+### Version Information
+- LinkedIn API: v2.0-unified
+- PDF API: v2.0-unified  
+- Fallback API: v2.0-unified
+- Core Engine: Shared across all APIs
+
+### Performance Optimization
+- Structured data processed first for speed
+- Raw data analysis only when needed for gap-filling
+- Skill registry optimized for fast lookups
+- Confidence-based early termination for obvious matches
+
+### Extensibility
+- Easy to add new skill types beyond technical/certification/soft skills
+- Skill registry can be expanded with new technologies and relationships
+- Scoring algorithms can be tuned without affecting API interfaces
+- Ready for multi-industry expansion with industry-specific skill databases
+
+This unified approach ensures every candidate gets a fair, comprehensive, and consistent evaluation while providing recruiters with the insights they need to make informed hiring decisions.
