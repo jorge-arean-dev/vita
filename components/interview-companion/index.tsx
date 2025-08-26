@@ -194,7 +194,7 @@ export default function InterviewCompanion({ jobId }: InterviewCompanionProps): 
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Interview Companion</h1>
+          <h2 className="text-2xl font-bold tracking-tight">Interview Companion</h2>
           <p className="text-muted-foreground">Record and analyze Google Meet interviews with AI-powered insights</p>
         </div>
         <div className="flex gap-2">
