@@ -190,28 +190,30 @@ export default function InterviewCompanion({ jobId }: InterviewCompanionProps): 
   }
 
   return (
-    <div className="flex-1 space-y-6 p-6">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Interview Companion</h2>
-          <p className="text-muted-foreground">Record and analyze Google Meet interviews with AI-powered insights</p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRefresh}
-            disabled={refreshing}
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-          <CreateInterviewDialog 
-            jobId={jobId} 
-            onInterviewCreated={handleInterviewCreated}
-            variant="default"
-          />
+      <div className="pb-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <h2 className="text-2xl font-bold tracking-tight">Interview Companion</h2>
+            <p className="text-muted-foreground">Record and analyze Google Meet interviews with AI-powered insights</p>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={refreshing}
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+            <CreateInterviewDialog 
+              jobId={jobId} 
+              onInterviewCreated={handleInterviewCreated}
+              variant="default"
+            />
+          </div>
         </div>
       </div>
 

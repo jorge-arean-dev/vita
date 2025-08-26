@@ -9,6 +9,15 @@ export interface JobData {
   company_name: string
   created_at: string
   candidate_count: number
+  commitment: string | null
+  commitment_display: string | null
+  duration: string | null
+  duration_display: string | null
+  location_reqs: string | null
+  location_reqs_display: string | null
+  rate: number | null
+  pay_freq: string | null
+  pay_freq_display: string | null
 }
 
 export async function getJobs(): Promise<JobData[]> {
@@ -28,7 +37,12 @@ export async function getJobs(): Promise<JobData[]> {
       id,
       title,
       created_at,
-      company_id
+      company_id,
+      commitment,
+      duration,
+      location_reqs,
+      rate,
+      pay_freq
     `)
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
@@ -40,21 +54,70 @@ export async function getJobs(): Promise<JobData[]> {
   // Get all company IDs from the jobs
   const companyIds = jobs.map(job => job.company_id).filter(Boolean)
   
+  // Get unique values for lookups
+  const commitments = [...new Set(jobs.map(job => job.commitment).filter(Boolean))]
+  const durations = [...new Set(jobs.map(job => job.duration).filter(Boolean))]
+  const locationReqs = [...new Set(jobs.map(job => job.location_reqs).filter(Boolean))]
+  
   // If there are company IDs, fetch the company names
   let companyMap: Record<string, string> = {}
   
   if (companyIds.length > 0) {
-    const { data: companies, error: companyError } = await supabase
+    const { data: companies } = await supabase
       .from("companies")
       .select("id, name")
       .in("id", companyIds)
     
-    if (companyError) {
-      // Silently handle company error but continue with available data
-    } else if (companies) {
-      // Create a map of company ID to company name
+    if (companies) {
       companyMap = companies.reduce((acc, company) => {
         acc[company.id] = company.name
+        return acc
+      }, {} as Record<string, string>)
+    }
+  }
+  
+  // Fetch display names for lookups
+  let commitmentMap: Record<string, string> = {}
+  let durationMap: Record<string, string> = {}
+  let locationMap: Record<string, string> = {}
+  
+  if (commitments.length > 0) {
+    const { data: commitmentTypes } = await supabase
+      .from("job_commitment_types")
+      .select("name, display_name")
+      .in("name", commitments)
+    
+    if (commitmentTypes) {
+      commitmentMap = commitmentTypes.reduce((acc, item) => {
+        acc[item.name] = item.display_name
+        return acc
+      }, {} as Record<string, string>)
+    }
+  }
+  
+  if (durations.length > 0) {
+    const { data: durationTypes } = await supabase
+      .from("job_durations")
+      .select("name, display_name")
+      .in("name", durations)
+    
+    if (durationTypes) {
+      durationMap = durationTypes.reduce((acc, item) => {
+        acc[item.name] = item.display_name
+        return acc
+      }, {} as Record<string, string>)
+    }
+  }
+  
+  if (locationReqs.length > 0) {
+    const { data: locationTypes } = await supabase
+      .from("job_location_types")
+      .select("name, display_name")
+      .in("name", locationReqs)
+    
+    if (locationTypes) {
+      locationMap = locationTypes.reduce((acc, item) => {
+        acc[item.name] = item.display_name
         return acc
       }, {} as Record<string, string>)
     }
@@ -72,7 +135,16 @@ export async function getJobs(): Promise<JobData[]> {
       title: job.title,
       company_name: companyName,
       created_at: job.created_at,
-      candidate_count: 0 // This field will be removed from the UI
+      candidate_count: 0, // This field will be removed from the UI
+      commitment: job.commitment,
+      commitment_display: job.commitment ? commitmentMap[job.commitment] || job.commitment : null,
+      duration: job.duration,
+      duration_display: job.duration ? durationMap[job.duration] || job.duration : null,
+      location_reqs: job.location_reqs,
+      location_reqs_display: job.location_reqs ? locationMap[job.location_reqs] || job.location_reqs : null,
+      rate: job.rate,
+      pay_freq: job.pay_freq,
+      pay_freq_display: null // Not needed since we're using the mapping in the component
     };
   })
 
