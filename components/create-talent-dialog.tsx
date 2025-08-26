@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -13,7 +13,7 @@ import ToggleSlider from "@/components/ui/toggle-slider"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { toast } from "sonner"
-import { searchCountries, createCandidate } from "@/app/actions/candidates"
+import { searchCountries, createCandidate, CandidateData } from "@/app/actions/candidates"
 
 interface Country {
   iso_code: string
@@ -33,7 +33,7 @@ interface CandidateFormData {
 interface CreateTalentDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onCandidateCreated?: () => void
+  onCandidateCreated?: (candidate: CandidateData) => void
 }
 
 type InputMethod = "auto" | "manual"
@@ -257,11 +257,11 @@ export default function CreateTalentDialog({
           yearsExperience: formData.yearsExperience ? parseFloat(formData.yearsExperience) : undefined
         })
         
-        if (result.success) {
+        if (result.success && result.candidate) {
           toast.success("Candidate created successfully!")
           setIsDirty(false) // Clear dirty state before closing
           handleOpenChange(false)
-          onCandidateCreated?.()
+          onCandidateCreated?.(result.candidate)
         } else {
           toast.error(result.error || "Failed to create candidate")
         }
