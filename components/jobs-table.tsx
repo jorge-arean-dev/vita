@@ -124,11 +124,11 @@ export default function JobsTable({ jobs: initialJobs }: JobsTableProps) {
           <Button onClick={() => setShowCreateDialog(true)}>Create New Job</Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 min-[680px]:grid-cols-2 min-[1000px]:grid-cols-3 min-[1340px]:grid-cols-4 min-[1700px]:grid-cols-5 gap-4 min-[680px]:gap-5 min-[1000px]:gap-6 min-[1340px]:gap-5 min-[1700px]:gap-4 transition-all duration-300">
           {jobs.map((job) => (
             <Card
               key={job.id}
-              className="flex flex-col overflow-hidden rounded-lg border-border bg-card text-card-foreground shadow-md transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl cursor-pointer h-80 max-w-sm p-0"
+              className="flex flex-col overflow-hidden rounded-lg border-border bg-card text-card-foreground shadow-md transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl cursor-pointer min-h-[280px] max-h-[400px] w-full p-0"
               onClick={() => handleOpen(job.id)}
             >
               <CardHeader className="flex flex-row items-center justify-between px-4 pt-4 pb-4 flex-shrink-0">
@@ -188,9 +188,9 @@ export default function JobsTable({ jobs: initialJobs }: JobsTableProps) {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </CardHeader>
-              <CardContent className="flex-1 space-y-3 px-4 py-3 min-h-0">
-                <h3 className="text-base font-bold leading-tight line-clamp-2 min-h-[2.5rem]">{job.title}</h3>
-                <div className="flex flex-wrap gap-1.5 overflow-hidden min-h-[1.75rem]">
+              <CardContent className="flex-1 space-y-3 px-4 py-3 min-h-0 flex flex-col justify-between overflow-hidden">
+                <h3 className="text-base font-bold leading-tight line-clamp-2">{job.title}</h3>
+                <div className="flex flex-wrap gap-1.5 overflow-hidden">
                   {job.commitment_display && (
                     <Badge variant="secondary" className="text-xs">
                       {job.commitment_display}
