@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Info, SearchX, CheckCircle2 } from "lucide-react"
+import { Info, SearchX, CheckCircle2, type LucideIcon } from "lucide-react"
 import { CircularProgress } from "./circular-progress"
 import { RequirementAnalysisBadge } from "./requirement-analysis-badge"
 import { AnalysisStrategyBadge } from "./analysis-strategy-badge"
@@ -20,7 +20,7 @@ const EmptyStateContent = ({
   secondary 
 }: {
   type: 'strengths' | 'gaps'
-  icon: any
+  icon: LucideIcon
   primary: string
   secondary: string
 }) => (

@@ -45,14 +45,14 @@ interface Candidate {
 interface RequirementEvaluation {
   requirement_name: string
   score: number
-  status: "strong" | "adequate" | "weak" | "missing"
+  status: "fit" | "developing" | "weak" | "missing"
   feedback: string
 }
 
 interface AnalysisResults {
   match_analysis: {
     overall_score: number
-    status: "strong" | "adequate" | "weak" | "missing"
+    status: "fit" | "developing" | "weak" | "missing"
     overall_feedback: string
     matched_mandatory_requirements: number
     total_mandatory_requirements: number
@@ -99,7 +99,7 @@ interface CircularProgressProps {
   size?: number
   strokeWidth?: number
   className?: string
-  status: "strong" | "adequate" | "weak" | "missing"
+  status: "fit" | "developing" | "weak" | "missing"
 }
 
 function CircularProgress({ value, size = 120, strokeWidth = 8, className = "", status }: CircularProgressProps) {
@@ -184,7 +184,7 @@ interface ExistingMatchAnalysis {
   candidate_id: string
   match_analysis: {
     overall_score: number
-    status: "strong" | "adequate" | "weak" | "missing"
+    status: "fit" | "developing" | "weak" | "missing"
     overall_feedback: string
     matched_mandatory_requirements: number
     total_mandatory_requirements: number
@@ -192,7 +192,7 @@ interface ExistingMatchAnalysis {
   requirement_evaluations: Array<{
     requirement_name: string
     score: number
-    status: "strong" | "adequate" | "weak" | "missing"
+    status: "fit" | "developing" | "weak" | "missing"
     feedback: string
   }>
   summary: {

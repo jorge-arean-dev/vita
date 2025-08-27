@@ -56,7 +56,7 @@ export interface MatchAnalysisRequest {
 export interface MatchAnalysisResponse {
   match_analysis: {
     overall_score: number
-    status: "strong" | "adequate" | "weak" | "missing"
+    status: "fit" | "developing" | "weak" | "missing"
     overall_feedback: string
     matched_mandatory_requirements: number
     total_mandatory_requirements: number
@@ -64,7 +64,7 @@ export interface MatchAnalysisResponse {
   requirement_evaluations: Array<{
     requirement_name: string
     score: number
-    status: "strong" | "adequate" | "weak" | "missing"
+    status: "fit" | "developing" | "weak" | "missing"
     feedback: string
   }>
   summary: {
