@@ -1,7 +1,8 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ChevronDown, ChevronRight, X, Save, Trash2 } from "lucide-react"
+import { ChevronDown, ChevronRight, X, Save, Trash2, Info } from "lucide-react"
 import { ReactNode } from "react"
+import { ScoreSystemGuideDialog } from "@/components/ui/score-system-guide-dialog"
 
 interface AnalysisCardProps {
   id: string
@@ -53,7 +54,19 @@ export function AnalysisCard({
             </Button>
 
             {/* Analysis Title */}
-            <h3 className="text-lg font-semibold">{title}</h3>
+            <div className="flex items-center gap-3">
+              <h3 className="text-lg font-semibold">{title}</h3>
+              
+              {/* Score Guide Link - Only show when expanded and has results */}
+              {isExpanded && hasResults && (
+                <ScoreSystemGuideDialog>
+                  <button className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline transition-colors duration-200 font-medium">
+                    <Info className="w-3.5 h-3.5" />
+                    Match Score Guide
+                  </button>
+                </ScoreSystemGuideDialog>
+              )}
+            </div>
           </div>
 
           {/* Action Buttons */}
