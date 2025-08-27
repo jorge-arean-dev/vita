@@ -3,28 +3,30 @@ import { MatchAnalysis, ExistingMatchAnalysis } from "./types"
 
 // Utility functions for styling
 export function getStatusBadge(score: number) {
-  if (score >= 75) {
-    return <Badge className="bg-[hsl(var(--match-strong-bg))] text-[hsl(var(--match-strong-text))] hover:bg-[hsl(var(--match-strong-bg))] border-[hsl(var(--match-strong-border))]">Strong</Badge>
+  if (score >= 80) {
+    return <Badge className="bg-[hsl(var(--match-fit-bg))] text-[hsl(var(--match-fit-text))] hover:bg-[hsl(var(--match-fit-bg))] border-[hsl(var(--match-fit-border))]">Fit</Badge>
   }
-  if (score >= 50) {
-    return <Badge className="bg-[hsl(var(--match-adequate-bg))] text-[hsl(var(--match-adequate-text))] hover:bg-[hsl(var(--match-adequate-bg))] border-[hsl(var(--match-adequate-border))]">Adequate</Badge>
+  if (score >= 60) {
+    return <Badge className="bg-[hsl(var(--match-developing-bg))] text-[hsl(var(--match-developing-text))] hover:bg-[hsl(var(--match-developing-bg))] border-[hsl(var(--match-developing-border))]">Developing</Badge>
   }
-  if (score >= 25) {
+  if (score >= 30) {
     return <Badge className="bg-[hsl(var(--match-weak-bg))] text-[hsl(var(--match-weak-text))] hover:bg-[hsl(var(--match-weak-bg))] border-[hsl(var(--match-weak-border))]">Weak</Badge>
   }
   return <Badge className="bg-[hsl(var(--match-missing-bg))] text-[hsl(var(--match-missing-text))] hover:bg-[hsl(var(--match-missing-bg))] border-[hsl(var(--match-missing-border))]">Missing</Badge>
 }
 
 export function getProgressBarColor(score: number) {
-  if (score >= 75) return "bg-[hsl(var(--match-strong))]"
-  if (score >= 50) return "bg-[hsl(var(--match-adequate))]"
-  if (score >= 25) return "bg-[hsl(var(--match-weak))]"
+  if (score >= 80) return "bg-[hsl(var(--match-fit))]"
+  if (score >= 60) return "bg-[hsl(var(--match-developing))]"
+  if (score >= 30) return "bg-[hsl(var(--match-weak))]"
   return "bg-[hsl(var(--match-missing))]"
 }
 
 export function getBannerColor(status: string) {
-  if (status === "strong") return "bg-[hsl(var(--match-strong-bg))] text-[hsl(var(--match-strong-text))] border-[hsl(var(--match-strong-border))]"
-  if (status === "adequate") return "bg-[hsl(var(--match-adequate-bg))] text-[hsl(var(--match-adequate-text))] border-[hsl(var(--match-adequate-border))]"
+  if (status === "fit") return "bg-[hsl(var(--match-fit-bg))] text-[hsl(var(--match-fit-text))] border-[hsl(var(--match-fit-border))]"
+  if (status === "strong") return "bg-[hsl(var(--match-strong-bg))] text-[hsl(var(--match-strong-text))] border-[hsl(var(--match-strong-border))]" // Legacy support
+  if (status === "developing") return "bg-[hsl(var(--match-developing-bg))] text-[hsl(var(--match-developing-text))] border-[hsl(var(--match-developing-border))]"
+  if (status === "adequate") return "bg-[hsl(var(--match-adequate-bg))] text-[hsl(var(--match-adequate-text))] border-[hsl(var(--match-adequate-border))]" // Legacy support
   if (status === "weak") return "bg-[hsl(var(--match-weak-bg))] text-[hsl(var(--match-weak-text))] border-[hsl(var(--match-weak-border))]"
   if (status === "missing") return "bg-[hsl(var(--match-missing-bg))] text-[hsl(var(--match-missing-text))] border-[hsl(var(--match-missing-border))]"
   return "bg-gray-100 text-gray-800 border-gray-200"

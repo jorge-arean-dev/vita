@@ -259,7 +259,7 @@ function prepareDetailedMatches(matches: any[]): RequirementMatchDetail[] {
   return matches.map(match => ({
     requirement: match.requirement,
     score: match.score,
-    category: match.score >= 80 ? 'strong' : 
+    category: match.score >= 80 ? 'fit' : 
               match.score >= 60 ? 'developing' :
               match.score >= 30 ? 'weak' : 'missing',
     matchedSkills: match.matches.map((m: any) => m.candidateSkill),

@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Info } from "lucide-react"
+import { Info, SearchX, CheckCircle2 } from "lucide-react"
 import { CircularProgress } from "./circular-progress"
 import { RequirementAnalysisBadge } from "./requirement-analysis-badge"
 import { AnalysisStrategyBadge } from "./analysis-strategy-badge"
@@ -11,6 +11,39 @@ interface AnalysisResultsDisplayProps {
   candidateName?: string
   isNewCandidate?: boolean
 }
+
+// Fallback component for empty states
+const EmptyStateContent = ({ 
+  type, 
+  icon: Icon, 
+  primary, 
+  secondary 
+}: {
+  type: 'strengths' | 'gaps'
+  icon: any
+  primary: string
+  secondary: string
+}) => (
+  <div 
+    className="flex flex-col items-center justify-center py-8 px-4 text-center"
+    role="status"
+    aria-label={`No ${type} identified for this candidate`}
+  >
+    <div className={`mb-3 p-3 rounded-full ${
+      type === 'gaps' 
+        ? 'bg-[hsl(var(--match-fit-bg))] text-[hsl(var(--match-fit-text))]' // Use fit colors since no gaps is positive
+        : 'bg-[hsl(var(--match-fit-bg))] text-[hsl(var(--match-fit-text))]'
+    }`}>
+      <Icon className="h-6 w-6 md:h-5 md:w-5" />
+    </div>
+    <p className="text-sm font-medium text-foreground mb-2">
+      {primary}
+    </p>
+    <p className="text-xs text-muted-foreground max-w-[280px] leading-relaxed">
+      {secondary}
+    </p>
+  </div>
+)
 
 export function AnalysisResultsDisplay({ analysis, candidateName, isNewCandidate = false }: AnalysisResultsDisplayProps) {
   const data = getAnalysisData(analysis)
@@ -120,17 +153,26 @@ export function AnalysisResultsDisplay({ analysis, candidateName, isNewCandidate
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle className="text-[hsl(var(--match-strong-text))]">Strengths</CardTitle>
+                <CardTitle className="text-[hsl(var(--match-fit-text))]">Strengths</CardTitle>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-3">
-                  {data.summary.strengths.map((strength, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <div className="w-2 h-2 rounded-full bg-[hsl(var(--match-strong))] mt-2 flex-shrink-0" />
-                      <span className="text-sm leading-relaxed">{strength}</span>
-                    </li>
-                  ))}
-                </ul>
+                {data.summary.strengths.length > 0 ? (
+                  <ul className="space-y-3">
+                    {data.summary.strengths.map((strength, index) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <div className="w-2 h-2 rounded-full bg-[hsl(var(--match-fit))] mt-2 flex-shrink-0" />
+                        <span className="text-sm leading-relaxed">{strength}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <EmptyStateContent
+                    type="strengths"
+                    icon={SearchX}
+                    primary="No specific strengths identified in this analysis"
+                    secondary="This suggests the candidate may need significant development or that additional information is needed to identify their key strengths."
+                  />
+                )}
               </CardContent>
             </Card>
 
@@ -139,14 +181,23 @@ export function AnalysisResultsDisplay({ analysis, candidateName, isNewCandidate
                 <CardTitle className="text-[hsl(var(--match-missing-text))]">Gaps</CardTitle>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-3">
-                  {data.summary.gaps.map((gap, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <div className="w-2 h-2 rounded-full bg-[hsl(var(--match-missing))] mt-2 flex-shrink-0" />
-                      <span className="text-sm leading-relaxed">{gap}</span>
-                    </li>
-                  ))}
-                </ul>
+                {data.summary.gaps.length > 0 ? (
+                  <ul className="space-y-3">
+                    {data.summary.gaps.map((gap, index) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <div className="w-2 h-2 rounded-full bg-[hsl(var(--match-missing))] mt-2 flex-shrink-0" />
+                        <span className="text-sm leading-relaxed">{gap}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <EmptyStateContent
+                    type="gaps"
+                    icon={CheckCircle2}
+                    primary="No development gaps identified"
+                    secondary="This candidate appears to meet all job requirements well based on the available information."
+                  />
+                )}
               </CardContent>
             </Card>
           </div>

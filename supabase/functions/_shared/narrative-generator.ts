@@ -4,8 +4,10 @@
  * Focuses on proficiency level comparisons and evidence-based feedback
  * 
  * Updated: 2025-08-27 - Changed terminology from 'adequate' to 'developing'
- * Updated: 2025-08-27 - Fixed mandatory requirement counting (only 'strong' = met)
+ * Updated: 2025-08-27 - Fixed mandatory requirement counting (only 'fit' = met)
  * Updated: 2025-08-27 - Updated gaps detection to include 'developing' as unmet
+ * Updated: 2025-08-27 - Changed 'strong' to 'fit' for clearer requirement matching
+ * Updated: 2025-08-27 - Added context messaging for optional requirements below 'fit' threshold
  */
 
 import { 
@@ -122,9 +124,9 @@ async function generateRequirementFeedback(
 
     // Generate proficiency-focused feedback
     if (focusOnProficiency && requirement.proficiencyRequired) {
-      if (category === 'strong') {
+      if (category === 'fit') {
         const feedbackVariations = [
-          `Excellent match with strong proficiency in ${requirement.skill}. ${evidence.join(' ')}`,
+          `Excellent match with required proficiency in ${requirement.skill}. ${evidence.join(' ')}`,
           `Outstanding competency demonstrated in ${requirement.skill}. ${evidence.join(' ')}`,
           `Highly qualified with proven expertise in ${requirement.skill}. ${evidence.join(' ')}`
         ]
@@ -154,6 +156,11 @@ async function generateRequirementFeedback(
       }
     }
 
+    // Add context for optional requirements that don't meet "fit" threshold
+    if (requirement.importance === 'optional' && score < 80) {
+      feedback += ' As this is a nice-to-have skill, this doesn\'t impact the candidate\'s core fitness for the role.'
+    }
+
     return {
       requirement_name: requirement.skill,
       score: score,
@@ -175,14 +182,14 @@ async function generateStrengthsAndGaps(
   
   const allMatches = [...analysisResult.detailedMatches.mandatory, ...analysisResult.detailedMatches.optional]
   
-  // Identify strengths (strong matches only - developing/weak are gaps)
-  const strongMatches = allMatches.filter(m => m.category === 'strong')
+  // Identify strengths (fit matches only - developing/weak are gaps)
+  const fitMatches = allMatches.filter(m => m.category === 'fit')
     .sort((a, b) => b.score - a.score)
     .slice(0, maxStrengths)
 
-  const strengths = strongMatches.map(match => {
+  const strengths = fitMatches.map(match => {
     const strengthTemplates = [
-      `Strong proficiency in ${match.requirement.skill}`,
+      `Required proficiency in ${match.requirement.skill}`,
       `Proven expertise with ${match.requirement.skill}`,
       `Solid experience in ${match.requirement.skill}`,
       `Well-developed skills in ${match.requirement.skill}`,
@@ -256,27 +263,27 @@ async function generateRecruiterRecommendations(
       }
     }
 
-    if (category === 'developing' || category === 'strong') {
-      interviewStrategy.push("Explore leadership potential and cultural fit given strong technical foundation")
+    if (category === 'developing' || category === 'fit') {
+      interviewStrategy.push("Explore leadership potential and cultural fit given solid technical foundation")
       interviewStrategy.push("Discuss career growth trajectory and alignment with role responsibilities")
     }
 
     // Add behavioral assessment recommendations
-    const strongSkills = analysisResult.detailedMatches.mandatory
-      .filter(m => m.category === 'strong')
+    const fitSkills = analysisResult.detailedMatches.mandatory
+      .filter(m => m.category === 'fit')
       .map(m => m.requirement.skill)
     
-    if (strongSkills.length > 0) {
-      interviewStrategy.push(`Leverage strong ${strongSkills[0]} background for technical deep-dive discussions`)
+    if (fitSkills.length > 0) {
+      interviewStrategy.push(`Leverage proven ${fitSkills[0]} background for technical deep-dive discussions`)
     }
   }
 
   // Generate other recommendations based on match quality
-  if (category === 'strong') {
+  if (category === 'fit') {
     otherOptions = [
       "Excellent candidate - recommend fast-track interview process",
       "Consider for senior-level responsibilities within the role",
-      "Strong potential for mentoring junior team members"
+      "Great potential for mentoring junior team members"
     ]
   } else if (category === 'developing') {
     otherOptions = [
@@ -319,12 +326,12 @@ async function generateOverallFeedback(
   
   const mandatoryCount = analysisResult.jobInfo.requirementsCount.mandatory
   const mandatoryMet = analysisResult.detailedMatches.mandatory
-    .filter(m => m.category === 'strong').length
+    .filter(m => m.category === 'fit').length
 
   let feedback = ''
 
   // Score-based opening
-  if (category === 'strong') {
+  if (category === 'fit') {
     feedback = `This candidate demonstrates excellent alignment with the ${jobTitle} position, achieving a ${score}% match score. `
   } else if (category === 'developing') {
     feedback = `This candidate shows good potential for the ${jobTitle} role with a ${score}% match score. `
@@ -348,12 +355,12 @@ async function generateOverallFeedback(
   }
 
   // Add recommendation
-  if (category === 'strong') {
+  if (category === 'fit') {
     feedback += "Highly recommend proceeding with interview process."
   } else if (category === 'developing') {
     feedback += "Recommend interview with focus on identified gap areas."
   } else if (category === 'weak') {
-    feedback += "Consider only if candidate demonstrates strong learning agility and growth potential."
+    feedback += "Consider only if candidate demonstrates exceptional learning agility and growth potential."
   } else {
     feedback += "Recommend exploring alternative candidates better aligned with role requirements."
   }
@@ -369,8 +376,8 @@ function generateBasicFeedback(
   category: string, 
   isMandatory: boolean
 ): string {
-  if (category === 'strong') {
-    return `Strong expertise demonstrated in ${skill}`
+  if (category === 'fit') {
+    return `Required expertise demonstrated in ${skill}`
   } else if (category === 'developing') {
     return `Developing experience with ${skill} identified`
   } else if (category === 'weak') {

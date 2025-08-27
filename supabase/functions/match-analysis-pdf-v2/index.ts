@@ -286,11 +286,11 @@ function formatPDFResponse(
   narrativeOutputs: any
 ): any {
   // Count mandatory requirements for frontend compatibility
-  // Updated 2025-08-27: Only "strong" (80%+) counts as "met" for expert requirements
+  // Updated 2025-08-27: Only "fit" (80%+) counts as "met" for expert requirements
   const mandatoryMatches = analysisResult.detailedMatches.mandatory
   const totalMandatory = mandatoryMatches.length
   const matchedMandatory = mandatoryMatches.filter(match => 
-    match.category === 'strong'
+    match.category === 'fit'
   ).length
 
   return {

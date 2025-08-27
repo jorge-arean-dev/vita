@@ -184,7 +184,7 @@ function formatLinkedInResponse(
   const mandatoryMatches = analysisResult.detailedMatches.mandatory
   const totalMandatory = mandatoryMatches.length
   const matchedMandatory = mandatoryMatches.filter(match => 
-    match.category === 'strong'
+    match.category === 'fit'
   ).length
 
   return {

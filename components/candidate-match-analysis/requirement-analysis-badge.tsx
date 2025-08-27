@@ -6,7 +6,7 @@ function BadgeCircularProgress({ value, size = 18, strokeWidth = 2, status }: {
   value: number
   size?: number
   strokeWidth?: number
-  status: "strong" | "adequate" | "weak" | "missing"
+  status: "fit" | "developing" | "weak" | "missing"
 }) {
   const radius = (size - strokeWidth) / 2
   const circumference = radius * 2 * Math.PI
@@ -14,8 +14,10 @@ function BadgeCircularProgress({ value, size = 18, strokeWidth = 2, status }: {
   const strokeDashoffset = circumference - (value / 100) * circumference
 
   const getColor = (status: string) => {
-    if (status === "strong") return "stroke-[hsl(var(--match-strong))]"
-    if (status === "adequate") return "stroke-[hsl(var(--match-adequate))]"
+    if (status === "fit") return "stroke-[hsl(var(--match-fit))]"
+    if (status === "strong") return "stroke-[hsl(var(--match-strong))]" // Legacy support
+    if (status === "developing") return "stroke-[hsl(var(--match-developing))]"
+    if (status === "adequate") return "stroke-[hsl(var(--match-adequate))]" // Legacy support
     if (status === "weak") return "stroke-[hsl(var(--match-weak))]"
     if (status === "missing") return "stroke-[hsl(var(--match-missing))]"
     return "stroke-gray-500"
@@ -53,14 +55,16 @@ function BadgeCircularProgress({ value, size = 18, strokeWidth = 2, status }: {
 interface RequirementAnalysisBadgeProps {
   name: string
   score: number
-  status: "strong" | "adequate" | "weak" | "missing"
+  status: "fit" | "developing" | "weak" | "missing"
   onClick: () => void
 }
 
 export function RequirementAnalysisBadge({ name, score, status, onClick }: RequirementAnalysisBadgeProps) {
   const getBadgeColorClass = (status: string) => {
-    if (status === "strong") return "bg-[hsl(var(--match-strong-bg))] text-[hsl(var(--match-strong-text))] border-[hsl(var(--match-strong-border))]"
-    if (status === "adequate") return "bg-[hsl(var(--match-adequate-bg))] text-[hsl(var(--match-adequate-text))] border-[hsl(var(--match-adequate-border))]"
+    if (status === "fit") return "bg-[hsl(var(--match-fit-bg))] text-[hsl(var(--match-fit-text))] border-[hsl(var(--match-fit-border))]"
+    if (status === "strong") return "bg-[hsl(var(--match-strong-bg))] text-[hsl(var(--match-strong-text))] border-[hsl(var(--match-strong-border))]" // Legacy support
+    if (status === "developing") return "bg-[hsl(var(--match-developing-bg))] text-[hsl(var(--match-developing-text))] border-[hsl(var(--match-developing-border))]"
+    if (status === "adequate") return "bg-[hsl(var(--match-adequate-bg))] text-[hsl(var(--match-adequate-text))] border-[hsl(var(--match-adequate-border))]" // Legacy support
     if (status === "weak") return "bg-[hsl(var(--match-weak-bg))] text-[hsl(var(--match-weak-text))] border-[hsl(var(--match-weak-border))]"
     if (status === "missing") return "bg-[hsl(var(--match-missing-bg))] text-[hsl(var(--match-missing-text))] border-[hsl(var(--match-missing-border))]"
     return "bg-gray-50 text-gray-800 border-gray-200"

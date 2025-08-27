@@ -7,8 +7,10 @@ export function CircularProgress({ value, size = 120, strokeWidth = 8, className
   const strokeDashoffset = circumference - (value / 100) * circumference
 
   const getColor = (status: string) => {
-    if (status === "strong") return "stroke-[hsl(var(--match-strong))]"
-    if (status === "adequate") return "stroke-[hsl(var(--match-adequate))]"
+    if (status === "fit") return "stroke-[hsl(var(--match-fit))]"
+    if (status === "strong") return "stroke-[hsl(var(--match-strong))]" // Legacy support
+    if (status === "developing") return "stroke-[hsl(var(--match-developing))]"
+    if (status === "adequate") return "stroke-[hsl(var(--match-adequate))]" // Legacy support
     if (status === "weak") return "stroke-[hsl(var(--match-weak))]"
     if (status === "missing") return "stroke-[hsl(var(--match-missing))]"
     return "stroke-gray-500"

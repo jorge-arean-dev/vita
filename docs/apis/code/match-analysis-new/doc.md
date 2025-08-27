@@ -94,12 +94,12 @@ For each job requirement, the system searches for matches using multiple strateg
 
 ### Step 6: Score Categorization
 Final scores are categorized into four clear tiers:
-- **Strong** (80-100): Excellent fit for the role
+- **Fit** (80-100): Meets requirements, ready for role
 - **Developing** (60-79): Has skills but below required expert level
 - **Weak** (30-59): Some relevant skills but significant gaps
 - **Missing** (0-29): Poor fit with major skill gaps
 
-**Note**: Updated 2025-08-27 - Changed from "Adequate" to "Developing" for clearer requirement assessment. Only "Strong" matches count as meeting mandatory requirements.
+**Note**: Updated 2025-08-27 - Changed from "Adequate" to "Developing" and "Strong" to "Fit" for clearer requirement assessment. Only "Fit" matches count as meeting mandatory requirements.
 
 ## Key Intelligence Features
 
@@ -332,12 +332,12 @@ The unified match analysis system is built on six core TypeScript modules that p
 - Generates human-readable score explanations
 
 **Score Categories (Updated 2025-08-27):**
-- **Strong** (80-100%): Excellent fit, meets expert-level requirements
+- **Fit** (80-100%): Meets requirements, ready for role
 - **Developing** (60-79%): Has skills but below required expert level
 - **Weak** (30-59%): Limited skill present, significant development needed
 - **Missing** (0-29%): No evidence of skill, critical gap
 
-**Note**: Changed from "Adequate" to "Developing" for clearer requirement assessment.
+**Note**: Changed from "Adequate" to "Developing" and "Strong" to "Fit" for clearer requirement assessment.
 
 ### **narrative-generator.ts**
 **Human-Readable Output** - Generates recruiter insights, feedback, and recommendations.
@@ -355,7 +355,7 @@ The unified match analysis system is built on six core TypeScript modules that p
 - **Recruiter Recommendations**: Interview strategy and hiring advice
 - **Overall Feedback**: Holistic candidate assessment
 
-**Updated 2025-08-27**: Only "strong" matches count as strengths; "developing" skills are treated as gaps.
+**Updated 2025-08-27**: Only "fit" matches count as strengths; "developing" skills are treated as gaps.
 
 ### **skill-registry.ts**
 **Knowledge Database** - Contains comprehensive skill relationships and aliases.
@@ -390,14 +390,14 @@ finalScore = (skillMatchScore * 0.1) + (proficiencyMatchScore * 0.9)
 
 #### **4-Tier Categorization System**
 
-**Strong (80-100%): Expert-Level Match**
+**Fit (80-100%): Requirements Met**
 - Candidate meets or exceeds required proficiency level
-- Only "Strong" matches count as "meeting" mandatory requirements
+- Only "Fit" matches count as "meeting" mandatory requirements
 - Used for strength identification in narratives
 - Indicates interview-ready competency
 
-**Developing (60-79%): Below Expert Level**  
-- Candidate has the skill but below required expert proficiency
+**Developing (60-79%): Below Required Level**  
+- Candidate has the skill but below required proficiency level
 - Previously called "Adequate" - changed for clearer assessment
 - **Counts as gap/unmet requirement** for mandatory skills
 - Suggests training/mentoring needed
@@ -417,13 +417,13 @@ finalScore = (skillMatchScore * 0.1) + (proficiencyMatchScore * 0.9)
 **Mandatory Requirements (Base Score 0-100%):**
 - Must-have skills for the job
 - Averaged to create foundation score
-- **Only "Strong" (80%+) requirements count as "met"**
+- **Only "Fit" (80%+) requirements count as "met"**
 - Determines core competency assessment
 
 **Optional Requirements (Bonus 0-20%):**
 - Nice-to-have skills that differentiate candidates
 - **Can only add to score, never subtract** (additive system)
-- Based on percentage of optional requirements scored as "Strong"
+- Based on percentage of optional requirements scored as "Fit"
 - Maximum 20-point bonus to prevent score inflation
 
 **Final Score Calculation:**

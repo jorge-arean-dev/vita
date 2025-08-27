@@ -1,9 +1,10 @@
 /**
  * Score Calculator Module
  * Implements additive scoring system where optional requirements only boost scores
+ * Updated: 2025-08-27 - Changed 'strong' to 'fit' for clearer requirement matching
  */
 
-export type ScoreCategory = 'strong' | 'developing' | 'weak' | 'missing'
+export type ScoreCategory = 'fit' | 'developing' | 'weak' | 'missing'
 
 export interface RequirementScore {
   requirementId: string
@@ -36,14 +37,14 @@ export interface OverallScore {
 
 /**
  * Categorize a numeric score into 4-tier system
- * Updated: 2025-08-27 - Changed "adequate" to "developing" for clearer requirement assessment
- * - strong: score >= 80 (meets requirement)
+ * Updated: 2025-08-27 - Changed "adequate" to "developing" and "strong" to "fit"
+ * - fit: score >= 80 (meets requirement)
  * - developing: 60 <= score < 80 (has skill but below required level)
  * - weak: 30 <= score < 60 (limited skill present)
  * - missing: score < 30 (no evidence of skill)
  */
 export function categorizeScore(score: number): ScoreCategory {
-  if (score >= 80) return 'strong'
+  if (score >= 80) return 'fit'
   if (score >= 60) return 'developing'
   if (score >= 30) return 'weak'
   return 'missing'
@@ -149,9 +150,9 @@ function generateScoreExplanation(
   
   // Mandatory explanation
   if (mandatoryScore >= 80) {
-    parts.push(`Strongly meets ${mandatoryCount} mandatory requirement${mandatoryCount !== 1 ? 's' : ''}`)
+    parts.push(`Fits ${mandatoryCount} mandatory requirement${mandatoryCount !== 1 ? 's' : ''}`)
   } else if (mandatoryScore >= 60) {
-    parts.push(`Adequately meets mandatory requirements`)
+    parts.push(`Developing toward mandatory requirements`)
   } else if (mandatoryScore >= 30) {
     parts.push(`Weakly meets mandatory requirements`)
   } else {

@@ -101,7 +101,7 @@ export function useMatchAnalysis(
                     type: candidateType,
                     source: newCandidateMethod
                   },
-                  title: `Enhanced Match Analysis for ${candidateName}`,
+                  title: `Match Analysis for ${candidateName}`,
                   progressMessage: undefined
                 }
               : ma
@@ -124,12 +124,12 @@ export function useMatchAnalysis(
         updateProgress("🔍 Checking for enhanced data sources...")
         await new Promise(resolve => setTimeout(resolve, 300))
         
-        updateProgress("⚡ Running enhanced match analysis...")
+        updateProgress("⚡ Running match analysis...")
         await new Promise(resolve => setTimeout(resolve, 400))
         
         updateProgress("📊 Generating analysis results...")
         
-        // Use enhanced match analysis with smart routing
+        // Use match analysis with smart routing
         const enhancedResult = await runEnhancedMatchAnalysis(selectedExistingCandidate, jobId)
         
         if (!enhancedResult.success || !enhancedResult.data) {
@@ -147,7 +147,7 @@ export function useMatchAnalysis(
                     name: candidateName,
                     type: candidateType
                   },
-                  title: `Enhanced Match Analysis for ${candidateName}`,
+                  title: `Match Analysis for ${candidateName}`,
                   progressMessage: undefined,
                   analysisStrategy: enhancedResult.data?.analysisMetadata?.strategy,
                   rawDataSources: enhancedResult.data?.analysisMetadata?.rawDataSources
@@ -401,7 +401,7 @@ export function useMatchAnalysis(
         ? analysis.candidateInfo.source === "pdf"
           ? "Candidate created with enhanced resume data and match analysis saved successfully."
           : "Candidate created with enhanced LinkedIn data and match analysis saved successfully."
-        : "Enhanced match analysis saved successfully."
+        : "Match analysis saved successfully."
       
       toast({
         title: "Success",
