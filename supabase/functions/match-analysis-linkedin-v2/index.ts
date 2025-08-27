@@ -8,9 +8,11 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3'
 import { 
   analyzeCandidate, 
   processLinkedInData,
-  MatchAnalysisResult 
+  MatchAnalysisResult,
+  Candidate 
 } from '../_shared/core-matching-engine.ts'
 import { JobRequirement, CandidateSkill } from '../_shared/skill-matcher.ts'
+import { generateNarrativeOutputs } from '../_shared/narrative-generator.ts'
 
 // CORS headers
 const corsHeaders = {
@@ -116,8 +118,22 @@ serve(async (req) => {
       }
     )
 
-    // Step 4: Format response for backward compatibility  
-    const response = formatLinkedInResponse(analysisResult, candidate, linkedInProfile)
+    // Step 4: Generate narrative outputs using dedicated module
+    console.log('[LinkedIn API] Generating narrative outputs...')
+    const narrativeOutputs = await generateNarrativeOutputs(
+      analysisResult,
+      jobInfo.title,
+      {
+        focusOnProficiency: true,
+        includeInterviewStrategy: true,
+        maxStrengths: 5,
+        maxGaps: 5,
+        maxRecommendations: 4
+      }
+    )
+
+    // Step 5: Format response for backward compatibility  
+    const response = formatLinkedInResponse(analysisResult, candidate, linkedInProfile, narrativeOutputs)
 
     console.log('[LinkedIn API] Analysis complete:', {
       score: analysisResult.overallScore.totalScore,
@@ -159,7 +175,8 @@ serve(async (req) => {
 function formatLinkedInResponse(
   analysisResult: MatchAnalysisResult,
   candidate: any,
-  linkedInProfile: any
+  linkedInProfile: any,
+  narrativeOutputs: any
 ): any {
   // Count mandatory requirements for frontend compatibility
   const mandatoryMatches = analysisResult.detailedMatches.mandatory
@@ -180,32 +197,13 @@ function formatLinkedInResponse(
     match_analysis: {
       overall_score: analysisResult.overallScore.totalScore,
       status: analysisResult.overallScore.category,
-      overall_feedback: analysisResult.overallScore.explanation,
+      overall_feedback: narrativeOutputs.overall_feedback,
       matched_mandatory_requirements: matchedMandatory,
       total_mandatory_requirements: totalMandatory
     },
-    requirement_evaluations: [
-      ...analysisResult.detailedMatches.mandatory.map(match => ({
-        requirement_name: match.requirement.skill,
-        score: match.score,
-        status: match.category,
-        feedback: match.evidence
-      })),
-      ...analysisResult.detailedMatches.optional.map(match => ({
-        requirement_name: match.requirement.skill,
-        score: match.score,
-        status: match.category,
-        feedback: match.evidence
-      }))
-    ],
-    summary: {
-      strengths: analysisResult.overallScore.strengths || [],
-      gaps: analysisResult.overallScore.gaps || []
-    },
-    recruiter_recommendations: {
-      interview_strategy: analysisResult.overallScore.interviewStrategy || [],
-      other_options: analysisResult.overallScore.otherOptions || []
-    },
+    requirement_evaluations: narrativeOutputs.requirement_evaluations,
+    summary: narrativeOutputs.summary,
+    recruiter_recommendations: narrativeOutputs.recruiter_recommendations,
     metadata: {
       analysis_timestamp: new Date().toISOString(),
       job_id: 'temp-job-id',
