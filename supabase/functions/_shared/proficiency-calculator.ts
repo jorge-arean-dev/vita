@@ -51,20 +51,41 @@ export function calculateProficiencyMatch(
   
   if (candIndex >= reqIndex) {
     // Candidate meets or exceeds requirement
-    const bonus = Math.min(15, (candIndex - reqIndex) * 5)
-    return {
-      meets: true,
-      score: 100 + bonus, // Base 100 + bonus for overqualification
-      explanation: candIndex > reqIndex 
-        ? `Exceeds requirement (${candidateLevel} > ${requiredLevel})`
-        : `Meets requirement (${candidateLevel})`
+    if (candIndex > reqIndex) {
+      // Overqualified - give bonus points (capped at 100)
+      const bonus = Math.min(10, (candIndex - reqIndex) * 5)
+      return {
+        meets: true,
+        score: Math.min(100, 90 + bonus), // Base 90 + small bonus, capped at 100
+        explanation: `Exceeds requirement (${candidateLevel} > ${requiredLevel})`
+      }
+    } else {
+      // Exact match - full score
+      return {
+        meets: true,
+        score: 100, // Perfect match gets 100
+        explanation: `Meets requirement (${candidateLevel})`
+      }
     }
   } else {
-    // Candidate below requirement
-    const penalty = Math.min(30, (reqIndex - candIndex) * 15)
+    // Candidate below requirement - apply significant penalties
+    const gapSize = reqIndex - candIndex
+    let score: number
+    
+    if (gapSize === 1) {
+      // One level below (e.g., advanced vs expert)
+      score = 65
+    } else if (gapSize === 2) {
+      // Two levels below (e.g., beginner vs expert)
+      score = 35
+    } else {
+      // Should not happen with current 3-tier system, but handle gracefully
+      score = 20
+    }
+    
     return {
       meets: false,
-      score: Math.max(0, 70 - penalty), // Start from 70 and reduce
+      score,
       explanation: `Below requirement (${candidateLevel} < ${requiredLevel})`
     }
   }

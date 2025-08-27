@@ -2,6 +2,8 @@
  * Fallback Match Analysis API (formerly Enhanced Match Analysis v3)
  * Processes existing candidate data using unified matching engine
  * Used when LinkedIn/PDF data is not available
+ * 
+ * Updated: 2025-08-27 - Fixed mandatory requirement counting (only 'strong' = met)
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
@@ -189,7 +191,7 @@ function formatFallbackResponse(
   const mandatoryMatches = analysisResult.detailedMatches.mandatory
   const totalMandatory = mandatoryMatches.length
   const matchedMandatory = mandatoryMatches.filter(match => 
-    match.category === 'strong' || match.category === 'adequate'
+    match.category === 'strong'
   ).length
 
   return {

@@ -3,7 +3,7 @@
  * Implements additive scoring system where optional requirements only boost scores
  */
 
-export type ScoreCategory = 'strong' | 'adequate' | 'weak' | 'missing'
+export type ScoreCategory = 'strong' | 'developing' | 'weak' | 'missing'
 
 export interface RequirementScore {
   requirementId: string
@@ -36,14 +36,15 @@ export interface OverallScore {
 
 /**
  * Categorize a numeric score into 4-tier system
- * - strong: score >= 80
- * - adequate: 60 <= score < 80
- * - weak: 30 <= score < 60
- * - missing: score < 30
+ * Updated: 2025-08-27 - Changed "adequate" to "developing" for clearer requirement assessment
+ * - strong: score >= 80 (meets requirement)
+ * - developing: 60 <= score < 80 (has skill but below required level)
+ * - weak: 30 <= score < 60 (limited skill present)
+ * - missing: score < 30 (no evidence of skill)
  */
 export function categorizeScore(score: number): ScoreCategory {
   if (score >= 80) return 'strong'
-  if (score >= 60) return 'adequate'
+  if (score >= 60) return 'developing'
   if (score >= 30) return 'weak'
   return 'missing'
 }

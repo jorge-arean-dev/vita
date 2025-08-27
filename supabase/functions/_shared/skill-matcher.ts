@@ -1,6 +1,10 @@
 /**
  * Skill Matcher Module
  * Handles hierarchical and semantic skill matching
+ * 
+ * Version: 2025-08-27 - Proficiency-Focused Algorithm
+ * Major Change: Updated scoring weight from 70% skill + 30% proficiency 
+ *               to 10% skill + 90% proficiency for accurate experience-level evaluation
  */
 
 import { skillRegistry } from './skill-registry.ts'
@@ -179,21 +183,42 @@ function evaluateProficiencyMatch(
   requirement: JobRequirement,
   candidateSkill: CandidateSkill
 ): { meets: boolean; score: number; explanation: string } {
-  // Determine required proficiency level
-  const requiredLevel: ProficiencyLevel = requirement.yearsRequired 
-    ? mapYOEToProficiency(requirement.yearsRequired)
-    : 'beginner'
+  // Determine required proficiency level - prioritize explicit proficiency over years
+  let requiredLevel: ProficiencyLevel
+  if (requirement.proficiencyRequired) {
+    // Parse explicit proficiency requirement (e.g., "expert", "advanced")
+    const normalized = requirement.proficiencyRequired.toLowerCase()
+    if (normalized.includes('expert')) requiredLevel = 'expert'
+    else if (normalized.includes('advanced')) requiredLevel = 'advanced' 
+    else requiredLevel = 'beginner'
+  } else if (requirement.yearsRequired) {
+    // Fall back to mapping years to proficiency
+    requiredLevel = mapYOEToProficiency(requirement.yearsRequired)
+  } else {
+    requiredLevel = 'beginner'
+  }
   
-  // Determine candidate proficiency level  
-  const candidateLevel: ProficiencyLevel = candidateSkill.yearsOfExperience
-    ? mapYOEToProficiency(candidateSkill.yearsOfExperience)
-    : 'beginner'
+  // Determine candidate proficiency level - prioritize explicit proficiency over years
+  let candidateLevel: ProficiencyLevel
+  if (candidateSkill.proficiencyLevel) {
+    // Parse explicit candidate proficiency
+    const normalized = candidateSkill.proficiencyLevel.toLowerCase()
+    if (normalized.includes('expert')) candidateLevel = 'expert'
+    else if (normalized.includes('advanced')) candidateLevel = 'advanced'
+    else candidateLevel = 'beginner'
+  } else if (candidateSkill.yearsOfExperience) {
+    // Fall back to mapping years to proficiency
+    candidateLevel = mapYOEToProficiency(candidateSkill.yearsOfExperience)
+  } else {
+    candidateLevel = 'beginner'
+  }
   
   return calculateProficiencyMatch(requiredLevel, candidateLevel)
 }
 
 /**
  * Calculate score for a requirement based on best match
+ * Updated: 2025-08-27 - Changed to proficiency-focused weighting (10% skill + 90% proficiency)
  */
 function calculateRequirementScore(
   bestMatch: SkillMatch | null,
@@ -204,10 +229,11 @@ function calculateRequirementScore(
   // Base score from match confidence
   let score = bestMatch.confidence * 100
   
-  // Adjust for proficiency match
+  // Adjust for proficiency match - PROFICIENCY-FOCUSED ALGORITHM
   if (bestMatch.proficiencyMatch) {
-    // Weight: 70% skill match, 30% proficiency match
-    score = (score * 0.7) + (bestMatch.proficiencyMatch.score * 0.3)
+    // Weight: 10% skill match, 90% proficiency match
+    // This prioritizes "do they meet our experience level" over "do they have the skill"
+    score = (score * 0.1) + (bestMatch.proficiencyMatch.score * 0.9)
   }
   
   // Cap at 100

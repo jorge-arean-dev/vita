@@ -2,6 +2,10 @@
  * Narrative Generator Module
  * Generates recruiter insights, feedback, and recommendations based on match analysis results
  * Focuses on proficiency level comparisons and evidence-based feedback
+ * 
+ * Updated: 2025-08-27 - Changed terminology from 'adequate' to 'developing'
+ * Updated: 2025-08-27 - Fixed mandatory requirement counting (only 'strong' = met)
+ * Updated: 2025-08-27 - Updated gaps detection to include 'developing' as unmet
  */
 
 import { 
@@ -125,9 +129,9 @@ async function generateRequirementFeedback(
           `Highly qualified with proven expertise in ${requirement.skill}. ${evidence.join(' ')}`
         ]
         feedback = feedbackVariations[Math.floor(Math.random() * feedbackVariations.length)]
-      } else if (category === 'adequate') {
+      } else if (category === 'developing') {
         const feedbackVariations = [
-          `Good foundation in ${requirement.skill} with adequate experience. ${evidence.join(' ')}`,
+          `Good foundation in ${requirement.skill} with developing experience. ${evidence.join(' ')}`,
           `Solid competency in ${requirement.skill}. ${evidence.join(' ')}`,
           `Meets requirements for ${requirement.skill} with demonstrable experience. ${evidence.join(' ')}`
         ]
@@ -171,8 +175,8 @@ async function generateStrengthsAndGaps(
   
   const allMatches = [...analysisResult.detailedMatches.mandatory, ...analysisResult.detailedMatches.optional]
   
-  // Identify strengths (strong + adequate matches)
-  const strongMatches = allMatches.filter(m => m.category === 'strong' || m.category === 'adequate')
+  // Identify strengths (strong matches only - developing/weak are gaps)
+  const strongMatches = allMatches.filter(m => m.category === 'strong')
     .sort((a, b) => b.score - a.score)
     .slice(0, maxStrengths)
 
@@ -187,21 +191,28 @@ async function generateStrengthsAndGaps(
     return strengthTemplates[Math.floor(Math.random() * strengthTemplates.length)]
   })
 
-  // Identify gaps (weak + missing mandatory requirements)
+  // Identify gaps (developing + weak + missing mandatory requirements)
+  // Updated 2025-08-27: "developing" is now a gap since it doesn't meet expert requirements
   const gapMatches = allMatches.filter(m => 
-    (m.category === 'weak' || m.category === 'missing') && 
+    (m.category === 'developing' || m.category === 'weak' || m.category === 'missing') && 
     m.requirement.importance === 'mandatory'
   ).slice(0, maxGaps)
 
   const gaps = gapMatches.map(match => {
     if (match.category === 'missing') {
       return `Missing required expertise in ${match.requirement.skill}`
+    } else if (match.category === 'developing') {
+      const developingTemplates = [
+        `Developing proficiency in ${match.requirement.skill}`,
+        `${match.requirement.skill} experience below required expert level`,
+        `${match.requirement.skill} skills need advancement to expert level`
+      ]
+      return developingTemplates[Math.floor(Math.random() * developingTemplates.length)]
     } else {
       const gapTemplates = [
         `Limited experience with ${match.requirement.skill}`,
-        `Developing proficiency in ${match.requirement.skill}`,
         `Basic knowledge of ${match.requirement.skill} needs strengthening`,
-        `${match.requirement.skill} skills require further development`
+        `${match.requirement.skill} skills require significant development`
       ]
       return gapTemplates[Math.floor(Math.random() * gapTemplates.length)]
     }
@@ -245,7 +256,7 @@ async function generateRecruiterRecommendations(
       }
     }
 
-    if (category === 'adequate' || category === 'strong') {
+    if (category === 'developing' || category === 'strong') {
       interviewStrategy.push("Explore leadership potential and cultural fit given strong technical foundation")
       interviewStrategy.push("Discuss career growth trajectory and alignment with role responsibilities")
     }
@@ -267,7 +278,7 @@ async function generateRecruiterRecommendations(
       "Consider for senior-level responsibilities within the role",
       "Strong potential for mentoring junior team members"
     ]
-  } else if (category === 'adequate') {
+  } else if (category === 'developing') {
     otherOptions = [
       "Solid candidate worth pursuing with structured onboarding plan",
       "Consider pairing with experienced team member for knowledge transfer",
@@ -308,14 +319,14 @@ async function generateOverallFeedback(
   
   const mandatoryCount = analysisResult.jobInfo.requirementsCount.mandatory
   const mandatoryMet = analysisResult.detailedMatches.mandatory
-    .filter(m => m.category === 'strong' || m.category === 'adequate').length
+    .filter(m => m.category === 'strong').length
 
   let feedback = ''
 
   // Score-based opening
   if (category === 'strong') {
     feedback = `This candidate demonstrates excellent alignment with the ${jobTitle} position, achieving a ${score}% match score. `
-  } else if (category === 'adequate') {
+  } else if (category === 'developing') {
     feedback = `This candidate shows good potential for the ${jobTitle} role with a ${score}% match score. `
   } else if (category === 'weak') {
     feedback = `This candidate shows limited alignment with the ${jobTitle} position, scoring ${score}%. `
@@ -339,7 +350,7 @@ async function generateOverallFeedback(
   // Add recommendation
   if (category === 'strong') {
     feedback += "Highly recommend proceeding with interview process."
-  } else if (category === 'adequate') {
+  } else if (category === 'developing') {
     feedback += "Recommend interview with focus on identified gap areas."
   } else if (category === 'weak') {
     feedback += "Consider only if candidate demonstrates strong learning agility and growth potential."
@@ -360,8 +371,8 @@ function generateBasicFeedback(
 ): string {
   if (category === 'strong') {
     return `Strong expertise demonstrated in ${skill}`
-  } else if (category === 'adequate') {
-    return `Adequate experience with ${skill} identified`
+  } else if (category === 'developing') {
+    return `Developing experience with ${skill} identified`
   } else if (category === 'weak') {
     return `Limited proficiency in ${skill}${isMandatory ? ' - requires development for this role' : ''}`
   } else {

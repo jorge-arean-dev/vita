@@ -1,98 +1,708 @@
-✅ Match Analysis API Output: {
+  "candidate": {
+    "main": {
+      "first_name": "Jorge",
+      "last_name": "Arean",
+      "country": "AR",
+      "email": "jorge.arean@gmail.com",
+      "phone": "+5491128796633",
+      "linkedin": "https://linkedin.com/in/jorge-arean",
+      "github": ""
+    },
+    "skills": [
+      {
+        "name": "Technical Account Management",
+        "type": "role",
+        "yoe": 5.8,
+        "proficiency_level": "expert"
+      },
+      {
+        "name": "Software Engineering",
+        "type": "technology_domain",
+        "yoe": 10.3,
+        "proficiency_level": "expert"
+      },
+      {
+        "name": "Automation",
+        "type": "technology_domain",
+        "yoe": 10.3,
+        "proficiency_level": "expert"
+      },
+      {
+        "name": "Artificial Intelligence",
+        "type": "technology_domain",
+        "yoe": 5,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "Prompt Engineering",
+        "type": "technical_skill",
+        "yoe": 1.8,
+        "proficiency_level": "beginner"
+      },
+      {
+        "name": "Vibe Coding",
+        "type": "technical_skill",
+        "yoe": 1.8,
+        "proficiency_level": "beginner"
+      },
+      {
+        "name": "Client Relationship Management",
+        "type": "soft_skill",
+        "yoe": null,
+        "proficiency_level": null
+      },
+      {
+        "name": "Stakeholder Management",
+        "type": "soft_skill",
+        "yoe": null,
+        "proficiency_level": null
+      },
+      {
+        "name": "React",
+        "type": "technical_skill",
+        "yoe": 1.5,
+        "proficiency_level": "beginner"
+      },
+      {
+        "name": "Next.js",
+        "type": "technical_skill",
+        "yoe": 1.5,
+        "proficiency_level": "beginner"
+      },
+      {
+        "name": "GCP",
+        "type": "technical_skill",
+        "yoe": 3,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "SQL",
+        "type": "technical_skill",
+        "yoe": 3,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "Zapier",
+        "type": "technical_skill",
+        "yoe": 1.5,
+        "proficiency_level": "beginner"
+      },
+      {
+        "name": "n8n",
+        "type": "technical_skill",
+        "yoe": 1.5,
+        "proficiency_level": "beginner"
+      },
+      {
+        "name": "Python",
+        "type": "technical_skill",
+        "yoe": 5,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "Node.js",
+        "type": "technical_skill",
+        "yoe": 4,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "Docker",
+        "type": "technical_skill",
+        "yoe": 4,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "PLC Programming",
+        "type": "technical_skill",
+        "yoe": 6,
+        "proficiency_level": "expert"
+      },
+      {
+        "name": "Modbus TCP",
+        "type": "technical_skill",
+        "yoe": 4,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "Node-Red",
+        "type": "technical_skill",
+        "yoe": 4,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "Grafana",
+        "type": "technical_skill",
+        "yoe": 4,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "OPC-UA",
+        "type": "technical_skill",
+        "yoe": 4,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "InfluxDB",
+        "type": "technical_skill",
+        "yoe": 4,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "Cybersecurity",
+        "type": "technology_domain",
+        "yoe": 6,
+        "proficiency_level": "expert"
+      },
+      {
+        "name": "Cloud Services",
+        "type": "technology_domain",
+        "yoe": 6,
+        "proficiency_level": "expert"
+      },
+      {
+        "name": "Internet Of Things",
+        "type": "technology_domain",
+        "yoe": 6,
+        "proficiency_level": "expert"
+      },
+      {
+        "name": "Sales",
+        "type": "soft_skill",
+        "yoe": null,
+        "proficiency_level": null
+      },
+      {
+        "name": "Leadership",
+        "type": "soft_skill",
+        "yoe": null,
+        "proficiency_level": null
+      },
+      {
+        "name": "Communication",
+        "type": "soft_skill",
+        "yoe": null,
+        "proficiency_level": null
+      },
+      {
+        "name": "Team Leadership",
+        "type": "soft_skill",
+        "yoe": null,
+        "proficiency_level": null
+      },
+      {
+        "name": "Artificial Intelligence Specialist",
+        "type": "certification",
+        "yoe": null,
+        "proficiency_level": null
+      },
+      {
+        "name": "Data Scientist",
+        "type": "certification",
+        "yoe": null,
+        "proficiency_level": null
+      },
+      {
+        "name": "Android Developer",
+        "type": "certification",
+        "yoe": null,
+        "proficiency_level": null
+      },
+      {
+        "name": "Electronics Engineer",
+        "type": "certification",
+        "yoe": null,
+        "proficiency_level": null
+      }
+    ],
+    "years_of_experience": 10.3,
+    "raw_pdf_profile_text": "\n\n \nJorge Arean \nBuenos Aires, Argentina \n \nEmail: jorge.arean@gmail.com  |  Phone: +54 9 1128796633   |   \nlinkedin.com/in/jorge-arean  \n \nSummary \nExperienced professional with a strong background in technical account management, software \nengineering, automation and AI. \nI bring a strong technical combined with a growing specialization in product development \npowered by AI tools. Skilled in prompt engineering, vibe coding and automation, I leverage \nthese capabilities to accelerate product cycles and optimize internal systems. My track record \nincludes building AI-integrated tools and platforms, aligning product features with business \ngoals, and driving innovation through automation and emerging technologies.  \nWith a strong client-facing background developed through years in account management and \nsales, I bring a client-centric mindset to every product I build, ensuring solutions are not only \ntechnically sound but also deeply aligned with user needs and market demands. \nExperience \nTechnical Account Manager, Genium \nFeb 2024 - Present \nGenium is a software development agency that connects innovative companies with world-class \ndevelopers, engineers, and security experts. As a Technical Account Manager, I’m responsible \nfor: \n● Maintaining and nurturing client relationships, ensuring high levels of client satisfaction. \n● Assisting and supporting development teams with stakeholder management, acting as a \nliaison between developers and client stakeholders. \n● Conducting regular performance reviews with both clients and development teams to \nensure quality output and high performance. \n● Upselling additional development and engineering positions to existing clients, \ncontributing to business growth. \n● Hosting client meetings to track progress, occasionally presenting technical proposals, \nand discussing company goals. \n● Developing performance review processes for development team leads, equipping them \nwith tools to effectively assess developers. \n\n \n \nHead of Operations, FullStackRemote \nJan 2024 - July 2025 \nFullStackRemote is a US-based startup specializing in connecting pre-vetted engineering talent \nwith global companies. As Head of Operation, I led initiatives across product engineering and \noperations with a deep focus on AI tool integration. \nOperations: \n● Systematized processes to maintain a consistent high-caliber talent pipeline. \n● Implemented automated systems leveraging AI to improve matching and screening \nworkflows using n8n and Zapier \n● Performed talent database migration to GCP for scalability. \nProduct Management & Engineering: \n● Built the company’s internal React-based (Next.js) ATS from the ground up \n● Served as both product manager and engineer, integrating prompt engineering and vibe \ncoding into the development workflow. \n● Led the creation of an AI-based screening system to automate candidate evaluations. \nSales and Business Development: \n● Worked closely with the CEO to identify and pursue new business opportunities. \n● Streamlined the talent-matching process, ensuring optimal matches between clients and \ncandidates in our network. \nImpact/Achievements \n✓ Successfully launched an MVP version of the AI Technical Screener. \n✓ Released the first MVP of the company’s ATS. \n✓ Implemented a SQL-based storage infrastructure on GCP, enhancing operational \nefficiency. \n✓ Developed an interactive real-time dashboard to improve internal operations. \n✓ Led team efforts to improve overall efficiency and workflows \n \n\n \nOperations Manager, Toptal \nJun 2022 - Jan 2024 \n \nAs an Operations Manager, I served as a bridge between Talent Ops and new business \nlaunches for Toptal offerings. Additionally, I collaborated across all Talent Ops functions and the \nPractices team to formulate and implement the Talent Strategy for Toptal.  \nMy role included developing methods to ensure the right level of high-quality talent supply at the \nright time, with the required skill sets to meet the current and future needs of Toptal offerings.  \n \nResponsibilities:  \n● Ensured seamless adaptation of Talent Ops functions (Matching, Supply, Screening, \nTalent Success) to new Toptal offerings. This included providing continuous support to \nTalent Ops teams on new Toptal offerings through trainings, ongoing supervision, and \nacting as a facilitator with Subject Matter Experts (SMEs) from the Practices Team when \nneeded.  \n● Served as the main point of contact from Talent Ops for the Practices Team, a team \ncomposed of SMEs responsible for creating new Toptal offerings in diverse tech fields.  \n● Coordinated Matching team efforts for client opportunities related to new Toptal offerings. \n● Collaborated with external teams to formalize and document vague and/or unclear \nprocesses.  \nImpact/Achievements \n✓ Actively contributed to the launch of new Toptal offerings in IT Security, Cloud Services, \nand Data and Analytics. This included documenting screening processes and setting up \nsourcing infrastructure to adapt to market needs  \n✓ Utilized available data to create diverse data analysis tools and dashboards that \nenhanced team visibility into processes and facilitated decision-making.  \n✓ Developed and launched a Product Lifecycle Model to define the level of effort required \nfrom the Talent Ops team for new Toptal offerings and business launches  \nTechnical Enterprise Account Manager, Toptal \nJan 2021 - Jun 2022 \n \nAs a Technical Enterprise Account Manager, I collaborated with Fortune 500 companies from \nthe US market, assisting them in building teams with on-demand tech talent. These teams were \nformed by Software Engineers skilled in a diverse range of technologies as well as C-level tech \nroles  \nAs in my previous role, I worked with a diverse range of software technologies (front/back-end \nframeworks, blockchain, cloud services AI, Data, and Analytics, and enterprise software \nintegrations with 3rd party apps and APIs, etc) and also worked closely with clients' Engineering \nTeams to understand their requirements and needs.  \n\n \nThis role marked a career growth from my previous position, as the companies I collaborated \nwith constituted a more significant portion of the company's revenue  \n \nResponsibilities:  \n● Technical Account Management  \n● Gathering project technical requirements  \n● Technical Specialized Recruitment: Performing detailed and customized searches in the \nTop 3% Developers' Network according to the gathered set of requirements  \n● Building developers' teams and Assessing developers who are a potential fit for clients' \nprojects. \n● Assisting clients and developers once the projects/engagements start with any \nissues/inconveniences that may come up.  \n● Providing technical support to the sales team.  \n● Working alongside the sales team to make the company grow increasing Toptal's clients' \nportfolio.  \nImpact/Achievements \nI consistently reached and exceeded team targets which included:  \n✓ Opportunities conversion rate,  \n✓ Speed in fulfilling opportunities  \n✓ Quality of talent delivered  \n✓ Client satisfaction  \nSenior Technical Account Manager, Toptal \nFeb 2020 - Dec 2020 \n \nAs a Technical Account Manager, I collaborated with diverse worldwide companies (US, LATAM, \nEMEA, APAC), assisting them in building teams with on-demand tech talent. These teams were \nformed by Software Engineers skilled in a diverse range of technologies, as well as C-level tech \nroles.  \nTechnologies I worked with included front/back-end software development frameworks, \nblockchain, cloud services (AWS, GCP, Azure, and others), artificial intelligence (AI), enterprise \nsoftware integrations with 3rd party apps and APIs, and Internet of Things (IoT), Cybersecurity, \namong others.  \nMy role as a Technical Account Manager included full ownership of the account, involving \nstakeholder management with the client's Point of Contact (PoC), and close interaction with the \nclient's technical team to understand their requirements. I found the best possible candidates for \nthem within Toptal’s talent network. My tasks also involved ensuring successful collaboration \nbetween talent and clients by resolving any potential issues.  \n \nResponsibilities:  \n● Technical Account Management \n● Gathering project technical requirements  \n\n \n● Technical Specialized Recruitment: Performing detailed and customized searches in the \nTop 3% Developers' Network according to the gathered set of requirements  \n● Building developers' teams: Assessing developers who are a potential fit for clients' \nprojects. Assisting clients and developers once the projects/engagements start with any \nissues or inconveniences that may arise.  \n● Non-technical Account Management: Ensuring account growth through proactive \nactions.  \nImpact/Achievements \nI consistently reached and exceeded team targets, including:  \n✓ Volume of generated opportunities  \n✓ Opportunities conversion rate  \n✓ Speed in fulfilling opportunities  \n✓ Quality of talent delivered  \n✓ Client satisfaction  \nSenior Sales Engineer, ABB \nJul 2017 - Feb 2020 \n \nAs a Sales Engineer in the Industrial Automation Division, I was responsible for maintaining the \nclient base and growing the business within diverse industry segments, including Oil & Gas, \nChemical, and Petrochemical. My responsibilities encompassed promoting and providing \nexpertise on a range of products and services such as SCADA, DCS, PLC, HMI, Cybersecurity, \nCloud Services tailored for Industry Segments, Predictive Maintenance and Condition \nMonitoring, and the Industrial Internet of Things.  \n \nResponsibilities:  \n● Technical Account Management  \n● Supported internal and external customers/sales channels in determining best-in-class \nsolutions that fulfill all engineering and commercial requirements  \n● Drew up proposals for Distributed Control Systems by evaluating customer needs and \nproject specifications (Upgrades, Greenfield/Brownfield Projects)  \n● Provided technical clarifications to customer specifications as part of the technical \nsolution proposed by the company  \n● Provided engineering expertise during technical meetings, customer presentations, and \nnegotiations. - Conducting risk/project reviews, attending customer events, trade shows, \nworkshops, and seminars, and contributing to training for customers and sales team  \n● Enabled and promoted ABB Cybersecurity Services offering in the LATAM market.  \nOwner, IoTeam \nSep 2019 - Feb 2020 \n \n\n \nIoTeam specializes in developing and delivering IoT-based solutions that help companies \nmodernize their infrastructure, enabling digitalization, remote control, and data availability to \nfacilitate a comprehensive view of processes for informed decision-making.  \n \nResponsibilities:  \n● Hosted and facilitated client meetings to understand business and technical needs. \n● Managed and executed engineering efforts including development tasks and \ncoordinating with other technical teams. \nProjects Delivered  \n✓ Remote Control for existing PLC-controlled process: This project involved the \ndevelopment of a Raspberry Pi-embedded ModbusTCP - HTTP gateway. It enabled an \nIndustrial controller (M241 Schneider Electric PLC) to send and receive data, facilitating \nremote control via a web-based SCADA. Technologies: Raspberry Pi, Node-Red, \nNode.js, Docker, Python, PLC Programming, Modbus TCP  \n✓ Real-time Dashboard for Pharmaceutical plant (MVP): This project consisted of the \nimplementation of a real-time dashboard to visualize relevant variables belonging to \ncrucial batch processes from a Pharmaceutical plant. This project not only involved \ndeveloping the dashboard but also included implementing necessary methods to collect \ndata from existing controllers (PLCs). Technologies: Grafana, Node-red, OPC-UA, \nPython, InfluxDB, Industrial Communication Protocols  \nProduct Application Engineer, Schneider Electric \nJun 2014 - Jul 2017 \n \nAs a Product Application Engineer in the Marketing Industry Division, I played a pivotal role in \npromoting and selling a comprehensive product portfolio in Industrial Automation, featuring \nPLCs, Variable Speed Drives, HMI, Sensors, and more. Employing a consultative \nsolution/product selling approach, I strategically engaged with specific target clients such as \nOEMs, End Users, and System Integrators  \nA significant aspect of my role involved serving as a product-oriented Technical Account \nManager, offering invaluable support to existing clients with specific technical needs. I excelled \nin troubleshooting various challenges related to PLCs, communication issues, HMI, and more.  \nAdditionally, I delivered compelling presentations to promote new product offerings at major \nclient events. This experience honed my public speaking skills, contributing significantly to my \noverall professional development.  \n \nResponsibilities:  \n● Provided comprehensive application, technical, and commercial support to Schneider \nElectric distributors and customers. \n● Conducted professional technical training sessions for engineers, customer personnel, \ninternal sales teams, and industry professionals. \n\n \n● Drove sales growth by sharing in-depth application knowledge with Application \nEngineers, Sales personnel, and Channel partners.  \n● Served as a Technical Account Manager, addressing specific client needs and \ntroubleshooting technical issues.  \n● Developed and coordinated a network of strategic partners, including Panel Builders, \nContractors, and OEMs.  \n● Set ambitious goals, developed sales/business plans, and established effective warm \nand cold call plans and strategies.  \n● Created and executed a sales plan to achieve year-over-year sales growth.  \n● Provided detailed call activity reporting and consistent updates through Salesforce.com. \n● Worked with clients from diverse industry markets, including Mining, Minerals & Metal, \nAutomotive, Food & Beverage, Oil & Gas, and Refrigeration.  \nEducation \nArtificial Intelligence Specialist (2019), Digital House \nI completed a 1-year training program designed as the next stage of the Data Scientist \nspecialization course. \nSkills: Neural networks, including dense, convolutional, LSTM, GAN, and Autoencoders. - \nProgramming Language: Python, utilizing essential libraries such as NumPy and Pandas. \nData Scientist (2018), Digital House \nI completed a 1-year specialization course that comprehensively covered the entire Data \nScientist path, from fundamental Statistics concepts to deploying Machine Learning algorithms. \nAndroid Developer (2016), Universidad Tecnologica Nacional \nI completed a 6-month specialized training program in Android Development, providing me with \na strong understanding and practical exposure to Java, Android, and REST APIs. \nElectronics Engineer (2013), Universidad Nacional de Mar del \nPlata \nI completed my Electronics Engineering degree with distinction, earning an average grade of 8 \nout of 10. I was honored with recognition as one of the Distinguished Academic Awardees of the \n2013 promotion  \n \n "
+  },
+  "job": {
+    "attributes": {
+      "title": "Fullstack Engineer (React+Node)",
+      "rate": {
+        "value": "",
+        "freq": "hourly"
+      },
+      "commitment": "full_time",
+      "duration": "permanent",
+      "location": {
+        "category": "remote_global",
+        "regions": [],
+        "countries": []
+      }
+    },
+    "requirements": [
+      {
+        "requirement": "React",
+        "type": "technical_skill",
+        "is_mandatory": true,
+        "proficiency_level": "expert",
+        "weight": 1
+      },
+      {
+        "requirement": "Node",
+        "type": "technical_skill",
+        "is_mandatory": true,
+        "proficiency_level": "expert",
+        "weight": 1
+      },
+      {
+        "requirement": "WordPress",
+        "type": "technical_skill",
+        "is_mandatory": false,
+        "proficiency_level": "beginner",
+        "weight": 0.1
+      },
+      {
+        "requirement": "Ecommerce",
+        "type": "technology_domain",
+        "is_mandatory": false,
+        "proficiency_level": "beginner",
+        "weight": 0.1
+      },
+      {
+        "requirement": "Financial Services",
+        "type": "industry",
+        "is_mandatory": false,
+        "proficiency_level": null,
+        "weight": 0.5
+      },
+      {
+        "requirement": "Inclusion",
+        "type": "soft_skill",
+        "is_mandatory": false,
+        "proficiency_level": null,
+        "weight": 0.5
+      },
+      {
+        "requirement": "Team Building",
+        "type": "soft_skill",
+        "is_mandatory": false,
+        "proficiency_level": null,
+        "weight": 0.5
+      },
+      {
+        "requirement": "Teamwork",
+        "type": "soft_skill",
+        "is_mandatory": false,
+        "proficiency_level": null,
+        "weight": 0.5
+      },
+      {
+        "requirement": "Collaboration",
+        "type": "soft_skill",
+        "is_mandatory": false,
+        "proficiency_level": null,
+        "weight": 0.5
+      }
+    ]
+  }
+}
+✅ PDF Match Analysis API Output: {
+  "success": true,
+  "candidate": {
+    "name": "Jorge Arean",
+    "email": "jorge.arean@gmail.com",
+    "skills": [
+      {
+        "name": "Technical Account Management",
+        "yearsOfExperience": 5.8,
+        "proficiencyLevel": "expert",
+        "type": "role",
+        "source": "parsed"
+      },
+      {
+        "name": "Software Engineering",
+        "yearsOfExperience": 10.3,
+        "proficiencyLevel": "expert",
+        "type": "technology_domain",
+        "source": "parsed"
+      },
+      {
+        "name": "Automation",
+        "yearsOfExperience": 10.3,
+        "proficiencyLevel": "expert",
+        "type": "technology_domain",
+        "source": "parsed"
+      },
+      {
+        "name": "Artificial Intelligence",
+        "yearsOfExperience": 5,
+        "proficiencyLevel": "advanced",
+        "type": "technology_domain",
+        "source": "parsed"
+      },
+      {
+        "name": "Prompt Engineering",
+        "yearsOfExperience": 1.8,
+        "proficiencyLevel": "beginner",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Vibe Coding",
+        "yearsOfExperience": 1.8,
+        "proficiencyLevel": "beginner",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Client Relationship Management",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "soft_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Stakeholder Management",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "soft_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "React",
+        "yearsOfExperience": 1.5,
+        "proficiencyLevel": "beginner",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Next.js",
+        "yearsOfExperience": 1.5,
+        "proficiencyLevel": "beginner",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "GCP",
+        "yearsOfExperience": 3,
+        "proficiencyLevel": "advanced",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "SQL",
+        "yearsOfExperience": 3,
+        "proficiencyLevel": "advanced",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Zapier",
+        "yearsOfExperience": 1.5,
+        "proficiencyLevel": "beginner",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "n8n",
+        "yearsOfExperience": 1.5,
+        "proficiencyLevel": "beginner",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Python",
+        "yearsOfExperience": 5,
+        "proficiencyLevel": "advanced",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Node.js",
+        "yearsOfExperience": 4,
+        "proficiencyLevel": "advanced",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Docker",
+        "yearsOfExperience": 4,
+        "proficiencyLevel": "advanced",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "PLC Programming",
+        "yearsOfExperience": 6,
+        "proficiencyLevel": "expert",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Modbus TCP",
+        "yearsOfExperience": 4,
+        "proficiencyLevel": "advanced",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Node-Red",
+        "yearsOfExperience": 4,
+        "proficiencyLevel": "advanced",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Grafana",
+        "yearsOfExperience": 4,
+        "proficiencyLevel": "advanced",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "OPC-UA",
+        "yearsOfExperience": 4,
+        "proficiencyLevel": "advanced",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "InfluxDB",
+        "yearsOfExperience": 4,
+        "proficiencyLevel": "advanced",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Cybersecurity",
+        "yearsOfExperience": 6,
+        "proficiencyLevel": "expert",
+        "type": "technology_domain",
+        "source": "parsed"
+      },
+      {
+        "name": "Cloud Services",
+        "yearsOfExperience": 6,
+        "proficiencyLevel": "expert",
+        "type": "technology_domain",
+        "source": "parsed"
+      },
+      {
+        "name": "Internet Of Things",
+        "yearsOfExperience": 6,
+        "proficiencyLevel": "expert",
+        "type": "technology_domain",
+        "source": "parsed"
+      },
+      {
+        "name": "Sales",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "soft_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Leadership",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "soft_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Communication",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "soft_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Team Leadership",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "soft_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Artificial Intelligence Specialist",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "certification",
+        "source": "parsed"
+      },
+      {
+        "name": "Data Scientist",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "certification",
+        "source": "parsed"
+      },
+      {
+        "name": "Android Developer",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "certification",
+        "source": "parsed"
+      },
+      {
+        "name": "Electronics Engineer",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "certification",
+        "source": "parsed"
+      },
+      {
+        "name": "AI",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "technical_skill",
+        "source": "resume"
+      },
+      {
+        "name": "GCP (Google Cloud Platform)",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "technical_skill",
+        "source": "resume"
+      },
+      {
+        "name": "Data Analysis",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "technical_skill",
+        "source": "resume"
+      },
+      {
+        "name": "Blockchain",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "technical_skill",
+        "source": "resume"
+      },
+      {
+        "name": "Internet of Things (IoT)",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "technical_skill",
+        "source": "resume"
+      },
+      {
+        "name": "Artificial Intelligence (AI)",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "technical_skill",
+        "source": "resume"
+      },
+      {
+        "name": "Enterprise Software Integrations",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "technical_skill",
+        "source": "resume"
+      },
+      {
+        "name": "Sales Skills",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "soft_skill",
+        "source": "resume"
+      },
+      {
+        "name": "Problem Solving",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "soft_skill",
+        "source": "resume"
+      },
+      {
+        "name": "Communication Skills",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "soft_skill",
+        "source": "resume"
+      }
+    ],
+    "experience": 10.3
+  },
   "match_analysis": {
-    "overall_score": 0,
-    "status": "missing",
-    "overall_feedback": "This candidate is not a good fit; consider other options unless more information becomes available.",
+    "overall_score": 56,
+    "status": "weak",
+    "overall_feedback": "This candidate shows limited alignment with the Fullstack Engineer (React+Node) position, scoring 56%. They meet 0 out of 2 mandatory requirements. Areas needing attention include basic knowledge of react needs strengthening and node experience below required expert level. Consider only if candidate demonstrates strong learning agility and growth potential.",        
     "matched_mandatory_requirements": 0,
     "total_mandatory_requirements": 2
   },
   "requirement_evaluations": [
     {
       "requirement_name": "React",
-      "score": 0,
-      "status": "missing",
-      "feedback": "The candidate has 5 years of experience with React, but the job requires an expert level of proficiency. This gap indicates that while Joe has foundational knowledge, he may not have the depth of experience needed for complex projects."
+      "score": 42,
+      "status": "weak",
+      "feedback": "Basic exposure to React detected but proficiency level may need development for this role."
     },
     {
       "requirement_name": "Node",
-      "score": 0,
-      "status": "missing",
-      "feedback": "Joe has 4 years of experience with Node.js, yet the position demands expert-level proficiency. This suggests he may lack the advanced skills necessary for high-level backend development tasks."
+      "score": 69,
+      "status": "developing",
+      "feedback": "Good foundation in Node with developing experience. Exact match with Node.js (Below requirement (advanced < expert))"
     },
     {
       "requirement_name": "WordPress",
       "score": 0,
       "status": "missing",
-      "feedback": "Although WordPress is not a mandatory requirement, Joe has no experience in this area. This could be a concern if the role involves any integration with WordPress sites."
+      "feedback": "No clear evidence of WordPress experience found. Critical gap that needs addressing."
     },
     {
       "requirement_name": "Ecommerce",
       "score": 0,
       "status": "missing",
-      "feedback": "Joe does not have experience in the Ecommerce domain, which is not mandatory but could be beneficial for the role. This may limit his ability to contribute to projects in this area."
+      "feedback": "No clear evidence of Ecommerce experience found. Critical gap that needs addressing."
     },
     {
       "requirement_name": "Financial Services",
       "score": 0,
       "status": "missing",
-      "feedback": "The candidate lacks specific experience in the Financial Services industry, which is not mandatory but would enhance his fit for the role, especially if the projects are finance-related."
+      "feedback": "No evidence of Financial Services experience found"
     },
     {
       "requirement_name": "Inclusion",
       "score": 0,
       "status": "missing",
-      "feedback": "Joe has not demonstrated any specific skills related to inclusion, which is not mandatory but could be valuable in fostering a diverse team environment."
+      "feedback": "No evidence of Inclusion experience found"
     },
     {
       "requirement_name": "Team Building",
       "score": 0,
       "status": "missing",
-      "feedback": "While Joe has not explicitly shown experience in team building, his background suggests potential in this area, particularly given his leadership roles."
+      "feedback": "No evidence of Team Building experience found"
     },
     {
       "requirement_name": "Teamwork",
-      "score": 0,
-      "status": "missing",
-      "feedback": "Joe has experience in teamwork, which is beneficial for collaboration in a team setting. However, specific examples of this experience would need to be clarified."
+      "score": 60,
+      "status": "developing",
+      "feedback": "Developing experience with Teamwork identified"
     },
     {
       "requirement_name": "Collaboration",
-      "score": 0,
-      "status": "missing",
-      "feedback": "There is no specific evidence of collaboration skills provided, which could be important for team dynamics and project success."
+      "score": 60,
+      "status": "developing",
+      "feedback": "Developing experience with Collaboration identified"
     }
   ],
   "summary": {
-    "strengths": [
-      "18 years of overall experience in software development.",
-      "Advanced proficiency in multiple programming languages including JavaScript, Python, and Java.",
-      "Strong experience with databases such as PostgreSQL, MySQL, and MongoDB.",
-      "Experience in microservices architecture and REST APIs."
-    ],
+    "strengths": [],
     "gaps": [
-      "Missing expert-level proficiency in both React and Node.js, which are critical for the role.",
-      "No experience with WordPress, which may be relevant for some projects.",
-      "Lack of experience in the Ecommerce domain, which could limit contributions.",
-      "No demonstrated experience in Financial Services, which could be relevant depending on the projects."       
+      "Basic knowledge of React needs strengthening",
+      "Node experience below required expert level"
     ]
   },
   "recruiter_recommendations": {
     "interview_strategy": [
-      "Assess Joe's practical experience with React and Node.js through coding challenges or project discussions.",
-      "Explore his teamwork and leadership experiences to gauge his ability to collaborate effectively.",
-      "Discuss any relevant projects that may involve Ecommerce or Financial Services to understand his adaptability."
+      "Focus interview on assessing practical experience with: React",
+      "Ask specific scenario-based questions about recent projects involving these technologies"
     ],
     "other_options": [
-      "Consider positioning Joe for roles that require strong backend skills but may not be as focused on React and Node.js.",
-      "Explore opportunities in companies that value diverse skill sets and are willing to invest in training for specific technologies.",
-      "Look for roles that emphasize backend development and microservices, where his strengths can be maximized." 
+      "Consider for junior role or with extended training period",
+      "May be suitable if willing to invest in skill development",
+      "Assess cultural fit and learning agility during interview"
     ]
   },
   "metadata": {
-    "analysis_timestamp": "2025-08-20T00:28:59.132Z",
-    "job_id": "placeholder_job_id",
-    "candidate_id": "placeholder_candidate_id",
-    "algorithm_version": "1.0",
-    "total_processing_time_ms": 9664
+    "analysis_timestamp": "2025-08-27T16:07:42.388Z",
+    "job_id": "temp-job-id",
+    "candidate_id": "temp-candidate-id",
+    "algorithm_version": "pdf-v2.0-unified",
+    "total_processing_time_ms": 0,
+    "resume_length": 14991
   }
 }

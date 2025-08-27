@@ -1,6 +1,8 @@
 /**
  * LinkedIn Match Analysis API
  * Processes LinkedIn profile data using unified matching engine
+ * 
+ * Updated: 2025-08-27 - Fixed mandatory requirement counting (only 'strong' = met)
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
@@ -182,7 +184,7 @@ function formatLinkedInResponse(
   const mandatoryMatches = analysisResult.detailedMatches.mandatory
   const totalMandatory = mandatoryMatches.length
   const matchedMandatory = mandatoryMatches.filter(match => 
-    match.category === 'strong' || match.category === 'adequate'
+    match.category === 'strong'
   ).length
 
   return {

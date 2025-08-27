@@ -87,7 +87,8 @@ serve(async (req) => {
       skills: skills.map(skill => ({
         name: skill.name,
         yearsOfExperience: skill.yoe,
-        proficiency: skill.proficiency_level,
+        proficiencyLevel: skill.proficiency_level,
+        type: skill.type,
         source: skill.source || 'parsed'
       }))
     }
@@ -285,10 +286,11 @@ function formatPDFResponse(
   narrativeOutputs: any
 ): any {
   // Count mandatory requirements for frontend compatibility
+  // Updated 2025-08-27: Only "strong" (80%+) counts as "met" for expert requirements
   const mandatoryMatches = analysisResult.detailedMatches.mandatory
   const totalMandatory = mandatoryMatches.length
   const matchedMandatory = mandatoryMatches.filter(match => 
-    match.category === 'strong' || match.category === 'adequate'
+    match.category === 'strong'
   ).length
 
   return {

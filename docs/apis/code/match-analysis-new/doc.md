@@ -95,9 +95,11 @@ For each job requirement, the system searches for matches using multiple strateg
 ### Step 6: Score Categorization
 Final scores are categorized into four clear tiers:
 - **Strong** (80-100): Excellent fit for the role
-- **Adequate** (60-79): Good fit with minor gaps
+- **Developing** (60-79): Has skills but below required expert level
 - **Weak** (30-59): Some relevant skills but significant gaps
 - **Missing** (0-29): Poor fit with major skill gaps
+
+**Note**: Updated 2025-08-27 - Changed from "Adequate" to "Developing" for clearer requirement assessment. Only "Strong" matches count as meeting mandatory requirements.
 
 ## Key Intelligence Features
 
@@ -260,6 +262,203 @@ For **existing candidates without LinkedIn or PDF raw data**, the system uses `m
 4. Relies on stored candidate information (years of experience, skill levels)
 
 The fallback API is designed to work with **minimal data requirements** and can generate comprehensive match analysis with just basic candidate info and structured skills list.
+
+## Shared Module Architecture (`supabase/functions/_shared/`)
+
+The unified match analysis system is built on six core TypeScript modules that provide consistent intelligence across all three APIs. Each module has a specific responsibility in the analysis pipeline:
+
+### **core-matching-engine.ts**
+**Primary Orchestrator** - Coordinates the entire analysis workflow from start to finish.
+
+**Key Responsibilities:**
+- Orchestrates multi-step matching process (structured skills → gap analysis → supplementary extraction)
+- Processes different data sources (LinkedIn JSON, PDF text, database records) into unified format
+- Manages raw data fallback when structured skills have gaps
+- Combines results from all matching strategies into final analysis
+- Exports main `analyzeCandidate()` function used by all APIs
+
+**Data Flow:**
+1. Converts incoming data to standard `Candidate` and `Job` interfaces
+2. Runs primary matching with structured skills via `skill-matcher.ts`
+3. Identifies gaps where scores < 70%
+4. Extracts supplementary skills from raw text for gap-filling
+5. Re-matches gap requirements with supplementary skills
+6. Merges results and calculates final scores via `score-calculator.ts`
+
+### **skill-matcher.ts**
+**Core Matching Logic** - Performs the actual skill-to-requirement comparisons.
+
+**Key Responsibilities:**
+- Implements type-specific matching strategies (technical skills, certifications, soft skills)
+- Handles skill relationships and hierarchies via `skill-registry.ts`
+- Applies **proficiency-focused scoring** with 10% skill match + 90% proficiency match weighting
+- Manages semantic fallback for unmatched requirements
+- Extracts supplementary skills from raw text when needed
+
+**Matching Strategies:**
+- **Technical Skills**: Proficiency-based with hierarchy support (Django → Python)
+- **Certifications**: Binary matching with alias recognition  
+- **Soft Skills**: Evidence-based scoring from multiple text sources
+
+**Updated 2025-08-27**: Changed from 70-30 to 10-90 weighting for proficiency-focused analysis.
+
+### **proficiency-calculator.ts**
+**Experience Level Assessment** - Converts years of experience to standardized proficiency levels.
+
+**Key Responsibilities:**
+- Maps years of experience to proficiency levels (Beginner/Advanced/Expert)
+- Calculates proficiency match scores between candidate and job requirements
+- Applies penalties for proficiency gaps with realistic scoring
+- Handles explicit proficiency requirements vs. years-based requirements
+
+**Proficiency Mapping:**
+- **Beginner**: 0-2 years experience
+- **Advanced**: 3-5 years experience  
+- **Expert**: 6+ years experience
+
+**Gap Penalties (Updated 2025-08-27):**
+- One level below (Advanced vs Expert): 65% score
+- Two levels below (Beginner vs Expert): 35% score
+- Prevents inflated 100+ scores for unqualified candidates
+
+### **score-calculator.ts**
+**Final Score Computation** - Implements the additive scoring system and categorization.
+
+**Key Responsibilities:**
+- Calculates mandatory requirement scores (base 0-100)
+- Calculates optional requirement bonus (0-20 points)
+- Applies additive scoring where optional requirements only boost scores
+- Categorizes final scores into 4-tier system
+- Generates human-readable score explanations
+
+**Score Categories (Updated 2025-08-27):**
+- **Strong** (80-100%): Excellent fit, meets expert-level requirements
+- **Developing** (60-79%): Has skills but below required expert level
+- **Weak** (30-59%): Limited skill present, significant development needed
+- **Missing** (0-29%): No evidence of skill, critical gap
+
+**Note**: Changed from "Adequate" to "Developing" for clearer requirement assessment.
+
+### **narrative-generator.ts**
+**Human-Readable Output** - Generates recruiter insights, feedback, and recommendations.
+
+**Key Responsibilities:**
+- Converts technical scores into professional recruiting language
+- Generates strength/gap summaries with varied templates
+- Creates interview strategies based on candidate profile
+- Provides recruiter recommendations (hire/train/pass decisions)
+- Focuses on proficiency-level comparisons for evidence-based feedback
+
+**Output Structure:**
+- **Summary**: Top strengths and critical gaps
+- **Requirement Evaluations**: Individual feedback per requirement
+- **Recruiter Recommendations**: Interview strategy and hiring advice
+- **Overall Feedback**: Holistic candidate assessment
+
+**Updated 2025-08-27**: Only "strong" matches count as strengths; "developing" skills are treated as gaps.
+
+### **skill-registry.ts**
+**Knowledge Database** - Contains comprehensive skill relationships and aliases.
+
+**Key Responsibilities:**
+- Maintains skill hierarchies (Django → Python, React → JavaScript)
+- Handles skill aliases and variations (JS = JavaScript = ECMAScript)
+- Provides parent-child skill relationships for intelligent matching
+- Supports skill category classification (technical/certification/soft)
+- Enables semantic understanding beyond keyword matching
+
+**Relationship Examples:**
+- Framework → Language: Django experience implies Python knowledge
+- Certification → Domain: AWS Solutions Architect implies cloud computing skills
+- Tool → Ecosystem: Docker experience suggests containerization knowledge
+
+## Detailed Scoring Logic
+
+### **Proficiency-Focused Scoring System**
+
+The system prioritizes **proficiency match over skill match** with a **10% skill + 90% proficiency weighting** (updated 2025-08-27 from previous 70-30 split).
+
+#### **Score Calculation Formula:**
+```typescript
+finalScore = (skillMatchScore * 0.1) + (proficiencyMatchScore * 0.9)
+```
+
+**Why This Weighting?**
+- Ensures candidates must meet proficiency requirements, not just have the skill
+- Prevents scenarios where "beginner React" gets 100% score for "expert React" requirement
+- Aligns with expert-level job requirements in senior technical roles
+
+#### **4-Tier Categorization System**
+
+**Strong (80-100%): Expert-Level Match**
+- Candidate meets or exceeds required proficiency level
+- Only "Strong" matches count as "meeting" mandatory requirements
+- Used for strength identification in narratives
+- Indicates interview-ready competency
+
+**Developing (60-79%): Below Expert Level**  
+- Candidate has the skill but below required expert proficiency
+- Previously called "Adequate" - changed for clearer assessment
+- **Counts as gap/unmet requirement** for mandatory skills
+- Suggests training/mentoring needed
+
+**Weak (30-59%): Limited Proficiency**
+- Some evidence of skill but significant development needed
+- Counts as gap/unmet requirement
+- Indicates substantial training investment required
+
+**Missing (0-29%): No Evidence**
+- No clear evidence of skill found
+- Critical gap requiring attention
+- May indicate need for different role or extensive training
+
+#### **Mandatory vs Optional Requirements**
+
+**Mandatory Requirements (Base Score 0-100%):**
+- Must-have skills for the job
+- Averaged to create foundation score
+- **Only "Strong" (80%+) requirements count as "met"**
+- Determines core competency assessment
+
+**Optional Requirements (Bonus 0-20%):**
+- Nice-to-have skills that differentiate candidates
+- **Can only add to score, never subtract** (additive system)
+- Based on percentage of optional requirements scored as "Strong"
+- Maximum 20-point bonus to prevent score inflation
+
+**Final Score Calculation:**
+```typescript
+finalScore = min(100, mandatoryScore + optionalBonus)
+```
+
+#### **Proficiency Gap Penalties**
+
+When candidate proficiency is below job requirement:
+
+**One Proficiency Level Gap** (e.g., Advanced vs Expert):
+- Score: 65%
+- Category: "Developing" 
+- Interpretation: Has skill but needs advancement
+
+**Two Proficiency Level Gap** (e.g., Beginner vs Expert):
+- Score: 35%
+- Category: "Weak"
+- Interpretation: Significant skill development required
+
+**Three+ Level Gap or Missing Skill**:
+- Score: 0-29%
+- Category: "Missing"
+- Interpretation: Critical skill gap
+
+#### **Evidence-Based Soft Skills Scoring**
+
+For soft skills (leadership, communication, etc.):
+- **Multiple Evidence Sources**: Job titles, action verbs, project descriptions
+- **Context Analysis**: Looks for skill application in different scenarios  
+- **Confidence Weighting**: More evidence = higher confidence = higher score
+- **Range**: 60-100% based on evidence strength and frequency
+
+This scoring system ensures realistic, proficiency-focused candidate assessment that aligns with expert-level job requirements while providing clear, actionable feedback for recruiters.
 
 ### Frontend Integration Points
 
