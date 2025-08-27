@@ -8,6 +8,7 @@
  * Updated: 2025-08-27 - Updated gaps detection to include 'developing' as unmet
  * Updated: 2025-08-27 - Changed 'strong' to 'fit' for clearer requirement matching
  * Updated: 2025-08-27 - Added context messaging for optional requirements below 'fit' threshold
+ * Updated: 2025-08-27 16:45 - Fixed contradictory messaging for optional requirements below 'fit' threshold
  */
 
 import { 
@@ -140,12 +141,24 @@ async function generateRequirementFeedback(
         feedback = feedbackVariations[Math.floor(Math.random() * feedbackVariations.length)]
       } else if (category === 'weak') {
         if (requirement.yearsRequired) {
-          feedback = `Limited experience in ${requirement.skill}. Requires ${requirement.yearsRequired} years but shows only basic familiarity. Consider assessing growth potential during interview.`
+          if (requirement.importance === 'mandatory') {
+            feedback = `Limited experience in ${requirement.skill}. Requires ${requirement.yearsRequired} years but shows only basic familiarity. Consider assessing growth potential during interview.`
+          } else {
+            feedback = `Limited experience in ${requirement.skill}. Shows ${requirement.yearsRequired} years desired but candidate has basic familiarity that could be developed.`
+          }
         } else {
-          feedback = `Basic exposure to ${requirement.skill} detected but proficiency level may need development for this role.`
+          if (requirement.importance === 'mandatory') {
+            feedback = `Basic exposure to ${requirement.skill} detected but proficiency level may need development for this role.`
+          } else {
+            feedback = `Basic exposure to ${requirement.skill} detected with room for growth.`
+          }
         }
       } else {
-        feedback = `No clear evidence of ${requirement.skill} experience found. Critical gap that needs addressing.`
+        if (requirement.importance === 'mandatory') {
+          feedback = `No clear evidence of ${requirement.skill} experience found. Critical gap that needs addressing.`
+        } else {
+          feedback = `No clear evidence of ${requirement.skill} experience found.`
+        }
       }
     } else {
       // Fallback to evidence-based feedback
@@ -381,9 +394,9 @@ function generateBasicFeedback(
   } else if (category === 'developing') {
     return `Developing experience with ${skill} identified`
   } else if (category === 'weak') {
-    return `Limited proficiency in ${skill}${isMandatory ? ' - requires development for this role' : ''}`
+    return `Limited proficiency in ${skill}${isMandatory ? ' - requires development for this role' : ' - basic familiarity identified'}`
   } else {
-    return `No evidence of ${skill} experience found${isMandatory ? ' - critical gap' : ''}`
+    return `No evidence of ${skill} experience found${isMandatory ? ' - critical gap' : ' - additional skill that could be valuable'}`
   }
 }
 

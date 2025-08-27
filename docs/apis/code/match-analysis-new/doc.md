@@ -460,6 +460,17 @@ For soft skills (leadership, communication, etc.):
 
 This scoring system ensures realistic, proficiency-focused candidate assessment that aligns with expert-level job requirements while providing clear, actionable feedback for recruiters.
 
+## Future Improvements
+
+### Evidence Detailing Enhancement
+**TODO**: Include detailed evidence justification for candidate skill scores. Currently, the system provides general feedback like "Good foundation in React with developing experience" but could be enhanced to show specific evidence that justifies the score, such as:
+- Exact text snippets from resume/LinkedIn mentioning the skill
+- Specific job titles or projects where the skill was applied
+- Duration of skill usage extracted from work history
+- Proficiency indicators found in raw data (e.g., "led team of 5", "architected system")
+
+This would provide recruiters with concrete evidence to validate scoring decisions and make the matching process more transparent and trustworthy.
+
 ### Frontend Integration Points
 
 **Component triggers:**
