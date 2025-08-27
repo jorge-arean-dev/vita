@@ -183,3 +183,89 @@ Automated analysis handles the initial screening, allowing recruiters to focus o
 - Ready for multi-industry expansion with industry-specific skill databases
 
 This unified approach ensures every candidate gets a fair, comprehensive, and consistent evaluation while providing recruiters with the insights they need to make informed hiring decisions.
+
+## API Selection Logic
+
+### User Flow → API Routing Decision Matrix
+
+The system intelligently routes analysis requests to the appropriate API based on user flow and available data sources.
+
+#### **New Candidate Flows:**
+- **New candidate + LinkedIn profile option** → `match-analysis-linkedin-v2`
+- **New candidate + PDF resume upload** → `match-analysis-pdf-v2`
+- **New candidate + manual entry (no LinkedIn/PDF)** → `match-analysis-fallback-v2`
+
+#### **Existing Candidate Flows:**
+- **Existing candidate re-analysis** → `match-analysis-fallback-v2`
+- **Bulk candidate processing** → `match-analysis-fallback-v2`
+- **Candidate with stored LinkedIn data** → `match-analysis-fallback-v2`
+
+### Detailed Routing Logic
+
+| User Action | Data Available | API Endpoint | Processing Strategy |
+|-------------|----------------|--------------|-------------------|
+| Upload LinkedIn profile | `raw_linkedin_profile` + `linkedin_url` | **linkedin-v2** | GPT-4o parsing + skill extraction |
+| Upload PDF resume | `raw_pdf_profile_text` | **pdf-v2** | Text parsing + skill extraction |
+| Select existing candidate | `candidate_id` + stored skills | **fallback-v2** | Database query + stored data |
+| Manual candidate entry | Basic info only | **fallback-v2** | Minimal data processing |
+| Re-analyze candidate | Mixed/cached data | **fallback-v2** | Hybrid approach |
+
+### Data Source Priority
+
+**linkedin-v2**: Fresh LinkedIn data (highest fidelity)
+- Rich social profile information
+- Current employment details
+- Endorsed skills and connections
+
+**pdf-v2**: Resume document analysis
+- Structured career history
+- Detailed project descriptions
+- Formatted skill presentations
+
+**fallback-v2**: Database/legacy data (most flexible)
+- Previously processed candidates
+- Incomplete data scenarios
+- Bulk operations
+- **Existing candidates without raw LinkedIn or PDF data**
+
+### Special Case: Existing Candidate with No Raw Data
+
+For **existing candidates without LinkedIn or PDF raw data**, the system uses `match-analysis-fallback-v2`:
+
+**Input Structure:**
+```json
+{
+  "candidate": {
+    "main": {
+      "first_name": "John",
+      "last_name": "Doe", 
+      "email": "john@email.com"
+    },
+    "skills": [
+      {"name": "JavaScript", "yoe": 3, "proficiency_level": "advanced"},
+      {"name": "React", "yoe": 2, "proficiency_level": "beginner"}
+    ],
+    "years_of_experience": 5,
+    "raw_linkedin_profile": null,    // ❌ No LinkedIn data
+    "raw_pdf_profile_text": null     // ❌ No PDF data
+  },
+  "job": { ... }
+}
+```
+
+**Processing Strategy:**
+1. Uses structured skills data from database (previously entered/extracted)
+2. Applies core matching engine with skill registry and proficiency calculations
+3. Generates full narrative outputs despite limited raw data
+4. Relies on stored candidate information (years of experience, skill levels)
+
+The fallback API is designed to work with **minimal data requirements** and can generate comprehensive match analysis with just basic candidate info and structured skills list.
+
+### Frontend Integration Points
+
+**Component triggers:**
+- `CandidateMatchAnalysis` → detects data type → calls appropriate API
+- `JobMatchAnalyzer` → routes based on candidate source
+- `BulkAnalysis` → defaults to fallback-v2 for efficiency
+
+All APIs return the same rich narrative structure with `match_analysis`, `requirement_evaluations`, `summary`, and `recruiter_recommendations` for consistent frontend handling.

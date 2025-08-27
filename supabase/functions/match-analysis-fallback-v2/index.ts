@@ -9,9 +9,11 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3'
 import { 
   analyzeCandidate, 
   processExistingCandidate,
-  MatchAnalysisResult 
+  MatchAnalysisResult,
+  Candidate 
 } from '../_shared/core-matching-engine.ts'
 import { JobRequirement, CandidateSkill } from '../_shared/skill-matcher.ts'
+import { generateNarrativeOutputs } from '../_shared/narrative-generator.ts'
 
 // CORS headers
 const corsHeaders = {
@@ -36,51 +38,74 @@ serve(async (req) => {
   }
 
   try {
-    // Parse request body
-    const { 
-      candidateData,
-      candidateSkills,
-      jobRequirements,
-      jobInfo,
-      options = {}
-    } = await req.json()
+    // Parse request body - expecting legacy format { candidate, job }
+    const { candidate: candidateData, job } = await req.json()
+
+    console.log('[Fallback API] Received candidate data')
+    console.log('[Fallback API] Candidate structure:', {
+      hasMain: !!candidateData?.main,
+      mainName: `${candidateData?.main?.first_name} ${candidateData?.main?.last_name}`,
+      skillsCount: candidateData?.skills?.length || 0,
+      yearsExp: candidateData?.years_of_experience,
+      hasRawLinkedIn: !!candidateData?.raw_linkedin_profile
+    })
+
+    // Extract data from legacy format
+    const jobRequirements = job?.requirements || []
+    const jobInfo = {
+      id: 'temp-job-id', // Job ID not provided in this format
+      title: job?.attributes?.title || 'Unknown Position',
+      company: job?.attributes?.company || 'Unknown Company'
+    }
 
     // Validate required fields
-    if (!candidateData) {
-      throw new Error('Candidate data is required')
-    }
-    if (!candidateSkills || !Array.isArray(candidateSkills)) {
-      throw new Error('Candidate skills array is required')
+    if (!candidateData || !candidateData.skills) {
+      throw new Error('Candidate data with skills is required')
     }
     if (!jobRequirements || !Array.isArray(jobRequirements)) {
       throw new Error('Job requirements array is required')
     }
-    if (!jobInfo) {
+    if (!job || !job.attributes || !job.attributes.title) {
       throw new Error('Job information is required')
     }
 
     console.log('[Fallback API] Processing existing candidate for job:', jobInfo.title)
-    console.log(`[Fallback API] Candidate has ${candidateSkills.length} skills`)
+    console.log(`[Fallback API] Candidate has ${candidateData.skills.length} skills`)
 
-    // Step 1: Process existing candidate data into standard format
-    const { candidate, rawData } = processExistingCandidate(
-      candidateData,
-      candidateSkills
-    )
+    // Step 1: Convert candidate data to unified format
+    const skills = candidateData.skills || []
+    console.log('[Fallback API] Converting skills:', skills.length, 'skills found')
+    
+    const candidate: Candidate = {
+      firstName: candidateData.main?.first_name || 'Unknown',
+      lastName: candidateData.main?.last_name || '',
+      email: candidateData.main?.email,
+      yearsOfExperience: candidateData.years_of_experience || 0,
+      skills: skills.map(skill => ({
+        name: skill.name,
+        yearsOfExperience: skill.yoe,
+        proficiency: skill.proficiency_level,
+        source: skill.source || 'database'
+      }))
+    }
 
-    // Step 2: Check for and fetch any stored raw data
-    const enrichedRawData = await fetchStoredRawData(
-      candidateData.id,
-      rawData
-    )
+    console.log(`[Fallback API] Converted ${candidate.skills.length} skills`)
+
+    // Step 2: Set up raw data sources
+    const rawData = {
+      linkedInProfile: candidateData.raw_linkedin_profile,
+      linkedInUrl: candidateData.linkedin_url,
+      resumeText: candidateData.raw_pdf_profile_text,
+      resumeUrl: candidateData.resume_url
+    }
 
     // Step 3: Format job requirements for unified engine
     const formattedRequirements: JobRequirement[] = jobRequirements.map(req => ({
-      id: req.id || req.skill,
-      skill: req.skill,
-      yearsRequired: req.years_of_experience,
+      id: req.requirement,
+      skill: req.requirement,
+      yearsRequired: req.years_of_experience || null,
       proficiencyRequired: req.proficiency_level,
-      importance: req.importance || 'mandatory',
+      importance: req.is_mandatory ? 'mandatory' : 'optional',
       category: req.type || 'technical_skill'
     }))
 
@@ -93,24 +118,29 @@ serve(async (req) => {
         company: jobInfo.company || 'Unknown Company',
         requirements: formattedRequirements
       },
-      enrichedRawData,
+      rawData,
       {
-        useSemanticFallback: options.useSemanticFallback ?? true,
+        useSemanticFallback: true,
         analysisVersion: 'fallback-v2.0-unified'
       }
     )
 
-    // Step 5: Store analysis results if candidate ID is provided
-    if (candidateData.id && jobInfo.id) {
-      await storeAnalysisResults(
-        candidateData.id,
-        jobInfo.id,
-        analysisResult
-      )
-    }
+    // Step 5: Generate narrative outputs using dedicated module
+    console.log('[Fallback API] Generating narrative outputs...')
+    const narrativeOutputs = await generateNarrativeOutputs(
+      analysisResult,
+      jobInfo.title,
+      {
+        focusOnProficiency: true,
+        includeInterviewStrategy: true,
+        maxStrengths: 5,
+        maxGaps: 5,
+        maxRecommendations: 4
+      }
+    )
 
     // Step 6: Format response for backward compatibility
-    const response = formatFallbackResponse(analysisResult, candidate, candidateData)
+    const response = formatFallbackResponse(analysisResult, candidate, candidateData, narrativeOutputs)
 
     console.log('[Fallback API] Analysis complete:', {
       score: analysisResult.overallScore.totalScore,
@@ -145,74 +175,6 @@ serve(async (req) => {
   }
 })
 
-/**
- * Fetch any stored raw data for the candidate
- */
-async function fetchStoredRawData(
-  candidateId: string,
-  basicRawData: any
-): Promise<any> {
-  try {
-    // Check for stored LinkedIn raw data
-    const { data: linkedInData } = await supabase
-      .from('candidate_raw_data')
-      .select('data')
-      .eq('candidate_id', candidateId)
-      .eq('source', 'linkedin')
-      .single()
-    
-    // Check for stored resume raw data
-    const { data: resumeData } = await supabase
-      .from('candidate_raw_data')
-      .select('data')
-      .eq('candidate_id', candidateId)
-      .eq('source', 'resume')
-      .single()
-    
-    return {
-      ...basicRawData,
-      linkedInProfile: linkedInData?.data,
-      resumeText: resumeData?.data?.text
-    }
-  } catch (error) {
-    console.log('[Fallback API] No raw data found for candidate:', candidateId)
-    return basicRawData
-  }
-}
-
-/**
- * Store analysis results for future reference
- */
-async function storeAnalysisResults(
-  candidateId: string,
-  jobId: string,
-  analysisResult: MatchAnalysisResult
-): Promise<void> {
-  try {
-    const { error } = await supabase
-      .from('match_analyses')
-      .upsert({
-        candidate_id: candidateId,
-        job_id: jobId,
-        overall_score: analysisResult.overallScore.totalScore,
-        status: analysisResult.overallScore.category,
-        mandatory_score: analysisResult.overallScore.mandatory.score,
-        optional_bonus: analysisResult.overallScore.optional.bonus,
-        confidence: analysisResult.overallScore.confidence,
-        analysis_version: analysisResult.metadata.analysisVersion,
-        detailed_results: analysisResult,
-        analyzed_at: new Date().toISOString()
-      })
-    
-    if (error) {
-      console.error('[Fallback API] Failed to store analysis:', error)
-    } else {
-      console.log('[Fallback API] Analysis results stored successfully')
-    }
-  } catch (error) {
-    console.error('[Fallback API] Error storing analysis:', error)
-  }
-}
 
 /**
  * Format response for backward compatibility with existing frontend
@@ -220,46 +182,43 @@ async function storeAnalysisResults(
 function formatFallbackResponse(
   analysisResult: MatchAnalysisResult,
   candidate: any,
-  originalCandidateData: any
+  originalCandidateData: any,
+  narrativeOutputs: any
 ): any {
+  // Count mandatory requirements for frontend compatibility
+  const mandatoryMatches = analysisResult.detailedMatches.mandatory
+  const totalMandatory = mandatoryMatches.length
+  const matchedMandatory = mandatoryMatches.filter(match => 
+    match.category === 'strong' || match.category === 'adequate'
+  ).length
+
   return {
     success: true,
     candidate: {
-      id: candidate.id,
       name: analysisResult.candidateInfo.name,
       email: analysisResult.candidateInfo.email,
+      linkedInUrl: originalCandidateData.linkedin_url,
+      resumeUrl: originalCandidateData.resume_url,
       skills: candidate.skills,
-      experience: analysisResult.candidateInfo.yearsOfExperience,
-      linkedInUrl: originalCandidateData.linkedin,
-      resumeUrl: originalCandidateData.resume_url
+      experience: analysisResult.candidateInfo.yearsOfExperience
     },
-    analysis: {
-      overallScore: analysisResult.overallScore.totalScore,
+    match_analysis: {
+      overall_score: analysisResult.overallScore.totalScore,
       status: analysisResult.overallScore.category,
-      mandatoryScore: analysisResult.overallScore.mandatory.score,
-      optionalBonus: analysisResult.overallScore.optional.bonus,
-      confidence: analysisResult.overallScore.confidence,
-      explanation: analysisResult.overallScore.explanation
+      overall_feedback: narrativeOutputs.overall_feedback,
+      matched_mandatory_requirements: matchedMandatory,
+      total_mandatory_requirements: totalMandatory
     },
-    matches: {
-      mandatory: analysisResult.detailedMatches.mandatory.map(match => ({
-        requirement: match.requirement.skill,
-        score: match.score,
-        status: match.category,
-        evidence: match.evidence,
-        matchedSkills: match.matchedSkills,
-        confidence: match.confidence
-      })),
-      optional: analysisResult.detailedMatches.optional.map(match => ({
-        requirement: match.requirement.skill,
-        score: match.score,
-        status: match.category,
-        evidence: match.evidence,
-        matchedSkills: match.matchedSkills,
-        confidence: match.confidence
-      }))
-    },
-    metadata: analysisResult.metadata,
-    dataSource: 'existing' // Indicate this used existing database data
+    requirement_evaluations: narrativeOutputs.requirement_evaluations,
+    summary: narrativeOutputs.summary,
+    recruiter_recommendations: narrativeOutputs.recruiter_recommendations,
+    metadata: {
+      analysis_timestamp: new Date().toISOString(),
+      job_id: 'temp-job-id',
+      candidate_id: analysisResult.candidateInfo.id || 'temp-candidate-id',
+      algorithm_version: 'fallback-v2.0-unified',
+      total_processing_time_ms: analysisResult.metadata?.processingTime || 0,
+      data_source: 'existing' // Indicate this used existing database data
+    }
   }
 }
