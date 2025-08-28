@@ -85,23 +85,23 @@ export default function JobsTable({ jobs: initialJobs }: JobsTableProps) {
     const diffInMs = nowOnly.getTime() - dateOnly.getTime()
     const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24))
     
-    if (diffInDays === 0) return 'Today'
-    if (diffInDays === 1) return 'Yesterday'
+    if (diffInDays === 0) return 'Created today'
+    if (diffInDays === 1) return 'Created yesterday'
     
     // Less than 2 weeks: show in days
-    if (diffInDays < 14) return `${diffInDays} days ago`
+    if (diffInDays < 14) return `Created ${diffInDays} days ago`
     
     // 2-4 weeks: show in weeks
     const diffInWeeks = Math.floor(diffInDays / 7)
-    if (diffInWeeks <= 4) return `${diffInWeeks} week${diffInWeeks > 1 ? 's' : ''} ago`
+    if (diffInWeeks <= 4) return `Created ${diffInWeeks} week${diffInWeeks > 1 ? 's' : ''} ago`
     
     // More than 4 weeks: show in months
     const diffInMonths = Math.floor(diffInDays / 30)
-    if (diffInMonths < 12) return `${diffInMonths} month${diffInMonths > 1 ? 's' : ''} ago`
+    if (diffInMonths < 12) return `Created ${diffInMonths} month${diffInMonths > 1 ? 's' : ''} ago`
     
     // More than a year: show in years
     const diffInYears = Math.floor(diffInDays / 365)
-    return `${diffInYears} year${diffInYears > 1 ? 's' : ''} ago`
+    return `Created ${diffInYears} year${diffInYears > 1 ? 's' : ''} ago`
   }
 
   return (
@@ -128,8 +128,7 @@ export default function JobsTable({ jobs: initialJobs }: JobsTableProps) {
           {jobs.map((job) => (
             <Card
               key={job.id}
-              className="flex flex-col overflow-hidden rounded-lg border-border bg-card text-card-foreground shadow-md transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl cursor-pointer min-h-[280px] max-h-[400px] w-full p-0"
-              onClick={() => handleOpen(job.id)}
+              className="flex flex-col overflow-hidden rounded-lg border-border bg-card text-card-foreground shadow-md transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl min-h-[280px] max-h-[400px] w-full p-0"
             >
               <CardHeader className="flex flex-row items-center justify-between px-4 pt-4 pb-4 flex-shrink-0">
                 <div className="flex items-center gap-3 min-w-0 flex-1">
