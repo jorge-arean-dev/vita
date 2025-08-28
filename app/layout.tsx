@@ -17,6 +17,26 @@ export const metadata: Metadata = {
     shortcut: '/logo/vita-logo-light.svg',
     apple: '/logo/vita-logo-light.svg',
   },
+  openGraph: {
+    title: "Vita – AI Recruitment Platform for Human-Driven Hiring",
+    description: "Combine the speed of AI with your recruitment skills. Vita accelerates sourcing, analysis, and interviews so you can focus on building lasting talent connections.",
+    images: [
+      {
+        url: 'https://klhhdgizxytfmolwabfl.supabase.co/storage/v1/object/public/public-images/opengraphimage.png',
+        width: 1200,
+        height: 630,
+        alt: 'Vita - AI Recruitment Platform',
+      }
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Vita – AI Recruitment Platform for Human-Driven Hiring",
+    description: "Combine the speed of AI with your recruitment skills. Vita accelerates sourcing, analysis, and interviews so you can focus on building lasting talent connections.",
+    images: ['https://klhhdgizxytfmolwabfl.supabase.co/storage/v1/object/public/public-images/opengraphimage.png'],
+  },
 };
 
 

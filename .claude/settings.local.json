@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:docs.recall.ai)"
+      "WebFetch(domain:docs.recall.ai)",
+      "Bash(pnpm build:*)"
     ],
     "deny": []
   }
