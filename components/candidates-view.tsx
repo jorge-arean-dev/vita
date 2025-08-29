@@ -2,10 +2,11 @@
 
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { FileText, MoreHorizontal, Trash2, Users } from "lucide-react"
+import Image from "next/image"
+import { FileText, MoreHorizontal, Trash2, Users, MapPin, Briefcase } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { useToast } from "@/components/ui/use-toast"
@@ -25,8 +26,8 @@ export default function CandidatesView({ candidates: initialCandidates }: Candid
   const { toast } = useToast()
   const router = useRouter()
 
-  const handleOpen = (candidate: CandidateData) => {
-    router.push(`/protected/candidates/${candidate.id}`)
+  const handleOpen = (candidateId: string) => {
+    router.push(`/protected/candidates/${candidateId}`)
   }
 
   const handleDeleteClick = (candidateId: string, candidateName: string) => {
@@ -147,165 +148,115 @@ export default function CandidatesView({ candidates: initialCandidates }: Candid
           </div>
         </div>
       ) : (
-        <div className="space-y-4">
-          {/* Table Headers */}
-          <div className="grid grid-cols-12 gap-4 px-6 py-3 text-sm font-medium text-muted-foreground border-b">
-            <div className="col-span-4">Name</div>
-            <div className="col-span-2">Location</div>
-            <div className="col-span-2">Experience</div>
-            <div className="col-span-2">Added</div>
-            <div className="col-span-2"></div>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {candidates.map((candidate) => {
+            const fullName = `${candidate.first_name || ''} ${candidate.last_name || ''}`.trim() || 'Unknown Candidate'
+            const location = candidate.country_name || candidate.country || "Unknown"
 
-          {/* Candidate Cards */}
-          <div className="space-y-2">
-            {candidates.map((candidate) => {
-              const fullName = `${candidate.first_name || ''} ${candidate.last_name || ''}`.trim() || 'Unknown Candidate'
-              const location = candidate.country_name || candidate.country || "Unknown"
-
-              return (
-                <Card
-                  key={candidate.id}
-                  className="group cursor-pointer transition-all duration-200 hover:shadow-md hover:border-primary/50 focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2"
-                  onClick={() => handleOpen(candidate)}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`Open candidate: ${fullName}`}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault()
-                      handleOpen(candidate)
-                    }
-                  }}
-                >
-                  <CardContent className="px-4 pb-0 pt-0">
-                    <div className="grid grid-cols-12 gap-4 items-center">
-                      {/* Profile Picture + Name */}
-                      <div className="col-span-4 flex items-center gap-3">
-                        <div
-                          className={`w-10 h-10 rounded-full ${getAvatarColor(fullName)} flex items-center justify-center text-white font-medium text-sm`}
+            return (
+              <Card
+                key={candidate.id}
+                className="flex flex-col overflow-hidden rounded-lg border-border bg-card text-card-foreground shadow-md transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl min-h-[280px] max-h-[400px] w-full p-0"
+              >
+                <CardHeader className="flex flex-row items-center gap-4 px-4 pt-4 pb-4 flex-shrink-0">
+                  <div
+                    className={`h-16 w-16 rounded-full border-2 border-primary ${getAvatarColor(fullName)} flex items-center justify-center text-white font-medium text-lg`}
+                  >
+                    {getInitials(candidate.first_name, candidate.last_name)}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold">{fullName}</h3>
+                    <p className="text-sm text-muted-foreground">{candidate.email || 'No email'}</p>
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        aria-label={`Actions for ${fullName}`}
+                        disabled={isPending}
+                      >
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-[160px]">
+                      <DropdownMenuItem
+                        onClick={() => handleDeleteClick(candidate.id, fullName)}
+                        className="cursor-pointer text-destructive focus:text-destructive"
+                        disabled={isPending}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </CardHeader>
+                <CardContent className="flex-1 space-y-3 px-4 py-3 min-h-0 flex flex-col justify-between overflow-hidden">
+                  <div className="flex items-center text-sm text-foreground">
+                    <MapPin className="mr-2 h-4 w-4 shrink-0 text-primary" />
+                    <span className="truncate">{location}</span>
+                  </div>
+                  <div className="flex items-center text-sm text-foreground">
+                    <Briefcase className="mr-2 h-4 w-4 shrink-0 text-primary" />
+                    <span>
+                      {candidate.years_experience 
+                        ? `${candidate.years_experience} ${candidate.years_experience === 1 ? 'year' : 'years'} of experience`
+                        : 'Experience not specified'
+                      }
+                    </span>
+                  </div>
+                </CardContent>
+                <CardFooter className="mt-auto flex justify-between items-center border-t border-border bg-muted/30 px-4 pt-4 pb-4 flex-shrink-0 m-0">
+                  <div className="flex gap-0">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => candidate.linkedin && window.open(candidate.linkedin, '_blank', 'noopener,noreferrer')}
+                          disabled={!candidate.linkedin}
+                          className={candidate.linkedin ? "" : "opacity-50 cursor-not-allowed"}
                         >
-                          {getInitials(candidate.first_name, candidate.last_name)}
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="font-medium group-hover:text-primary transition-colors">
-                            {fullName}
-                          </span>
-                          {candidate.email && (
-                            <span className="text-xs text-muted-foreground truncate max-w-48">
-                              {candidate.email}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Location */}
-                      <div className="col-span-2">
-                        <span className="text-muted-foreground">{location}</span>
-                      </div>
-
-                      {/* Experience */}
-                      <div className="col-span-2">
-                        <span className="text-muted-foreground">
-                          {candidate.years_experience 
-                            ? `${candidate.years_experience} ${candidate.years_experience === 1 ? 'year' : 'years'}`
-                            : 'N/A'
-                          }
-                        </span>
-                      </div>
-
-                      {/* Added Date */}
-                      <div className="col-span-2">
-                        <span className="text-muted-foreground">
-                          {new Date(candidate.created_at).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric'
-                          })}
-                        </span>
-                      </div>
-
-                      {/* Documents + Actions */}
-                      <div className="col-span-2 flex items-center justify-center gap-3">
-                        {/* PDF Icon */}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            {candidate.resume_url ? (
-                              <FileText 
-                                className="h-5 w-5 cursor-pointer text-green-600 hover:text-green-700 transition-colors"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  window.open(candidate.resume_url!, '_blank', 'noopener,noreferrer')
-                                }}
-                              />
-                            ) : (
-                              <FileText className="h-5 w-5 text-gray-400 cursor-not-allowed" />
-                            )}
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>{candidate.resume_url ? "Click to open resume" : "No Resume Uploaded"}</p>
-                          </TooltipContent>
-                        </Tooltip>
-
-                        {/* LinkedIn Icon */}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div
-                              className={`h-5 w-5 rounded-sm flex items-center justify-center transition-colors ${
-                                candidate.linkedin 
-                                  ? "bg-[#0A66C2] hover:bg-[#004182] cursor-pointer" 
-                                  : "bg-gray-400 cursor-not-allowed"
-                              }`}
-                              onClick={(e) => {
-                                if (candidate.linkedin) {
-                                  e.stopPropagation()
-                                  window.open(candidate.linkedin, '_blank', 'noopener,noreferrer')
-                                }
-                              }}
-                            >
-                              <span className="text-white font-bold text-[10px] leading-none">in</span>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>{candidate.linkedin ? "Click to open LinkedIn profile" : "No LinkedIn Profile"}</p>
-                          </TooltipContent>
-                        </Tooltip>
-
-                        {/* Action Menu */}
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity ml-2"
-                              aria-label={`Actions for ${fullName}`}
-                              onClick={(e) => e.stopPropagation()}
-                              disabled={isPending}
-                            >
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-[160px]">
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleDeleteClick(candidate.id, fullName)
-                              }}
-                              className="cursor-pointer text-destructive focus:text-destructive"
-                              disabled={isPending}
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
+                          <Image 
+                            src={candidate.linkedin ? "/linkedin-logo/linkedin-active.svg" : "/linkedin-logo/linkedin-inactive.svg"}
+                            width={20}
+                            height={20}
+                            alt="LinkedIn"
+                          />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{candidate.linkedin ? "View LinkedIn Profile" : "No LinkedIn Profile"}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => candidate.resume_url && window.open(candidate.resume_url, '_blank', 'noopener,noreferrer')}
+                          disabled={!candidate.resume_url}
+                          className={candidate.resume_url ? "" : "opacity-50 cursor-not-allowed"}
+                        >
+                          <FileText className={`h-4 w-4 transition-colors ${candidate.resume_url ? "text-green-600 hover:text-green-700" : "text-muted-foreground"}`} />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{candidate.resume_url ? "View Resume" : "No Resume Uploaded"}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <Button 
+                    size="sm"
+                    onClick={() => handleOpen(candidate.id)}
+                  >
+                    Open
+                  </Button>
+                </CardFooter>
+              </Card>
+            )
+          })}
         </div>
       )}
       </div>
