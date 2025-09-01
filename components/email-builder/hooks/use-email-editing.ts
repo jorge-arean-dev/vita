@@ -13,6 +13,7 @@ interface UseEmailEditingReturn {
   clearEditingState: (id: string) => void
   initializeEditingValues: (email: Email) => void
   hasChanges: (id: string) => boolean
+  updateOriginalValues: (id: string) => void
 }
 
 export const useEmailEditing = (): UseEmailEditingReturn => {
@@ -36,11 +37,14 @@ export const useEmailEditing = (): UseEmailEditingReturn => {
       [email.id]: emailValues,
     }))
     
-    // Store original values for comparison
-    setOriginalValues(prev => ({
-      ...prev,
-      [email.id]: emailValues,
-    }))
+    // Only store original values for existing items (not new items)
+    // New items should never have originalValues to ensure hasChanges() works correctly
+    if (!email.id.startsWith('new-')) {
+      setOriginalValues(prev => ({
+        ...prev,
+        [email.id]: emailValues,
+      }))
+    }
   }
 
   const handleEditingTitleChange = (id: string, title: string) => {
@@ -55,13 +59,26 @@ export const useEmailEditing = (): UseEmailEditingReturn => {
   }
 
   const handleEditingFieldChange = (id: string, field: keyof EditingValues[string], value: string) => {
-    setEditingValues(prev => ({
-      ...prev,
-      [id]: {
-        ...prev[id],
-        [field]: value,
-      },
-    }))
+    setEditingValues(prev => {
+      const updatedValues = {
+        ...prev,
+        [id]: {
+          ...prev[id],
+          [field]: value,
+        },
+      }
+      
+      // If the template is being changed, clear the custom prompt
+      // This prevents the old custom prompt from being used with a different template
+      if (field === 'templateId' && prev[id]) {
+        updatedValues[id] = {
+          ...updatedValues[id],
+          customPrompt: '',
+        }
+      }
+      
+      return updatedValues
+    })
     setUnsavedChanges(prev => new Set(prev).add(id))
   }
 
@@ -86,27 +103,58 @@ export const useEmailEditing = (): UseEmailEditingReturn => {
   }
 
   const initializeEditingValues = (email: Email) => {
+    const emailValues = {
+      title: email.title,
+      candidateId: email.candidate_id || '',
+      templateId: email.template_id || '',
+      customPrompt: '',
+      subject: email.subject,
+      content: email.content
+    }
+    
     setEditingValues(prev => ({
       ...prev,
-      [email.id]: {
-        title: email.title,
-        candidateId: '',
-        templateId: '',
-        customPrompt: '',
-        subject: email.subject,
-        content: email.content
-      }
+      [email.id]: emailValues
     }))
-    setUnsavedChanges(prev => new Set(prev).add(email.id))
+    
+    // DON'T set originalValues for new items
+    // This ensures hasChanges() works correctly for new items
+    // For new items, hasChanges() will return true if any content exists
+    if (!email.id.startsWith('new-')) {
+      // This shouldn't happen in normal flow as initializeEditingValues 
+      // is typically called for new items, but adding for safety
+      setOriginalValues(prev => ({
+        ...prev,
+        [email.id]: emailValues
+      }))
+    }
+    
+    // Mark as having unsaved changes for new items
+    if (email.id.startsWith('new-')) {
+      setUnsavedChanges(prev => new Set(prev).add(email.id))
+    }
   }
   
   const hasChanges = (id: string): boolean => {
     const current = editingValues[id]
     const original = originalValues[id]
     
-    if (!current || !original) return false
+    // If no current editing values, no changes
+    if (!current) return false
     
-    // Compare all fields
+    // If no original values (new item), check if there's any content
+    if (!original) {
+      return (
+        current.title.trim() !== '' ||
+        current.candidateId.trim() !== '' ||
+        current.templateId.trim() !== '' ||
+        current.customPrompt.trim() !== '' ||
+        current.subject.trim() !== '' ||
+        current.content.trim() !== ''
+      )
+    }
+    
+    // Compare current values with original values for existing items
     return (
       current.title !== original.title ||
       current.candidateId !== original.candidateId ||
@@ -115,6 +163,24 @@ export const useEmailEditing = (): UseEmailEditingReturn => {
       current.subject !== original.subject ||
       current.content !== original.content
     )
+  }
+
+  const updateOriginalValues = (id: string) => {
+    const current = editingValues[id]
+    if (!current) return
+    
+    // Set original values to current editing values (represents new saved state)
+    setOriginalValues(prev => ({
+      ...prev,
+      [id]: { ...current }
+    }))
+    
+    // Remove from unsaved changes
+    setUnsavedChanges(prev => {
+      const newSet = new Set(prev)
+      newSet.delete(id)
+      return newSet
+    })
   }
 
   return {
@@ -128,6 +194,7 @@ export const useEmailEditing = (): UseEmailEditingReturn => {
     handleEditingFieldChange,
     clearEditingState,
     initializeEditingValues,
-    hasChanges
+    hasChanges,
+    updateOriginalValues
   }
 }

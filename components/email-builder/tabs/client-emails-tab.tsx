@@ -35,7 +35,8 @@ export function ClientEmailsTab({ jobData, candidates, emailTemplates }: ClientE
     handleEditingFieldChange,
     clearEditingState,
     initializeEditingValues,
-    hasChanges
+    hasChanges,
+    updateOriginalValues
   } = useEmailEditing()
 
   // Initialize email management hooks
@@ -49,11 +50,14 @@ export function ClientEmailsTab({ jobData, candidates, emailTemplates }: ClientE
     setDeleteConfirmId,
     cancelConfirmId,
     setCancelConfirmId,
+    collapseConfirmId,
+    setCollapseConfirmId,
     handleNewEmail,
     handleToggleExpand,
     handleSave,
     handleCancel,
     confirmCancel,
+    confirmCollapse,
     handleDelete,
     confirmDelete,
     handleCopyToClipboard,
@@ -69,6 +73,8 @@ export function ClientEmailsTab({ jobData, candidates, emailTemplates }: ClientE
     setUnsavedChanges,
     clearEditingState,
     initializeEditingValues,
+    hasChanges,
+    updateOriginalValues,
     emailType: 'client'  // This is the key difference from CandidateEmailsTab
   })
 
@@ -247,6 +253,24 @@ export function ClientEmailsTab({ jobData, candidates, emailTemplates }: ClientE
               }
             }}>
               Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Collapse Confirmation Dialog */}
+      <AlertDialog open={!!collapseConfirmId} onOpenChange={() => setCollapseConfirmId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Discard Changes</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have unsaved changes. Are you sure you want to collapse without saving? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep Editing</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmCollapse} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Discard Changes
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

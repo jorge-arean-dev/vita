@@ -35,6 +35,8 @@ interface UseEmailManagerProps {
   setUnsavedChanges: (changes: Set<string> | ((prev: Set<string>) => Set<string>)) => void
   clearEditingState: (id: string) => void
   initializeEditingValues: (email: Email) => void
+  hasChanges: (id: string) => boolean
+  updateOriginalValues: (id: string) => void
   emailType: 'candidate' | 'client'
 }
 
@@ -48,6 +50,8 @@ interface UseEmailManagerReturn {
   setDeleteConfirmId: (id: string | null) => void
   cancelConfirmId: string | null
   setCancelConfirmId: (id: string | null) => void
+  collapseConfirmId: string | null
+  setCollapseConfirmId: (id: string | null) => void
   handleNewEmail: () => void
   handleToggleExpand: (id: string) => void
   handleSave: (id: string) => Promise<void>
@@ -56,6 +60,7 @@ interface UseEmailManagerReturn {
   handleDelete: (id: string) => void
   confirmDelete: () => Promise<void>
   handleCopyToClipboard: (content: string) => Promise<void>
+  confirmCollapse: () => void
   initializeEmails: (savedUnsavedEmails: Email[], savedExpandedStates: { [key: string]: boolean }, savedEditingValues: EditingValues) => void
 }
 
@@ -70,6 +75,8 @@ export const useEmailManager = ({
   setUnsavedChanges,
   clearEditingState,
   initializeEditingValues,
+  hasChanges,
+  updateOriginalValues,
   emailType
 }: UseEmailManagerProps): UseEmailManagerReturn => {
   const [emails, setEmails] = useState<Email[]>([])
@@ -77,6 +84,7 @@ export const useEmailManager = ({
   const [isDeleting, setIsDeleting] = useState<{ [key: string]: boolean }>({})
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
   const [cancelConfirmId, setCancelConfirmId] = useState<string | null>(null)
+  const [collapseConfirmId, setCollapseConfirmId] = useState<string | null>(null)
   const { toast } = useToast()
 
   // Filter emails by type
@@ -98,22 +106,27 @@ export const useEmailManager = ({
     const email = emails.find(e => e.id === id)
     if (!email) return
     
-    // Check for unsaved changes before collapsing
-    if (unsavedChanges.has(id) && email.isExpanded && email.isEditing) {
-      const confirmed = window.confirm(
-        "You have unsaved changes. Are you sure you want to collapse without saving?"
-      )
-      if (!confirmed) return
+    // If collapsing while in edit mode, check for unsaved changes
+    if (email.isExpanded && email.isEditing && hasChanges(id)) {
+      // For new items, collapsing in edit mode = cancel (remove item)
+      if (id.startsWith('new-')) {
+        setCancelConfirmId(id)
+        return
+      }
+      // For existing items, show collapse confirmation
+      setCollapseConfirmId(id)
+      return
     }
 
+    // No changes or not in edit mode, proceed with toggle
     setEmails(prevEmails => 
       prevEmails.map((e) => 
-        e.id === id ? { ...e, isExpanded: !e.isExpanded, isEditing: false } : e
+        e.id === id ? { ...e, isExpanded: !e.isExpanded } : e
       )
     )
     
-    // Clear editing values and unsaved changes when collapsing
-    if (email.isExpanded) {
+    // Clear editing state when collapsing
+    if (email.isExpanded && !email.isEditing) {
       clearEditingState(id)
     }
   }
@@ -151,13 +164,14 @@ export const useEmailManager = ({
       }
       
       // Update local state
+      const newId = result.data?.id || id
       setEmails(prevEmails =>
         prevEmails.map((e) =>
           e.id === id
             ? {
                 ...e,
                 // If this was a new email, update with the database ID
-                id: result.data?.id || e.id,
+                id: newId,
                 title: editingValue.title,
                 candidate_id: editingValue.candidateId || null,
                 candidate_name: candidates.find(c => c.id === editingValue.candidateId)?.name || null,
@@ -173,13 +187,16 @@ export const useEmailManager = ({
         ),
       )
       
+      // Update original values to current values (represents new saved state)
+      updateOriginalValues(id)
+      
       toast({
         title: "Success",
         description: "Email saved successfully.",
       })
       
-      // Clear editing state
-      clearEditingState(id)
+      // Note: clearEditingState is not called here anymore since 
+      // updateOriginalValues handles the unsaved changes cleanup
       
     } catch (error) {
       console.error("Error saving email:", error)
@@ -195,29 +212,23 @@ export const useEmailManager = ({
 
   const handleCancel = (id: string) => {
     const email = emails.find(e => e.id === id)
+    if (!email) return
     
-    // For new emails, check if user has made changes
-    if (id.startsWith('new-') && email) {
-      const hasChanges = 
-        editingValues[id]?.title?.trim() !== email.title ||
-        editingValues[id]?.content?.trim() ||
-        editingValues[id]?.subject?.trim() ||
-        editingValues[id]?.candidateId ||
-        editingValues[id]?.templateId ||
-        editingValues[id]?.customPrompt?.trim()
-      
-      if (hasChanges) {
-        // Show confirmation dialog for new emails with changes
-        setCancelConfirmId(id)
-        return
-      } else {
-        // Remove the new empty email directly
-        setEmails(emails.filter(e => e.id !== id))
-      }
+    // Check if there are unsaved changes using the hasChanges function
+    if (hasChanges(id)) {
+      // Show confirmation dialog for cancelling with changes
+      setCancelConfirmId(id)
+      return
+    }
+    
+    // No changes, proceed with cancel
+    if (id.startsWith('new-')) {
+      // Remove the new email without changes
+      setEmails(emails.filter(e => e.id !== id))
     } else {
-      // Cancel editing without saving for existing emails
+      // Exit edit mode for existing emails
       setEmails(
-        emails.map((e) => (e.id === id ? { ...e, isEditing: false, isExpanded: e.isExpanded } : e))
+        emails.map((e) => (e.id === id ? { ...e, isEditing: false } : e))
       )
     }
     
@@ -228,8 +239,15 @@ export const useEmailManager = ({
   const confirmCancel = () => {
     if (!cancelConfirmId) return
     
-    // Remove the new email completely
-    setEmails(emails.filter(e => e.id !== cancelConfirmId))
+    // For new items, remove completely
+    if (cancelConfirmId.startsWith('new-')) {
+      setEmails(emails.filter(e => e.id !== cancelConfirmId))
+    } else {
+      // For existing items, just exit edit mode
+      setEmails(emails.map(e => 
+        e.id === cancelConfirmId ? { ...e, isEditing: false } : e
+      ))
+    }
     
     // Clear editing state
     clearEditingState(cancelConfirmId)
@@ -266,6 +284,22 @@ export const useEmailManager = ({
     }
     
     setCancelConfirmId(null)
+  }
+
+  const confirmCollapse = () => {
+    if (!collapseConfirmId) return
+    
+    // Collapse existing item without saving changes
+    setEmails(emails.map(e => 
+      e.id === collapseConfirmId 
+        ? { ...e, isExpanded: false, isEditing: false } 
+        : e
+    ))
+    
+    // Clear editing state
+    clearEditingState(collapseConfirmId)
+    
+    setCollapseConfirmId(null)
   }
 
   const handleDelete = (id: string) => {
@@ -444,11 +478,14 @@ export const useEmailManager = ({
     setDeleteConfirmId,
     cancelConfirmId,
     setCancelConfirmId,
+    collapseConfirmId,
+    setCollapseConfirmId,
     handleNewEmail,
     handleToggleExpand,
     handleSave,
     handleCancel,
     confirmCancel,
+    confirmCollapse,
     handleDelete,
     confirmDelete,
     handleCopyToClipboard,

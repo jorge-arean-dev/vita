@@ -104,7 +104,9 @@ export const useEmailGeneration = ({
         formData.append('candidateId', editingValue.candidateId)
       }
       
-      if (editingValue.customPrompt) {
+      // Only send custom prompt if a custom template is selected
+      // This prevents old custom prompts from interfering with other templates
+      if (isCustomTemplate(editingValue.templateId) && editingValue.customPrompt) {
         formData.append('customPrompt', editingValue.customPrompt)
       }
       

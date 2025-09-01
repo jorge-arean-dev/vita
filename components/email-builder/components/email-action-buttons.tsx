@@ -80,11 +80,10 @@ export function EmailActionButtons({
           size="sm"
           className="gap-2"
           disabled={
+            !hasChanges(email.id) || 
             isSaving || 
             isGenerating ||
-            !editingValues[email.id]?.title?.trim() ||
-            !editingValues[email.id]?.templateId ||
-            !hasChanges(email.id)
+            !editingValues[email.id]?.title?.trim()
           }
         >
           {isSaving ? (
