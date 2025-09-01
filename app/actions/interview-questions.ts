@@ -13,6 +13,7 @@ export interface InterviewQuestion {
 export interface JobDescription {
   id: string
   title: string
+  description: string
 }
 
 export interface GenerateQuestionsRequest {
@@ -38,7 +39,7 @@ export async function getJobDescriptions(jobId: string): Promise<JobDescription[
 
   const { data, error } = await supabase
     .from("job_descriptions")
-    .select("id, title")
+    .select("id, title, description")
     .eq("job_id", jobId)
     .order("created_at", { ascending: false })
 

@@ -4,9 +4,9 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
-import { Sparkles, Edit, Save, X, Copy } from "lucide-react"
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
+import { Sparkles, Edit, Save, X, Copy, Eye } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import {
   getJobDescriptions,
@@ -60,6 +60,7 @@ export default function InterviewQuestionsGenerator({ jobData }: InterviewQuesti
   const [showOverwriteDialog, setShowOverwriteDialog] = useState(false)
   const [showUnsavedChangesDialog, setShowUnsavedChangesDialog] = useState(false)
   const [pendingEdit, setPendingEdit] = useState<{ groupType: string; questionId: string } | null>(null)
+  const [showJobPicker, setShowJobPicker] = useState(false)
   const { toast } = useToast()
 
 
@@ -76,10 +77,8 @@ export default function InterviewQuestionsGenerator({ jobData }: InterviewQuesti
         
         setJobDescriptions(descriptions)
         
-        // Auto-select if only one description
-        if (descriptions.length === 1) {
-          setSelectedJobDescription(descriptions[0].id)
-        }
+        // Don't auto-select - user must always pick from the picker
+        // This ensures the picker shows every time Generate is clicked
         
         // Convert existing questions to UI format
         if (existingQuestions.length > 0) {
@@ -171,14 +170,24 @@ export default function InterviewQuestionsGenerator({ jobData }: InterviewQuesti
   }
 
   const handleGenerateQuestions = async () => {
-    if (!jobData?.id || !selectedJobDescription) {
+    if (!jobData?.id) {
       toast({
         title: "Error",
-        description: "Please select a job description first",
+        description: "Job data not found",
         variant: "destructive",
       })
       return
     }
+
+    // Always show the picker when Generate is clicked
+    // This ensures user picks a job description every time
+    setShowJobPicker(true)
+    // Don't reset selection here - let user pick and maintain selection
+  }
+
+  const handleJobDescriptionSelect = async (jobDescriptionId: string) => {
+    setSelectedJobDescription(jobDescriptionId)
+    setShowJobPicker(false)
 
     // Check for existing content and show confirmation if needed
     if (hasExistingQuestions()) {
@@ -251,6 +260,10 @@ export default function InterviewQuestionsGenerator({ jobData }: InterviewQuesti
         jobData.id,
         apiResponse.questions
       )
+      
+      // Reset selection after successful generation
+      // This ensures the picker shows again on next Generate click
+      setSelectedJobDescription("")
       
       toast({
         title: "Success",
@@ -438,7 +451,7 @@ export default function InterviewQuestionsGenerator({ jobData }: InterviewQuesti
                   <Button 
                     onClick={handleGenerateQuestions} 
                     size="sm"
-                    disabled={isLoadingData || jobDescriptions.length === 0 || !selectedJobDescription}
+                    disabled={isLoadingData || jobDescriptions.length === 0}
                   >
                     <Sparkles className="h-4 w-4 mr-2" />
                     {hasExistingQuestions() ? "Regenerate" : "Generate"}
@@ -454,27 +467,76 @@ export default function InterviewQuestionsGenerator({ jobData }: InterviewQuesti
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Job Description Selection */}
-            {jobDescriptions.length > 1 && !isLoadingData && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Select Job Description <span className="text-red-500">*</span>
-                </label>
-                <p className="text-xs text-muted-foreground mb-2">
-                  Choose which job description to use for generating interview questions
-                </p>
-                <Select value={selectedJobDescription} onValueChange={setSelectedJobDescription}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a job description..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {jobDescriptions.map((desc) => (
-                      <SelectItem key={desc.id} value={desc.id}>
-                        {desc.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            {/* Inline Job Description Picker */}
+            {showJobPicker && (
+              <div className="space-y-4 border rounded-lg p-4 bg-muted/20 animate-in slide-in-from-top-1 duration-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-medium">Select Job Description</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Choose which job description to use for generating interview questions
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowJobPicker(false)}
+                    className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                <div className="space-y-2">
+                  {jobDescriptions.map((desc, index) => (
+                    <div 
+                      key={desc.id} 
+                      className="flex items-center justify-between p-3 rounded-lg border bg-background hover:bg-muted/50 hover:border-primary/20 transition-all duration-200 group animate-in fade-in slide-in-from-left-1"
+                      style={{ animationDelay: `${index * 50}ms` }}
+                    >
+                      {/* Job Description Title */}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-sm truncate">{desc.title}</h4>
+                      </div>
+                      
+                      {/* Action Buttons */}
+                      <div className="flex items-center gap-1.5 ml-3">
+                        {/* Preview Button */}
+                        <HoverCard>
+                          <HoverCardTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0 opacity-70 group-hover:opacity-100 transition-opacity duration-200"
+                              aria-label={`Preview ${desc.title}`}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </HoverCardTrigger>
+                          <HoverCardContent className="w-80" align="end" sideOffset={8}>
+                            <div className="space-y-2">
+                              <h4 className="font-medium text-sm">{desc.title}</h4>
+                              <div className="text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap max-h-40 overflow-y-auto">
+                                {desc.description}
+                              </div>
+                            </div>
+                          </HoverCardContent>
+                        </HoverCard>
+                        
+                        {/* Use This Button */}
+                        <Button
+                          variant="default"
+                          size="sm"
+                          className="gap-1.5 px-3 shadow-sm hover:shadow-md transition-all duration-200"
+                          onClick={() => handleJobDescriptionSelect(desc.id)}
+                          aria-label={`Select ${desc.title} job description`}
+                        >
+                          Use This
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -491,14 +553,12 @@ export default function InterviewQuestionsGenerator({ jobData }: InterviewQuesti
             )}
 
             {/* Show prompt message when no questions exist */}
-            {!hasExistingQuestions() && !isGenerating && !isLoadingData && (
+            {!hasExistingQuestions() && !isGenerating && !isLoadingData && !showJobPicker && (
               <div className="text-center py-8">
                 <p className="text-muted-foreground mb-4">
                   {jobDescriptions.length === 0 
                     ? "No job descriptions found. Please create a job description first." 
-                    : selectedJobDescription 
-                      ? "Click \"Generate Questions\" to create tailored interview questions based on your job requirements."
-                      : "Please select a job description to generate interview questions."
+                    : "Click \"Generate\" to select a job description and create tailored interview questions."
                   }
                 </p>
                 {jobDescriptions.length === 0 && jobData?.id && (
