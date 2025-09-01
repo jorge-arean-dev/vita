@@ -156,17 +156,19 @@ export default function CandidatesView({ candidates: initialCandidates }: Candid
             return (
               <Card
                 key={candidate.id}
-                className="flex flex-col overflow-hidden rounded-lg border-border bg-card text-card-foreground shadow-md transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl min-h-[280px] max-h-[400px] w-full p-0"
+                className="flex flex-col overflow-hidden rounded-lg border-border bg-card text-card-foreground shadow-md transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl min-h-[280px] max-h-[400px] w-full p-0 gap-2"
               >
-                <CardHeader className="flex flex-row items-center gap-4 px-4 pt-4 pb-4 flex-shrink-0">
-                  <div
-                    className={`h-16 w-16 rounded-full border-2 border-primary ${getAvatarColor(fullName)} flex items-center justify-center text-white font-medium text-lg`}
-                  >
-                    {getInitials(candidate.first_name, candidate.last_name)}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-bold">{fullName}</h3>
-                    <p className="text-sm text-muted-foreground">{candidate.email || 'No email'}</p>
+                <CardHeader className="flex flex-row items-center justify-between px-4 pt-4 pb-4 flex-shrink-0">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div
+                      className={`h-10 w-10 rounded-full border-2 border-primary ${getAvatarColor(fullName)} flex items-center justify-center text-white font-medium text-sm`}
+                    >
+                      {getInitials(candidate.first_name, candidate.last_name)}
+                    </div>
+                    <div className="flex flex-col min-w-0 flex-1">
+                      <h3 className="text-sm font-semibold truncate">{fullName}</h3>
+                      <p className="text-xs text-muted-foreground">{candidate.email || 'No email'}</p>
+                    </div>
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -192,12 +194,12 @@ export default function CandidatesView({ candidates: initialCandidates }: Candid
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </CardHeader>
-                <CardContent className="flex-1 space-y-3 px-4 py-3 min-h-0 flex flex-col justify-between overflow-hidden">
-                  <div className="flex items-center text-sm text-foreground">
+                <CardContent className="flex-1 space-y-2 px-4 py-2 min-h-0 flex flex-col justify-between overflow-hidden">
+                  <div className="flex items-center text-xs text-foreground">
                     <MapPin className="mr-2 h-4 w-4 shrink-0 text-primary" />
                     <span className="truncate">{location}</span>
                   </div>
-                  <div className="flex items-center text-sm text-foreground">
+                  <div className="flex items-center text-xs text-foreground">
                     <Briefcase className="mr-2 h-4 w-4 shrink-0 text-primary" />
                     <span>
                       {candidate.years_experience 
