@@ -29,8 +29,8 @@ export function EmailCard({
   onCopyToClipboard
 }: EmailCardProps) {
   return (
-    <Card className="w-full">
-      <CardContent className="p-6 space-y-6">
+    <Card className="w-full py-2 gap-2">
+      <CardContent className="p-4 space-y-2">
         {/* Header with Title and Actions (Collapsible) */}
         <Collapsible open={email.isExpanded} onOpenChange={() => onToggleExpand(email.id)} className="w-full">
           <div className="flex items-center justify-between">
@@ -44,11 +44,11 @@ export function EmailCard({
                 <Input
                   value={editingValues[email.id]?.title || email.title}
                   onChange={(e) => onEditingTitleChange(email.id, e.target.value)}
-                  className="text-xl font-bold border-none shadow-none p-0 h-auto focus-visible:ring-0"
+                  className="text-base font-semibold border-none shadow-none p-0 h-auto focus-visible:ring-0"
                   placeholder="Enter email title..."
                 />
               ) : (
-                <CardTitle className="text-xl font-bold">{email.title}</CardTitle>
+                <CardTitle className="text-base font-semibold">{email.title}</CardTitle>
               )}
             </div>
 
