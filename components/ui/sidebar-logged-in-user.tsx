@@ -38,7 +38,7 @@ export default function Sidebar() {
       </div>
 
       <nav className="flex-1 px-2 py-4 space-y-2">
-        <TooltipProvider>
+        <TooltipProvider key={collapsed ? 'collapsed' : 'expanded'}>
           <Tooltip>
             <TooltipTrigger asChild>
               <Link
