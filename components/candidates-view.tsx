@@ -156,7 +156,7 @@ export default function CandidatesView({ candidates: initialCandidates }: Candid
             return (
               <Card
                 key={candidate.id}
-                className="flex flex-col overflow-hidden rounded-lg border-border bg-card text-card-foreground shadow-md transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl min-h-[280px] max-h-[400px] w-full p-0 gap-2"
+                className="flex flex-col overflow-hidden rounded-lg border-border bg-card text-card-foreground shadow-md transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl min-h-[220px] max-h-[400px] w-full p-0 gap-2"
               >
                 <CardHeader className="flex flex-row items-center justify-between px-4 pt-4 pb-4 flex-shrink-0">
                   <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -194,7 +194,7 @@ export default function CandidatesView({ candidates: initialCandidates }: Candid
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </CardHeader>
-                <CardContent className="flex-1 space-y-2 px-4 py-2 min-h-0 flex flex-col justify-between overflow-hidden">
+                <CardContent className="flex-1 space-y-2 px-4 py-2 min-h-0 flex flex-col overflow-hidden">
                   <div className="flex items-center text-xs text-foreground">
                     <MapPin className="mr-2 h-4 w-4 shrink-0 text-primary" />
                     <span className="truncate">{location}</span>
