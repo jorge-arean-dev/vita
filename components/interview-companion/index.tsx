@@ -18,7 +18,8 @@ import {
   ChevronDown,
   ChevronRight,
   MoreHorizontal,
-  Trash2
+  Trash2,
+  Calendar
 } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
@@ -237,16 +238,16 @@ export default function InterviewCompanion({ jobId }: InterviewCompanionProps): 
               onOpenChange={() => handleToggleExpanded(interview.id)}
             >
               <Card className="transition-all hover:shadow-md">
-                <CardContent className="px-4 py-0">
-                  <div className="flex items-center justify-between">
-                    {/* Main Row Content (Always visible) */}
-                    <div className="grid flex-1 items-center gap-4 pr-4 sm:grid-cols-10">
+                <CardContent className="px-4 py-3">
+                  <div className="flex items-center gap-4">
+                    {/* Container 1: Left side - Expand/Collapse + Candidate Info */}
+                    <div className="flex flex-1 items-center gap-2">
                       {/* Expand/Collapse Toggle */}
                       <CollapsibleTrigger asChild>
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="col-span-1 h-8 w-8 p-0"
+                          className="h-8 w-8 p-0 flex-shrink-0"
                           aria-label={expandedInterviewId === interview.id ? "Collapse" : "Expand"}
                         >
                           {expandedInterviewId === interview.id ? (
@@ -258,59 +259,61 @@ export default function InterviewCompanion({ jobId }: InterviewCompanionProps): 
                       </CollapsibleTrigger>
 
                       {/* Candidate Name & Interview Title */}
-                      <div className="col-span-4 flex flex-col items-start">
-                            <h3 className="text-base font-semibold leading-tight transition-colors">
-                              {interview.candidates ? (
-                                `${interview.candidates.first_name} ${interview.candidates.last_name}`
-                              ) : (
-                                'No candidate assigned'
-                              )}
-                            </h3>
-                            <p className="text-xs text-muted-foreground">
-                              {interview.title || `Interview #${interviews.indexOf(interview) + 1}`}
-                            </p>
+                      <div className="flex flex-col items-start flex-1">
+                        <h3 className="text-base font-semibold leading-tight transition-colors">
+                          {interview.candidates ? (
+                            `${interview.candidates.first_name} ${interview.candidates.last_name}`
+                          ) : (
+                            'No candidate assigned'
+                          )}
+                        </h3>
+                        <p className="text-xs text-muted-foreground">
+                          {interview.title || `Interview #${interviews.indexOf(interview) + 1}`}
+                        </p>
                       </div>
+                    </div>
 
+                    {/* Container 2: Right side - Date, Status, Menu (evenly distributed) */}
+                    <div className="flex flex-1 items-center justify-between">
                       {/* Interview Date & Time */}
-                      <div className="col-span-3 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Calendar className="h-3 w-3" />
                         Created on {new Date(interview.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, at{' '}
                         {new Date(interview.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).toLowerCase()}
                       </div>
 
                       {/* Status Badge */}
-                      <div className="col-span-2">
-                        <InterviewStatusBadge 
-                          status={getInterviewStatusBadgeStatus(interview.status)}
-                          isStatic={true}
-                          showIcon={false}
-                          className="text-xs"
-                        />
-                      </div>
-                    </div>
+                      <InterviewStatusBadge 
+                        status={getInterviewStatusBadgeStatus(interview.status)}
+                        isStatic={true}
+                        showIcon={false}
+                        className="text-xs"
+                      />
 
-                    {/* Action Menu (MoreHorizontal) */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0"
-                          aria-label={`Actions for ${interview.title} - ${interview.candidates?.first_name} ${interview.candidates?.last_name}`}
-                        >
-                          <span className="sr-only">Open menu</span>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-[180px]">
-                        <DropdownMenuItem
-                          onClick={() => handleDeleteInterview(interview.id)}
-                          className="cursor-pointer text-destructive"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                      {/* Action Menu (MoreHorizontal) */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            aria-label={`Actions for ${interview.title} - ${interview.candidates?.first_name} ${interview.candidates?.last_name}`}
+                          >
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-[180px]">
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteInterview(interview.id)}
+                            className="cursor-pointer text-destructive"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
                 </CardContent>
                 <CollapsibleContent>
