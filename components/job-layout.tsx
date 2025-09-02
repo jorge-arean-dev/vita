@@ -77,9 +77,9 @@ export default function JobLayout({ jobId, jobData, children }: JobLayoutProps) 
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col h-full">
       {/* Fixed Header Section */}
-      <div className="border-b pb-4 mb-4 space-y-2">
+      <div className="border-b pb-4 mb-4 space-y-2 flex-shrink-0">
         {/* Row 1: Breadcrumb Navigation and Back Button */}
         <div className="flex items-center justify-between">
           <JobBreadcrumb jobId={jobId} jobTitle={jobData.title} />
@@ -138,7 +138,7 @@ export default function JobLayout({ jobId, jobData, children }: JobLayoutProps) 
       </div>
 
       {/* Dynamic Content Area */}
-      <div>
+      <div className="flex-1 min-h-0">
         {children}
       </div>
 

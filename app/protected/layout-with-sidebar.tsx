@@ -23,12 +23,12 @@ export default async function ProtectedLayoutWithSidebar({
     .single();
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen overflow-hidden">
       {/* Sidebar */}
       <Sidebar />
       
       {/* Main content */}
-      <div className="flex-1 flex flex-col min-h-screen">
+      <div className="flex-1 flex flex-col h-full overflow-hidden">
         {/* Header */}
         <Header 
           avatarUrl={profile?.avatar_url} 
@@ -37,12 +37,12 @@ export default async function ProtectedLayoutWithSidebar({
         />
         
         {/* Main content */}
-        <main className="flex-1 p-6 overflow-auto">
+        <main className="flex-1 p-6 overflow-y-auto overflow-x-hidden">
           {children}
         </main>
         
         {/* Footer */}
-        <footer className="w-full border-t py-4 px-6 text-center text-xs flex items-center justify-center gap-4">
+        <footer className="flex-shrink-0 w-full border-t py-4 px-6 text-center text-xs flex items-center justify-center gap-4 bg-background">
           <p>
             Powered by{" "}
             <a
