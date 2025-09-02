@@ -1,12 +1,14 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { ExternalLink, MoreHorizontal, Trash2, Building2 } from "lucide-react"
+import Image from "next/image"
+import { ExternalLink, MoreHorizontal, Trash2, Building2, MapPin, Calendar } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { toast } from "sonner"
+import { useToast } from "@/components/ui/use-toast"
 import { deleteCompany, CompanyData } from "@/app/actions/companies"
 import CompanyDialog from "@/components/company-dialog"
 
@@ -20,6 +22,7 @@ export default function CompaniesView({ companies: initialCompanies }: Companies
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null)
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
+  const { toast } = useToast()
 
   const handleOpen = (company: CompanyData) => {
     setSelectedCompanyId(company.id)
@@ -31,9 +34,16 @@ export default function CompaniesView({ companies: initialCompanies }: Companies
       try {
         await deleteCompany(companyId)
         setCompanies(companies.filter((company) => company.id !== companyId))
-        toast.success("Company deleted successfully")
+        toast({
+          title: "Success",
+          description: "Company deleted successfully",
+        })
       } catch (error) {
-        toast.error("Failed to delete company")
+        toast({
+          title: "Error",
+          description: "Failed to delete company",
+          variant: "destructive",
+        })
         console.error("Error deleting company:", error)
       }
     })
@@ -60,6 +70,36 @@ export default function CompaniesView({ companies: initialCompanies }: Companies
     ]
     const index = name.length % colors.length
     return colors[index]
+  }
+
+  const formatCreatedDate = (dateString: string) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    
+    // Reset time to midnight for both dates to compare calendar days
+    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+    const nowOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    
+    const diffInMs = nowOnly.getTime() - dateOnly.getTime()
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24))
+    
+    if (diffInDays === 0) return 'Created today'
+    if (diffInDays === 1) return 'Created yesterday'
+    
+    // Less than 2 weeks: show in days
+    if (diffInDays < 14) return `Created ${diffInDays} days ago`
+    
+    // 2-4 weeks: show in weeks
+    const diffInWeeks = Math.floor(diffInDays / 7)
+    if (diffInWeeks <= 4) return `Created ${diffInWeeks} week${diffInWeeks > 1 ? 's' : ''} ago`
+    
+    // More than 4 weeks: show in months
+    const diffInMonths = Math.floor(diffInDays / 30)
+    if (diffInMonths < 12) return `Created ${diffInMonths} month${diffInMonths > 1 ? 's' : ''} ago`
+    
+    // More than a year: show in years
+    const diffInYears = Math.floor(diffInDays / 365)
+    return `Created ${diffInYears} year${diffInYears > 1 ? 's' : ''} ago`
   }
 
   const handleCompanyCreated = () => {
@@ -94,13 +134,9 @@ export default function CompaniesView({ companies: initialCompanies }: Companies
           </div>
         ) : (
           <div className="space-y-4">
-            {/* Table Headers */}
-            <div className="grid grid-cols-12 gap-4 px-6 py-3 text-sm font-medium text-muted-foreground border-b">
-              <div className="col-span-4">Name</div>
-              <div className="col-span-2">Location</div>
-              <div className="col-span-2">Industry</div>
-              <div className="col-span-2">Added</div>
-              <div className="col-span-2"></div>
+            {/* Table Headers - Hidden but kept for structure */}
+            <div className="sr-only">
+              <div>Company Details</div>
             </div>
 
             {/* Company Cards */}
@@ -112,65 +148,82 @@ export default function CompaniesView({ companies: initialCompanies }: Companies
                 return (
                   <Card
                     key={company.id}
-                    className="group cursor-pointer transition-all duration-200 hover:shadow-md hover:border-primary/50 focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2"
-                    onClick={() => handleOpen(company)}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`Open company: ${company.name}`}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault()
-                        handleOpen(company)
-                      }
-                    }}
+                    className="group transition-all duration-300 hover:shadow-lg hover:border-primary/50 hover:-translate-y-0.5 py-2"
                   >
-                    <CardContent className="p-4">
-                      <div className="grid grid-cols-12 gap-4 items-center">
-                        {/* Company Logo + Name */}
-                        <div className="col-span-4 flex items-center gap-3">
-                          <div
-                            className={`w-10 h-10 rounded-md ${getAvatarColor(company.name)} flex items-center justify-center text-white font-medium text-sm`}
-                          >
-                            {getInitials(company.name)}
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="font-medium group-hover:text-primary transition-colors">
-                              {company.name}
-                            </span>
-                          </div>
+                    <CardContent className="px-8 py-4">
+                      <div className="flex items-center gap-3">
+                        {/* Company Logo */}
+                        <div
+                          className={`w-10 h-10 rounded-lg ${getAvatarColor(company.name)} flex items-center justify-center text-white font-semibold text-sm flex-shrink-0`}
+                        >
+                          {getInitials(company.name)}
                         </div>
 
-                        {/* Location */}
-                        <div className="col-span-2">
-                          <span className="text-muted-foreground">{location}</span>
-                        </div>
-
-                        {/* Industry */}
-                        <div className="col-span-2">
-                          <span className="text-muted-foreground">{industry}</span>
-                        </div>
-
-                        {/* Added Date */}
-                        <div className="col-span-2">
-                          <span className="text-muted-foreground">
-                            {new Date(company.created_at).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric'
-                            })}
+                        {/* Company Name - Takes flexible space */}
+                        <div className="flex-1 min-w-0">
+                          <span className="text-base font-bold group-hover:text-primary transition-colors truncate block">
+                            {company.name}
                           </span>
                         </div>
 
-                        {/* Links + Actions */}
-                        <div className="col-span-2 flex items-center justify-center gap-3">
+                        {/* Country + Industry + Date - Center section */}
+                        <div className="flex items-center gap-12">
+                          {/* Company Country - Progressive disclosure */}
+                          <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground w-[220px]">
+                            <MapPin className="h-3 w-3 text-muted-foreground" />
+                            <span>{location}</span>
+                          </div>
+
+                          {/* Company Industry - Progressive disclosure */}
+                          <div className="hidden md:block w-[280px]">
+                            <Badge variant="secondary" className="text-xs">
+                              {industry}
+                            </Badge>
+                          </div>
+
+                          {/* Added Date - Progressive disclosure */}
+                          <div className="hidden lg:flex items-center gap-2 text-xs text-muted-foreground w-[240px]">
+                            <Calendar className="h-3 w-3 text-muted-foreground" />
+                            <span>{formatCreatedDate(company.created_at)}</span>
+                          </div>
+                        </div>
+
+                        {/* Spacer to push right section */}
+                        <div className="flex-1"></div>
+
+                        {/* Open Button */}
+                        <Button 
+                          className="px-3 sm:px-4 py-2 text-sm flex-shrink-0"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleOpen(company)
+                          }}
+                        >
+                          Open
+                        </Button>
+
+                        {/* Spacer */}
+                        <div className="w-8"></div>
+
+                        {/* Icon Links */}
+                        <div className="flex items-center gap-1">
                           {/* Website Icon */}
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <ExternalLink 
-                                className={`h-5 w-5 cursor-pointer ${
+                              <button
+                                className={`p-2 rounded-md transition-colors hover:bg-muted min-w-[36px] min-h-[36px] flex items-center justify-center ${
                                   company.website ? "text-green-600" : "text-gray-400"
                                 }`}
-                              />
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  if (company.website) window.open(company.website, '_blank')
+                                }}
+                                aria-label={company.website ? `Visit ${company.name} website` : "No website available"}
+                                disabled={!company.website}
+                                type="button"
+                              >
+                                <ExternalLink className="h-4 w-4" />
+                              </button>
                             </TooltipTrigger>
                             <TooltipContent>
                               <p>{company.website ? "Website Available" : "No Website"}</p>
@@ -180,48 +233,59 @@ export default function CompaniesView({ companies: initialCompanies }: Companies
                           {/* LinkedIn Icon */}
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <div
-                                className={`h-5 w-5 rounded-sm flex items-center justify-center cursor-pointer ${
-                                  company.linkedin ? "bg-[#0A66C2]" : "bg-gray-400"
-                                }`}
+                              <button
+                                className={`p-2 rounded-md transition-colors hover:bg-muted min-w-[36px] min-h-[36px] flex items-center justify-center`}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  if (company.linkedin) window.open(company.linkedin, '_blank')
+                                }}
+                                aria-label={company.linkedin ? `Visit ${company.name} LinkedIn profile` : "No LinkedIn profile available"}
+                                disabled={!company.linkedin}
+                                type="button"
                               >
-                                <span className="text-white font-bold text-[10px] leading-none">in</span>
-                              </div>
+                                <Image
+                                  src={company.linkedin ? "/linkedin-logo/linkedin-active.svg" : "/linkedin-logo/linkedin-inactive.svg"}
+                                  alt="LinkedIn"
+                                  width={16}
+                                  height={16}
+                                  className="w-4 h-4"
+                                />
+                              </button>
                             </TooltipTrigger>
                             <TooltipContent>
                               <p>{company.linkedin ? "LinkedIn Profile Available" : "No LinkedIn Profile"}</p>
                             </TooltipContent>
                           </Tooltip>
-
-                          {/* Action Menu */}
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity ml-2"
-                                aria-label={`Actions for ${company.name}`}
-                                onClick={(e) => e.stopPropagation()}
-                                disabled={isPending}
-                              >
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-[160px]">
-                              <DropdownMenuItem
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handleDelete(company.id)
-                                }}
-                                className="cursor-pointer text-destructive focus:text-destructive"
-                                disabled={isPending}
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
                         </div>
+
+                        {/* Action Menu */}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-9 w-9 flex-shrink-0"
+                              aria-label={`Actions for ${company.name}`}
+                              onClick={(e) => e.stopPropagation()}
+                              disabled={isPending}
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-[160px]">
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDelete(company.id)
+                              }}
+                              className="cursor-pointer text-destructive focus:text-destructive"
+                              disabled={isPending}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </CardContent>
                   </Card>
