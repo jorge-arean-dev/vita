@@ -1,7 +1,8 @@
 "use client"
 
-import { Building2, LogOut } from "lucide-react"
+import { LogOut } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAvatar } from "@/hooks/use-avatar"
@@ -41,10 +42,25 @@ export default function Header({ avatarUrl, firstName, userId }: HeaderProps) {
       <div className="flex h-16 items-center justify-between px-6">
         {/* Logo */}
         <Link href="/protected" className="flex items-center space-x-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-            <Building2 className="h-5 w-5 text-primary-foreground" />
+          <div className="relative h-12 w-12">
+            <Image
+              src="/logo/vita-logo-light.svg"
+              alt="Vita Logo"
+              width={64}
+              height={64}
+              className="dark:hidden"
+              priority
+            />
+            <Image
+              src="/logo/vita-logo-dark.svg"
+              alt="Vita Logo"
+              width={64}
+              height={64}
+              className="hidden dark:block"
+              priority
+            />
           </div>
-          <span className="text-xl font-bold">Vita</span>
+          
         </Link>
 
         {/* Navigation Links - Center */}
