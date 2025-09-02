@@ -77,17 +77,12 @@ export default function JobLayout({ jobId, jobData, children }: JobLayoutProps) 
   }
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="space-y-6">
       {/* Fixed Header Section */}
-      <div className="border-b pb-6 mb-6 space-y-4">
-        {/* Row 1: Breadcrumb Navigation */}
-        <div className="flex items-center">
-          <JobBreadcrumb jobId={jobId} jobTitle={jobData.title} />
-        </div>
-
-        {/* Row 2: Job Title and Back Button */}
+      <div className="border-b pb-4 mb-4 space-y-2">
+        {/* Row 1: Breadcrumb Navigation and Back Button */}
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold tracking-tight">{jobData.title}</h1>
+          <JobBreadcrumb jobId={jobId} jobTitle={jobData.title} />
           {isOnFeatureRoute ? (
             <Button 
               variant="ghost" 
@@ -115,9 +110,11 @@ export default function JobLayout({ jobId, jobData, children }: JobLayoutProps) 
           )}
         </div>
 
-        {/* Row 3: Company Name and Action Buttons */}
+        {/* Row 2: Job Title at Company and Action Buttons */}
         <div className="flex items-center justify-between">
-          <p className="text-xl text-muted-foreground">{jobData.companyName}</p>
+          <h1 className="text-3xl font-bold tracking-tight">
+            {jobData.title} <span className="text-muted-foreground font-normal ml-2">at {jobData.companyName}</span>
+          </h1>
           <div className="flex items-center gap-2">
             <Button variant="secondary" onClick={() => setIsJobDetailsOpen(true)}>Job Details</Button>
             <DropdownMenu>
