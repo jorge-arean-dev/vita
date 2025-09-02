@@ -88,7 +88,7 @@ export default function JobLayout({ jobId, jobData, children }: JobLayoutProps) 
         {/* Row 2: Job Title and Back Button */}
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold tracking-tight">{jobData.title}</h1>
-          {isOnFeatureRoute && (
+          {isOnFeatureRoute ? (
             <Button 
               variant="ghost" 
               size="sm"
@@ -99,6 +99,18 @@ export default function JobLayout({ jobId, jobData, children }: JobLayoutProps) 
             >
               <ArrowLeft className="h-4 w-4" aria-hidden="true" />
               Back to Job Tools
+            </Button>
+          ) : (
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => router.push("/protected/jobs")}
+              className="gap-1"
+              aria-label="Return to jobs list"
+              title="Go back to the jobs list"
+            >
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+              Back to jobs
             </Button>
           )}
         </div>
