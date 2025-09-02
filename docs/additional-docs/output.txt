@@ -1,708 +1,309 @@
-  "candidate": {
-    "main": {
-      "first_name": "Jorge",
-      "last_name": "Arean",
-      "country": "AR",
-      "email": "jorge.arean@gmail.com",
-      "phone": "+5491128796633",
-      "linkedin": "https://linkedin.com/in/jorge-arean",
-      "github": ""
-    },
-    "skills": [
-      {
-        "name": "Technical Account Management",
-        "type": "role",
-        "yoe": 5.8,
-        "proficiency_level": "expert"
-      },
-      {
-        "name": "Software Engineering",
-        "type": "technology_domain",
-        "yoe": 10.3,
-        "proficiency_level": "expert"
-      },
-      {
-        "name": "Automation",
-        "type": "technology_domain",
-        "yoe": 10.3,
-        "proficiency_level": "expert"
-      },
-      {
-        "name": "Artificial Intelligence",
-        "type": "technology_domain",
-        "yoe": 5,
-        "proficiency_level": "advanced"
-      },
-      {
-        "name": "Prompt Engineering",
-        "type": "technical_skill",
-        "yoe": 1.8,
-        "proficiency_level": "beginner"
-      },
-      {
-        "name": "Vibe Coding",
-        "type": "technical_skill",
-        "yoe": 1.8,
-        "proficiency_level": "beginner"
-      },
-      {
-        "name": "Client Relationship Management",
-        "type": "soft_skill",
-        "yoe": null,
-        "proficiency_level": null
-      },
-      {
-        "name": "Stakeholder Management",
-        "type": "soft_skill",
-        "yoe": null,
-        "proficiency_level": null
-      },
-      {
-        "name": "React",
-        "type": "technical_skill",
-        "yoe": 1.5,
-        "proficiency_level": "beginner"
-      },
-      {
-        "name": "Next.js",
-        "type": "technical_skill",
-        "yoe": 1.5,
-        "proficiency_level": "beginner"
-      },
-      {
-        "name": "GCP",
-        "type": "technical_skill",
-        "yoe": 3,
-        "proficiency_level": "advanced"
-      },
-      {
-        "name": "SQL",
-        "type": "technical_skill",
-        "yoe": 3,
-        "proficiency_level": "advanced"
-      },
-      {
-        "name": "Zapier",
-        "type": "technical_skill",
-        "yoe": 1.5,
-        "proficiency_level": "beginner"
-      },
-      {
-        "name": "n8n",
-        "type": "technical_skill",
-        "yoe": 1.5,
-        "proficiency_level": "beginner"
-      },
-      {
-        "name": "Python",
-        "type": "technical_skill",
-        "yoe": 5,
-        "proficiency_level": "advanced"
-      },
-      {
-        "name": "Node.js",
-        "type": "technical_skill",
-        "yoe": 4,
-        "proficiency_level": "advanced"
-      },
-      {
-        "name": "Docker",
-        "type": "technical_skill",
-        "yoe": 4,
-        "proficiency_level": "advanced"
-      },
-      {
-        "name": "PLC Programming",
-        "type": "technical_skill",
-        "yoe": 6,
-        "proficiency_level": "expert"
-      },
-      {
-        "name": "Modbus TCP",
-        "type": "technical_skill",
-        "yoe": 4,
-        "proficiency_level": "advanced"
-      },
-      {
-        "name": "Node-Red",
-        "type": "technical_skill",
-        "yoe": 4,
-        "proficiency_level": "advanced"
-      },
-      {
-        "name": "Grafana",
-        "type": "technical_skill",
-        "yoe": 4,
-        "proficiency_level": "advanced"
-      },
-      {
-        "name": "OPC-UA",
-        "type": "technical_skill",
-        "yoe": 4,
-        "proficiency_level": "advanced"
-      },
-      {
-        "name": "InfluxDB",
-        "type": "technical_skill",
-        "yoe": 4,
-        "proficiency_level": "advanced"
-      },
-      {
-        "name": "Cybersecurity",
-        "type": "technology_domain",
-        "yoe": 6,
-        "proficiency_level": "expert"
-      },
-      {
-        "name": "Cloud Services",
-        "type": "technology_domain",
-        "yoe": 6,
-        "proficiency_level": "expert"
-      },
-      {
-        "name": "Internet Of Things",
-        "type": "technology_domain",
-        "yoe": 6,
-        "proficiency_level": "expert"
-      },
-      {
-        "name": "Sales",
-        "type": "soft_skill",
-        "yoe": null,
-        "proficiency_level": null
-      },
-      {
-        "name": "Leadership",
-        "type": "soft_skill",
-        "yoe": null,
-        "proficiency_level": null
-      },
-      {
-        "name": "Communication",
-        "type": "soft_skill",
-        "yoe": null,
-        "proficiency_level": null
-      },
-      {
-        "name": "Team Leadership",
-        "type": "soft_skill",
-        "yoe": null,
-        "proficiency_level": null
-      },
-      {
-        "name": "Artificial Intelligence Specialist",
-        "type": "certification",
-        "yoe": null,
-        "proficiency_level": null
-      },
-      {
-        "name": "Data Scientist",
-        "type": "certification",
-        "yoe": null,
-        "proficiency_level": null
-      },
-      {
-        "name": "Android Developer",
-        "type": "certification",
-        "yoe": null,
-        "proficiency_level": null
-      },
-      {
-        "name": "Electronics Engineer",
-        "type": "certification",
-        "yoe": null,
-        "proficiency_level": null
-      }
-    ],
-    "years_of_experience": 10.3,
-    "raw_pdf_profile_text": "\n\n \nJorge Arean \nBuenos Aires, Argentina \n \nEmail: jorge.arean@gmail.com  |  Phone: +54 9 1128796633   |   \nlinkedin.com/in/jorge-arean  \n \nSummary \nExperienced professional with a strong background in technical account management, software \nengineering, automation and AI. \nI bring a strong technical combined with a growing specialization in product development \npowered by AI tools. Skilled in prompt engineering, vibe coding and automation, I leverage \nthese capabilities to accelerate product cycles and optimize internal systems. My track record \nincludes building AI-integrated tools and platforms, aligning product features with business \ngoals, and driving innovation through automation and emerging technologies.  \nWith a strong client-facing background developed through years in account management and \nsales, I bring a client-centric mindset to every product I build, ensuring solutions are not only \ntechnically sound but also deeply aligned with user needs and market demands. \nExperience \nTechnical Account Manager, Genium \nFeb 2024 - Present \nGenium is a software development agency that connects innovative companies with world-class \ndevelopers, engineers, and security experts. As a Technical Account Manager, I’m responsible \nfor: \n● Maintaining and nurturing client relationships, ensuring high levels of client satisfaction. \n● Assisting and supporting development teams with stakeholder management, acting as a \nliaison between developers and client stakeholders. \n● Conducting regular performance reviews with both clients and development teams to \nensure quality output and high performance. \n● Upselling additional development and engineering positions to existing clients, \ncontributing to business growth. \n● Hosting client meetings to track progress, occasionally presenting technical proposals, \nand discussing company goals. \n● Developing performance review processes for development team leads, equipping them \nwith tools to effectively assess developers. \n\n \n \nHead of Operations, FullStackRemote \nJan 2024 - July 2025 \nFullStackRemote is a US-based startup specializing in connecting pre-vetted engineering talent \nwith global companies. As Head of Operation, I led initiatives across product engineering and \noperations with a deep focus on AI tool integration. \nOperations: \n● Systematized processes to maintain a consistent high-caliber talent pipeline. \n● Implemented automated systems leveraging AI to improve matching and screening \nworkflows using n8n and Zapier \n● Performed talent database migration to GCP for scalability. \nProduct Management & Engineering: \n● Built the company’s internal React-based (Next.js) ATS from the ground up \n● Served as both product manager and engineer, integrating prompt engineering and vibe \ncoding into the development workflow. \n● Led the creation of an AI-based screening system to automate candidate evaluations. \nSales and Business Development: \n● Worked closely with the CEO to identify and pursue new business opportunities. \n● Streamlined the talent-matching process, ensuring optimal matches between clients and \ncandidates in our network. \nImpact/Achievements \n✓ Successfully launched an MVP version of the AI Technical Screener. \n✓ Released the first MVP of the company’s ATS. \n✓ Implemented a SQL-based storage infrastructure on GCP, enhancing operational \nefficiency. \n✓ Developed an interactive real-time dashboard to improve internal operations. \n✓ Led team efforts to improve overall efficiency and workflows \n \n\n \nOperations Manager, Toptal \nJun 2022 - Jan 2024 \n \nAs an Operations Manager, I served as a bridge between Talent Ops and new business \nlaunches for Toptal offerings. Additionally, I collaborated across all Talent Ops functions and the \nPractices team to formulate and implement the Talent Strategy for Toptal.  \nMy role included developing methods to ensure the right level of high-quality talent supply at the \nright time, with the required skill sets to meet the current and future needs of Toptal offerings.  \n \nResponsibilities:  \n● Ensured seamless adaptation of Talent Ops functions (Matching, Supply, Screening, \nTalent Success) to new Toptal offerings. This included providing continuous support to \nTalent Ops teams on new Toptal offerings through trainings, ongoing supervision, and \nacting as a facilitator with Subject Matter Experts (SMEs) from the Practices Team when \nneeded.  \n● Served as the main point of contact from Talent Ops for the Practices Team, a team \ncomposed of SMEs responsible for creating new Toptal offerings in diverse tech fields.  \n● Coordinated Matching team efforts for client opportunities related to new Toptal offerings. \n● Collaborated with external teams to formalize and document vague and/or unclear \nprocesses.  \nImpact/Achievements \n✓ Actively contributed to the launch of new Toptal offerings in IT Security, Cloud Services, \nand Data and Analytics. This included documenting screening processes and setting up \nsourcing infrastructure to adapt to market needs  \n✓ Utilized available data to create diverse data analysis tools and dashboards that \nenhanced team visibility into processes and facilitated decision-making.  \n✓ Developed and launched a Product Lifecycle Model to define the level of effort required \nfrom the Talent Ops team for new Toptal offerings and business launches  \nTechnical Enterprise Account Manager, Toptal \nJan 2021 - Jun 2022 \n \nAs a Technical Enterprise Account Manager, I collaborated with Fortune 500 companies from \nthe US market, assisting them in building teams with on-demand tech talent. These teams were \nformed by Software Engineers skilled in a diverse range of technologies as well as C-level tech \nroles  \nAs in my previous role, I worked with a diverse range of software technologies (front/back-end \nframeworks, blockchain, cloud services AI, Data, and Analytics, and enterprise software \nintegrations with 3rd party apps and APIs, etc) and also worked closely with clients' Engineering \nTeams to understand their requirements and needs.  \n\n \nThis role marked a career growth from my previous position, as the companies I collaborated \nwith constituted a more significant portion of the company's revenue  \n \nResponsibilities:  \n● Technical Account Management  \n● Gathering project technical requirements  \n● Technical Specialized Recruitment: Performing detailed and customized searches in the \nTop 3% Developers' Network according to the gathered set of requirements  \n● Building developers' teams and Assessing developers who are a potential fit for clients' \nprojects. \n● Assisting clients and developers once the projects/engagements start with any \nissues/inconveniences that may come up.  \n● Providing technical support to the sales team.  \n● Working alongside the sales team to make the company grow increasing Toptal's clients' \nportfolio.  \nImpact/Achievements \nI consistently reached and exceeded team targets which included:  \n✓ Opportunities conversion rate,  \n✓ Speed in fulfilling opportunities  \n✓ Quality of talent delivered  \n✓ Client satisfaction  \nSenior Technical Account Manager, Toptal \nFeb 2020 - Dec 2020 \n \nAs a Technical Account Manager, I collaborated with diverse worldwide companies (US, LATAM, \nEMEA, APAC), assisting them in building teams with on-demand tech talent. These teams were \nformed by Software Engineers skilled in a diverse range of technologies, as well as C-level tech \nroles.  \nTechnologies I worked with included front/back-end software development frameworks, \nblockchain, cloud services (AWS, GCP, Azure, and others), artificial intelligence (AI), enterprise \nsoftware integrations with 3rd party apps and APIs, and Internet of Things (IoT), Cybersecurity, \namong others.  \nMy role as a Technical Account Manager included full ownership of the account, involving \nstakeholder management with the client's Point of Contact (PoC), and close interaction with the \nclient's technical team to understand their requirements. I found the best possible candidates for \nthem within Toptal’s talent network. My tasks also involved ensuring successful collaboration \nbetween talent and clients by resolving any potential issues.  \n \nResponsibilities:  \n● Technical Account Management \n● Gathering project technical requirements  \n\n \n● Technical Specialized Recruitment: Performing detailed and customized searches in the \nTop 3% Developers' Network according to the gathered set of requirements  \n● Building developers' teams: Assessing developers who are a potential fit for clients' \nprojects. Assisting clients and developers once the projects/engagements start with any \nissues or inconveniences that may arise.  \n● Non-technical Account Management: Ensuring account growth through proactive \nactions.  \nImpact/Achievements \nI consistently reached and exceeded team targets, including:  \n✓ Volume of generated opportunities  \n✓ Opportunities conversion rate  \n✓ Speed in fulfilling opportunities  \n✓ Quality of talent delivered  \n✓ Client satisfaction  \nSenior Sales Engineer, ABB \nJul 2017 - Feb 2020 \n \nAs a Sales Engineer in the Industrial Automation Division, I was responsible for maintaining the \nclient base and growing the business within diverse industry segments, including Oil & Gas, \nChemical, and Petrochemical. My responsibilities encompassed promoting and providing \nexpertise on a range of products and services such as SCADA, DCS, PLC, HMI, Cybersecurity, \nCloud Services tailored for Industry Segments, Predictive Maintenance and Condition \nMonitoring, and the Industrial Internet of Things.  \n \nResponsibilities:  \n● Technical Account Management  \n● Supported internal and external customers/sales channels in determining best-in-class \nsolutions that fulfill all engineering and commercial requirements  \n● Drew up proposals for Distributed Control Systems by evaluating customer needs and \nproject specifications (Upgrades, Greenfield/Brownfield Projects)  \n● Provided technical clarifications to customer specifications as part of the technical \nsolution proposed by the company  \n● Provided engineering expertise during technical meetings, customer presentations, and \nnegotiations. - Conducting risk/project reviews, attending customer events, trade shows, \nworkshops, and seminars, and contributing to training for customers and sales team  \n● Enabled and promoted ABB Cybersecurity Services offering in the LATAM market.  \nOwner, IoTeam \nSep 2019 - Feb 2020 \n \n\n \nIoTeam specializes in developing and delivering IoT-based solutions that help companies \nmodernize their infrastructure, enabling digitalization, remote control, and data availability to \nfacilitate a comprehensive view of processes for informed decision-making.  \n \nResponsibilities:  \n● Hosted and facilitated client meetings to understand business and technical needs. \n● Managed and executed engineering efforts including development tasks and \ncoordinating with other technical teams. \nProjects Delivered  \n✓ Remote Control for existing PLC-controlled process: This project involved the \ndevelopment of a Raspberry Pi-embedded ModbusTCP - HTTP gateway. It enabled an \nIndustrial controller (M241 Schneider Electric PLC) to send and receive data, facilitating \nremote control via a web-based SCADA. Technologies: Raspberry Pi, Node-Red, \nNode.js, Docker, Python, PLC Programming, Modbus TCP  \n✓ Real-time Dashboard for Pharmaceutical plant (MVP): This project consisted of the \nimplementation of a real-time dashboard to visualize relevant variables belonging to \ncrucial batch processes from a Pharmaceutical plant. This project not only involved \ndeveloping the dashboard but also included implementing necessary methods to collect \ndata from existing controllers (PLCs). Technologies: Grafana, Node-red, OPC-UA, \nPython, InfluxDB, Industrial Communication Protocols  \nProduct Application Engineer, Schneider Electric \nJun 2014 - Jul 2017 \n \nAs a Product Application Engineer in the Marketing Industry Division, I played a pivotal role in \npromoting and selling a comprehensive product portfolio in Industrial Automation, featuring \nPLCs, Variable Speed Drives, HMI, Sensors, and more. Employing a consultative \nsolution/product selling approach, I strategically engaged with specific target clients such as \nOEMs, End Users, and System Integrators  \nA significant aspect of my role involved serving as a product-oriented Technical Account \nManager, offering invaluable support to existing clients with specific technical needs. I excelled \nin troubleshooting various challenges related to PLCs, communication issues, HMI, and more.  \nAdditionally, I delivered compelling presentations to promote new product offerings at major \nclient events. This experience honed my public speaking skills, contributing significantly to my \noverall professional development.  \n \nResponsibilities:  \n● Provided comprehensive application, technical, and commercial support to Schneider \nElectric distributors and customers. \n● Conducted professional technical training sessions for engineers, customer personnel, \ninternal sales teams, and industry professionals. \n\n \n● Drove sales growth by sharing in-depth application knowledge with Application \nEngineers, Sales personnel, and Channel partners.  \n● Served as a Technical Account Manager, addressing specific client needs and \ntroubleshooting technical issues.  \n● Developed and coordinated a network of strategic partners, including Panel Builders, \nContractors, and OEMs.  \n● Set ambitious goals, developed sales/business plans, and established effective warm \nand cold call plans and strategies.  \n● Created and executed a sales plan to achieve year-over-year sales growth.  \n● Provided detailed call activity reporting and consistent updates through Salesforce.com. \n● Worked with clients from diverse industry markets, including Mining, Minerals & Metal, \nAutomotive, Food & Beverage, Oil & Gas, and Refrigeration.  \nEducation \nArtificial Intelligence Specialist (2019), Digital House \nI completed a 1-year training program designed as the next stage of the Data Scientist \nspecialization course. \nSkills: Neural networks, including dense, convolutional, LSTM, GAN, and Autoencoders. - \nProgramming Language: Python, utilizing essential libraries such as NumPy and Pandas. \nData Scientist (2018), Digital House \nI completed a 1-year specialization course that comprehensively covered the entire Data \nScientist path, from fundamental Statistics concepts to deploying Machine Learning algorithms. \nAndroid Developer (2016), Universidad Tecnologica Nacional \nI completed a 6-month specialized training program in Android Development, providing me with \na strong understanding and practical exposure to Java, Android, and REST APIs. \nElectronics Engineer (2013), Universidad Nacional de Mar del \nPlata \nI completed my Electronics Engineering degree with distinction, earning an average grade of 8 \nout of 10. I was honored with recognition as one of the Distinguished Academic Awardees of the \n2013 promotion  \n \n "
-  },
-  "job": {
-    "attributes": {
-      "title": "Fullstack Engineer (React+Node)",
-      "rate": {
-        "value": "",
-        "freq": "hourly"
-      },
-      "commitment": "full_time",
-      "duration": "permanent",
-      "location": {
-        "category": "remote_global",
-        "regions": [],
-        "countries": []
-      }
-    },
-    "requirements": [
-      {
-        "requirement": "React",
-        "type": "technical_skill",
-        "is_mandatory": true,
-        "proficiency_level": "expert",
-        "weight": 1
-      },
-      {
-        "requirement": "Node",
-        "type": "technical_skill",
-        "is_mandatory": true,
-        "proficiency_level": "expert",
-        "weight": 1
-      },
-      {
-        "requirement": "WordPress",
-        "type": "technical_skill",
-        "is_mandatory": false,
-        "proficiency_level": "beginner",
-        "weight": 0.1
-      },
-      {
-        "requirement": "Ecommerce",
-        "type": "technology_domain",
-        "is_mandatory": false,
-        "proficiency_level": "beginner",
-        "weight": 0.1
-      },
-      {
-        "requirement": "Financial Services",
-        "type": "industry",
-        "is_mandatory": false,
-        "proficiency_level": null,
-        "weight": 0.5
-      },
-      {
-        "requirement": "Inclusion",
-        "type": "soft_skill",
-        "is_mandatory": false,
-        "proficiency_level": null,
-        "weight": 0.5
-      },
-      {
-        "requirement": "Team Building",
-        "type": "soft_skill",
-        "is_mandatory": false,
-        "proficiency_level": null,
-        "weight": 0.5
-      },
-      {
-        "requirement": "Teamwork",
-        "type": "soft_skill",
-        "is_mandatory": false,
-        "proficiency_level": null,
-        "weight": 0.5
-      },
-      {
-        "requirement": "Collaboration",
-        "type": "soft_skill",
-        "is_mandatory": false,
-        "proficiency_level": null,
-        "weight": 0.5
-      }
-    ]
-  }
+PS C:\Users\jorge\coding\vita> pnpm dev
+
+> @ dev C:\Users\jorge\coding\vita
+> next dev --turbopack
+
+   ▲ Next.js 15.3.4 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://10.5.0.2:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Compiled middleware in 376ms
+ ✓ Ready in 2.5s
+ ○ Compiling /protected/jobs/[id]/interview-companion ...
+ ✓ Compiled /protected/jobs/[id]/interview-companion in 5.8s
+ GET /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 8201ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 440ms
+ GET /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 3955ms
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 651ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 1039ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 394ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 585ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 517ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 522ms
+ GET /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 783ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 386ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 375ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 527ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 522ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 537ms
+ GET /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 805ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 334ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 322ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 524ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 540ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 550ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 530ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 529ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 520ms
+ GET /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 940ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 1093ms
+[Recall API] Creating bot: Vita Notetaker | webhook: https://4bfa610696ad.ngrok-free.app
+[Recall API] TRANSCRIPTION CONFIG: {
+  REALTIME_PROVIDER: 'meeting_captions',
+  ASYNC_PROVIDER: 'deepgram_async',
+  ENABLE_REALTIME_QUALITY: false
 }
-✅ PDF Match Analysis API Output: {
-  "success": true,
-  "candidate": {
-    "name": "Jorge Arean",
-    "email": "jorge.arean@gmail.com",
-    "skills": [
-      {
-        "name": "Technical Account Management",
-        "yearsOfExperience": 5.8,
-        "proficiencyLevel": "expert",
-        "type": "role",
-        "source": "parsed"
-      },
-      {
-        "name": "Software Engineering",
-        "yearsOfExperience": 10.3,
-        "proficiencyLevel": "expert",
-        "type": "technology_domain",
-        "source": "parsed"
-      },
-      {
-        "name": "Automation",
-        "yearsOfExperience": 10.3,
-        "proficiencyLevel": "expert",
-        "type": "technology_domain",
-        "source": "parsed"
-      },
-      {
-        "name": "Artificial Intelligence",
-        "yearsOfExperience": 5,
-        "proficiencyLevel": "advanced",
-        "type": "technology_domain",
-        "source": "parsed"
-      },
-      {
-        "name": "Prompt Engineering",
-        "yearsOfExperience": 1.8,
-        "proficiencyLevel": "beginner",
-        "type": "technical_skill",
-        "source": "parsed"
-      },
-      {
-        "name": "Vibe Coding",
-        "yearsOfExperience": 1.8,
-        "proficiencyLevel": "beginner",
-        "type": "technical_skill",
-        "source": "parsed"
-      },
-      {
-        "name": "Client Relationship Management",
-        "yearsOfExperience": null,
-        "proficiencyLevel": null,
-        "type": "soft_skill",
-        "source": "parsed"
-      },
-      {
-        "name": "Stakeholder Management",
-        "yearsOfExperience": null,
-        "proficiencyLevel": null,
-        "type": "soft_skill",
-        "source": "parsed"
-      },
-      {
-        "name": "React",
-        "yearsOfExperience": 1.5,
-        "proficiencyLevel": "beginner",
-        "type": "technical_skill",
-        "source": "parsed"
-      },
-      {
-        "name": "Next.js",
-        "yearsOfExperience": 1.5,
-        "proficiencyLevel": "beginner",
-        "type": "technical_skill",
-        "source": "parsed"
-      },
-      {
-        "name": "GCP",
-        "yearsOfExperience": 3,
-        "proficiencyLevel": "advanced",
-        "type": "technical_skill",
-        "source": "parsed"
-      },
-      {
-        "name": "SQL",
-        "yearsOfExperience": 3,
-        "proficiencyLevel": "advanced",
-        "type": "technical_skill",
-        "source": "parsed"
-      },
-      {
-        "name": "Zapier",
-        "yearsOfExperience": 1.5,
-        "proficiencyLevel": "beginner",
-        "type": "technical_skill",
-        "source": "parsed"
-      },
-      {
-        "name": "n8n",
-        "yearsOfExperience": 1.5,
-        "proficiencyLevel": "beginner",
-        "type": "technical_skill",
-        "source": "parsed"
-      },
-      {
-        "name": "Python",
-        "yearsOfExperience": 5,
-        "proficiencyLevel": "advanced",
-        "type": "technical_skill",
-        "source": "parsed"
-      },
-      {
-        "name": "Node.js",
-        "yearsOfExperience": 4,
-        "proficiencyLevel": "advanced",
-        "type": "technical_skill",
-        "source": "parsed"
-      },
-      {
-        "name": "Docker",
-        "yearsOfExperience": 4,
-        "proficiencyLevel": "advanced",
-        "type": "technical_skill",
-        "source": "parsed"
-      },
-      {
-        "name": "PLC Programming",
-        "yearsOfExperience": 6,
-        "proficiencyLevel": "expert",
-        "type": "technical_skill",
-        "source": "parsed"
-      },
-      {
-        "name": "Modbus TCP",
-        "yearsOfExperience": 4,
-        "proficiencyLevel": "advanced",
-        "type": "technical_skill",
-        "source": "parsed"
-      },
-      {
-        "name": "Node-Red",
-        "yearsOfExperience": 4,
-        "proficiencyLevel": "advanced",
-        "type": "technical_skill",
-        "source": "parsed"
-      },
-      {
-        "name": "Grafana",
-        "yearsOfExperience": 4,
-        "proficiencyLevel": "advanced",
-        "type": "technical_skill",
-        "source": "parsed"
-      },
-      {
-        "name": "OPC-UA",
-        "yearsOfExperience": 4,
-        "proficiencyLevel": "advanced",
-        "type": "technical_skill",
-        "source": "parsed"
-      },
-      {
-        "name": "InfluxDB",
-        "yearsOfExperience": 4,
-        "proficiencyLevel": "advanced",
-        "type": "technical_skill",
-        "source": "parsed"
-      },
-      {
-        "name": "Cybersecurity",
-        "yearsOfExperience": 6,
-        "proficiencyLevel": "expert",
-        "type": "technology_domain",
-        "source": "parsed"
-      },
-      {
-        "name": "Cloud Services",
-        "yearsOfExperience": 6,
-        "proficiencyLevel": "expert",
-        "type": "technology_domain",
-        "source": "parsed"
-      },
-      {
-        "name": "Internet Of Things",
-        "yearsOfExperience": 6,
-        "proficiencyLevel": "expert",
-        "type": "technology_domain",
-        "source": "parsed"
-      },
-      {
-        "name": "Sales",
-        "yearsOfExperience": null,
-        "proficiencyLevel": null,
-        "type": "soft_skill",
-        "source": "parsed"
-      },
-      {
-        "name": "Leadership",
-        "yearsOfExperience": null,
-        "proficiencyLevel": null,
-        "type": "soft_skill",
-        "source": "parsed"
-      },
-      {
-        "name": "Communication",
-        "yearsOfExperience": null,
-        "proficiencyLevel": null,
-        "type": "soft_skill",
-        "source": "parsed"
-      },
-      {
-        "name": "Team Leadership",
-        "yearsOfExperience": null,
-        "proficiencyLevel": null,
-        "type": "soft_skill",
-        "source": "parsed"
-      },
-      {
-        "name": "Artificial Intelligence Specialist",
-        "yearsOfExperience": null,
-        "proficiencyLevel": null,
-        "type": "certification",
-        "source": "parsed"
-      },
-      {
-        "name": "Data Scientist",
-        "yearsOfExperience": null,
-        "proficiencyLevel": null,
-        "type": "certification",
-        "source": "parsed"
-      },
-      {
-        "name": "Android Developer",
-        "yearsOfExperience": null,
-        "proficiencyLevel": null,
-        "type": "certification",
-        "source": "parsed"
-      },
-      {
-        "name": "Electronics Engineer",
-        "yearsOfExperience": null,
-        "proficiencyLevel": null,
-        "type": "certification",
-        "source": "parsed"
-      },
-      {
-        "name": "AI",
-        "yearsOfExperience": null,
-        "proficiencyLevel": null,
-        "type": "technical_skill",
-        "source": "resume"
-      },
-      {
-        "name": "GCP (Google Cloud Platform)",
-        "yearsOfExperience": null,
-        "proficiencyLevel": null,
-        "type": "technical_skill",
-        "source": "resume"
-      },
-      {
-        "name": "Data Analysis",
-        "yearsOfExperience": null,
-        "proficiencyLevel": null,
-        "type": "technical_skill",
-        "source": "resume"
-      },
-      {
-        "name": "Blockchain",
-        "yearsOfExperience": null,
-        "proficiencyLevel": null,
-        "type": "technical_skill",
-        "source": "resume"
-      },
-      {
-        "name": "Internet of Things (IoT)",
-        "yearsOfExperience": null,
-        "proficiencyLevel": null,
-        "type": "technical_skill",
-        "source": "resume"
-      },
-      {
-        "name": "Artificial Intelligence (AI)",
-        "yearsOfExperience": null,
-        "proficiencyLevel": null,
-        "type": "technical_skill",
-        "source": "resume"
-      },
-      {
-        "name": "Enterprise Software Integrations",
-        "yearsOfExperience": null,
-        "proficiencyLevel": null,
-        "type": "technical_skill",
-        "source": "resume"
-      },
-      {
-        "name": "Sales Skills",
-        "yearsOfExperience": null,
-        "proficiencyLevel": null,
-        "type": "soft_skill",
-        "source": "resume"
-      },
-      {
-        "name": "Problem Solving",
-        "yearsOfExperience": null,
-        "proficiencyLevel": null,
-        "type": "soft_skill",
-        "source": "resume"
-      },
-      {
-        "name": "Communication Skills",
-        "yearsOfExperience": null,
-        "proficiencyLevel": null,
-        "type": "soft_skill",
-        "source": "resume"
+[Recall API] Bot request payload: {
+  "meeting_url": "https://meet.google.com/eht-ijwg-vav",
+  "bot_name": "Vita Notetaker",
+  "recording_config": {
+    "transcript": {
+      "provider": {
+        "meeting_captions": {}
       }
-    ],
-    "experience": 10.3
-  },
-  "match_analysis": {
-    "overall_score": 56,
-    "status": "weak",
-    "overall_feedback": "This candidate shows limited alignment with the Fullstack Engineer (React+Node) position, scoring 56%. They meet 0 out of 2 mandatory requirements. Areas needing attention include basic knowledge of react needs strengthening and node experience below required expert level. Consider only if candidate demonstrates strong learning agility and growth potential.",        
-    "matched_mandatory_requirements": 0,
-    "total_mandatory_requirements": 2
-  },
-  "requirement_evaluations": [
-    {
-      "requirement_name": "React",
-      "score": 42,
-      "status": "weak",
-      "feedback": "Basic exposure to React detected but proficiency level may need development for this role."
-    },
-    {
-      "requirement_name": "Node",
-      "score": 69,
-      "status": "developing",
-      "feedback": "Good foundation in Node with developing experience. Exact match with Node.js (Below requirement (advanced < expert))"
-    },
-    {
-      "requirement_name": "WordPress",
-      "score": 0,
-      "status": "missing",
-      "feedback": "No clear evidence of WordPress experience found. Critical gap that needs addressing."
-    },
-    {
-      "requirement_name": "Ecommerce",
-      "score": 0,
-      "status": "missing",
-      "feedback": "No clear evidence of Ecommerce experience found. Critical gap that needs addressing."
-    },
-    {
-      "requirement_name": "Financial Services",
-      "score": 0,
-      "status": "missing",
-      "feedback": "No evidence of Financial Services experience found"
-    },
-    {
-      "requirement_name": "Inclusion",
-      "score": 0,
-      "status": "missing",
-      "feedback": "No evidence of Inclusion experience found"
-    },
-    {
-      "requirement_name": "Team Building",
-      "score": 0,
-      "status": "missing",
-      "feedback": "No evidence of Team Building experience found"
-    },
-    {
-      "requirement_name": "Teamwork",
-      "score": 60,
-      "status": "developing",
-      "feedback": "Developing experience with Teamwork identified"
-    },
-    {
-      "requirement_name": "Collaboration",
-      "score": 60,
-      "status": "developing",
-      "feedback": "Developing experience with Collaboration identified"
     }
-  ],
-  "summary": {
-    "strengths": [],
-    "gaps": [
-      "Basic knowledge of React needs strengthening",
-      "Node experience below required expert level"
-    ]
   },
-  "recruiter_recommendations": {
-    "interview_strategy": [
-      "Focus interview on assessing practical experience with: React",
-      "Ask specific scenario-based questions about recent projects involving these technologies"
-    ],
-    "other_options": [
-      "Consider for junior role or with extended training period",
-      "May be suitable if willing to invest in skill development",
-      "Assess cultural fit and learning agility during interview"
-    ]
-  },
-  "metadata": {
-    "analysis_timestamp": "2025-08-27T16:07:42.388Z",
-    "job_id": "temp-job-id",
-    "candidate_id": "temp-candidate-id",
-    "algorithm_version": "pdf-v2.0-unified",
-    "total_processing_time_ms": 0,
-    "resume_length": 14991
+  "webhook_config": {
+    "url": "https://4bfa610696ad.ngrok-free.app"
   }
 }
+[Recall API] Bot created: 51bd2dfc-3aaf-477d-883e-e7055fc4803c
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 2485ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 572ms
+ ○ Compiling /api/recall/webhooks ...
+ ✓ Compiled /api/recall/webhooks in 1080ms
+[WEBHOOK] bot.joining_call | bot_id: 51bd2dfc-3aaf-477d-883e-e7055fc4803c | recording_id: undefined | status: joining_call
+[Webhook] Bot joining call, updating status to created
+[DB] Updating interview status: bot 51bd2dfc-3aaf-477d-883e-e7055fc4803c -> created
+[DB] Using service role client for bot ID: 51bd2dfc-3aaf-477d-883e-e7055fc4803c
+[DB] Updated 1 interviews
+[DB] Updated interview cf866b34-f61c-4608-8144-43db5e8cf4bf to status: created
+[Webhook] Status update result: { success: true, updatedCount: 1 }
+ POST /api/recall/webhooks 200 in 1699ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 574ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 521ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 558ms
+[WEBHOOK] bot.in_call_recording | bot_id: 51bd2dfc-3aaf-477d-883e-e7055fc4803c | recording_id: undefined | status: in_call_recording
+[Webhook] Bot started recording, updating status to in_progress
+[DB] Updating interview status: bot 51bd2dfc-3aaf-477d-883e-e7055fc4803c -> in_progress
+[DB] Using service role client for bot ID: 51bd2dfc-3aaf-477d-883e-e7055fc4803c
+[DB] Updated 1 interviews
+[DB] Updated interview cf866b34-f61c-4608-8144-43db5e8cf4bf to status: in_progress
+[Webhook] Status update result: { success: true, updatedCount: 1 }
+ POST /api/recall/webhooks 200 in 421ms
+ GET /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 629ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 556ms
+ GET /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 622ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 522ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 554ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 513ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 545ms
+[WEBHOOK] bot.call_ended | bot_id: 51bd2dfc-3aaf-477d-883e-e7055fc4803c | recording_id: undefined | status: call_ended
+[Webhook] Bot finished, waiting for recording completion
+ POST /api/recall/webhooks 200 in 151ms
+ GET /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 932ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 526ms
+[WEBHOOK] transcript.done | bot_id: 51bd2dfc-3aaf-477d-883e-e7055fc4803c | recording_id: 8a0cbb37-30f4-44b7-9d2b-1035147c29b7 | status: done
+[Webhook] Transcript completed - bot: 51bd2dfc-3aaf-477d-883e-e7055fc4803c transcript: c99cf197-3a79-4acf-96c3-24e74fd918cb
+[Webhook] Fetching completed transcript: c99cf197-3a79-4acf-96c3-24e74fd918cb
+[Recall API] Fetching transcript: c99cf197-3a79-4acf-96c3-24e74fd918cb
+[WEBHOOK] recording.done | bot_id: 51bd2dfc-3aaf-477d-883e-e7055fc4803c | recording_id: 8a0cbb37-30f4-44b7-9d2b-1035147c29b7 | status: done
+[Webhook] Recording completed - bot: 51bd2dfc-3aaf-477d-883e-e7055fc4803c recording: 8a0cbb37-30f4-44b7-9d2b-1035147c29b7
+[Webhook] Creating async Deepgram transcript for recording: 8a0cbb37-30f4-44b7-9d2b-1035147c29b7
+[Recall API] Creating transcript job for recording: 8a0cbb37-30f4-44b7-9d2b-1035147c29b7
+[Recall API] ASYNC TRANSCRIPT CONFIG: {
+  provider: 'deepgram_async',
+  config: {
+    language: 'en',
+    diarize: true,
+    smart_format: true,
+    punctuate: true
+  }
+}
+[WEBHOOK] bot.done | bot_id: 51bd2dfc-3aaf-477d-883e-e7055fc4803c | recording_id: undefined | status: done
+[Webhook] Bot finished, waiting for recording completion
+ POST /api/recall/webhooks 200 in 148ms
+[Recall API] Transcript response keys: [
+  'id',
+  'recording',
+  'created_at',
+  'status',
+  'metadata',
+  'data',
+  'diarization',
+  'provider'
+]
+[Recall API] Transcript status: {
+  code: 'done',
+  sub_code: null,
+  updated_at: '2025-09-02T21:37:34.736906Z'
+}
+[Recall API] Full transcript data: {
+  "id": "c99cf197-3a79-4acf-96c3-24e74fd918cb",
+  "recording": {
+    "id": "8a0cbb37-30f4-44b7-9d2b-1035147c29b7",
+    "metadata": {}
+  },
+  "created_at": "2025-09-02T21:36:31.550191Z",
+  "status": {
+    "code": "done",
+    "sub_code": null,
+    "updated_at": "2025-09-02T21:37:34.736906Z"
+  },
+  "metadata": {},
+  "data": {
+    "download_url": "https://us-west-2-recallai-production-bot-data.s3.amazonaws.com/_workspace-5af3f291-6456-465a-bdb0-ea40760bbbce/recordings/8a0cbb37-30f4-44b7-9d2b-1035147c29b7/transcript/c99cf197-3a79-4acf-96c3-24e74fd918cb/bot/51bd2dfc-3aaf-477d-883e-e7055fc4803c/AROA3Z2PRSQANGTUQXHNJ%3Ai-070391ccf21e543b6/diarized-processed1.1.json?AWSAccessKeyId=ASIA3Z2PRSQAB6LAAHQW&Signature=zHizW6fc4Vb7KRXhTbnmSG4P%2B34%3D&x-amz-security-token=IQoJb3JpZ2luX2VjEM3%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLXdlc3QtMiJGMEQCIEDT1hWODQjJmeAMuQ7jSepsGq9KImlw5Paj45CFVxGuAiBLkYmjnrY9tWypE%2FFjzrEdkFM93%2BZChTlGK2lC2bzOIyq4BQg2EAAaDDgxMTM3ODc3NTA0MCIMtqUKhkwAeE%2BTncYbKpUFRhJAe3YWpAYeWcmJLT4Hq9U%2FRWD8sr%2B0n3XJ7Y8GS00Tpij579x5iZlzfCQoDG7zFahlt5j3ISRrwuW4R6MAlaa53s4h9yBwzAbP8D7IQvbSbbWqC6WMLIpEl2%2B0PoGpX9gAA3%2BA16RXrbcno9Ze0Y4yEIkAyrkT%2FcUI%2BEOibVkcEpp1kjoKOtsRStrwz32xVL4BMDrF%2F9uO9JfZX4G3K%2BDTTND%2Bwg3I%2Bd4I0GTQSOrIycJb1fnJGRGvK170Xp8iaJV%2Fr%2FudwWMe%2BYZ5%2BpmjV01dRAxPjpumexyjMs9gh5LfEbrDMcDL5Ic%2FFqvUx2sZ2PdD%2BJ4KgGi%2BuEry%2B8IUyYcyiktX7FaI91CUH9DRuE8S7M6hc50rwTZ5n8COQyIJC7M3A97ULU8urcIh8R5ADGK%2FXDV8qQQgxLWy13tYLJCxn%2F21%2FixzcrNI%2FxFXGsFT1huGfpqUzMO7gd8xxuII%2FyBRTRe9e%2Bq4sAfG6rPQJIW7rchTrL%2FOYvrRFM%2FaZohL6Y%2BrRbirsLqxP%2Bx5Tar6Aojo%2Baa8nBzBvDagJmiz9BnrBYyeuceSFtEvYwJRJWjO%2FirPyI%2B6shUzuojqht4fH5jAOBoqpbhzXeNVrEIfF2Ls7OvaEhMELBhUcbIXU7Y%2B3l5tqLxGmPcIe6hI0D%2BOYMoQU1ieCUZmib07Or8tEYOGbcLJPOeLZ1JqiXDZFjieEnJpBD%2Frwv%2Bb0l9xMPDaIRbjFA1SVgMw9TpjTFno27F1uwVubrSF%2FFaPqRgR3555I7mtTfxxhNyf313uREC%2Fy1uOytDXMpArrnEleOKxFmkWSx45md4zjURhl6PFDpV17Nd2TdhzNUnXOhCUzCcTE%2BA5%2FR%2FD%2FcHKzYyWZVTMnWOTDnuEFjCns93FBjqyARe2rOPx6T38C0vG8rtH760fexjCkSD5%2By6jy4Kn6VP%2B5%2FoVdOtWA5rnbAJnU%2FNgyeW%2F3eIrNdwnWAOrQyMF3OMWNOPdLuSTGQKRsRTpZO3ZsG4qC5NGOa%2FNaYw1bhOYw7LcjDGWjjclge48xbvcVRUa2j9HYVPh7YIMDyW%2BBE%2BETMrXLl5hWKERpaLWdkqY8qfzt9RwRtyReOVnakfA6Gan%2Bp7E3w%2FUJLsEeEcOOb0h3j0%3D&Expires=1756870656",
+    "provider_data_download_url": "https://us-west-2.recall.ai/api/v1/download/transcript_provider_data?token=eyJpZCI6ImM5OWNmMTk3LTNhNzktNGFjZi05NmMzLTI0ZTc0ZmQ5MThjYiJ9%3A1utYh6%3AS8cizoCATgw4cDJ5sZlma32KdUrYrcgX8Ji_tlH_keo"
+  },
+  "diarization": null,
+  "provider": {
+    "meeting_captions": {}
+  }
+}
+[Recall API] Status code: done
+[Recall API] Fetching transcript content from: https://us-west-2-recallai-production-bot-data.s3.amazonaws.com/_workspace-5af3f291-6456-465a-bdb0-ea40760bbbce/recordings/8a0cbb37-30f4-44b7-9d2b-1035147c29b7/transcript/c99cf197-3a79-4acf-96c3-24e74fd918cb/bot/51bd2dfc-3aaf-477d-883e-e7055fc4803c/AROA3Z2PRSQANGTUQXHNJ%3Ai-070391ccf21e543b6/diarized-processed1.1.json?AWSAccessKeyId=ASIA3Z2PRSQAB6LAAHQW&Signature=zHizW6fc4Vb7KRXhTbnmSG4P%2B34%3D&x-amz-security-token=IQoJb3JpZ2luX2VjEM3%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLXdlc3QtMiJGMEQCIEDT1hWODQjJmeAMuQ7jSepsGq9KImlw5Paj45CFVxGuAiBLkYmjnrY9tWypE%2FFjzrEdkFM93%2BZChTlGK2lC2bzOIyq4BQg2EAAaDDgxMTM3ODc3NTA0MCIMtqUKhkwAeE%2BTncYbKpUFRhJAe3YWpAYeWcmJLT4Hq9U%2FRWD8sr%2B0n3XJ7Y8GS00Tpij579x5iZlzfCQoDG7zFahlt5j3ISRrwuW4R6MAlaa53s4h9yBwzAbP8D7IQvbSbbWqC6WMLIpEl2%2B0PoGpX9gAA3%2BA16RXrbcno9Ze0Y4yEIkAyrkT%2FcUI%2BEOibVkcEpp1kjoKOtsRStrwz32xVL4BMDrF%2F9uO9JfZX4G3K%2BDTTND%2Bwg3I%2Bd4I0GTQSOrIycJb1fnJGRGvK170Xp8iaJV%2Fr%2FudwWMe%2BYZ5%2BpmjV01dRAxPjpumexyjMs9gh5LfEbrDMcDL5Ic%2FFqvUx2sZ2PdD%2BJ4KgGi%2BuEry%2B8IUyYcyiktX7FaI91CUH9DRuE8S7M6hc50rwTZ5n8COQyIJC7M3A97ULU8urcIh8R5ADGK%2FXDV8qQQgxLWy13tYLJCxn%2F21%2FixzcrNI%2FxFXGsFT1huGfpqUzMO7gd8xxuII%2FyBRTRe9e%2Bq4sAfG6rPQJIW7rchTrL%2FOYvrRFM%2FaZohL6Y%2BrRbirsLqxP%2Bx5Tar6Aojo%2Baa8nBzBvDagJmiz9BnrBYyeuceSFtEvYwJRJWjO%2FirPyI%2B6shUzuojqht4fH5jAOBoqpbhzXeNVrEIfF2Ls7OvaEhMELBhUcbIXU7Y%2B3l5tqLxGmPcIe6hI0D%2BOYMoQU1ieCUZmib07Or8tEYOGbcLJPOeLZ1JqiXDZFjieEnJpBD%2Frwv%2Bb0l9xMPDaIRbjFA1SVgMw9TpjTFno27F1uwVubrSF%2FFaPqRgR3555I7mtTfxxhNyf313uREC%2Fy1uOytDXMpArrnEleOKxFmkWSx45md4zjURhl6PFDpV17Nd2TdhzNUnXOhCUzCcTE%2BA5%2FR%2FD%2FcHKzYyWZVTMnWOTDnuEFjCns93FBjqyARe2rOPx6T38C0vG8rtH760fexjCkSD5%2By6jy4Kn6VP%2B5%2FoVdOtWA5rnbAJnU%2FNgyeW%2F3eIrNdwnWAOrQyMF3OMWNOPdLuSTGQKRsRTpZO3ZsG4qC5NGOa%2FNaYw1bhOYw7LcjDGWjjclge48xbvcVRUa2j9HYVPh7YIMDyW%2BBE%2BETMrXLl5hWKERpaLWdkqY8qfzt9RwRtyReOVnakfA6Gan%2Bp7E3w%2FUJLsEeEcOOb0h3j0%3D&Expires=1756870656
+[Recall API] Downloaded transcript structure: {
+  isArray: true,
+  hasUtterances: false,
+  hasSegments: false,
+  hasTranscript: false,
+  keys: [
+    '0',  '1',  '2',  '3',
+    '4',  '5',  '6',  '7',
+    '8',  '9',  '10', '11',
+    '12', '13', '14', '15'
+  ],
+  length: 16,
+  firstItem: {
+    participant: {
+      id: 100,
+      name: 'Jorge Arean',
+      extra_data: [Object],
+      is_host: true,
+      platform: 'unknown'
+    },
+    words: [ [Object] ]
+  }
+}
+[Recall API] Processing 16 transcript segments
+[Recall API] Transformed segment: Jorge Arean: "Boy, he would sketch towers and bridges for hours. Imagining, how people could" (0-0)
+[Recall API] Transformed segment: Jorge Arean: "walk across rivers on something? He designed years later? As a civil engineer" (0-0)
+[Recall API] Transformed segment: Jorge Arean: "that dream became real when a storm destroyed, the only bridge connecting a" (0-0)
+[Recall API] Transformed segment: Jorge Arean: "rural community, to the main town." (0-0)
+[Recall API] Transformed segment: Jorge Arean: "With supplies and schools cut off Lucas volunteered to help." (0-0)
+[Recall API] Transformed segment: Jorge Arean: "With limited steel and no heavy machinery. He improvised turning designs once." (0-0)
+[Recall API] Transformed segment: Jorge Arean: "Scribbled on paper into practical solutions working day and night alongside" (0-0)
+[Recall API] Transformed segment: Jorge Arean: "locals who brought food and encouragement." (0-0)
+[Recall API] Transformed segment: Jorge Arean: "after weeks of" (0-0)
+[Recall API] Transformed segment: Jorge Arean: "At the bridge, rose above the water." (0-0)
+[Recall API] Transformed segment: Jorge Arean: "because walked across first testing, every step" (0-0)
+[Recall API] Transformed segment: Jorge Arean: "Four. Villagers, followed with cheers and tears for them. It wasn't just a" (0-0)
+[Recall API] Transformed segment: Jorge Arean: "structure. It was the return of connection safety and hope." (0-0)
+[Recall API] Transformed segment: Jorge Arean: "standing at the center watching both sides of the river come together again," (0-0)
+[Recall API] Transformed segment: Jorge Arean: "Lucas realized that an engineer's, true legacy wasn't measured in concrete and" (0-0)
+[Recall API] Transformed segment: Jorge Arean: "steel, but in the lives of lifted by the work," (0-0)
+[Transcript] Processing transcript for bot ID: 51bd2dfc-3aaf-477d-883e-e7055fc4803c
+[Recall API] Transcript job created: dc918451-a218-48e4-909d-6cf7f5b0734c
+[Webhook] Async transcript job created: dc918451-a218-48e4-909d-6cf7f5b0734c
+ POST /api/recall/webhooks 200 in 1405ms
+[Transcript] Found interview cf866b34-f61c-4608-8144-43db5e8cf4bf for bot 51bd2dfc-3aaf-477d-883e-e7055fc4803c
+[DB] Updating interview status: bot 51bd2dfc-3aaf-477d-883e-e7055fc4803c -> ready_for_analysis
+[DB] Using service role client for bot ID: 51bd2dfc-3aaf-477d-883e-e7055fc4803c
+[DB] Updated 1 interviews
+[DB] Updated interview cf866b34-f61c-4608-8144-43db5e8cf4bf to status: ready_for_analysis
+[Transcript] Stored 16 segments for interview cf866b34-f61c-4608-8144-43db5e8cf4bf
+[Webhook] Transcript processed successfully
+ POST /api/recall/webhooks 200 in 2477ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 521ms
+[WEBHOOK] transcript.done | bot_id: 51bd2dfc-3aaf-477d-883e-e7055fc4803c | recording_id: 8a0cbb37-30f4-44b7-9d2b-1035147c29b7 | status: done
+[Webhook] Transcript completed - bot: 51bd2dfc-3aaf-477d-883e-e7055fc4803c transcript: dc918451-a218-48e4-909d-6cf7f5b0734c
+[Webhook] Fetching completed transcript: dc918451-a218-48e4-909d-6cf7f5b0734c
+[Recall API] Fetching transcript: dc918451-a218-48e4-909d-6cf7f5b0734c
+[Recall API] Transcript response keys: [
+  'id',
+  'recording',
+  'created_at',
+  'status',
+  'metadata',
+  'data',
+  'diarization',
+  'provider'
+]
+[Recall API] Transcript status: {
+  code: 'done',
+  sub_code: null,
+  updated_at: '2025-09-02T21:37:45.798945Z'
+}
+[Recall API] Full transcript data: {
+  "id": "dc918451-a218-48e4-909d-6cf7f5b0734c",
+  "recording": {
+    "id": "8a0cbb37-30f4-44b7-9d2b-1035147c29b7",
+    "metadata": {}
+  },
+  "created_at": "2025-09-02T21:37:37.281528Z",
+  "status": {
+    "code": "done",
+    "sub_code": null,
+    "updated_at": "2025-09-02T21:37:45.798945Z"
+  },
+  "metadata": {},
+  "data": {
+    "download_url": "https://us-west-2.recall.ai/api/v1/download/transcript?token=eyJpZCI6ImRjOTE4NDUxLWEyMTgtNDhlNC05MDlkLTZjZjdmNWIwNzM0YyJ9%3A1utYhH%3AmficehF52of4BylTy8wmJpzMEtshcHYzAdQtC7B2fWE",
+    "provider_data_download_url": "https://us-west-2.recall.ai/api/v1/download/transcript_provider_data?token=eyJpZCI6ImRjOTE4NDUxLWEyMTgtNDhlNC05MDlkLTZjZjdmNWIwNzM0YyJ9%3A1utYhH%3AmficehF52of4BylTy8wmJpzMEtshcHYzAdQtC7B2fWE"
+  },
+  "diarization": null,
+  "provider": {
+    "deepgram_async": {
+      "diarize": true,
+      "language": "en",
+      "punctuate": true,
+      "smart_format": true,
+      "deepgram_host": "api.deepgram.com"
+    }
+  }
+}
+[Recall API] Status code: done
+[Recall API] Fetching transcript content from: https://us-west-2.recall.ai/api/v1/download/transcript?token=eyJpZCI6ImRjOTE4NDUxLWEyMTgtNDhlNC05MDlkLTZjZjdmNWIwNzM0YyJ9%3A1utYhH%3AmficehF52of4BylTy8wmJpzMEtshcHYzAdQtC7B2fWE
+[Recall API] Downloaded transcript structure: {
+  isArray: true,
+  hasUtterances: false,
+  hasSegments: false,
+  hasTranscript: false,
+  keys: [ '0' ],
+  length: 1,
+  firstItem: {
+    participant: {
+      id: null,
+      name: '0',
+      is_host: null,
+      platform: null,
+      extra_data: null
+    },
+    words: [
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      ... 40 more items
+    ]
+  }
+}
+[Recall API] Processing 1 transcript segments
+[Recall API] Transformed segment: 0: "Something he designed. Years later as a civil engineer, that dream became real when a storm destroyed the only bridge connecting a rural community to the main town. With supplies and schools cut off, Lucas volunteered to help. With limited steel and no heavy machinery, he improvised, turning designs once scribble on paper into practical solutions, working day at night. Alongside locals who brought food and encouragement. After weeks of effort, the bridge rose above the water, Lucas walked across first testing every step. Before villagers followed with cheers and tears. For them, it wasn't just a structure, It was the return of connection, safety and over. Standing at the center, watching both sides of the river come together again, Lucas realized that an engineer's true legacy wasn't measured in concrete steel. But in the lives uplifted by the market." (0-0)
+[Transcript] Processing transcript for bot ID: 51bd2dfc-3aaf-477d-883e-e7055fc4803c
+[Transcript] Found interview cf866b34-f61c-4608-8144-43db5e8cf4bf for bot 51bd2dfc-3aaf-477d-883e-e7055fc4803c
+[DB] Updating interview status: bot 51bd2dfc-3aaf-477d-883e-e7055fc4803c -> ready_for_analysis
+[DB] Using service role client for bot ID: 51bd2dfc-3aaf-477d-883e-e7055fc4803c
+[DB] Updated 1 interviews
+[DB] Updated interview cf866b34-f61c-4608-8144-43db5e8cf4bf to status: ready_for_analysis
+[Transcript] Stored 1 segments for interview cf866b34-f61c-4608-8144-43db5e8cf4bf
+[Webhook] Transcript processed successfully
+ POST /api/recall/webhooks 200 in 2796ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 516ms
+ POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 533ms

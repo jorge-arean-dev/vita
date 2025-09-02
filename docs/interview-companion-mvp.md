@@ -84,19 +84,124 @@ Regenerate `types/database.types.ts` to include these tables.
 
 ---
 
-### 3. Recall.ai Configuration
+### 3. Recall.ai Configuration & Transcription Providers
 - Use **Google Meet** integration
 - Set transcription provider to **free tier provider** that includes speaker diarization
 - Ensure bot is configured with `transcription: true` and `diarization: true`
 - Store `recall_bot_id` for later fetching of transcript
 
-Example bot creation payload:
+#### **Configurable Transcription Providers**
+The system supports multiple transcription providers with internal configuration switching. To change providers, modify the `TRANSCRIPTION_CONFIG` object in `lib/api/recall.ts`:
+
+```typescript
+const TRANSCRIPTION_CONFIG = {
+  // Provider for real-time transcription during recording
+  REALTIME_PROVIDER: 'deepgram' as TranscriptionProvider,
+  
+  // Provider for async transcription after recording
+  ASYNC_PROVIDER: 'deepgram_async' as TranscriptionProvider,
+  
+  // Language configuration
+  LANGUAGE: 'en',
+  
+  // Feature flags
+  ENABLE_DIARIZATION: true,
+  ENABLE_SMART_FORMAT: true,
+  ENABLE_PUNCTUATION: true,
+}
+```
+
+#### **Available Transcription Providers**
+
+| Provider | Real-time | Async | Quality | Speaker Diarization | Notes |
+|----------|-----------|-------|---------|-------------------|-------|
+| `meeting_captions` | ✅ | ❌ | Basic | Limited | Free, platform-native captions |
+| `recallai_streaming` | ✅ | ❌ | Good | ✅ | Recall.ai's service, $0.15/hour |
+| `recallai_async` | ❌ | ✅ | Good | ✅ | Recall.ai's service, $0.15/hour |
+| `deepgram` | ✅ | ❌ | Excellent | ✅ | **Recommended for quality** |
+| `deepgram_async` | ❌ | ✅ | Excellent | ✅ | **Best quality option** |
+| `assembly_ai_v3` | ✅ | ❌ | Excellent | ✅ | High-quality AI transcription |
+| `assembly_ai_async_chunked` | ❌ | ✅ | Excellent | ✅ | Premium async processing |
+| `aws_transcribe` | ✅ | ❌ | Good | ✅ | AWS service |
+| `aws_transcribe_streaming` | ✅ | ❌ | Good | ✅ | AWS streaming |
+| `speechmatics` | ✅ | ❌ | Good | ✅ | Enterprise-grade |
+| `rev` | ✅ | ❌ | Good | ✅ | Rev.ai service |
+
+#### **Provider Setup Requirements**
+1. **Create account** with your chosen provider (Deepgram, AssemblyAI, etc.)
+2. **Get API key** from provider dashboard
+3. **Configure in Recall.ai dashboard**: Settings → Transcription Providers → Add your provider credentials
+4. **Update configuration** in `lib/api/recall.ts`
+5. **Restart development server** to apply changes
+
+#### **Recommended Configurations**
+
+**For highest quality (recommended):**
+```typescript
+REALTIME_PROVIDER: 'deepgram',
+ASYNC_PROVIDER: 'deepgram_async',
+```
+
+**For testing without external setup:**
+```typescript
+REALTIME_PROVIDER: 'meeting_captions',
+ASYNC_PROVIDER: 'recallai_async',
+```
+
+**For enterprise/production:**
+```typescript
+REALTIME_PROVIDER: 'assembly_ai_v3',
+ASYNC_PROVIDER: 'assembly_ai_async_chunked',
+```
+
+**For cost optimization (async-only transcription):**
+```typescript
+REALTIME_PROVIDER: 'meeting_captions',  // Minimal cost during recording
+ASYNC_PROVIDER: 'deepgram_async',        // High quality after recording
+ENABLE_REALTIME_QUALITY: false,         // Disables expensive real-time processing
+```
+
+#### **Real-time vs Async-only Configuration**
+
+**Cost Optimization Mode (Current Default):**
+- **Real-time**: Uses basic `meeting_captions` (free platform captions)
+- **Async**: Uses high-quality `deepgram_async` for final transcript
+- **Cost**: ~50% reduction in transcription costs
+- **Quality**: Excellent final transcript, basic live captions
+
+**Toggle Back to Full Quality:**
+To enable high-quality real-time transcription, simply change:
+```typescript
+ENABLE_REALTIME_QUALITY: true,  // Enables Deepgram real-time (increases cost ~2x)
+```
+
+**Benefits of Async-only:**
+- ✅ **Lower cost**: Pay once for high-quality processing instead of twice
+- ✅ **Better quality**: Async transcription is more accurate than real-time
+- ✅ **Better diarization**: More processing time for speaker identification
+- ✅ **Same end result**: Final analysis uses the high-quality async transcript
+
+**Trade-offs:**
+- ❌ **No live captions**: Basic platform captions during meeting (usually sufficient)
+- ❌ **Processing delay**: Must wait for async transcription after meeting ends
+
+Example bot creation payload with Deepgram:
 ```json
 {
   "bot_name": "Vita Interview Bot",
   "meeting_url": "https://meet.google.com/xyz-abc-def",
-  "transcription": true,
-  "provider": "assemblyai" 
+  "recording_config": {
+    "transcript": {
+      "provider": {
+        "deepgram": {
+          "language": "en",
+          "diarize": true,
+          "smart_format": true,
+          "punctuate": true
+        }
+      }
+    }
+  }
 }
 ```
 

@@ -101,12 +101,21 @@ export async function POST(request: NextRequest) {
         break
 
       case 'recording.done':
-        // Recording completed, but transcript job may already exist
+        // Recording completed - now create high-quality async Deepgram transcript
         console.log('[Webhook] Recording completed - bot:', botId, 'recording:', recordingId)
         
-        // Don't create transcript job here - Recall.ai may auto-create them
-        // Just wait for transcript.done or transcript.failed webhooks
-        console.log('[Webhook] Waiting for transcript webhooks, not creating duplicate job')
+        if (recordingId && botId) {
+          try {
+            console.log('[Webhook] Creating async Deepgram transcript for recording:', recordingId)
+            const { recallClient } = await import('@/lib/api/recall')
+            const transcriptResult = await recallClient.createTranscript(recordingId)
+            console.log('[Webhook] Async transcript job created:', transcriptResult.transcript_id)
+          } catch (error) {
+            console.error('[Webhook] Failed to create async transcript:', error)
+            // Fallback: use whatever transcript was already generated
+            console.log('[Webhook] Falling back to existing transcript')
+          }
+        }
         break
 
       case 'transcript.done':

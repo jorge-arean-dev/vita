@@ -5,6 +5,109 @@ const RECALL_API_KEY = process.env.RECALL_API_KEY || 'mock_recall_api_key'
 const RECALL_API_URL = 'https://us-west-2.recall.ai/api/v1'
 export const DEFAULT_BOT_NAME = 'Vita Notetaker'
 
+// Transcription Provider Configuration
+type TranscriptionProvider = 
+  | 'meeting_captions'
+  | 'recallai_streaming'
+  | 'recallai_async'
+  | 'deepgram'
+  | 'deepgram_async'
+  | 'assembly_ai_v3'
+  | 'assembly_ai_async_chunked'
+  | 'aws_transcribe'
+  | 'aws_transcribe_streaming'
+  | 'speechmatics'
+  | 'rev'
+
+// Configuration - Change these to switch providers
+const TRANSCRIPTION_CONFIG = {
+  // Cost optimization: Use async-only transcription to reduce token consumption
+  // Real-time transcription during recording (set to 'meeting_captions' for minimal cost, or 'deepgram' for quality)
+  REALTIME_PROVIDER: 'meeting_captions' as TranscriptionProvider,
+  
+  // Provider for async transcription after recording (high quality, cost-efficient)
+  ASYNC_PROVIDER: 'deepgram_async' as TranscriptionProvider,
+  
+  // Language configuration
+  LANGUAGE: 'en',
+  
+  // Feature flags
+  ENABLE_DIARIZATION: true,
+  ENABLE_SMART_FORMAT: true,
+  ENABLE_PUNCTUATION: true,
+  
+  // Quick toggle: Set to true to enable high-quality real-time transcription (increases cost ~2x)
+  ENABLE_REALTIME_QUALITY: false,
+}
+
+// Provider-specific configurations
+const getProviderConfig = (provider: TranscriptionProvider) => {
+  switch (provider) {
+    case 'meeting_captions':
+      return {}
+    
+    case 'recallai_streaming':
+      return {
+        language_code: TRANSCRIPTION_CONFIG.LANGUAGE,
+      }
+    
+    case 'recallai_async':
+      return {
+        language_code: TRANSCRIPTION_CONFIG.LANGUAGE,
+      }
+    
+    case 'deepgram':
+      return {
+        language: TRANSCRIPTION_CONFIG.LANGUAGE,
+        diarize: TRANSCRIPTION_CONFIG.ENABLE_DIARIZATION,
+        smart_format: TRANSCRIPTION_CONFIG.ENABLE_SMART_FORMAT,
+        punctuate: TRANSCRIPTION_CONFIG.ENABLE_PUNCTUATION,
+      }
+    
+    case 'deepgram_async':
+      return {
+        language: TRANSCRIPTION_CONFIG.LANGUAGE,
+        diarize: TRANSCRIPTION_CONFIG.ENABLE_DIARIZATION,
+        smart_format: TRANSCRIPTION_CONFIG.ENABLE_SMART_FORMAT,
+        punctuate: TRANSCRIPTION_CONFIG.ENABLE_PUNCTUATION,
+      }
+    
+    case 'assembly_ai_v3':
+      return {
+        language_code: TRANSCRIPTION_CONFIG.LANGUAGE,
+        speaker_labels: TRANSCRIPTION_CONFIG.ENABLE_DIARIZATION,
+      }
+    
+    case 'assembly_ai_async_chunked':
+      return {
+        language_code: TRANSCRIPTION_CONFIG.LANGUAGE,
+        speaker_labels: TRANSCRIPTION_CONFIG.ENABLE_DIARIZATION,
+      }
+    
+    case 'aws_transcribe':
+    case 'aws_transcribe_streaming':
+      return {
+        language_code: TRANSCRIPTION_CONFIG.LANGUAGE,
+        show_speaker_labels: TRANSCRIPTION_CONFIG.ENABLE_DIARIZATION,
+      }
+    
+    case 'speechmatics':
+      return {
+        language: TRANSCRIPTION_CONFIG.LANGUAGE,
+        enable_diarization: TRANSCRIPTION_CONFIG.ENABLE_DIARIZATION,
+      }
+    
+    case 'rev':
+      return {
+        language: TRANSCRIPTION_CONFIG.LANGUAGE,
+        speaker_names: TRANSCRIPTION_CONFIG.ENABLE_DIARIZATION,
+      }
+    
+    default:
+      return {}
+  }
+}
+
 export interface RecallBot {
   id: string
   meeting_url: string
@@ -44,7 +147,8 @@ export class RecallClient {
         recording_config: {
           transcript: {
             provider: {
-              meeting_captions: {}
+              [TRANSCRIPTION_CONFIG.ENABLE_REALTIME_QUALITY ? 'deepgram' : TRANSCRIPTION_CONFIG.REALTIME_PROVIDER]: 
+                getProviderConfig(TRANSCRIPTION_CONFIG.ENABLE_REALTIME_QUALITY ? 'deepgram' : TRANSCRIPTION_CONFIG.REALTIME_PROVIDER)
             }
           }
         },
@@ -54,6 +158,12 @@ export class RecallClient {
       }
       
       console.log(`[Recall API] Creating bot: ${botName} | webhook: ${webhookUrl}`)
+      console.log(`[Recall API] TRANSCRIPTION CONFIG:`, {
+        REALTIME_PROVIDER: TRANSCRIPTION_CONFIG.REALTIME_PROVIDER,
+        ASYNC_PROVIDER: TRANSCRIPTION_CONFIG.ASYNC_PROVIDER,
+        ENABLE_REALTIME_QUALITY: TRANSCRIPTION_CONFIG.ENABLE_REALTIME_QUALITY
+      })
+      console.log(`[Recall API] Bot request payload:`, JSON.stringify(requestBody, null, 2))
       
       const response = await fetch(`${RECALL_API_URL}/bot/`, {
         method: 'POST',
@@ -127,6 +237,10 @@ export class RecallClient {
   async createTranscript(recordingId: string): Promise<{ transcript_id: string }> {
     try {
       console.log(`[Recall API] Creating transcript job for recording: ${recordingId}`)
+      console.log(`[Recall API] ASYNC TRANSCRIPT CONFIG:`, {
+        provider: TRANSCRIPTION_CONFIG.ASYNC_PROVIDER,
+        config: getProviderConfig(TRANSCRIPTION_CONFIG.ASYNC_PROVIDER)
+      })
       
       const response = await fetch(`${RECALL_API_URL}/recording/${recordingId}/create_transcript/`, {
         method: 'POST',
@@ -136,9 +250,7 @@ export class RecallClient {
         },
         body: JSON.stringify({
           provider: {
-            recallai_async: {
-              language_code: 'en'
-            }
+            [TRANSCRIPTION_CONFIG.ASYNC_PROVIDER]: getProviderConfig(TRANSCRIPTION_CONFIG.ASYNC_PROVIDER)
           }
         })
       })
