@@ -1,10 +1,11 @@
 "use client"
 
-import { LogOut } from "lucide-react"
+import { useState, useEffect } from "react"
+import { LogOut, RotateCcw, WifiOff } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { StableAvatar } from "@/components/ui/stable-avatar"
 import { useAvatar } from "@/hooks/use-avatar"
 
 interface HeaderProps {
@@ -14,7 +15,13 @@ interface HeaderProps {
 }
 
 export default function Header({ avatarUrl, firstName, userId }: HeaderProps) {
-  const { signedAvatarUrl, clearAllAvatarCaches } = useAvatar({ avatarUrl, userId })
+  const [hasMounted, setHasMounted] = useState(false)
+  const { signedAvatarUrl, isLoading, error, clearAllAvatarCaches, retry } = useAvatar({ avatarUrl, userId })
+
+  // Fix hydration mismatch by ensuring client-only rendering of avatar
+  useEffect(() => {
+    setHasMounted(true)
+  }, [])
 
   const logout = async () => {
     const supabase = createClient()
@@ -71,12 +78,38 @@ export default function Header({ avatarUrl, firstName, userId }: HeaderProps) {
         <div className="flex items-center space-x-3">
           {/* Avatar */}
           <div className="relative">
-            <Avatar className="h-8 w-8">
-              {signedAvatarUrl ? (
-                <AvatarImage src={signedAvatarUrl} alt="User avatar" />
-              ) : null}
-              <AvatarFallback>{fallbackInitial}</AvatarFallback>
-            </Avatar>
+            <StableAvatar
+              key={`header-avatar-${userId}-${avatarUrl}`}
+              src={hasMounted ? signedAvatarUrl : null}
+              alt="User avatar"
+              fallback={isLoading ? "..." : fallbackInitial}
+              className="h-8 w-8"
+              imageClassName={isLoading ? "opacity-75" : ""}
+              fallbackClassName={isLoading ? "opacity-75" : ""}
+            />
+            
+            {/* Error indicator and retry button */}
+            {error && (
+              <div className="absolute -top-1 -right-1">
+                <button
+                  onClick={retry}
+                  className="flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/80 transition-colors"
+                  title={`Avatar failed to load: ${error}. Click to retry.`}
+                  aria-label="Retry loading avatar"
+                >
+                  <RotateCcw className="h-2 w-2" />
+                </button>
+              </div>
+            )}
+            
+            {/* Network status indicator - only show after client hydration */}
+            {hasMounted && typeof navigator !== 'undefined' && !navigator.onLine && (
+              <div className="absolute -bottom-1 -right-1">
+                <div className="flex h-3 w-3 items-center justify-center rounded-full bg-yellow-500 text-white">
+                  <WifiOff className="h-1.5 w-1.5" />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Logout Icon */}

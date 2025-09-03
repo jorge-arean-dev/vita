@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { uploadAvatar } from "@/app/actions/profile";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { StableAvatar } from "@/components/ui/stable-avatar";
 import { useToast } from "@/components/ui/use-toast";
-import { Upload, X } from "lucide-react";
+import { Upload, X, RotateCcw, WifiOff } from "lucide-react";
 import { useAvatar } from "@/hooks/use-avatar";
 
 interface AvatarFormProps {
@@ -22,9 +22,14 @@ export default function AvatarForm({ profile }: AvatarFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [hasMounted, setHasMounted] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const { signedAvatarUrl: avatarUrl, clearAvatarCache } = useAvatar({ 
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+  
+  const { signedAvatarUrl: avatarUrl, isLoading, error, clearAvatarCache, retry } = useAvatar({ 
     avatarUrl: profile?.avatar_url, 
     userId: profile?.user_id 
   });
@@ -94,13 +99,15 @@ export default function AvatarForm({ profile }: AvatarFormProps) {
         <div className="flex flex-col items-center space-y-4">
           {/* Current or Preview Avatar */}
           <div className="relative">
-            <Avatar className="h-24 w-24">
-              <AvatarImage 
-                src={previewUrl || avatarUrl || undefined} 
-                alt="Profile picture" 
-              />
-              <AvatarFallback className="text-2xl">{initials}</AvatarFallback>
-            </Avatar>
+            <StableAvatar
+              key={`settings-avatar-${profile?.user_id}-${profile?.avatar_url}`}
+              src={previewUrl || avatarUrl || undefined}
+              alt="Profile picture"
+              fallback={isLoading ? "..." : initials}
+              className="h-24 w-24"
+              imageClassName={isLoading ? "opacity-75" : ""}
+              fallbackClassName={`text-2xl ${isLoading ? "opacity-75" : ""}`}
+            />
             
             {previewUrl && (
               <Button
@@ -112,6 +119,31 @@ export default function AvatarForm({ profile }: AvatarFormProps) {
               >
                 <X className="h-3 w-3" />
               </Button>
+            )}
+            
+            {/* Error indicator and retry button */}
+            {error && !previewUrl && (
+              <div className="absolute -top-2 -right-2">
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  className="h-6 w-6 rounded-full"
+                  onClick={retry}
+                  title={`Avatar failed to load: ${error}. Click to retry.`}
+                >
+                  <RotateCcw className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
+            
+            {/* Network status indicator - only show after client hydration */}
+            {hasMounted && typeof navigator !== 'undefined' && !navigator.onLine && (
+              <div className="absolute -bottom-2 -right-2">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-yellow-500 text-white">
+                  <WifiOff className="h-3 w-3" />
+                </div>
+              </div>
             )}
           </div>
           
