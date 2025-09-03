@@ -139,8 +139,8 @@ export default function CompaniesView({ companies: initialCompanies }: Companies
               <div>Company Details</div>
             </div>
 
-            {/* Company Cards */}
-            <div className="space-y-2">
+            {/* Company Cards - Container query wrapper */}
+            <div className="@container space-y-2">
               {companies.map((company) => {
                 const location = company.country_name || company.country || "Unknown"
                 const industry = company.industry_name || "Not specified"
@@ -150,142 +150,136 @@ export default function CompaniesView({ companies: initialCompanies }: Companies
                     key={company.id}
                     className="group transition-all duration-300 hover:shadow-lg hover:border-primary/50 hover:-translate-y-0.5 py-2"
                   >
-                    <CardContent className="px-8 py-4">
-                      <div className="flex items-center gap-3">
-                        {/* Company Logo */}
-                        <div
-                          className={`w-10 h-10 rounded-lg ${getAvatarColor(company.name)} flex items-center justify-center text-white font-semibold text-sm flex-shrink-0`}
-                        >
-                          {getInitials(company.name)}
-                        </div>
-
-                        {/* Company Name - Takes flexible space */}
-                        <div className="flex-1 min-w-0">
-                          <span className="text-base font-bold group-hover:text-primary transition-colors truncate block">
+                    <CardContent className="px-3 @[850px]:px-6 py-3 @[850px]:py-4">
+                      {/* Grid layout for table-like alignment with progressive spacing */}
+                      <div className="grid grid-cols-[minmax(120px,1fr)_auto] @[750px]:grid-cols-[180px_1fr_auto] @[850px]:grid-cols-[220px_1fr_auto] @[1300px]:grid-cols-[240px_1fr_auto] items-center gap-2 @[750px]:gap-3 @[850px]:gap-4">
+                        {/* Company Name Column */}
+                        <div className="min-w-0">
+                          <span className="text-sm @[850px]:text-base font-bold group-hover:text-primary transition-colors truncate block">
                             {company.name}
                           </span>
                         </div>
 
-                        {/* Country + Industry + Date - Center section */}
-                        <div className="flex items-center gap-12">
-                          {/* Company Country - Progressive disclosure */}
-                          <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground w-[220px]">
-                            <MapPin className="h-3 w-3 text-muted-foreground" />
-                            <span>{location}</span>
+                        {/* Middle Section - Progressive disclosure: Country+Industry at 750px+, Date only at 1300px+ */}
+                        <div className="hidden @[750px]:grid @[750px]:grid-cols-[140px_1fr] @[850px]:grid-cols-[160px_1fr] @[1300px]:grid-cols-[160px_240px_200px] gap-4 @[850px]:gap-6 items-center">
+                          {/* Country Column - Consistent width across all breakpoints */}
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground min-w-0">
+                            <MapPin className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                            <span className="truncate">{location}</span>
                           </div>
 
-                          {/* Company Industry - Progressive disclosure */}
-                          <div className="hidden md:block w-[280px]">
-                            <Badge variant="secondary" className="text-xs">
-                              {industry}
+                          {/* Industry Column - Expanded space when date is hidden */}
+                          <div className="flex justify-start min-w-0 overflow-hidden">
+                            <Badge variant="secondary" className="text-xs max-w-full">
+                              <span className="truncate block">{industry}</span>
                             </Badge>
                           </div>
 
-                          {/* Added Date - Progressive disclosure */}
-                          <div className="hidden lg:flex items-center gap-2 text-xs text-muted-foreground w-[240px]">
-                            <Calendar className="h-3 w-3 text-muted-foreground" />
-                            <span>{formatCreatedDate(company.created_at)}</span>
+                          {/* Date Column - Only visible at 1300px+ for better space distribution */}
+                          <div className="hidden @[1300px]:flex items-center gap-2 text-xs text-muted-foreground min-w-0 justify-end">
+                            <Calendar className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                            <span className="whitespace-nowrap">{formatCreatedDate(company.created_at)}</span>
                           </div>
                         </div>
 
-                        {/* Spacer to push right section */}
-                        <div className="flex-1"></div>
+                        {/* Empty space on smaller containers when middle section is hidden - removed for mobile */}
 
-                        {/* Open Button */}
-                        <Button 
-                          className="px-3 sm:px-4 py-2 text-sm flex-shrink-0"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleOpen(company)
-                          }}
-                        >
-                          Open
-                        </Button>
+                        {/* Actions Section - Always visible, responsive sizing, wider spacing below 1300px */}
+                        <div className="flex items-center gap-1 @[750px]:gap-2 @[850px]:gap-3 @[1300px]:gap-2 justify-end min-w-0">
+                          {/* Open Button */}
+                          <Button 
+                            size="sm"
+                            className="px-2 @[850px]:px-3 text-xs @[850px]:text-sm"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleOpen(company)
+                            }}
+                          >
+                            Open
+                          </Button>
 
-                        {/* Spacer */}
-                        <div className="w-8"></div>
+                          {/* Icon Links */}
+                          <div className="hidden @[500px]:flex items-center gap-1">
+                            {/* Website Icon */}
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  className={`p-2 rounded-md transition-colors hover:bg-muted min-w-[36px] min-h-[36px] flex items-center justify-center ${
+                                    company.website ? "text-green-600" : "text-gray-400"
+                                  }`}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    if (company.website) window.open(company.website, '_blank')
+                                  }}
+                                  aria-label={company.website ? `Visit ${company.name} website` : "No website available"}
+                                  disabled={!company.website}
+                                  type="button"
+                                >
+                                  <ExternalLink className="h-4 w-4" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>{company.website ? "Website Available" : "No Website"}</p>
+                              </TooltipContent>
+                            </Tooltip>
 
-                        {/* Icon Links */}
-                        <div className="flex items-center gap-1">
-                          {/* Website Icon */}
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button
-                                className={`p-2 rounded-md transition-colors hover:bg-muted min-w-[36px] min-h-[36px] flex items-center justify-center ${
-                                  company.website ? "text-green-600" : "text-gray-400"
-                                }`}
+                            {/* LinkedIn Icon */}
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  className={`p-2 rounded-md transition-colors hover:bg-muted min-w-[36px] min-h-[36px] flex items-center justify-center`}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    if (company.linkedin) window.open(company.linkedin, '_blank')
+                                  }}
+                                  aria-label={company.linkedin ? `Visit ${company.name} LinkedIn profile` : "No LinkedIn profile available"}
+                                  disabled={!company.linkedin}
+                                  type="button"
+                                >
+                                  <Image
+                                    src={company.linkedin ? "/linkedin-logo/linkedin-active.svg" : "/linkedin-logo/linkedin-inactive.svg"}
+                                    alt="LinkedIn"
+                                    width={16}
+                                    height={16}
+                                    className="w-4 h-4"
+                                  />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>{company.linkedin ? "LinkedIn Profile Available" : "No LinkedIn Profile"}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </div>
+
+                          {/* Action Menu */}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 @[850px]:h-9 @[850px]:w-9"
+                                aria-label={`Actions for ${company.name}`}
+                                onClick={(e) => e.stopPropagation()}
+                                disabled={isPending}
+                              >
+                                <MoreHorizontal className="h-3 w-3 @[850px]:h-4 @[850px]:w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-[160px]">
+                              <DropdownMenuItem
                                 onClick={(e) => {
                                   e.stopPropagation()
-                                  if (company.website) window.open(company.website, '_blank')
+                                  handleDelete(company.id)
                                 }}
-                                aria-label={company.website ? `Visit ${company.name} website` : "No website available"}
-                                disabled={!company.website}
-                                type="button"
+                                className="cursor-pointer text-destructive focus:text-destructive"
+                                disabled={isPending}
                               >
-                                <ExternalLink className="h-4 w-4" />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>{company.website ? "Website Available" : "No Website"}</p>
-                            </TooltipContent>
-                          </Tooltip>
-
-                          {/* LinkedIn Icon */}
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button
-                                className={`p-2 rounded-md transition-colors hover:bg-muted min-w-[36px] min-h-[36px] flex items-center justify-center`}
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  if (company.linkedin) window.open(company.linkedin, '_blank')
-                                }}
-                                aria-label={company.linkedin ? `Visit ${company.name} LinkedIn profile` : "No LinkedIn profile available"}
-                                disabled={!company.linkedin}
-                                type="button"
-                              >
-                                <Image
-                                  src={company.linkedin ? "/linkedin-logo/linkedin-active.svg" : "/linkedin-logo/linkedin-inactive.svg"}
-                                  alt="LinkedIn"
-                                  width={16}
-                                  height={16}
-                                  className="w-4 h-4"
-                                />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>{company.linkedin ? "LinkedIn Profile Available" : "No LinkedIn Profile"}</p>
-                            </TooltipContent>
-                          </Tooltip>
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
-
-                        {/* Action Menu */}
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-9 w-9 flex-shrink-0"
-                              aria-label={`Actions for ${company.name}`}
-                              onClick={(e) => e.stopPropagation()}
-                              disabled={isPending}
-                            >
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-[160px]">
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleDelete(company.id)
-                              }}
-                              className="cursor-pointer text-destructive focus:text-destructive"
-                              disabled={isPending}
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
                       </div>
                     </CardContent>
                   </Card>

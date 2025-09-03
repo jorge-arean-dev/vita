@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
@@ -14,17 +14,47 @@ import {
 
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false)
+  const [isOverlayMode, setIsOverlayMode] = useState(false)
   const pathname = usePathname()
 
   const toggleSidebar = () => {
     setCollapsed(!collapsed)
   }
 
+  // Handle overlay mode based on window width
+  useEffect(() => {
+    const handleResize = () => {
+      const isNowOverlay = window.innerWidth < 1300
+      setIsOverlayMode(isNowOverlay)
+      
+      // Force collapsed state when entering overlay mode (crossing from desktop to mobile)
+      if (isNowOverlay) {
+        setCollapsed(true)
+      }
+    }
+
+    handleResize() // Set initial state
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+
   return (
     <div
       className={cn(
         "flex flex-col h-screen bg-background border-r transition-all duration-300 ease-in-out",
-        collapsed ? "w-16" : "w-56",
+        // Overlay mode (< 1300px)
+        isOverlayMode && [
+          // Collapsed: normal positioning, pushes content
+          collapsed && "w-16",
+          // Expanded: fixed positioning, overlays content with smooth expand from collapsed position
+          !collapsed && "fixed left-0 top-0 z-[60] w-56"
+        ],
+        // Push mode (>= 1300px): normal positioning for both states
+        !isOverlayMode && [
+          collapsed && "w-16",
+          !collapsed && "w-56"
+        ]
       )}
     >
       <div className="p-4 flex justify-end">
@@ -43,6 +73,7 @@ export default function Sidebar() {
             <TooltipTrigger asChild>
               <Link
                 href="/protected"
+                onClick={() => isOverlayMode && setCollapsed(true)}
                 className={cn(
                   "flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors",
                   "hover:bg-accent hover:text-accent-foreground",
@@ -65,6 +96,7 @@ export default function Sidebar() {
             <TooltipTrigger asChild>
               <Link
                 href="/protected/jobs"
+                onClick={() => isOverlayMode && setCollapsed(true)}
                 className={cn(
                   "flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors",
                   "hover:bg-accent hover:text-accent-foreground",
@@ -87,6 +119,7 @@ export default function Sidebar() {
             <TooltipTrigger asChild>
               <Link
                 href="/protected/candidates"
+                onClick={() => isOverlayMode && setCollapsed(true)}
                 className={cn(
                   "flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors",
                   "hover:bg-accent hover:text-accent-foreground",
@@ -109,6 +142,7 @@ export default function Sidebar() {
             <TooltipTrigger asChild>
               <Link
                 href="/protected/companies"
+                onClick={() => isOverlayMode && setCollapsed(true)}
                 className={cn(
                   "flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors",
                   "hover:bg-accent hover:text-accent-foreground",
@@ -131,6 +165,7 @@ export default function Sidebar() {
             <TooltipTrigger asChild>
               <Link
                 href="/protected/settings"
+                onClick={() => isOverlayMode && setCollapsed(true)}
                 className={cn(
                   "flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors",
                   "hover:bg-accent hover:text-accent-foreground",
