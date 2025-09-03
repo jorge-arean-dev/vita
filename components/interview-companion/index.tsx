@@ -33,6 +33,7 @@ import { InterviewStatusBadge } from "@/components/ui/interview-status-badge"
 import CreateInterviewDialog from "./create-interview-dialog"
 import InterviewTranscript from "./interview-transcript"
 import InterviewAnalysis from "./interview-analysis"
+import SimulateInterviewDialog from "./simulate-interview-dialog"
 
 interface InterviewCompanionProps {
   jobId: string
@@ -426,6 +427,17 @@ export default function InterviewCompanion({ jobId }: InterviewCompanionProps): 
                                     </span>
                                   </div>
                                 </div>
+                              )}
+
+                              {/* Simulate Interview button for created status */}
+                              {interview.status === 'created' && (
+                                <SimulateInterviewDialog 
+                                  interviewId={interview.id}
+                                  onSimulationComplete={() => {
+                                    loadInterviews()
+                                    loadInterviewDetails(interview.id)
+                                  }}
+                                />
                               )}
 
                               {/* Mock data button for testing */}

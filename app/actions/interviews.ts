@@ -19,6 +19,11 @@ const analyzeInterviewSchema = z.object({
   interviewId: z.string().uuid()
 })
 
+const simulateInterviewSchema = z.object({
+  interviewId: z.string().uuid(),
+  performanceLevel: z.enum(['bad', 'mid', 'good'])
+})
+
 // Real Recall.ai integration
 async function createRecallBot(meetingLink: string, botName: string = 'Vita Notetaker'): Promise<string> {
   try {
@@ -759,4 +764,84 @@ export async function simulateWebhookReceived(interviewId: string) {
   ]
 
   return await processTranscriptWebhook(interviewId, mockTranscript)
+}
+
+// Simulate an interview by generating AI-powered transcript
+export async function simulateInterview(formData: FormData) {
+  try {
+    const supabase = await createClient()
+    
+    // Get authenticated user
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return { error: 'Unauthorized' }
+    }
+
+    // Validate input
+    const rawData = {
+      interviewId: formData.get('interviewId')?.toString(),
+      performanceLevel: formData.get('performanceLevel')?.toString()
+    }
+
+    const validatedData = simulateInterviewSchema.safeParse(rawData)
+    if (!validatedData.success) {
+      return { 
+        error: 'Invalid input: ' + validatedData.error.errors.map(e => e.message).join(', ')
+      }
+    }
+
+    const { interviewId, performanceLevel } = validatedData.data
+
+    // Verify interview exists and user has access
+    const { data: interview, error: interviewError } = await supabase
+      .from('interviews')
+      .select('id, status, user_id')
+      .eq('id', interviewId)
+      .eq('user_id', user.id)
+      .single()
+
+    if (interviewError || !interview) {
+      return { error: 'Interview not found or access denied' }
+    }
+
+    // Verify interview is in correct status
+    if (interview.status !== 'created') {
+      return { error: 'Interview simulation only allowed for interviews in "created" status' }
+    }
+
+    // Call Supabase Edge Function to generate transcript
+    const { data: functionResponse, error: functionError } = await supabase.functions.invoke(
+      'simulate-interview',
+      {
+        body: {
+          interview_id: interviewId,
+          performance_level: performanceLevel
+        }
+      }
+    )
+
+    if (functionError) {
+      console.error('Edge function error:', functionError)
+      return { error: 'Failed to generate interview transcript' }
+    }
+
+    if (!functionResponse.success || !functionResponse.transcript) {
+      return { error: functionResponse.error || 'Failed to generate transcript' }
+    }
+
+    // Process the generated transcript through existing workflow
+    const result = await processTranscriptWebhook(interviewId, functionResponse.transcript)
+    
+    if (result.success) {
+      // Revalidate the interviews page
+      revalidatePath('/dashboard/jobs/[id]', 'page')
+      return { success: true, message: 'Interview simulation completed successfully' }
+    } else {
+      return { error: result.error || 'Failed to process generated transcript' }
+    }
+
+  } catch (error) {
+    console.error('Error simulating interview:', error)
+    return { error: 'Internal server error' }
+  }
 }
