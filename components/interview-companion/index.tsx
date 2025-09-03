@@ -219,103 +219,127 @@ export default function InterviewCompanion({ jobId }: InterviewCompanionProps): 
       </div>
 
       {/* Interviews List - Scrollable */}
-      <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+      <div className="flex-1 overflow-y-auto pr-2">
         {interviews.length === 0 ? (
-          <Card>
-            <CardContent className="flex items-center justify-center py-12">
-              <div className="text-center">
-                <Video className="mx-auto h-12 w-12 text-muted-foreground" />
-                <h3 className="mt-4 text-lg font-semibold">No interviews found</h3>
-                <p className="text-muted-foreground">Create your first interview to get started</p>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="rounded-full bg-muted p-3 mb-4">
+              <Video className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-medium mb-2">No interviews found</h3>
+            <p className="text-muted-foreground mb-4">Create your first interview to get started</p>
+            <CreateInterviewDialog 
+              jobId={jobId} 
+              onInterviewCreated={handleInterviewCreated}
+              variant="default"
+            />
+          </div>
         ) : (
-          interviews.map((interview) => (
-            <Collapsible
-              key={interview.id}
-              open={expandedInterviewId === interview.id}
-              onOpenChange={() => handleToggleExpanded(interview.id)}
-            >
-              <Card className="transition-all hover:shadow-md">
-                <CardContent className="px-4 py-3">
-                  <div className="flex items-center gap-4">
-                    {/* Container 1: Left side - Expand/Collapse + Candidate Info */}
-                    <div className="flex flex-1 items-center gap-2">
-                      {/* Expand/Collapse Toggle */}
-                      <CollapsibleTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0 flex-shrink-0"
-                          aria-label={expandedInterviewId === interview.id ? "Collapse" : "Expand"}
-                        >
-                          {expandedInterviewId === interview.id ? (
-                            <ChevronDown className="h-4 w-4" />
-                          ) : (
-                            <ChevronRight className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </CollapsibleTrigger>
+          <div className="space-y-4">
+            {/* Table Headers - Hidden but kept for structure */}
+            <div className="sr-only">
+              <div>Interview Details</div>
+            </div>
 
-                      {/* Candidate Name & Interview Title */}
-                      <div className="flex flex-col items-start flex-1">
-                        <h3 className="text-base font-semibold leading-tight transition-colors">
-                          {interview.candidates ? (
-                            `${interview.candidates.first_name} ${interview.candidates.last_name}`
-                          ) : (
-                            'No candidate assigned'
-                          )}
-                        </h3>
-                        <p className="text-xs text-muted-foreground">
-                          {interview.title || `Interview #${interviews.indexOf(interview) + 1}`}
-                        </p>
-                      </div>
-                    </div>
+            {/* Interview Cards - Container query wrapper */}
+            <div className="@container space-y-2">
+              {interviews.map((interview) => {
+                const candidateName = interview.candidates 
+                  ? `${interview.candidates.first_name} ${interview.candidates.last_name}`
+                  : 'No candidate assigned'
+                const interviewTitle = interview.title || `Interview #${interviews.indexOf(interview) + 1}`
 
-                    {/* Container 2: Right side - Date, Status, Menu (evenly distributed) */}
-                    <div className="flex flex-1 items-center justify-between">
-                      {/* Interview Date & Time */}
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Calendar className="h-3 w-3" />
-                        Created on {new Date(interview.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, at{' '}
-                        {new Date(interview.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).toLowerCase()}
-                      </div>
+                return (
+                  <Collapsible
+                    key={interview.id}
+                    open={expandedInterviewId === interview.id}
+                    onOpenChange={() => handleToggleExpanded(interview.id)}
+                  >
+                    <Card className="group transition-all duration-300 hover:shadow-lg hover:border-primary/50 hover:-translate-y-0.5 py-2">
+                      <CardContent className="px-3 @[850px]:px-6 py-3 @[850px]:py-4">
+                        {/* Grid layout for table-like alignment with progressive spacing */}
+                        <div className="grid grid-cols-[auto_minmax(120px,1fr)_auto] @[750px]:grid-cols-[auto_280px_1fr_auto] @[850px]:grid-cols-[auto_360px_1fr_auto] @[1000px]:grid-cols-[auto_420px_minmax(auto,1fr)_auto] items-center gap-2 @[750px]:gap-3 @[850px]:gap-4">
+                          {/* Expand/Collapse Button - Always visible */}
+                          <CollapsibleTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 @[850px]:h-9 @[850px]:w-9 flex-shrink-0"
+                              aria-label={expandedInterviewId === interview.id ? "Collapse interview details" : "Expand interview details"}
+                            >
+                              {expandedInterviewId === interview.id ? (
+                                <ChevronDown className="h-3 w-3 @[850px]:h-4 @[850px]:w-4" />
+                              ) : (
+                                <ChevronRight className="h-3 w-3 @[850px]:h-4 @[850px]:w-4" />
+                              )}
+                            </Button>
+                          </CollapsibleTrigger>
 
-                      {/* Status Badge */}
-                      <InterviewStatusBadge 
-                        status={getInterviewStatusBadgeStatus(interview.status)}
-                        isStatic={true}
-                        showIcon={false}
-                        className="text-xs"
-                      />
+                          {/* Candidate Name Column */}
+                          <div className="min-w-0">
+                            <span className="text-sm @[850px]:text-base font-bold group-hover:text-primary transition-colors truncate block">
+                              {candidateName}
+                            </span>
+                            <span className="text-xs text-muted-foreground truncate block">
+                              {interviewTitle}
+                            </span>
+                          </div>
 
-                      {/* Action Menu (MoreHorizontal) */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            aria-label={`Actions for ${interview.title} - ${interview.candidates?.first_name} ${interview.candidates?.last_name}`}
-                          >
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-[180px]">
-                          <DropdownMenuItem
-                            onClick={() => handleDeleteInterview(interview.id)}
-                            className="cursor-pointer text-destructive"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
-                </CardContent>
+                          {/* Middle Section - Progressive disclosure: Date and Status */}
+                          <div className="hidden @[750px]:grid @[750px]:grid-cols-[auto] @[1000px]:grid-cols-[auto_auto] gap-2 @[1000px]:gap-3 items-center">
+                            {/* Date Column - Only visible at 1000px+ for better space distribution */}
+                            <div className="hidden @[1000px]:flex items-center gap-2 text-xs text-muted-foreground min-w-0">
+                              <Calendar className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                              <span className="truncate">
+                                {new Date(interview.created_at).toLocaleDateString('en-US', { 
+                                  month: 'short', 
+                                  day: 'numeric',
+                                  year: 'numeric'
+                                })}
+                              </span>
+                            </div>
+
+                            {/* Status Badge - Always visible in middle section at 750px+ */}
+                            <div className="flex justify-center @[1000px]:justify-start min-w-0">
+                              <InterviewStatusBadge 
+                                status={getInterviewStatusBadgeStatus(interview.status)}
+                                isStatic={true}
+                                showIcon={false}
+                                className="text-xs"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Actions Section - Always visible */}
+                          <div className="flex items-center gap-1 @[750px]:gap-2 justify-end min-w-0">
+                            {/* Action Menu */}
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 @[850px]:h-9 @[850px]:w-9"
+                                  aria-label={`Actions for ${interviewTitle} - ${candidateName}`}
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <MoreHorizontal className="h-3 w-3 @[850px]:h-4 @[850px]:w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-[160px]">
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleDeleteInterview(interview.id)
+                                  }}
+                                  className="cursor-pointer text-destructive focus:text-destructive"
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </div>
+                      </CardContent>
                 <CollapsibleContent>
                   <CardContent className="pt-0 pb-4 px-4">
                     {selectedInterview && selectedInterview.id === interview.id ? (
@@ -446,9 +470,12 @@ export default function InterviewCompanion({ jobId }: InterviewCompanionProps): 
                     )}
                   </CardContent>
                 </CollapsibleContent>
-              </Card>
-            </Collapsible>
-          ))
+                    </Card>
+                  </Collapsible>
+                )
+              })}
+            </div>
+          </div>
         )}
       </div>
     </div>
