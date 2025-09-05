@@ -123,6 +123,28 @@ export const SOFTWARE_SKILLS_REGISTRY: SkillRelationship[] = [
     qualifiesFor: ['Backend Development', 'Microservices', 'REST APIs']
   },
   
+  // PHP & Frameworks
+  {
+    skill: 'PHP',
+    children: ['Laravel', 'Symfony', 'CodeIgniter', 'Zend Framework', 'CakePHP'],
+    aliases: ['PHP 7', 'PHP 8', 'php', 'PHP 5', 'PHP 7.4', 'PHP 8.0', 'PHP 8.1', 'PHP 8.2'],
+    qualifiesFor: ['Backend Development', 'Web Development', 'Server-side Development']
+  },
+  {
+    skill: 'Laravel',
+    parent: ['PHP', 'Backend Development', 'Web Development'],
+    requires: ['PHP'],
+    aliases: ['Laravel Framework', 'Laravel PHP', 'laravel'],
+    qualifiesFor: ['Backend Development', 'API Development', 'Web Development', 'MVC Development']
+  },
+  {
+    skill: 'Symfony',
+    parent: ['PHP', 'Backend Development'],
+    requires: ['PHP'],
+    aliases: ['Symfony Framework', 'symfony'],
+    qualifiesFor: ['Backend Development', 'API Development', 'Web Development']
+  },
+  
   // Databases
   {
     skill: 'PostgreSQL',
@@ -245,6 +267,45 @@ export const SOFTWARE_SKILLS_REGISTRY: SkillRelationship[] = [
     skill: 'PMP',
     aliases: ['Project Management Professional', 'PMI PMP'],
     qualifiesFor: ['Project Management', 'Leadership']
+  },
+  
+  // Roles and Job Titles
+  // Added: 2025-01-04 23:35 - Common role titles and their variations for better matching
+  {
+    skill: 'Tech Lead',
+    aliases: ['Technical Lead', 'Tech Leader', 'Technical Leader', 'Lead Developer', 'Lead Engineer'],
+    qualifiesFor: ['Leadership', 'Technical Leadership', 'Team Management'],
+    requires: ['Software Development', 'Leadership']
+  },
+  {
+    skill: 'Chief Technology Officer',
+    aliases: ['CTO', 'Chief Technology & Development Officer', 'Chief Tech Officer'],
+    qualifiesFor: ['Executive Leadership', 'Technology Strategy', 'Tech Lead'],
+    requires: ['Leadership', 'Software Development']
+  },
+  {
+    skill: 'Head Software Development',
+    aliases: ['Head of Software Development', 'Head of Engineering', 'Head of Development', 'Engineering Head'],
+    qualifiesFor: ['Tech Lead', 'Engineering Management', 'Leadership'],
+    requires: ['Software Development', 'Leadership']
+  },
+  {
+    skill: 'Software Engineer',
+    aliases: ['Software Developer', 'Programmer', 'Developer', 'SWE', 'Freelance Software Developer'],
+    qualifiesFor: ['Software Development', 'Programming'],
+    requires: ['Programming']
+  },
+  {
+    skill: 'Product Manager',
+    aliases: ['PM', 'Product Owner', 'PO'],
+    qualifiesFor: ['Product Management', 'Product Strategy'],
+    requires: ['Product Management']
+  },
+  {
+    skill: 'Founder',
+    aliases: ['Co-Founder', 'Co Founder', 'Founding Member'],
+    qualifiesFor: ['Leadership', 'Entrepreneurship', 'Business Strategy'],
+    requires: ['Leadership']
   },
   
   // Soft Skills

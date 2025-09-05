@@ -1,6 +1,9 @@
 /**
  * Core Matching Engine
  * Orchestrates the unified matching logic across all APIs
+ * Updated: 2025-01-04 16:15 - Fixed remaining requirement.skill references to requirement.name (lines 116, 146, 172, 181)
+ * Updated: 2025-01-04 16:25 - Added defensive checks for undefined requirement objects in match arrays (lines 117, 175, 184)
+ * Updated: 2025-01-04 16:30 - Added defensive checks for requirement.importance and req.name access (lines 181, 184, 163)
  */
 
 import { 
@@ -110,10 +113,25 @@ export async function analyzeCandidate(
     }
   )
   
+  // Debug: Check for undefined requirements in matches
+  const invalidMatches = structuredMatches.filter(match => !match.requirement || !match.requirement.name)
+  if (invalidMatches.length > 0) {
+    console.error('[CORE-ENGINE] Found matches with undefined requirements:', invalidMatches.length, 'out of', structuredMatches.length)
+    invalidMatches.forEach((match, index) => {
+      console.error(`[CORE-ENGINE] Invalid match ${index}:`, {
+        hasRequirement: !!match.requirement,
+        requirementKeys: match.requirement ? Object.keys(match.requirement) : 'no requirement',
+        score: match.score,
+        explanation: match.explanation
+      })
+    })
+  }
+  
   // Step 2: Identify gaps where structured data had weak/no matches
   const gapRequirements = structuredMatches
     .filter(match => match.score < 70)
-    .map(match => match.requirement.skill)
+    .filter(match => match.requirement && match.requirement.name) // Defensive check
+    .map(match => match.requirement.name)
   
   // Step 3: Extract supplementary skills from raw data (if available)
   let supplementarySkills: CandidateSkill[] = []
@@ -143,7 +161,7 @@ export async function analyzeCandidate(
   if (supplementarySkills.length > 0) {
     // Re-match only the gap requirements
     const gapReqs = job.requirements.filter(req => 
-      gapRequirements.includes(req.skill)
+      req && req.name && gapRequirements.includes(req.name)
     )
     
     const supplementaryMatches = await matchAllRequirements(
@@ -161,24 +179,28 @@ export async function analyzeCandidate(
   
   // Step 5: Calculate scores
   const mandatoryMatches = finalMatches.filter(m => 
-    m.requirement.importance === 'mandatory'
+    m.requirement && m.requirement.importance === 'mandatory'
   )
   const optionalMatches = finalMatches.filter(m => 
-    m.requirement.importance === 'optional'
+    m.requirement && m.requirement.importance === 'optional'
   )
   
-  const mandatoryScores = mandatoryMatches.map(match => 
+  const mandatoryScores = mandatoryMatches
+    .filter(match => match.requirement && match.requirement.name) // Defensive check
+    .map(match => 
     createRequirementScore(
-      { id: match.requirement.id, name: match.requirement.skill },
+      { id: match.requirement.id, name: match.requirement.name },
       match.score,
       match.bestMatch ? [match.explanation] : [],
       match.bestMatch?.confidence ?? 0
     )
   )
   
-  const optionalScores = optionalMatches.map(match =>
+  const optionalScores = optionalMatches
+    .filter(match => match.requirement && match.requirement.name) // Defensive check
+    .map(match =>
     createRequirementScore(
-      { id: match.requirement.id, name: match.requirement.skill },
+      { id: match.requirement.id, name: match.requirement.name },
       match.score,
       match.bestMatch ? [match.explanation] : [],
       match.bestMatch?.confidence ?? 0

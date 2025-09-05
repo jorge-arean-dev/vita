@@ -4,6 +4,11 @@
  * Used when LinkedIn/PDF data is not available
  * 
  * Updated: 2025-08-27 - Fixed mandatory requirement counting (only 'strong' = met)
+ * Updated: 2025-01-05 01:15 - Deployed with enhanced role matching capabilities
+ * - Now benefits from improved role-type skill matching
+ * - Includes role qualification checks (e.g., CTO qualifies for Tech Lead)
+ * - Uses updated skill registry with comprehensive role aliases
+ * - Will match roles if they were saved in candidate skills during import
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'

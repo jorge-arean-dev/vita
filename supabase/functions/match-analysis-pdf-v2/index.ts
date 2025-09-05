@@ -1,6 +1,12 @@
 /**
  * PDF Resume Match Analysis API
  * Processes resume text using unified matching engine
+ * 
+ * Updated: 2025-01-04 23:55 - Deployed with enhanced role matching capabilities
+ * - Now benefits from improved role-type skill matching
+ * - Includes role qualification checks (e.g., CTO qualifies for Tech Lead)
+ * - Uses updated skill registry with comprehensive role aliases
+ * - Compatible with role extraction from parse-resume-skill.js
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'

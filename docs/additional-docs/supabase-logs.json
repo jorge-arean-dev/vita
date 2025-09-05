@@ -1,0 +1,562 @@
+[
+  {
+    "event_message": "shutdown",
+    "event_type": "Shutdown",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "c45716d8-7563-41ba-bdc3-cd55797c789f",
+    "level": "log",
+    "timestamp": 1757024949023000
+  },
+  {
+    "event_message": "[LinkedIn API] Analysis complete: { score: 68, category: \"developing\" }\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "709e2f19-a2ab-4604-a647-d99c3118e5f5",
+    "level": "info",
+    "timestamp": 1757024922144000
+  },
+  {
+    "event_message": "[LinkedIn API] Generating narrative outputs...\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "87e18a57-9eca-42ff-83f1-0d4580dbac5a",
+    "level": "info",
+    "timestamp": 1757024922143000
+  },
+  {
+    "event_message": "[TECHNICAL-MATCHER] Are aliases check for \"Laravel\" vs \"Css\": false\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "55b0afeb-992e-4bb8-b506-7d0c5c0fa421",
+    "level": "info",
+    "timestamp": 1757024922142000
+  },
+  {
+    "event_message": "[TECHNICAL-MATCHER] Are aliases check for \"Laravel\" vs \"Php\": false\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "39eba630-65ae-477e-bc60-ccbc0865a303",
+    "level": "info",
+    "timestamp": 1757024922142000
+  },
+  {
+    "event_message": "[TECHNICAL-MATCHER] Candidate skills (technical_skill only): [\n  \"Cognito\", \"Dynamo Db\",\n  \"Lambda\",  \"Html\",\n  \"Css\",     \"Php\",\n  \"Mysql\",   \"Laravel\",\n  \"Jira\"\n]\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "36c21fd2-99ec-4568-8451-64b51a5ed6e9",
+    "level": "info",
+    "timestamp": 1757024922142000
+  },
+  {
+    "event_message": "[SKILL-MATCHER] Final result for \"Laravel\": {\n  score: 100,\n  category: undefined,\n  matchCount: 2,\n  explanation: \"Exact match with Laravel (Meets requirement (advanced))\"\n}\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "fb8f7ef0-6607-4305-9693-407fdcb74411",
+    "level": "info",
+    "timestamp": 1757024922142000
+  },
+  {
+    "event_message": "[SKILL-MATCHER] All requirements processed, total results: 3\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "dcf319cd-62d3-46c4-9b66-799b420470d0",
+    "level": "info",
+    "timestamp": 1757024922142000
+  },
+  {
+    "event_message": "[TECHNICAL-MATCHER] Checking skill: \"Laravel\" against requirement: \"Laravel\"\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "5584203c-8f3b-47d5-b505-49227adf6739",
+    "level": "info",
+    "timestamp": 1757024922142000
+  },
+  {
+    "event_message": "[TECHNICAL-MATCHER] Checking skill: \"Css\" against requirement: \"Laravel\"\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "7655a879-4dcc-479f-8f16-5252ae7f61f0",
+    "level": "info",
+    "timestamp": 1757024922142000
+  },
+  {
+    "event_message": "[TECHNICAL-MATCHER] Checking skill: \"Html\" against requirement: \"Laravel\"\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "9db01880-70ae-43ed-bd15-814c327cf07c",
+    "level": "info",
+    "timestamp": 1757024922142000
+  },
+  {
+    "event_message": "[TECHNICAL-MATCHER] Are aliases check for \"Laravel\" vs \"Mysql\": false\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "223b9339-4f82-4c73-a5cd-9922eb1c2e22",
+    "level": "info",
+    "timestamp": 1757024922142000
+  },
+  {
+    "event_message": "[TECHNICAL-MATCHER] Checking skill: \"Dynamo Db\" against requirement: \"Laravel\"\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "3c063e3d-d7f8-4f9a-be1e-c8ffbfe79d5f",
+    "level": "info",
+    "timestamp": 1757024922142000
+  },
+  {
+    "event_message": "[TECHNICAL-MATCHER] Are aliases check for \"Laravel\" vs \"Jira\": false\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "9e339d2d-67dd-4ee8-a9bb-3578c1811405",
+    "level": "info",
+    "timestamp": 1757024922142000
+  },
+  {
+    "event_message": "[TECHNICAL-MATCHER] Checking skill: \"Lambda\" against requirement: \"Laravel\"\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "dff12120-879b-49bf-86b3-4c9cb19351a2",
+    "level": "info",
+    "timestamp": 1757024922142000
+  },
+  {
+    "event_message": "[TECHNICAL-MATCHER] Checking skill: \"Cognito\" against requirement: \"Laravel\"\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "edcff028-3f1e-467d-bc57-3db6d035de70",
+    "level": "info",
+    "timestamp": 1757024922142000
+  },
+  {
+    "event_message": "[TECHNICAL-MATCHER] Checking skill: \"Php\" against requirement: \"Laravel\"\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "67697cd7-18ce-4075-b286-688aea153f1b",
+    "level": "info",
+    "timestamp": 1757024922142000
+  },
+  {
+    "event_message": "[SKILL-MATCHER] Match result for \"Laravel\": {\n  score: 100,\n  category: undefined,\n  matchCount: 2,\n  bestMatch: \"Laravel\"\n}\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "3d05bb62-b466-4eae-b52f-afa3e60703cc",
+    "level": "info",
+    "timestamp": 1757024922142000
+  },
+  {
+    "event_message": "[TECHNICAL-MATCHER] Are aliases check for \"Laravel\" vs \"Dynamo Db\": false\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "d294fe76-33b7-42a9-bda7-838d99c64423",
+    "level": "info",
+    "timestamp": 1757024922142000
+  },
+  {
+    "event_message": "[TECHNICAL-MATCHER] Are aliases check for \"Laravel\" vs \"Html\": false\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "e338e627-5cee-4c0e-b2cc-59da9428176c",
+    "level": "info",
+    "timestamp": 1757024922142000
+  },
+  {
+    "event_message": "[TECHNICAL-MATCHER] Are aliases check for \"Laravel\" vs \"Lambda\": false\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "6bfa22cc-2844-4a86-bb1d-8e7512d0961a",
+    "level": "info",
+    "timestamp": 1757024922142000
+  },
+  {
+    "event_message": "[TECHNICAL-MATCHER] Checking skill: \"Mysql\" against requirement: \"Laravel\"\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "c7cbddd4-c713-4a1e-94aa-b95a9567612e",
+    "level": "info",
+    "timestamp": 1757024922142000
+  },
+  {
+    "event_message": "[TECHNICAL-MATCHER] EXACT MATCH FOUND: \"Laravel\" matches \"Laravel\"\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "a8275153-1416-4608-80f7-12012b67b1bc",
+    "level": "info",
+    "timestamp": 1757024922142000
+  },
+  {
+    "event_message": "[TECHNICAL-MATCHER] Checking skill: \"Jira\" against requirement: \"Laravel\"\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "f51071a8-02f4-40e1-8caf-1202b54dd2d7",
+    "level": "info",
+    "timestamp": 1757024922142000
+  },
+  {
+    "event_message": "[TECHNICAL-MATCHER] Are aliases check for \"Laravel\" vs \"Laravel\": true\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "67c71df9-2b9e-4729-9a5e-5ca9bb21faa2",
+    "level": "info",
+    "timestamp": 1757024922142000
+  },
+  {
+    "event_message": "[TECHNICAL-MATCHER] Are aliases check for \"Laravel\" vs \"Cognito\": false\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "3fcf574e-c298-440b-ac22-a6e91926415e",
+    "level": "info",
+    "timestamp": 1757024922142000
+  },
+  {
+    "event_message": "[SKILL-MATCHER] Using skill category: technical_skill\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "4ca9005f-c5a0-415a-a1a1-aa4a033953a1",
+    "level": "info",
+    "timestamp": 1757024922141000
+  },
+  {
+    "event_message": "[TECHNICAL-MATCHER] Starting technical skill match for \"Laravel\"\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "810e654e-f9d7-4d2f-8501-2bd99c2a0f8b",
+    "level": "info",
+    "timestamp": 1757024922141000
+  },
+  {
+    "event_message": "[SKILL-MATCHER] Final result for \"Guide Software Developers\": {\n  score: 0,\n  category: undefined,\n  matchCount: 0,\n  explanation: \"No evidence found for Guide Software Developers\"\n}\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "bf410a3b-146b-45bd-b489-6ee8c271ae94",
+    "level": "info",
+    "timestamp": 1757024922141000
+  },
+  {
+    "event_message": "[SKILL-MATCHER] Routing to technical skill matcher (default)\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "0a45fb37-e2d5-48b3-9500-90654c46dc8a",
+    "level": "info",
+    "timestamp": 1757024922141000
+  },
+  {
+    "event_message": "[SKILL-MATCHER] findSkillMatches for \"Laravel\": {\n  category: \"technical_skill\",\n  importance: \"optional\",\n  proficiencyRequired: \"advanced\",\n  candidateSkillCount: 25\n}\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "deb98306-047a-4eea-b15d-f44f97be1a01",
+    "level": "info",
+    "timestamp": 1757024922141000
+  },
+  {
+    "event_message": "[SKILL-MATCHER] Processing requirement: \"Laravel\" (type: technical_skill, importance: optional)\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "55ce2876-a62d-4cc9-a530-616e95744da2",
+    "level": "info",
+    "timestamp": 1757024922141000
+  },
+  {
+    "event_message": "[SKILL-MATCHER] Match result for \"Guide Software Developers\": { score: 0, category: undefined, matchCount: 0, bestMatch: undefined }\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "6cfb2e76-642f-4123-992e-db6b9462c85e",
+    "level": "info",
+    "timestamp": 1757024922141000
+  },
+  {
+    "event_message": "[SKILL-MATCHER] Match result for \"Tech Lead\": {\n  score: 95,\n  category: \"fit\",\n  matchCount: 2,\n  bestMatch: \"Chief Technology & Development Officer\"\n}\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "188ae2c1-ceaa-4358-80e3-f6a62bd3e2bb",
+    "level": "info",
+    "timestamp": 1757024922140000
+  },
+  {
+    "event_message": "[SKILL-MATCHER] Final result for \"Tech Lead\": {\n  score: 95,\n  category: \"fit\",\n  matchCount: 2,\n  explanation: \"Has specialized skill: Chief Technology & Development Officer (Exceeds requirement (expert > advanced))\"\n}\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "22c95d39-3953-48c0-8953-c3837931a27e",
+    "level": "info",
+    "timestamp": 1757024922140000
+  },
+  {
+    "event_message": "[SKILL-MATCHER] Routing to soft skill matcher\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "73ef54ea-835b-4ae8-90d6-6c16a869da26",
+    "level": "info",
+    "timestamp": 1757024922140000
+  },
+  {
+    "event_message": "[ROLE-MATCHER] Role match result for \"Tech Lead\": score=95, matches=2\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "58b32edd-ec9a-49c3-8941-8b7dcef94ee2",
+    "level": "info",
+    "timestamp": 1757024922140000
+  },
+  {
+    "event_message": "[SKILL-MATCHER] Processing requirement: \"Guide Software Developers\" (type: soft_skill, importance: mandatory)\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "622078ee-6890-49c6-83e1-09a5059c6826",
+    "level": "info",
+    "timestamp": 1757024922140000
+  },
+  {
+    "event_message": "[SKILL-MATCHER] findSkillMatches for \"Guide Software Developers\": {\n  category: \"soft_skill\",\n  importance: \"mandatory\",\n  proficiencyRequired: null,\n  candidateSkillCount: 25\n}\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "2a752640-e11e-4e43-993c-768590f6e169",
+    "level": "info",
+    "timestamp": 1757024922140000
+  },
+  {
+    "event_message": "[SKILL-MATCHER] Using skill category: soft_skill\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "92d914c9-cf3a-4589-b99c-b2964e192704",
+    "level": "info",
+    "timestamp": 1757024922140000
+  },
+  {
+    "event_message": "[SKILL-MATCHER] findSkillMatches for \"Tech Lead\": {\n  category: \"role\",\n  importance: \"mandatory\",\n  proficiencyRequired: \"advanced\",\n  candidateSkillCount: 25\n}\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "f806d45d-63e9-457d-b56e-c341f91f6fe5",
+    "level": "info",
+    "timestamp": 1757024922139000
+  },
+  {
+    "event_message": "[ROLE-MATCHER] Checking role skill: \"Freelance Software Developer\" against requirement: \"Tech Lead\"\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "8ed988b7-ecd6-4f7a-ba3f-147e40d4406e",
+    "level": "info",
+    "timestamp": 1757024922139000
+  },
+  {
+    "event_message": "[ROLE-MATCHER] QUALIFIES FOR MATCH: \"Head Software Development\" qualifies for \"Tech Lead\"\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "41dca362-3847-4226-9512-ce59f565edca",
+    "level": "info",
+    "timestamp": 1757024922139000
+  },
+  {
+    "event_message": "[ROLE-MATCHER] Starting role match for \"Tech Lead\"\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "b6432a8e-c1fd-4915-95e6-1d9e51018458",
+    "level": "info",
+    "timestamp": 1757024922139000
+  },
+  {
+    "event_message": "[ROLE-MATCHER] QUALIFIES FOR MATCH: \"Chief Technology & Development Officer\" qualifies for \"Tech Lead\"\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "86ef9e10-bfc9-40d9-909e-0c9f809c8203",
+    "level": "info",
+    "timestamp": 1757024922139000
+  },
+  {
+    "event_message": "[ROLE-MATCHER] Checking role skill: \"Software Engineer\" against requirement: \"Tech Lead\"\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "dc9d52d1-8c0c-4fc4-aa48-d99adff50bd0",
+    "level": "info",
+    "timestamp": 1757024922139000
+  },
+  {
+    "event_message": "[SKILL-MATCHER] Routing to role matcher\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "12d50f48-8e24-4150-985e-5fcabd45510b",
+    "level": "info",
+    "timestamp": 1757024922139000
+  },
+  {
+    "event_message": "[ROLE-MATCHER] Checking role skill: \"Founder\" against requirement: \"Tech Lead\"\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "5d562cec-d8e6-4c71-9021-9bb806aeaa6d",
+    "level": "info",
+    "timestamp": 1757024922139000
+  },
+  {
+    "event_message": "[ROLE-MATCHER] Checking role skill: \"Chief Technology & Development Officer\" against requirement: \"Tech Lead\"\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "99f3b0f8-5920-4f18-9923-a5f421dbcbde",
+    "level": "info",
+    "timestamp": 1757024922139000
+  },
+  {
+    "event_message": "[ROLE-MATCHER] Candidate skills (role type): [\n  \"Founder\",\n  \"Chief Technology & Development Officer\",\n  \"Freelance Software Developer\",\n  \"Software Engineer\",\n  \"Head Software Development\"\n]\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "6f045e45-3d0d-49b1-bfe8-f5b6b1b05aa2",
+    "level": "info",
+    "timestamp": 1757024922139000
+  },
+  {
+    "event_message": "[ROLE-MATCHER] Checking role skill: \"Head Software Development\" against requirement: \"Tech Lead\"\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "1f1da33a-8b10-4b9a-af20-d67109fc31cc",
+    "level": "info",
+    "timestamp": 1757024922139000
+  },
+  {
+    "event_message": "[SKILL-MATCHER] Using skill category: role\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "338e3204-ded1-4202-a3ba-52706fe8a566",
+    "level": "info",
+    "timestamp": 1757024922139000
+  },
+  {
+    "event_message": "[SKILL-MATCHER] Processing requirement: \"Tech Lead\" (type: role, importance: mandatory)\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "2373dbac-a7d4-42a1-91ac-da449a85110d",
+    "level": "info",
+    "timestamp": 1757024922138000
+  },
+  {
+    "event_message": "[LinkedIn API] Formatted requirements: {\n  originalCount: 3,\n  filteredCount: 3,\n  sample: [\n    { name: \"Tech Lead\", category: \"role\" },\n    { name: \"Guide Software Developers\", category: \"soft_skill\" },\n    { name: \"Laravel\", category: \"technical_skill\" }\n  ]\n}\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "416f329c-4b01-448a-bd75-52f4cf23dfb5",
+    "level": "info",
+    "timestamp": 1757024922138000
+  },
+  {
+    "event_message": "[SKILL-MATCHER] Starting matchAllRequirements with: {\n  requirementCount: 3,\n  candidateSkillCount: 25,\n  requirements: [ \"Tech Lead\", \"Guide Software Developers\", \"Laravel\" ],\n  candidateSkills: [ \"Web 3\", \"Amazon Aws\", \"Cognito\", \"Dynamo Db\", \"Lambda\" ]\n}\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "f420576b-4c87-4dd9-b665-cf134d41ed1c",
+    "level": "info",
+    "timestamp": 1757024922138000
+  },
+  {
+    "event_message": "[LinkedIn API] Added role skill: \"Founder\" (0.5y, beginner)\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "0cc1a4a2-40d3-47ca-8f76-977a84704251",
+    "level": "info",
+    "timestamp": 1757024922137000
+  },
+  {
+    "event_message": "[LinkedIn API] Parsed candidate structure: {\n  hasMain: true,\n  mainName: \"Daniel Lanao\",\n  skillsCount: 20,\n  yearsExp: 11.7,\n  skillsPreview: [\n    {\n      name: \"Web 3\",\n      type: \"technology_domain\",\n      yoe: 0.5,\n      proficiency_level: \"beginner\"\n    },\n    {\n      name: \"Amazon Aws\",\n      type: \"technology_domain\",\n      yoe: 18.9,\n      proficiency_level: \"expert\"\n    },\n    {\n      name: \"Cognito\",\n      type: \"technical_skill\",\n      yoe: 4.8,\n      proficiency_level: \"advanced\"\n    }\n  ]\n}\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "085246cf-778c-454b-911a-d41e111b7d12",
+    "level": "info",
+    "timestamp": 1757024922137000
+  },
+  {
+    "event_message": "[LinkedIn API] Raw job requirements: {\n  count: 3,\n  sample: [\n    {\n      requirement: \"Tech Lead\",\n      type: \"role\",\n      is_mandatory: true,\n      proficiency_level: \"advanced\",\n      weight: 0.75\n    },\n    {\n      requirement: \"Guide Software Developers\",\n      type: \"soft_skill\",\n      is_mandatory: true,\n      proficiency_level: null,\n      weight: 0.75\n    },\n    {\n      requirement: \"Laravel\",\n      type: \"technical_skill\",\n      is_mandatory: false,\n      proficiency_level: \"advanced\",\n      weight: 0.1\n    }\n  ],\n  hasNullItems: false\n}\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "cfaa7f3d-0d39-4afa-ba25-2ec0dae41639",
+    "level": "info",
+    "timestamp": 1757024922137000
+  },
+  {
+    "event_message": "[LinkedIn API] Processing match analysis for job: Product Manager\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "3fa8f48b-7e4d-4f47-a580-24467446a01e",
+    "level": "info",
+    "timestamp": 1757024922137000
+  },
+  {
+    "event_message": "[LinkedIn API] Extracting roles from 5 experiences\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "c5c6da1a-a8f1-421c-8d0d-3e723a1cefe2",
+    "level": "info",
+    "timestamp": 1757024922137000
+  },
+  {
+    "event_message": "[LinkedIn API] Total skills after role extraction: 25 (5 roles added)\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "c214c866-e294-485b-a114-87c645922a81",
+    "level": "info",
+    "timestamp": 1757024922137000
+  },
+  {
+    "event_message": "[LinkedIn API] Added role skill: \"Software Engineer\" (1.5y, advanced)\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "b431cd80-1455-4a1e-abdd-93527073b690",
+    "level": "info",
+    "timestamp": 1757024922137000
+  },
+  {
+    "event_message": "[LinkedIn API] Added role skill: \"Head Software Development\" (2.3y, advanced)\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "6dceb04b-f6bc-42e8-a53a-d6779924aea1",
+    "level": "info",
+    "timestamp": 1757024922137000
+  },
+  {
+    "event_message": "[LinkedIn API] Added role skill: \"Freelance Software Developer\" (11.7y, expert)\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "6b4c3e65-abe8-42c7-9a0e-e95481fd127c",
+    "level": "info",
+    "timestamp": 1757024922137000
+  },
+  {
+    "event_message": "[LinkedIn API] Converting skills: 20 skills found\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "2df8202b-f0be-44b4-9dbb-918220fd6cec",
+    "level": "info",
+    "timestamp": 1757024922137000
+  },
+  {
+    "event_message": "[LinkedIn API] Converted 25 total skills (including roles)\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "7af784e2-50ea-437d-b74e-30c5f6f4c03d",
+    "level": "info",
+    "timestamp": 1757024922137000
+  },
+  {
+    "event_message": "[LinkedIn API] Added role skill: \"Chief Technology & Development Officer\" (4.8y, expert)\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "ba9a8939-ced4-4fd7-92d4-ec0f1dbf2635",
+    "level": "info",
+    "timestamp": 1757024922137000
+  },
+  {
+    "event_message": "[LinkedIn API] Received parsed candidate data\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "e7c2ec2d-83b8-4856-890d-e8c3bfbe5e63",
+    "level": "info",
+    "timestamp": 1757024922134000
+  },
+  {
+    "event_message": "Listening on http://localhost:9999/\n",
+    "event_type": "Log",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "09803711-3ed0-4e20-aabc-93bb0ec3600d",
+    "level": "info",
+    "timestamp": 1757024922129000
+  },
+  {
+    "event_message": "booted (time: 40ms)",
+    "event_type": "Boot",
+    "function_id": "1cf8c49e-86df-4f39-b2b1-40a516454b1f",
+    "id": "3784973a-b594-475d-a06e-7bfade83b928",
+    "level": "log",
+    "timestamp": 1757024922119000
+  }
+]

@@ -3,6 +3,9 @@
  * Processes LinkedIn profile data using unified matching engine
  * 
  * Updated: 2025-08-27 - Fixed mandatory requirement counting (only 'strong' = met)
+ * Updated: 2025-01-04 15:20 - Fixed proficiency field mapping (proficiency → proficiencyLevel) and added missing type field for Laravel matching issue
+ * Updated: 2025-01-04 15:25 - Fixed field name mismatch: unified JobRequirement.skill → JobRequirement.name for consistent matching
+ * Updated: 2025-01-04 16:20 - Added null safety checks for undefined requirement objects and defensive logging
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
@@ -51,6 +54,13 @@ serve(async (req) => {
     // Extract data from legacy format
     const linkedInProfile = parsedCandidate?.raw_linkedin_profile
     const jobRequirements = job?.requirements || []
+    
+    console.log('[LinkedIn API] Raw job requirements:', {
+      count: jobRequirements.length,
+      sample: jobRequirements.slice(0, 3),
+      hasNullItems: jobRequirements.some(req => !req || !req.requirement)
+    })
+    
     const jobInfo = {
       id: 'temp-job-id', // Job ID not provided in this format
       title: job?.attributes?.title || 'Unknown Position',
@@ -74,30 +84,105 @@ serve(async (req) => {
     const skills = parsedCandidate.skills || []
     console.log('[LinkedIn API] Converting skills:', skills.length, 'skills found')
     
+    // Extract job titles from LinkedIn experiences and add as role-type skills
+    // Added: 2025-01-04 23:30 - Extract actual job titles as role-type skills for better role matching
+    const roleSkills: any[] = []
+    if (parsedCandidate.raw_linkedin_profile?.experiences) {
+      const experiences = parsedCandidate.raw_linkedin_profile.experiences
+      console.log(`[LinkedIn API] Extracting roles from ${experiences.length} experiences`)
+      
+      for (const exp of experiences) {
+        if (exp.title) {
+          // Clean and normalize the job title
+          const roleTitle = exp.title.trim()
+          
+          // Calculate years in this role based on caption (e.g., "4 yrs 10 mos")
+          let roleYears = 0
+          if (exp.caption) {
+            const yearMatch = exp.caption.match(/(\d+)\s*yr/)
+            const monthMatch = exp.caption.match(/(\d+)\s*mo/)
+            if (yearMatch) roleYears += parseInt(yearMatch[1])
+            if (monthMatch) roleYears += parseInt(monthMatch[1]) / 12
+            roleYears = Math.round(roleYears * 10) / 10 // Round to 1 decimal
+          }
+          
+          // Determine proficiency based on years in role
+          let proficiency = 'beginner'
+          if (roleYears >= 3) proficiency = 'expert'
+          else if (roleYears >= 1) proficiency = 'advanced'
+          
+          // Add the role as a skill (avoid duplicates)
+          if (!roleSkills.find(s => s.name === roleTitle)) {
+            roleSkills.push({
+              name: roleTitle,
+              yoe: roleYears,
+              proficiency_level: proficiency,
+              type: 'role',
+              source: 'experience'
+            })
+            console.log(`[LinkedIn API] Added role skill: "${roleTitle}" (${roleYears}y, ${proficiency})`)
+          }
+        }
+      }
+    }
+    
+    // Also check current job title from profile header
+    if (parsedCandidate.raw_linkedin_profile?.jobTitle && 
+        !roleSkills.find(s => s.name === parsedCandidate.raw_linkedin_profile.jobTitle)) {
+      const currentRole = parsedCandidate.raw_linkedin_profile.jobTitle.trim()
+      const currentYears = parsedCandidate.raw_linkedin_profile.currentJobDurationInYrs || 0
+      
+      let proficiency = 'beginner'
+      if (currentYears >= 3) proficiency = 'expert'
+      else if (currentYears >= 1) proficiency = 'advanced'
+      
+      roleSkills.push({
+        name: currentRole,
+        yoe: currentYears,
+        proficiency_level: proficiency,
+        type: 'role',
+        source: 'current'
+      })
+      console.log(`[LinkedIn API] Added current role: "${currentRole}" (${currentYears}y, ${proficiency})`)
+    }
+    
+    // Combine parsed skills with extracted role skills
+    const allSkills = [...skills, ...roleSkills]
+    console.log(`[LinkedIn API] Total skills after role extraction: ${allSkills.length} (${roleSkills.length} roles added)`)
+    
     const candidate: Candidate = {
       firstName: parsedCandidate.main?.first_name || 'Unknown',
       lastName: parsedCandidate.main?.last_name || '',
       email: parsedCandidate.main?.email,
       yearsOfExperience: parsedCandidate.years_of_experience || 0,
-      skills: skills.map(skill => ({
+      skills: allSkills.map(skill => ({
         name: skill.name,
         yearsOfExperience: skill.yoe,
-        proficiency: skill.proficiency_level,
+        proficiencyLevel: skill.proficiency_level,
+        type: skill.type,
         source: skill.source || 'parsed'
       }))
     }
 
-    console.log(`[LinkedIn API] Converted ${candidate.skills.length} parsed skills`)
+    console.log(`[LinkedIn API] Converted ${candidate.skills.length} total skills (including roles)`)
 
-    // Step 2: Format job requirements for unified engine
-    const formattedRequirements: JobRequirement[] = jobRequirements.map(req => ({
-      id: req.requirement,
-      skill: req.requirement,
-      yearsRequired: req.years_of_experience || null,
-      proficiencyRequired: req.proficiency_level,
-      importance: req.is_mandatory ? 'mandatory' : 'optional',
-      category: req.type || 'technical_skill'
-    }))
+    // Step 2: Format job requirements for unified engine (with null safety)
+    const formattedRequirements: JobRequirement[] = jobRequirements
+      .filter(req => req && req.requirement) // Filter out null/undefined requirements
+      .map(req => ({
+        id: req.requirement,
+        name: req.requirement,
+        yearsRequired: req.years_of_experience || null,
+        proficiencyRequired: req.proficiency_level,
+        importance: req.is_mandatory ? 'mandatory' : 'optional',
+        category: req.type || 'technical_skill'
+      }))
+
+    console.log('[LinkedIn API] Formatted requirements:', {
+      originalCount: jobRequirements.length,
+      filteredCount: formattedRequirements.length,
+      sample: formattedRequirements.slice(0, 3).map(req => ({ name: req.name, category: req.category }))
+    })
 
     // Step 3: Run unified analysis with parsed candidate
     const rawData = {

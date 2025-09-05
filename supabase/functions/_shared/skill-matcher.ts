@@ -5,10 +5,28 @@
  * Version: 2025-08-27 - Proficiency-Focused Algorithm
  * Major Change: Updated scoring weight from 70% skill + 30% proficiency 
  *               to 10% skill + 90% proficiency for accurate experience-level evaluation
+ * 
+ * Updated: 2025-01-04 15:30 - Fixed critical field name mismatch in JobRequirement interface
+ * Changed: JobRequirement.skill → JobRequirement.name to match CandidateSkill.name
+ * Impact: Unified field naming enables proper string matching between requirements and skills
+ * Before: requirement.skill vs skill.name (undefined vs "Laravel" = no match)
+ * After: requirement.name vs skill.name ("Laravel" vs "Laravel" = exact match)
+ * 
+ * Updated: 2025-01-04 16:20 - Added null safety check for undefined requirement objects in findSkillMatches
+ * Updated: 2025-01-04 18:50 - Added missing skill type handlers for complete coverage
+ * Added: findRoleMatch(), findIndustryMatch(), findTechnologyDomainMatch()
+ * Coverage: All 6 database skill types now supported:
+ * - technical_skill → Technical matching with proficiency (existing)
+ * - technology_domain → Technical matching with proficiency (NEW)
+ * - role → Role-based matching with proficiency requirement (NEW)
+ * - soft_skill → Evidence-based matching, no proficiency (existing)
+ * - certification → Binary matching, no proficiency (existing)
+ * - industry → Domain knowledge matching with proficiency (NEW)
  */
 
 import { skillRegistry } from './skill-registry.ts'
 import { mapYOEToProficiency, calculateProficiencyMatch, ProficiencyLevel } from './proficiency-calculator.ts'
+import { categorizeScore } from './score-calculator.ts'
 
 export interface CandidateSkill {
   name: string
@@ -20,7 +38,7 @@ export interface CandidateSkill {
 
 export interface JobRequirement {
   id: string
-  skill: string
+  name: string
   yearsRequired?: number | null
   proficiencyRequired?: string | null
   importance: 'mandatory' | 'optional'
@@ -58,17 +76,43 @@ export async function findSkillMatches(
   useSemanticFallback: boolean = true,
   rawTextContext?: string
 ): Promise<MatchResult> {
+  // Defensive check for undefined requirement
+  if (!requirement || !requirement.name) {
+    console.error('[SKILL-MATCHER] ERROR: Undefined requirement object:', requirement)
+    return {
+      requirement,
+      score: 0,
+      explanation: 'Invalid requirement object',
+      matches: [],
+      bestMatch: null
+    }
+  }
+  
+  // Match requirement against candidate skills
+  
   // Route to appropriate matcher based on skill category
   const skillCategory = requirement.category?.toLowerCase() || 'technical_skill'
   
+  let result: MatchResult
+  
   if (skillCategory === 'certification') {
-    return findCertificationMatch(requirement, candidateSkills)
+    result = await findCertificationMatch(requirement, candidateSkills)
   } else if (skillCategory === 'soft_skill') {
-    return findSoftSkillMatch(requirement, candidateSkills, rawTextContext)
+    result = await findSoftSkillMatch(requirement, candidateSkills, rawTextContext)
+  } else if (skillCategory === 'role') {
+    result = await findRoleMatch(requirement, candidateSkills)
+  } else if (skillCategory === 'industry') {
+    result = await findIndustryMatch(requirement, candidateSkills)
+  } else if (skillCategory === 'technology_domain') {
+    result = await findTechnologyDomainMatch(requirement, candidateSkills, useSemanticFallback)
   } else {
     // Default to technical skill matching
-    return findTechnicalSkillMatch(requirement, candidateSkills, useSemanticFallback)
+    result = await findTechnicalSkillMatch(requirement, candidateSkills, useSemanticFallback)
   }
+  
+  // Return final match result
+  
+  return result
 }
 
 /**
@@ -80,6 +124,8 @@ async function findTechnicalSkillMatch(
   candidateSkills: CandidateSkill[],
   useSemanticFallback: boolean = true
 ): Promise<MatchResult> {
+  // Filter candidate skills to technical skills only
+  
   const matches: SkillMatch[] = []
   
   for (const skill of candidateSkills) {
@@ -87,15 +133,21 @@ async function findTechnicalSkillMatch(
     if (!skill.name || skill.name.trim() === '') continue
     if (skill.type && skill.type !== 'technical_skill') continue
     
+    // Check each technical skill for match
+    
     // 1. Check for exact match
-    if (skillRegistry.areAliases(requirement.skill, skill.name)) {
+    const areAliases = skillRegistry.areAliases(requirement.name, skill.name)
+    // Check for exact match and aliases
+    
+    if (areAliases) {
+      // Exact match found
       const proficiencyResult = evaluateProficiencyMatch(requirement, skill)
       matches.push({
         type: 'exact',
         confidence: 1.0,
-        evidence: `Exact match: ${skill.name} matches ${requirement.skill}`,
+        evidence: `Exact match: ${skill.name} matches ${requirement.name}`,
         candidateSkill: skill.name,
-        requirement: requirement.skill,
+        requirement: requirement.name,
         proficiencyMatch: proficiencyResult
       })
       continue
@@ -105,14 +157,14 @@ async function findTechnicalSkillMatch(
     
     // 3. Check if candidate skill is more specific (child qualifies for parent)
     // E.g., Django qualifies for Python requirement
-    if (skillRegistry.isChildOf(skill.name, requirement.skill)) {
+    if (skillRegistry.isChildOf(skill.name, requirement.name)) {
       const proficiencyResult = evaluateProficiencyMatch(requirement, skill)
       matches.push({
         type: 'child_qualifies',
         confidence: 0.9,
-        evidence: `${skill.name} is specialized knowledge of ${requirement.skill}`,
+        evidence: `${skill.name} is specialized knowledge of ${requirement.name}`,
         candidateSkill: skill.name,
-        requirement: requirement.skill,
+        requirement: requirement.name,
         proficiencyMatch: proficiencyResult
       })
       continue
@@ -120,28 +172,28 @@ async function findTechnicalSkillMatch(
     
     // 4. Check if candidate skill is more general (parent of required)
     // E.g., Python for Django requirement (lower confidence)
-    if (skillRegistry.isParentOf(skill.name, requirement.skill)) {
+    if (skillRegistry.isParentOf(skill.name, requirement.name)) {
       const proficiencyResult = evaluateProficiencyMatch(requirement, skill)
       matches.push({
         type: 'parent_general',
         confidence: 0.7,
-        evidence: `${skill.name} provides foundational knowledge for ${requirement.skill}`,
+        evidence: `${skill.name} provides foundational knowledge for ${requirement.name}`,
         candidateSkill: skill.name,
-        requirement: requirement.skill,
+        requirement: requirement.name,
         proficiencyMatch: proficiencyResult
       })
       continue
     }
     
     // 5. Check if skill qualifies for requirement
-    if (skillRegistry.qualifiesFor(skill.name, requirement.skill)) {
+    if (skillRegistry.qualifiesFor(skill.name, requirement.name)) {
       const proficiencyResult = evaluateProficiencyMatch(requirement, skill)
       matches.push({
         type: 'child_qualifies',
         confidence: 0.85,
-        evidence: `${skill.name} qualifies for ${requirement.skill}`,
+        evidence: `${skill.name} qualifies for ${requirement.name}`,
         candidateSkill: skill.name,
-        requirement: requirement.skill,
+        requirement: requirement.name,
         proficiencyMatch: proficiencyResult
       })
     }
@@ -248,7 +300,7 @@ function generateMatchExplanation(
   requirement: JobRequirement
 ): string {
   if (!bestMatch) {
-    return `No matching skills found for ${requirement.skill}`
+    return `No matching skills found for ${requirement.name}`
   }
   
   const parts: string[] = []
@@ -319,25 +371,25 @@ function findCertificationMatch(
     if (skill.type && skill.type !== 'certification') continue
     
     // Check for exact match or aliases
-    if (skillRegistry.areAliases(requirement.skill, skill.name) ||
-        normalizeString(requirement.skill) === normalizeString(skill.name)) {
+    if (skillRegistry.areAliases(requirement.name, skill.name) ||
+        normalizeString(requirement.name) === normalizeString(skill.name)) {
       matches.push({
         type: 'exact',
         confidence: 1.0,
         evidence: `Has certification: ${skill.name}`,
         candidateSkill: skill.name,
-        requirement: requirement.skill
+        requirement: requirement.name
       })
     }
     
     // Check for partial matches (e.g., "AWS Certified" matching "AWS Solutions Architect")
-    else if (certificationPartialMatch(requirement.skill, skill.name)) {
+    else if (certificationPartialMatch(requirement.name, skill.name)) {
       matches.push({
         type: 'alias',
         confidence: 0.9,
         evidence: `Has related certification: ${skill.name}`,
         candidateSkill: skill.name,
-        requirement: requirement.skill
+        requirement: requirement.name
       })
     }
   }
@@ -347,7 +399,7 @@ function findCertificationMatch(
   const score = bestMatch ? 100 : 0
   const explanation = bestMatch 
     ? `Certification verified: ${bestMatch.candidateSkill}`
-    : `Missing certification: ${requirement.skill}`
+    : `Missing certification: ${requirement.name}`
   
   return Promise.resolve({
     requirement,
@@ -376,8 +428,8 @@ function findSoftSkillMatch(
     if (!skill.name || skill.name.trim() === '') continue
     if (skill.type && skill.type !== 'soft_skill') continue
     
-    if (skillRegistry.areAliases(requirement.skill, skill.name) ||
-        softSkillsRelated(requirement.skill, skill.name)) {
+    if (skillRegistry.areAliases(requirement.name, skill.name) ||
+        softSkillsRelated(requirement.name, skill.name)) {
       evidenceCount += 2 // Strong evidence from structured skills
       evidenceSources.push(`Listed skill: ${skill.name}`)
       bestSkillMatch = skill
@@ -386,7 +438,7 @@ function findSoftSkillMatch(
   
   // 2. Check raw text for additional evidence (secondary evidence)
   if (rawTextContext) {
-    const textEvidence = findSoftSkillInText(requirement.skill, rawTextContext)
+    const textEvidence = findSoftSkillInText(requirement.name, rawTextContext)
     evidenceCount += textEvidence.count
     evidenceSources.push(...textEvidence.sources)
   }
@@ -397,16 +449,16 @@ function findSoftSkillMatch(
   
   if (evidenceCount >= 4) {
     score = 100 // Strong evidence
-    explanation = `Strong evidence of ${requirement.skill} (${evidenceCount} indicators)`
+    explanation = `Strong evidence of ${requirement.name} (${evidenceCount} indicators)`
   } else if (evidenceCount >= 2) {
     score = 80 // Adequate evidence
-    explanation = `Adequate evidence of ${requirement.skill} (${evidenceCount} indicators)`
+    explanation = `Adequate evidence of ${requirement.name} (${evidenceCount} indicators)`
   } else if (evidenceCount === 1) {
     score = 60 // Weak evidence
-    explanation = `Limited evidence of ${requirement.skill} (${evidenceCount} indicator)`
+    explanation = `Limited evidence of ${requirement.name} (${evidenceCount} indicator)`
   } else {
     score = 0 // No evidence
-    explanation = `No evidence found for ${requirement.skill}`
+    explanation = `No evidence found for ${requirement.name}`
   }
   
   const matches: SkillMatch[] = []
@@ -416,7 +468,7 @@ function findSoftSkillMatch(
       confidence: Math.min(1.0, evidenceCount / 4), // Max confidence with 4+ pieces of evidence
       evidence: evidenceSources.join('; '),
       candidateSkill: bestSkillMatch.name,
-      requirement: requirement.skill
+      requirement: requirement.name
     })
   }
   
@@ -559,18 +611,26 @@ export async function matchAllRequirements(
     rawTextContext?: string
   }
 ): Promise<MatchResult[]> {
+  // Process all job requirements against candidate skills
+  
   const results: MatchResult[] = []
   
   for (const requirement of jobRequirements) {
+    // Process individual requirement
+    
     const matchResult = await findSkillMatches(
       requirement,
       candidateSkills,
       options?.useSemanticFallback ?? true,
       options?.rawTextContext
     )
+    
+    // Store match result
+    
     results.push(matchResult)
   }
   
+  // All requirements processed
   return results
 }
 
@@ -594,4 +654,277 @@ export async function extractSupplementarySkills(
   // 4. Return as CandidateSkill array
   
   return supplementarySkills
+}
+
+/**
+ * Find matches for roles (job titles & experience with proficiency)
+ * MUST HAVE proficiency level for meaningful comparison
+ * 
+ * Added: 2025-01-04 18:50 - New skill type handler for role-based matching
+ * Purpose: Handle job titles and role requirements with proficiency evaluation
+ * Examples: "Tech Lead", "Senior Developer", "Product Manager"
+ */
+async function findRoleMatch(
+  requirement: JobRequirement,
+  candidateSkills: CandidateSkill[]
+): Promise<MatchResult> {
+  console.log(`[ROLE-MATCHER] Starting role match for "${requirement.name}"`)
+  console.log(`[ROLE-MATCHER] Candidate skills (role type):`, 
+    candidateSkills.filter(s => s.type === 'role').map(s => s.name))
+  
+  const matches: SkillMatch[] = []
+  
+  for (const skill of candidateSkills) {
+    // Skip empty skills or wrong type
+    if (!skill.name || skill.name.trim() === '') continue
+    if (skill.type && skill.type !== 'role') continue
+    
+    // Check each role skill for match
+    
+    // Check for exact match or aliases
+    if (skillRegistry.areAliases(requirement.name, skill.name) ||
+        normalizeString(requirement.name) === normalizeString(skill.name)) {
+      console.log(`[ROLE-MATCHER] EXACT ROLE MATCH FOUND: "${skill.name}" matches "${requirement.name}"`)
+      
+      // Role matching MUST have proficiency for meaningful comparison
+      const proficiencyResult = evaluateProficiencyMatch(requirement, skill)
+      matches.push({
+        type: 'exact',
+        confidence: 1.0,
+        evidence: `Role match: ${skill.name} matches ${requirement.name}`,
+        candidateSkill: skill.name,
+        requirement: requirement.name,
+        proficiencyMatch: proficiencyResult
+      })
+      continue
+    }
+    
+    // Check if candidate's role qualifies for the requirement
+    // Added: 2025-01-04 23:40 - Check if senior roles qualify for junior requirements (e.g., CTO qualifies for Tech Lead)
+    if (skillRegistry.qualifiesFor(skill.name, requirement.name)) {
+      console.log(`[ROLE-MATCHER] QUALIFIES FOR MATCH: "${skill.name}" qualifies for "${requirement.name}"`)
+      
+      const proficiencyResult = evaluateProficiencyMatch(requirement, skill)
+      matches.push({
+        type: 'child_qualifies',
+        confidence: 0.95,
+        evidence: `Senior role qualification: ${skill.name} qualifies for ${requirement.name}`,
+        candidateSkill: skill.name,
+        requirement: requirement.name,
+        proficiencyMatch: proficiencyResult
+      })
+      continue
+    }
+    
+    // Check for partial role matches (e.g., "Senior Tech Lead" matches "Tech Lead")
+    if (skill.name.toLowerCase().includes(requirement.name.toLowerCase()) ||
+        requirement.name.toLowerCase().includes(skill.name.toLowerCase())) {
+      console.log(`[ROLE-MATCHER] PARTIAL ROLE MATCH: "${skill.name}" partially matches "${requirement.name}"`)
+      
+      const proficiencyResult = evaluateProficiencyMatch(requirement, skill)
+      matches.push({
+        type: 'semantic',
+        confidence: 0.8,
+        evidence: `Partial role match: ${skill.name} relates to ${requirement.name}`,
+        candidateSkill: skill.name,
+        requirement: requirement.name,
+        proficiencyMatch: proficiencyResult
+      })
+    }
+  }
+  
+  // Calculate best match and score
+  const bestMatch = matches.length > 0 ? matches[0] : null
+  const score = calculateRequirementScore(bestMatch, requirement)
+  const category = categorizeScore(score)
+  const explanation = generateMatchExplanation(bestMatch, requirement)
+  
+  console.log(`[ROLE-MATCHER] Role match result for "${requirement.name}": score=${score}, matches=${matches.length}`)
+  
+  return {
+    requirement,
+    score,
+    category,
+    matches,
+    bestMatch,
+    explanation,
+    matchType: bestMatch?.type || 'none'
+  }
+}
+
+/**
+ * Find matches for industries (domain knowledge with proficiency) 
+ * MUST HAVE proficiency level for meaningful comparison
+ * 
+ * Added: 2025-01-04 18:50 - New skill type handler for industry domain matching
+ * Purpose: Handle industry knowledge and domain expertise with proficiency evaluation
+ * Examples: "Healthcare", "Financial Services", "E-commerce", "SaaS"
+ */
+async function findIndustryMatch(
+  requirement: JobRequirement,
+  candidateSkills: CandidateSkill[]
+): Promise<MatchResult> {
+  console.log(`[INDUSTRY-MATCHER] Starting industry match for "${requirement.name}"`)
+  console.log(`[INDUSTRY-MATCHER] Candidate skills (industry type):`, 
+    candidateSkills.filter(s => s.type === 'industry').map(s => s.name))
+  
+  const matches: SkillMatch[] = []
+  
+  for (const skill of candidateSkills) {
+    // Skip empty skills or wrong type
+    if (!skill.name || skill.name.trim() === '') continue
+    if (skill.type && skill.type !== 'industry') continue
+    
+    console.log(`[INDUSTRY-MATCHER] Checking industry skill: "${skill.name}" against requirement: "${requirement.name}"`)
+    
+    // Check for exact match or aliases
+    if (skillRegistry.areAliases(requirement.name, skill.name) ||
+        normalizeString(requirement.name) === normalizeString(skill.name)) {
+      console.log(`[INDUSTRY-MATCHER] EXACT INDUSTRY MATCH FOUND: "${skill.name}" matches "${requirement.name}"`)
+      
+      // Industry matching MUST have proficiency for meaningful comparison  
+      const proficiencyResult = evaluateProficiencyMatch(requirement, skill)
+      matches.push({
+        type: 'exact',
+        confidence: 1.0,
+        evidence: `Industry match: ${skill.name} matches ${requirement.name}`,
+        candidateSkill: skill.name,
+        requirement: requirement.name,
+        proficiencyMatch: proficiencyResult
+      })
+      continue
+    }
+    
+    // Check for related industry domains
+    if (skill.name.toLowerCase().includes(requirement.name.toLowerCase()) ||
+        requirement.name.toLowerCase().includes(skill.name.toLowerCase())) {
+      console.log(`[INDUSTRY-MATCHER] RELATED INDUSTRY MATCH: "${skill.name}" relates to "${requirement.name}"`)
+      
+      const proficiencyResult = evaluateProficiencyMatch(requirement, skill)
+      matches.push({
+        type: 'semantic',
+        confidence: 0.7,
+        evidence: `Related industry: ${skill.name} relates to ${requirement.name}`,
+        candidateSkill: skill.name,
+        requirement: requirement.name,
+        proficiencyMatch: proficiencyResult
+      })
+    }
+  }
+  
+  // Calculate best match and score
+  const bestMatch = matches.length > 0 ? matches[0] : null
+  const score = calculateRequirementScore(bestMatch, requirement)
+  const category = categorizeScore(score)
+  const explanation = generateMatchExplanation(bestMatch, requirement)
+  
+  console.log(`[INDUSTRY-MATCHER] Industry match result for "${requirement.name}": score=${score}, matches=${matches.length}`)
+  
+  return {
+    requirement,
+    score,
+    category,
+    matches,
+    bestMatch,
+    explanation,
+    matchType: bestMatch?.type || 'none'
+  }
+}
+
+/**
+ * Find matches for technology domains (technical matching with proficiency)
+ * Same as technical skills but for broader technology categories
+ * 
+ * Added: 2025-01-04 18:50 - New skill type handler for technology domain matching
+ * Purpose: Handle broader technology categories with same logic as technical skills
+ * Examples: "Cloud Computing", "AI/ML", "DevOps", "Web Development", "Mobile Development"
+ * Logic: Uses skill registry hierarchy + proficiency evaluation like technical skills
+ */
+async function findTechnologyDomainMatch(
+  requirement: JobRequirement,
+  candidateSkills: CandidateSkill[],
+  useSemanticFallback: boolean = true
+): Promise<MatchResult> {
+  console.log(`[TECH-DOMAIN-MATCHER] Starting technology domain match for "${requirement.name}"`)
+  console.log(`[TECH-DOMAIN-MATCHER] Candidate skills (technology_domain type):`, 
+    candidateSkills.filter(s => s.type === 'technology_domain').map(s => s.name))
+  
+  const matches: SkillMatch[] = []
+  
+  for (const skill of candidateSkills) {
+    // Skip empty skills or wrong type
+    if (!skill.name || skill.name.trim() === '') continue
+    if (skill.type && skill.type !== 'technology_domain') continue
+    
+    console.log(`[TECH-DOMAIN-MATCHER] Checking tech domain: "${skill.name}" against requirement: "${requirement.name}"`)
+    
+    // 1. Check for exact match
+    const areAliases = skillRegistry.areAliases(requirement.name, skill.name)
+    console.log(`[TECH-DOMAIN-MATCHER] Are aliases check for "${requirement.name}" vs "${skill.name}": ${areAliases}`)
+    
+    if (areAliases) {
+      console.log(`[TECH-DOMAIN-MATCHER] EXACT TECH DOMAIN MATCH FOUND: "${skill.name}" matches "${requirement.name}"`)
+      const proficiencyResult = evaluateProficiencyMatch(requirement, skill)
+      matches.push({
+        type: 'exact',
+        confidence: 1.0,
+        evidence: `Technology domain match: ${skill.name} matches ${requirement.name}`,
+        candidateSkill: skill.name,
+        requirement: requirement.name,
+        proficiencyMatch: proficiencyResult
+      })
+      continue
+    }
+    
+    // 2. Check if candidate skill is more specific (child qualifies for parent)
+    if (skillRegistry.isChildOf(skill.name, requirement.name)) {
+      const proficiencyResult = evaluateProficiencyMatch(requirement, skill)
+      matches.push({
+        type: 'child_qualifies',
+        confidence: 0.9,
+        evidence: `Specialized tech domain: ${skill.name} qualifies for ${requirement.name}`,
+        candidateSkill: skill.name,
+        requirement: requirement.name,
+        proficiencyMatch: proficiencyResult
+      })
+      continue
+    }
+    
+    // 3. Check if candidate skill is more general (parent covers child)
+    if (skillRegistry.isParentOf(skill.name, requirement.name)) {
+      const proficiencyResult = evaluateProficiencyMatch(requirement, skill)
+      matches.push({
+        type: 'parent_general',
+        confidence: 0.7,
+        evidence: `General tech domain: ${skill.name} covers ${requirement.name}`,
+        candidateSkill: skill.name,
+        requirement: requirement.name,
+        proficiencyMatch: proficiencyResult
+      })
+    }
+  }
+  
+  // 4. Semantic matching for technology domains (if enabled and no matches)
+  if (useSemanticFallback && matches.length === 0) {
+    const semanticMatches = await findSemanticMatches(requirement, candidateSkills)
+    matches.push(...semanticMatches)
+  }
+  
+  // Calculate best match and score
+  const bestMatch = matches.length > 0 ? matches.sort((a, b) => b.confidence - a.confidence)[0] : null
+  const score = calculateRequirementScore(bestMatch, requirement)
+  const category = categorizeScore(score)
+  const explanation = generateMatchExplanation(bestMatch, requirement)
+  
+  console.log(`[TECH-DOMAIN-MATCHER] Tech domain match result for "${requirement.name}": score=${score}, matches=${matches.length}`)
+  
+  return {
+    requirement,
+    score,
+    category,
+    matches,
+    bestMatch,
+    explanation,
+    matchType: bestMatch?.type || 'none'
+  }
 }

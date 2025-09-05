@@ -159,7 +159,7 @@ export function AnalysisResultsDisplay({ analysis, candidateName, isNewCandidate
                 {data.summary.strengths.length > 0 ? (
                   <ul className="space-y-3">
                     {data.summary.strengths.map((strength, index) => (
-                      <li key={index} className="flex items-start gap-2">
+                      <li key={`strength-${index}-${strength.slice(0, 20)}`} className="flex items-start gap-2">
                         <div className="w-2 h-2 rounded-full bg-[hsl(var(--match-fit))] mt-2 flex-shrink-0" />
                         <span className="text-sm leading-relaxed">{strength}</span>
                       </li>
@@ -184,7 +184,7 @@ export function AnalysisResultsDisplay({ analysis, candidateName, isNewCandidate
                 {data.summary.gaps.length > 0 ? (
                   <ul className="space-y-3">
                     {data.summary.gaps.map((gap, index) => (
-                      <li key={index} className="flex items-start gap-2">
+                      <li key={`gap-${index}-${gap.slice(0, 20)}`} className="flex items-start gap-2">
                         <div className="w-2 h-2 rounded-full bg-[hsl(var(--match-missing))] mt-2 flex-shrink-0" />
                         <span className="text-sm leading-relaxed">{gap}</span>
                       </li>
@@ -262,7 +262,7 @@ export function AnalysisResultsDisplay({ analysis, candidateName, isNewCandidate
             <CardContent>
               <ul className="space-y-3">
                 {data.recruiter_recommendations.interview_strategy.map((item, index) => (
-                  <li key={index} className="flex items-start gap-2">
+                  <li key={`interview-strategy-${index}-${item.slice(0, 20)}`} className="flex items-start gap-2">
                     <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
                     <span className="text-sm leading-relaxed">{item}</span>
                   </li>
@@ -278,7 +278,7 @@ export function AnalysisResultsDisplay({ analysis, candidateName, isNewCandidate
             <CardContent>
               <ul className="space-y-3">
                 {data.recruiter_recommendations.other_options.map((item, index) => (
-                  <li key={index} className="flex items-start gap-2">
+                  <li key={`other-option-${index}-${item.slice(0, 20)}`} className="flex items-start gap-2">
                     <div className="w-2 h-2 rounded-full bg-purple-500 mt-2 flex-shrink-0" />
                     <span className="text-sm leading-relaxed">{item}</span>
                   </li>

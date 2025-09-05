@@ -1,309 +1,66 @@
-PS C:\Users\jorge\coding\vita> pnpm dev
-
-> @ dev C:\Users\jorge\coding\vita
-> next dev --turbopack
-
-   ▲ Next.js 15.3.4 (Turbopack)
-   - Local:        http://localhost:3000
-   - Network:      http://10.5.0.2:3000
-   - Environments: .env.local
-
- ✓ Starting...
- ✓ Compiled middleware in 376ms
- ✓ Ready in 2.5s
- ○ Compiling /protected/jobs/[id]/interview-companion ...
- ✓ Compiled /protected/jobs/[id]/interview-companion in 5.8s
- GET /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 8201ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 440ms
- GET /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 3955ms
- ○ Compiling /favicon.ico ...
- ✓ Compiled /favicon.ico in 651ms
- GET /favicon.ico?favicon.45db1c09.ico 200 in 1039ms
- GET /favicon.ico?favicon.45db1c09.ico 200 in 394ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 585ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 517ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 522ms
- GET /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 783ms
- GET /favicon.ico?favicon.45db1c09.ico 200 in 386ms
- GET /favicon.ico?favicon.45db1c09.ico 200 in 375ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 527ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 522ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 537ms
- GET /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 805ms
- GET /favicon.ico?favicon.45db1c09.ico 200 in 334ms
- GET /favicon.ico?favicon.45db1c09.ico 200 in 322ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 524ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 540ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 550ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 530ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 529ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 520ms
- GET /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 940ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 1093ms
-[Recall API] Creating bot: Vita Notetaker | webhook: https://4bfa610696ad.ngrok-free.app
-[Recall API] TRANSCRIPTION CONFIG: {
-  REALTIME_PROVIDER: 'meeting_captions',
-  ASYNC_PROVIDER: 'deepgram_async',
-  ENABLE_REALTIME_QUALITY: false
-}
-[Recall API] Bot request payload: {
-  "meeting_url": "https://meet.google.com/eht-ijwg-vav",
-  "bot_name": "Vita Notetaker",
-  "recording_config": {
-    "transcript": {
-      "provider": {
-        "meeting_captions": {}
-      }
+  "match_analysis": {
+    "overall_score": 68,
+    "status": "developing",
+    "overall_feedback": "This candidate shows good potential for the Product Manager role with a 68% match score. They meet 1 out of 2 mandatory requirements. Key strengths include required proficiency in laravel and demonstrable competency in tech lead. Areas needing attention include missing required expertise in guide software developers. Recommend interview with focus on identified gap areas.",
+    "matched_mandatory_requirements": 1,
+    "total_mandatory_requirements": 2
+  },
+  "requirement_evaluations": [
+    {
+      "requirement_name": "Tech Lead",
+      "score": 95,
+      "status": "fit",
+      "feedback": "Excellent match with required proficiency in Tech Lead. Has specialized skill: Chief Technology & Development Officer (Exceeds requirement (expert > advanced))"
+    },
+    {
+      "requirement_name": "Guide Software Developers",
+      "score": 0,
+      "status": "missing",
+      "feedback": "No evidence of Guide Software Developers experience found - critical gap"
+    },
+    {
+      "requirement_name": "Laravel",
+      "score": 100,
+      "status": "fit",
+      "feedback": "Outstanding competency demonstrated in Laravel. Exact match with Laravel (Meets requirement (advanced))"
     }
-  },
-  "webhook_config": {
-    "url": "https://4bfa610696ad.ngrok-free.app"
-  }
-}
-[Recall API] Bot created: 51bd2dfc-3aaf-477d-883e-e7055fc4803c
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 2485ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 572ms
- ○ Compiling /api/recall/webhooks ...
- ✓ Compiled /api/recall/webhooks in 1080ms
-[WEBHOOK] bot.joining_call | bot_id: 51bd2dfc-3aaf-477d-883e-e7055fc4803c | recording_id: undefined | status: joining_call
-[Webhook] Bot joining call, updating status to created
-[DB] Updating interview status: bot 51bd2dfc-3aaf-477d-883e-e7055fc4803c -> created
-[DB] Using service role client for bot ID: 51bd2dfc-3aaf-477d-883e-e7055fc4803c
-[DB] Updated 1 interviews
-[DB] Updated interview cf866b34-f61c-4608-8144-43db5e8cf4bf to status: created
-[Webhook] Status update result: { success: true, updatedCount: 1 }
- POST /api/recall/webhooks 200 in 1699ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 574ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 521ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 558ms
-[WEBHOOK] bot.in_call_recording | bot_id: 51bd2dfc-3aaf-477d-883e-e7055fc4803c | recording_id: undefined | status: in_call_recording
-[Webhook] Bot started recording, updating status to in_progress
-[DB] Updating interview status: bot 51bd2dfc-3aaf-477d-883e-e7055fc4803c -> in_progress
-[DB] Using service role client for bot ID: 51bd2dfc-3aaf-477d-883e-e7055fc4803c
-[DB] Updated 1 interviews
-[DB] Updated interview cf866b34-f61c-4608-8144-43db5e8cf4bf to status: in_progress
-[Webhook] Status update result: { success: true, updatedCount: 1 }
- POST /api/recall/webhooks 200 in 421ms
- GET /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 629ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 556ms
- GET /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 622ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 522ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 554ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 513ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 545ms
-[WEBHOOK] bot.call_ended | bot_id: 51bd2dfc-3aaf-477d-883e-e7055fc4803c | recording_id: undefined | status: call_ended
-[Webhook] Bot finished, waiting for recording completion
- POST /api/recall/webhooks 200 in 151ms
- GET /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 932ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 526ms
-[WEBHOOK] transcript.done | bot_id: 51bd2dfc-3aaf-477d-883e-e7055fc4803c | recording_id: 8a0cbb37-30f4-44b7-9d2b-1035147c29b7 | status: done
-[Webhook] Transcript completed - bot: 51bd2dfc-3aaf-477d-883e-e7055fc4803c transcript: c99cf197-3a79-4acf-96c3-24e74fd918cb
-[Webhook] Fetching completed transcript: c99cf197-3a79-4acf-96c3-24e74fd918cb
-[Recall API] Fetching transcript: c99cf197-3a79-4acf-96c3-24e74fd918cb
-[WEBHOOK] recording.done | bot_id: 51bd2dfc-3aaf-477d-883e-e7055fc4803c | recording_id: 8a0cbb37-30f4-44b7-9d2b-1035147c29b7 | status: done
-[Webhook] Recording completed - bot: 51bd2dfc-3aaf-477d-883e-e7055fc4803c recording: 8a0cbb37-30f4-44b7-9d2b-1035147c29b7
-[Webhook] Creating async Deepgram transcript for recording: 8a0cbb37-30f4-44b7-9d2b-1035147c29b7
-[Recall API] Creating transcript job for recording: 8a0cbb37-30f4-44b7-9d2b-1035147c29b7
-[Recall API] ASYNC TRANSCRIPT CONFIG: {
-  provider: 'deepgram_async',
-  config: {
-    language: 'en',
-    diarize: true,
-    smart_format: true,
-    punctuate: true
-  }
-}
-[WEBHOOK] bot.done | bot_id: 51bd2dfc-3aaf-477d-883e-e7055fc4803c | recording_id: undefined | status: done
-[Webhook] Bot finished, waiting for recording completion
- POST /api/recall/webhooks 200 in 148ms
-[Recall API] Transcript response keys: [
-  'id',
-  'recording',
-  'created_at',
-  'status',
-  'metadata',
-  'data',
-  'diarization',
-  'provider'
-]
-[Recall API] Transcript status: {
-  code: 'done',
-  sub_code: null,
-  updated_at: '2025-09-02T21:37:34.736906Z'
-}
-[Recall API] Full transcript data: {
-  "id": "c99cf197-3a79-4acf-96c3-24e74fd918cb",
-  "recording": {
-    "id": "8a0cbb37-30f4-44b7-9d2b-1035147c29b7",
-    "metadata": {}
-  },
-  "created_at": "2025-09-02T21:36:31.550191Z",
-  "status": {
-    "code": "done",
-    "sub_code": null,
-    "updated_at": "2025-09-02T21:37:34.736906Z"
-  },
-  "metadata": {},
-  "data": {
-    "download_url": "https://us-west-2-recallai-production-bot-data.s3.amazonaws.com/_workspace-5af3f291-6456-465a-bdb0-ea40760bbbce/recordings/8a0cbb37-30f4-44b7-9d2b-1035147c29b7/transcript/c99cf197-3a79-4acf-96c3-24e74fd918cb/bot/51bd2dfc-3aaf-477d-883e-e7055fc4803c/AROA3Z2PRSQANGTUQXHNJ%3Ai-070391ccf21e543b6/diarized-processed1.1.json?AWSAccessKeyId=ASIA3Z2PRSQAB6LAAHQW&Signature=zHizW6fc4Vb7KRXhTbnmSG4P%2B34%3D&x-amz-security-token=IQoJb3JpZ2luX2VjEM3%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLXdlc3QtMiJGMEQCIEDT1hWODQjJmeAMuQ7jSepsGq9KImlw5Paj45CFVxGuAiBLkYmjnrY9tWypE%2FFjzrEdkFM93%2BZChTlGK2lC2bzOIyq4BQg2EAAaDDgxMTM3ODc3NTA0MCIMtqUKhkwAeE%2BTncYbKpUFRhJAe3YWpAYeWcmJLT4Hq9U%2FRWD8sr%2B0n3XJ7Y8GS00Tpij579x5iZlzfCQoDG7zFahlt5j3ISRrwuW4R6MAlaa53s4h9yBwzAbP8D7IQvbSbbWqC6WMLIpEl2%2B0PoGpX9gAA3%2BA16RXrbcno9Ze0Y4yEIkAyrkT%2FcUI%2BEOibVkcEpp1kjoKOtsRStrwz32xVL4BMDrF%2F9uO9JfZX4G3K%2BDTTND%2Bwg3I%2Bd4I0GTQSOrIycJb1fnJGRGvK170Xp8iaJV%2Fr%2FudwWMe%2BYZ5%2BpmjV01dRAxPjpumexyjMs9gh5LfEbrDMcDL5Ic%2FFqvUx2sZ2PdD%2BJ4KgGi%2BuEry%2B8IUyYcyiktX7FaI91CUH9DRuE8S7M6hc50rwTZ5n8COQyIJC7M3A97ULU8urcIh8R5ADGK%2FXDV8qQQgxLWy13tYLJCxn%2F21%2FixzcrNI%2FxFXGsFT1huGfpqUzMO7gd8xxuII%2FyBRTRe9e%2Bq4sAfG6rPQJIW7rchTrL%2FOYvrRFM%2FaZohL6Y%2BrRbirsLqxP%2Bx5Tar6Aojo%2Baa8nBzBvDagJmiz9BnrBYyeuceSFtEvYwJRJWjO%2FirPyI%2B6shUzuojqht4fH5jAOBoqpbhzXeNVrEIfF2Ls7OvaEhMELBhUcbIXU7Y%2B3l5tqLxGmPcIe6hI0D%2BOYMoQU1ieCUZmib07Or8tEYOGbcLJPOeLZ1JqiXDZFjieEnJpBD%2Frwv%2Bb0l9xMPDaIRbjFA1SVgMw9TpjTFno27F1uwVubrSF%2FFaPqRgR3555I7mtTfxxhNyf313uREC%2Fy1uOytDXMpArrnEleOKxFmkWSx45md4zjURhl6PFDpV17Nd2TdhzNUnXOhCUzCcTE%2BA5%2FR%2FD%2FcHKzYyWZVTMnWOTDnuEFjCns93FBjqyARe2rOPx6T38C0vG8rtH760fexjCkSD5%2By6jy4Kn6VP%2B5%2FoVdOtWA5rnbAJnU%2FNgyeW%2F3eIrNdwnWAOrQyMF3OMWNOPdLuSTGQKRsRTpZO3ZsG4qC5NGOa%2FNaYw1bhOYw7LcjDGWjjclge48xbvcVRUa2j9HYVPh7YIMDyW%2BBE%2BETMrXLl5hWKERpaLWdkqY8qfzt9RwRtyReOVnakfA6Gan%2Bp7E3w%2FUJLsEeEcOOb0h3j0%3D&Expires=1756870656",
-    "provider_data_download_url": "https://us-west-2.recall.ai/api/v1/download/transcript_provider_data?token=eyJpZCI6ImM5OWNmMTk3LTNhNzktNGFjZi05NmMzLTI0ZTc0ZmQ5MThjYiJ9%3A1utYh6%3AS8cizoCATgw4cDJ5sZlma32KdUrYrcgX8Ji_tlH_keo"
-  },
-  "diarization": null,
-  "provider": {
-    "meeting_captions": {}
-  }
-}
-[Recall API] Status code: done
-[Recall API] Fetching transcript content from: https://us-west-2-recallai-production-bot-data.s3.amazonaws.com/_workspace-5af3f291-6456-465a-bdb0-ea40760bbbce/recordings/8a0cbb37-30f4-44b7-9d2b-1035147c29b7/transcript/c99cf197-3a79-4acf-96c3-24e74fd918cb/bot/51bd2dfc-3aaf-477d-883e-e7055fc4803c/AROA3Z2PRSQANGTUQXHNJ%3Ai-070391ccf21e543b6/diarized-processed1.1.json?AWSAccessKeyId=ASIA3Z2PRSQAB6LAAHQW&Signature=zHizW6fc4Vb7KRXhTbnmSG4P%2B34%3D&x-amz-security-token=IQoJb3JpZ2luX2VjEM3%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLXdlc3QtMiJGMEQCIEDT1hWODQjJmeAMuQ7jSepsGq9KImlw5Paj45CFVxGuAiBLkYmjnrY9tWypE%2FFjzrEdkFM93%2BZChTlGK2lC2bzOIyq4BQg2EAAaDDgxMTM3ODc3NTA0MCIMtqUKhkwAeE%2BTncYbKpUFRhJAe3YWpAYeWcmJLT4Hq9U%2FRWD8sr%2B0n3XJ7Y8GS00Tpij579x5iZlzfCQoDG7zFahlt5j3ISRrwuW4R6MAlaa53s4h9yBwzAbP8D7IQvbSbbWqC6WMLIpEl2%2B0PoGpX9gAA3%2BA16RXrbcno9Ze0Y4yEIkAyrkT%2FcUI%2BEOibVkcEpp1kjoKOtsRStrwz32xVL4BMDrF%2F9uO9JfZX4G3K%2BDTTND%2Bwg3I%2Bd4I0GTQSOrIycJb1fnJGRGvK170Xp8iaJV%2Fr%2FudwWMe%2BYZ5%2BpmjV01dRAxPjpumexyjMs9gh5LfEbrDMcDL5Ic%2FFqvUx2sZ2PdD%2BJ4KgGi%2BuEry%2B8IUyYcyiktX7FaI91CUH9DRuE8S7M6hc50rwTZ5n8COQyIJC7M3A97ULU8urcIh8R5ADGK%2FXDV8qQQgxLWy13tYLJCxn%2F21%2FixzcrNI%2FxFXGsFT1huGfpqUzMO7gd8xxuII%2FyBRTRe9e%2Bq4sAfG6rPQJIW7rchTrL%2FOYvrRFM%2FaZohL6Y%2BrRbirsLqxP%2Bx5Tar6Aojo%2Baa8nBzBvDagJmiz9BnrBYyeuceSFtEvYwJRJWjO%2FirPyI%2B6shUzuojqht4fH5jAOBoqpbhzXeNVrEIfF2Ls7OvaEhMELBhUcbIXU7Y%2B3l5tqLxGmPcIe6hI0D%2BOYMoQU1ieCUZmib07Or8tEYOGbcLJPOeLZ1JqiXDZFjieEnJpBD%2Frwv%2Bb0l9xMPDaIRbjFA1SVgMw9TpjTFno27F1uwVubrSF%2FFaPqRgR3555I7mtTfxxhNyf313uREC%2Fy1uOytDXMpArrnEleOKxFmkWSx45md4zjURhl6PFDpV17Nd2TdhzNUnXOhCUzCcTE%2BA5%2FR%2FD%2FcHKzYyWZVTMnWOTDnuEFjCns93FBjqyARe2rOPx6T38C0vG8rtH760fexjCkSD5%2By6jy4Kn6VP%2B5%2FoVdOtWA5rnbAJnU%2FNgyeW%2F3eIrNdwnWAOrQyMF3OMWNOPdLuSTGQKRsRTpZO3ZsG4qC5NGOa%2FNaYw1bhOYw7LcjDGWjjclge48xbvcVRUa2j9HYVPh7YIMDyW%2BBE%2BETMrXLl5hWKERpaLWdkqY8qfzt9RwRtyReOVnakfA6Gan%2Bp7E3w%2FUJLsEeEcOOb0h3j0%3D&Expires=1756870656
-[Recall API] Downloaded transcript structure: {
-  isArray: true,
-  hasUtterances: false,
-  hasSegments: false,
-  hasTranscript: false,
-  keys: [
-    '0',  '1',  '2',  '3',
-    '4',  '5',  '6',  '7',
-    '8',  '9',  '10', '11',
-    '12', '13', '14', '15'
   ],
-  length: 16,
-  firstItem: {
-    participant: {
-      id: 100,
-      name: 'Jorge Arean',
-      extra_data: [Object],
-      is_host: true,
-      platform: 'unknown'
-    },
-    words: [ [Object] ]
-  }
-}
-[Recall API] Processing 16 transcript segments
-[Recall API] Transformed segment: Jorge Arean: "Boy, he would sketch towers and bridges for hours. Imagining, how people could" (0-0)
-[Recall API] Transformed segment: Jorge Arean: "walk across rivers on something? He designed years later? As a civil engineer" (0-0)
-[Recall API] Transformed segment: Jorge Arean: "that dream became real when a storm destroyed, the only bridge connecting a" (0-0)
-[Recall API] Transformed segment: Jorge Arean: "rural community, to the main town." (0-0)
-[Recall API] Transformed segment: Jorge Arean: "With supplies and schools cut off Lucas volunteered to help." (0-0)
-[Recall API] Transformed segment: Jorge Arean: "With limited steel and no heavy machinery. He improvised turning designs once." (0-0)
-[Recall API] Transformed segment: Jorge Arean: "Scribbled on paper into practical solutions working day and night alongside" (0-0)
-[Recall API] Transformed segment: Jorge Arean: "locals who brought food and encouragement." (0-0)
-[Recall API] Transformed segment: Jorge Arean: "after weeks of" (0-0)
-[Recall API] Transformed segment: Jorge Arean: "At the bridge, rose above the water." (0-0)
-[Recall API] Transformed segment: Jorge Arean: "because walked across first testing, every step" (0-0)
-[Recall API] Transformed segment: Jorge Arean: "Four. Villagers, followed with cheers and tears for them. It wasn't just a" (0-0)
-[Recall API] Transformed segment: Jorge Arean: "structure. It was the return of connection safety and hope." (0-0)
-[Recall API] Transformed segment: Jorge Arean: "standing at the center watching both sides of the river come together again," (0-0)
-[Recall API] Transformed segment: Jorge Arean: "Lucas realized that an engineer's, true legacy wasn't measured in concrete and" (0-0)
-[Recall API] Transformed segment: Jorge Arean: "steel, but in the lives of lifted by the work," (0-0)
-[Transcript] Processing transcript for bot ID: 51bd2dfc-3aaf-477d-883e-e7055fc4803c
-[Recall API] Transcript job created: dc918451-a218-48e4-909d-6cf7f5b0734c
-[Webhook] Async transcript job created: dc918451-a218-48e4-909d-6cf7f5b0734c
- POST /api/recall/webhooks 200 in 1405ms
-[Transcript] Found interview cf866b34-f61c-4608-8144-43db5e8cf4bf for bot 51bd2dfc-3aaf-477d-883e-e7055fc4803c
-[DB] Updating interview status: bot 51bd2dfc-3aaf-477d-883e-e7055fc4803c -> ready_for_analysis
-[DB] Using service role client for bot ID: 51bd2dfc-3aaf-477d-883e-e7055fc4803c
-[DB] Updated 1 interviews
-[DB] Updated interview cf866b34-f61c-4608-8144-43db5e8cf4bf to status: ready_for_analysis
-[Transcript] Stored 16 segments for interview cf866b34-f61c-4608-8144-43db5e8cf4bf
-[Webhook] Transcript processed successfully
- POST /api/recall/webhooks 200 in 2477ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 521ms
-[WEBHOOK] transcript.done | bot_id: 51bd2dfc-3aaf-477d-883e-e7055fc4803c | recording_id: 8a0cbb37-30f4-44b7-9d2b-1035147c29b7 | status: done
-[Webhook] Transcript completed - bot: 51bd2dfc-3aaf-477d-883e-e7055fc4803c transcript: dc918451-a218-48e4-909d-6cf7f5b0734c
-[Webhook] Fetching completed transcript: dc918451-a218-48e4-909d-6cf7f5b0734c
-[Recall API] Fetching transcript: dc918451-a218-48e4-909d-6cf7f5b0734c
-[Recall API] Transcript response keys: [
-  'id',
-  'recording',
-  'created_at',
-  'status',
-  'metadata',
-  'data',
-  'diarization',
-  'provider'
-]
-[Recall API] Transcript status: {
-  code: 'done',
-  sub_code: null,
-  updated_at: '2025-09-02T21:37:45.798945Z'
-}
-[Recall API] Full transcript data: {
-  "id": "dc918451-a218-48e4-909d-6cf7f5b0734c",
-  "recording": {
-    "id": "8a0cbb37-30f4-44b7-9d2b-1035147c29b7",
-    "metadata": {}
-  },
-  "created_at": "2025-09-02T21:37:37.281528Z",
-  "status": {
-    "code": "done",
-    "sub_code": null,
-    "updated_at": "2025-09-02T21:37:45.798945Z"
-  },
-  "metadata": {},
-  "data": {
-    "download_url": "https://us-west-2.recall.ai/api/v1/download/transcript?token=eyJpZCI6ImRjOTE4NDUxLWEyMTgtNDhlNC05MDlkLTZjZjdmNWIwNzM0YyJ9%3A1utYhH%3AmficehF52of4BylTy8wmJpzMEtshcHYzAdQtC7B2fWE",
-    "provider_data_download_url": "https://us-west-2.recall.ai/api/v1/download/transcript_provider_data?token=eyJpZCI6ImRjOTE4NDUxLWEyMTgtNDhlNC05MDlkLTZjZjdmNWIwNzM0YyJ9%3A1utYhH%3AmficehF52of4BylTy8wmJpzMEtshcHYzAdQtC7B2fWE"
-  },
-  "diarization": null,
-  "provider": {
-    "deepgram_async": {
-      "diarize": true,
-      "language": "en",
-      "punctuate": true,
-      "smart_format": true,
-      "deepgram_host": "api.deepgram.com"
-    }
-  }
-}
-[Recall API] Status code: done
-[Recall API] Fetching transcript content from: https://us-west-2.recall.ai/api/v1/download/transcript?token=eyJpZCI6ImRjOTE4NDUxLWEyMTgtNDhlNC05MDlkLTZjZjdmNWIwNzM0YyJ9%3A1utYhH%3AmficehF52of4BylTy8wmJpzMEtshcHYzAdQtC7B2fWE
-[Recall API] Downloaded transcript structure: {
-  isArray: true,
-  hasUtterances: false,
-  hasSegments: false,
-  hasTranscript: false,
-  keys: [ '0' ],
-  length: 1,
-  firstItem: {
-    participant: {
-      id: null,
-      name: '0',
-      is_host: null,
-      platform: null,
-      extra_data: null
-    },
-    words: [
-      [Object], [Object], [Object], [Object], [Object], [Object],
-      [Object], [Object], [Object], [Object], [Object], [Object],
-      [Object], [Object], [Object], [Object], [Object], [Object],
-      [Object], [Object], [Object], [Object], [Object], [Object],
-      [Object], [Object], [Object], [Object], [Object], [Object],
-      [Object], [Object], [Object], [Object], [Object], [Object],
-      [Object], [Object], [Object], [Object], [Object], [Object],
-      [Object], [Object], [Object], [Object], [Object], [Object],
-      [Object], [Object], [Object], [Object], [Object], [Object],
-      [Object], [Object], [Object], [Object], [Object], [Object],
-      [Object], [Object], [Object], [Object], [Object], [Object],
-      [Object], [Object], [Object], [Object], [Object], [Object],
-      [Object], [Object], [Object], [Object], [Object], [Object],
-      [Object], [Object], [Object], [Object], [Object], [Object],
-      [Object], [Object], [Object], [Object], [Object], [Object],
-      [Object], [Object], [Object], [Object], [Object], [Object],
-      [Object], [Object], [Object], [Object],
-      ... 40 more items
+  "summary": {
+    "strengths": [
+      "Required proficiency in Laravel",
+      "Demonstrable competency in Tech Lead"
+    ],
+    "gaps": [
+      "Missing required expertise in Guide Software Developers"
     ]
+  },
+  "recruiter_recommendations": {
+    "interview_strategy": [
+      "Focus interview on assessing practical experience with: Guide Software Developers",
+      "Explore leadership potential and cultural fit given solid technical foundation",
+      "Discuss career growth trajectory and alignment with role responsibilities",
+      "Leverage proven Tech Lead background for technical deep-dive discussions"
+    ],
+    "other_options": [
+      "Solid candidate worth pursuing with structured onboarding plan",
+      "Consider pairing with experienced team member for knowledge transfer",
+      "Evaluate for growth potential in upcoming projects"
+    ]
+  },
+  "metadata": {
+    "analysis_timestamp": "2025-09-04T22:28:42.144Z",
+    "job_id": "temp-job-id",
+    "candidate_id": "temp-candidate-id",
+    "algorithm_version": "linkedin-v2.0-unified",
+    "total_processing_time_ms": 0
   }
 }
-[Recall API] Processing 1 transcript segments
-[Recall API] Transformed segment: 0: "Something he designed. Years later as a civil engineer, that dream became real when a storm destroyed the only bridge connecting a rural community to the main town. With supplies and schools cut off, Lucas volunteered to help. With limited steel and no heavy machinery, he improvised, turning designs once scribble on paper into practical solutions, working day at night. Alongside locals who brought food and encouragement. After weeks of effort, the bridge rose above the water, Lucas walked across first testing every step. Before villagers followed with cheers and tears. For them, it wasn't just a structure, It was the return of connection, safety and over. Standing at the center, watching both sides of the river come together again, Lucas realized that an engineer's true legacy wasn't measured in concrete steel. But in the lives uplifted by the market." (0-0)
-[Transcript] Processing transcript for bot ID: 51bd2dfc-3aaf-477d-883e-e7055fc4803c
-[Transcript] Found interview cf866b34-f61c-4608-8144-43db5e8cf4bf for bot 51bd2dfc-3aaf-477d-883e-e7055fc4803c
-[DB] Updating interview status: bot 51bd2dfc-3aaf-477d-883e-e7055fc4803c -> ready_for_analysis
-[DB] Using service role client for bot ID: 51bd2dfc-3aaf-477d-883e-e7055fc4803c
-[DB] Updated 1 interviews
-[DB] Updated interview cf866b34-f61c-4608-8144-43db5e8cf4bf to status: ready_for_analysis
-[Transcript] Stored 1 segments for interview cf866b34-f61c-4608-8144-43db5e8cf4bf
-[Webhook] Transcript processed successfully
- POST /api/recall/webhooks 200 in 2796ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 516ms
- POST /protected/jobs/4142c95a-d19d-4f5a-a2db-85c47b4349cd/interview-companion 200 in 533ms
+
+🎯 LINKEDIN ANALYSIS SUMMARY:
+==========================================
+📊 Overall Score: 68% (developing)
+✅ Mandatory Requirements Met: 1/2
+🕒 Processing Time: 0ms
+🧠 Algorithm: linkedin-v2.0-unified
+📋 Requirements Analyzed: 3
+✅ Simplified enhanced LinkedIn analysis completed

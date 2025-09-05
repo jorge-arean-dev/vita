@@ -9,6 +9,7 @@
  * Updated: 2025-08-27 - Changed 'strong' to 'fit' for clearer requirement matching
  * Updated: 2025-08-27 - Added context messaging for optional requirements below 'fit' threshold
  * Updated: 2025-08-27 16:45 - Fixed contradictory messaging for optional requirements below 'fit' threshold
+ * Updated: 2025-01-04 15:30 - Fixed field reference from requirement.skill to requirement.name for unified architecture
  */
 
 import { 
@@ -127,37 +128,37 @@ async function generateRequirementFeedback(
     if (focusOnProficiency && requirement.proficiencyRequired) {
       if (category === 'fit') {
         const feedbackVariations = [
-          `Excellent match with required proficiency in ${requirement.skill}. ${evidence.join(' ')}`,
-          `Outstanding competency demonstrated in ${requirement.skill}. ${evidence.join(' ')}`,
-          `Highly qualified with proven expertise in ${requirement.skill}. ${evidence.join(' ')}`
+          `Excellent match with required proficiency in ${requirement.name}. ${evidence.join(' ')}`,
+          `Outstanding competency demonstrated in ${requirement.name}. ${evidence.join(' ')}`,
+          `Highly qualified with proven expertise in ${requirement.name}. ${evidence.join(' ')}`
         ]
         feedback = feedbackVariations[Math.floor(Math.random() * feedbackVariations.length)]
       } else if (category === 'developing') {
         const feedbackVariations = [
-          `Good foundation in ${requirement.skill} with developing experience. ${evidence.join(' ')}`,
-          `Solid competency in ${requirement.skill}. ${evidence.join(' ')}`,
-          `Meets requirements for ${requirement.skill} with demonstrable experience. ${evidence.join(' ')}`
+          `Good foundation in ${requirement.name} with developing experience. ${evidence.join(' ')}`,
+          `Solid competency in ${requirement.name}. ${evidence.join(' ')}`,
+          `Meets requirements for ${requirement.name} with demonstrable experience. ${evidence.join(' ')}`
         ]
         feedback = feedbackVariations[Math.floor(Math.random() * feedbackVariations.length)]
       } else if (category === 'weak') {
         if (requirement.yearsRequired) {
           if (requirement.importance === 'mandatory') {
-            feedback = `Limited experience in ${requirement.skill}. Requires ${requirement.yearsRequired} years but shows only basic familiarity. Consider assessing growth potential during interview.`
+            feedback = `Limited experience in ${requirement.name}. Requires ${requirement.yearsRequired} years but shows only basic familiarity. Consider assessing growth potential during interview.`
           } else {
-            feedback = `Limited experience in ${requirement.skill}. Shows ${requirement.yearsRequired} years desired but candidate has basic familiarity that could be developed.`
+            feedback = `Limited experience in ${requirement.name}. Shows ${requirement.yearsRequired} years desired but candidate has basic familiarity that could be developed.`
           }
         } else {
           if (requirement.importance === 'mandatory') {
-            feedback = `Basic exposure to ${requirement.skill} detected but proficiency level may need development for this role.`
+            feedback = `Basic exposure to ${requirement.name} detected but proficiency level may need development for this role.`
           } else {
-            feedback = `Basic exposure to ${requirement.skill} detected with room for growth.`
+            feedback = `Basic exposure to ${requirement.name} detected with room for growth.`
           }
         }
       } else {
         if (requirement.importance === 'mandatory') {
-          feedback = `No clear evidence of ${requirement.skill} experience found. Critical gap that needs addressing.`
+          feedback = `No clear evidence of ${requirement.name} experience found. Critical gap that needs addressing.`
         } else {
-          feedback = `No clear evidence of ${requirement.skill} experience found.`
+          feedback = `No clear evidence of ${requirement.name} experience found.`
         }
       }
     } else {
@@ -165,7 +166,7 @@ async function generateRequirementFeedback(
       if (evidence.length > 0) {
         feedback = evidence.join('. ')
       } else {
-        feedback = generateBasicFeedback(requirement.skill, category, requirement.importance === 'mandatory')
+        feedback = generateBasicFeedback(requirement.name, category, requirement.importance === 'mandatory')
       }
     }
 
@@ -175,7 +176,7 @@ async function generateRequirementFeedback(
     }
 
     return {
-      requirement_name: requirement.skill,
+      requirement_name: requirement.name,
       score: score,
       status: category,
       feedback: feedback
@@ -202,11 +203,11 @@ async function generateStrengthsAndGaps(
 
   const strengths = fitMatches.map(match => {
     const strengthTemplates = [
-      `Required proficiency in ${match.requirement.skill}`,
-      `Proven expertise with ${match.requirement.skill}`,
-      `Solid experience in ${match.requirement.skill}`,
-      `Well-developed skills in ${match.requirement.skill}`,
-      `Demonstrable competency in ${match.requirement.skill}`
+      `Required proficiency in ${match.requirement.name}`,
+      `Proven expertise with ${match.requirement.name}`,
+      `Solid experience in ${match.requirement.name}`,
+      `Well-developed skills in ${match.requirement.name}`,
+      `Demonstrable competency in ${match.requirement.name}`
     ]
     return strengthTemplates[Math.floor(Math.random() * strengthTemplates.length)]
   })
@@ -220,19 +221,19 @@ async function generateStrengthsAndGaps(
 
   const gaps = gapMatches.map(match => {
     if (match.category === 'missing') {
-      return `Missing required expertise in ${match.requirement.skill}`
+      return `Missing required expertise in ${match.requirement.name}`
     } else if (match.category === 'developing') {
       const developingTemplates = [
-        `Developing proficiency in ${match.requirement.skill}`,
-        `${match.requirement.skill} experience below required expert level`,
-        `${match.requirement.skill} skills need advancement to expert level`
+        `Developing proficiency in ${match.requirement.name}`,
+        `${match.requirement.name} experience below required expert level`,
+        `${match.requirement.name} skills need advancement to expert level`
       ]
       return developingTemplates[Math.floor(Math.random() * developingTemplates.length)]
     } else {
       const gapTemplates = [
-        `Limited experience with ${match.requirement.skill}`,
-        `Basic knowledge of ${match.requirement.skill} needs strengthening`,
-        `${match.requirement.skill} skills require significant development`
+        `Limited experience with ${match.requirement.name}`,
+        `Basic knowledge of ${match.requirement.name} needs strengthening`,
+        `${match.requirement.name} skills require significant development`
       ]
       return gapTemplates[Math.floor(Math.random() * gapTemplates.length)]
     }
@@ -266,7 +267,7 @@ async function generateRecruiterRecommendations(
   if (includeInterviewStrategy) {
     // Generate interview strategies based on gaps and strengths
     if (mandatoryGaps.length > 0) {
-      const gapSkills = mandatoryGaps.map(m => m.requirement.skill).slice(0, 3)
+      const gapSkills = mandatoryGaps.map(m => m.requirement.name).slice(0, 3)
       interviewStrategy.push(
         `Focus interview on assessing practical experience with: ${gapSkills.join(', ')}`
       )
@@ -284,7 +285,7 @@ async function generateRecruiterRecommendations(
     // Add behavioral assessment recommendations
     const fitSkills = analysisResult.detailedMatches.mandatory
       .filter(m => m.category === 'fit')
-      .map(m => m.requirement.skill)
+      .map(m => m.requirement.name)
     
     if (fitSkills.length > 0) {
       interviewStrategy.push(`Leverage proven ${fitSkills[0]} background for technical deep-dive discussions`)
