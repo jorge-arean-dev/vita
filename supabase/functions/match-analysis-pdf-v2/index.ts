@@ -20,6 +20,16 @@ import {
 import { JobRequirement, CandidateSkill } from '../_shared/skill-matcher.ts'
 import { mapYOEToProficiency } from '../_shared/proficiency-calculator.ts'
 import { generateNarrativeOutputs } from '../_shared/narrative-generator.ts'
+import { 
+  detectCandidateSeniority, 
+  getCandidateYearsOfExperience 
+} from '../_shared/seniority-detector.ts'
+import { 
+  matchSeniority, 
+  applySeniorityPenalty,
+  adjustCategoryForSeniority,
+  generateSeniorityRecommendations
+} from '../_shared/seniority-matcher.ts'
 
 // CORS headers
 const corsHeaders = {
@@ -110,6 +120,41 @@ serve(async (req) => {
       console.log(`[PDF API] Total skills after extraction: ${candidate.skills.length}`)
     }
 
+    // Step 2.5: Detect candidate seniority from resume data
+    const extractedTitles = extractJobTitlesFromResume(resumeText, candidate.skills)
+    const roleSkills = candidate.skills.filter(skill => skill.type === 'role')
+    const extractedRoles = roleSkills.map(skill => ({
+      title: skill.name,
+      duration: skill.yearsOfExperience ? skill.yearsOfExperience * 12 : undefined
+    }))
+
+    console.log('[PDF API] Seniority Detection Input:', {
+      currentTitle: candidateData.main?.job_title || candidateData.main?.current_position || 'Not available',
+      extractedTitlesFromResume: extractedTitles,
+      roleSkillsCount: roleSkills.length,
+      candidateYearsOfExperience: candidate.yearsOfExperience,
+      resumeTextLength: resumeText?.length || 0,
+      rolesWithDuration: extractedRoles.map(role => ({
+        title: role.title,
+        durationMonths: role.duration || 'Unknown'
+      }))
+    })
+
+    const candidateSeniority = detectCandidateSeniority({
+      currentTitle: candidateData.main?.job_title || candidateData.main?.current_position,
+      titles: extractedTitles,
+      yearsOfExperience: candidate.yearsOfExperience,
+      roles: extractedRoles
+    })
+
+    console.log('[PDF API] Seniority Detection Result:', {
+      detectedLevel: candidateSeniority.level,
+      confidence: candidateSeniority.confidence,
+      source: candidateSeniority.source,
+      candidateYears: candidateSeniority.yearsOfExperience,
+      detectionMethod: candidateSeniority.source
+    })
+
     // Step 3: Format job requirements for unified engine
     const formattedRequirements: JobRequirement[] = jobRequirements.map(req => ({
       id: req.requirement,
@@ -141,6 +186,78 @@ serve(async (req) => {
       }
     )
 
+    // Step 4.5: Perform seniority matching
+    const requiredSeniorityLevel = job?.attributes?.seniorityLevel || null
+    
+    console.log('[PDF API] Seniority Matching Input:', {
+      jobTitle: job?.attributes?.title,
+      requiredSeniorityLevel: requiredSeniorityLevel,
+      candidateDetectedLevel: candidateSeniority.level,
+      candidateYears: candidateSeniority.yearsOfExperience,
+      matchingEnabled: requiredSeniorityLevel !== null
+    })
+
+    const seniorityMatchResult = matchSeniority(
+      candidateSeniority.level,
+      requiredSeniorityLevel,
+      candidateSeniority.yearsOfExperience
+    )
+
+    console.log('[PDF API] Seniority Matching Result:', {
+      required: seniorityMatchResult.required,
+      candidate: seniorityMatchResult.candidate,
+      isMatch: seniorityMatchResult.match,
+      matchScore: seniorityMatchResult.score,
+      isOverqualified: seniorityMatchResult.isOverqualified,
+      isUnderqualified: seniorityMatchResult.isUnderqualified,
+      feedback: seniorityMatchResult.feedback
+    })
+
+    // Apply seniority penalty to overall score if there's a mismatch
+    let adjustedScore = analysisResult.overallScore.totalScore
+    let adjustedCategory = analysisResult.overallScore.category
+    
+    console.log('[PDF API] Score Adjustment Input:', {
+      originalScore: analysisResult.overallScore.totalScore,
+      originalCategory: analysisResult.overallScore.category,
+      seniorityScore: seniorityMatchResult.score,
+      requiresPenalty: seniorityMatchResult.required && seniorityMatchResult.score < 0.8,
+      penaltyThreshold: 0.8,
+      penaltyWeight: 0.3
+    })
+    
+    if (seniorityMatchResult.required && seniorityMatchResult.score < 0.8) {
+      adjustedScore = applySeniorityPenalty(
+        analysisResult.overallScore.totalScore,
+        seniorityMatchResult.score,
+        0.3 // 30% weight for seniority
+      )
+      adjustedCategory = adjustCategoryForSeniority(
+        analysisResult.overallScore.category,
+        seniorityMatchResult.score
+      )
+      
+      console.log('[PDF API] Score Adjustment Applied:', {
+        originalScore: analysisResult.overallScore.totalScore,
+        adjustedScore: adjustedScore,
+        scoreDifference: analysisResult.overallScore.totalScore - adjustedScore,
+        penaltyPercentage: ((analysisResult.overallScore.totalScore - adjustedScore) / analysisResult.overallScore.totalScore * 100).toFixed(1) + '%',
+        originalCategory: analysisResult.overallScore.category,
+        adjustedCategory: adjustedCategory,
+        categoryChanged: analysisResult.overallScore.category !== adjustedCategory
+      })
+    } else {
+      console.log('[PDF API] No Score Adjustment:', {
+        reason: seniorityMatchResult.required ? 'Seniority score above penalty threshold' : 'No seniority requirement specified',
+        finalScore: adjustedScore,
+        finalCategory: adjustedCategory
+      })
+    }
+
+    // Update analysis result with adjusted values
+    analysisResult.overallScore.totalScore = adjustedScore
+    analysisResult.overallScore.category = adjustedCategory
+
     // Step 5: Generate narrative outputs using dedicated module
     console.log('[PDF API] Generating narrative outputs...')
     const narrativeOutputs = await generateNarrativeOutputs(
@@ -155,8 +272,24 @@ serve(async (req) => {
       }
     )
 
+    // Add seniority-specific recommendations
+    const seniorityRecommendations = generateSeniorityRecommendations(seniorityMatchResult)
+    if (seniorityRecommendations.length > 0) {
+      // Merge with existing recommendations, prioritizing seniority insights
+      narrativeOutputs.recruiter_recommendations.interview_strategy = [
+        ...seniorityRecommendations,
+        ...narrativeOutputs.recruiter_recommendations.interview_strategy
+      ].slice(0, 6) // Keep max 6 recommendations
+    }
+
     // Step 6: Format response for backward compatibility  
-    const response = formatPDFResponse(analysisResult, candidate, resumeText, narrativeOutputs)
+    const response = formatPDFResponse(
+      analysisResult, 
+      candidate, 
+      resumeText, 
+      narrativeOutputs,
+      seniorityMatchResult
+    )
 
     console.log('[PDF API] Analysis complete:', {
       score: analysisResult.overallScore.totalScore,
@@ -283,13 +416,55 @@ function mergeSkills(
 }
 
 /**
+ * Extract job titles from resume text and existing role skills
+ * Looks for common patterns in resume text to identify job titles
+ */
+function extractJobTitlesFromResume(resumeText?: string, skills?: any[]): string[] {
+  const titles: string[] = []
+  
+  // Get titles from existing role-type skills
+  if (skills) {
+    const roleTitles = skills
+      .filter(skill => skill.type === 'role')
+      .map(skill => skill.name)
+      .filter(Boolean)
+    titles.push(...roleTitles)
+  }
+  
+  // Extract titles from resume text patterns
+  if (resumeText) {
+    const commonTitlePatterns = [
+      // Job title followed by company/location/dates
+      /(?:^|\n)\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*(?:\s+(?:Engineer|Developer|Manager|Lead|Director|Analyst|Specialist|Designer|Coordinator|Assistant|Associate|Senior|Junior|Principal|Staff|Architect|Consultant|Advisor))+)\s*(?:at\s|[@\-,])/gim,
+      // Job title in work experience sections
+      /(?:position|role|title):\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*(?:\s+(?:Engineer|Developer|Manager|Lead|Director|Analyst|Specialist|Designer|Coordinator|Assistant|Associate|Senior|Junior|Principal|Staff|Architect|Consultant|Advisor))+)/gim,
+      // Job titles at beginning of lines (common resume format)
+      /^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:Engineer|Developer|Manager|Lead|Director|Analyst|Specialist|Designer|Coordinator|Assistant|Associate|Senior|Junior|Principal|Staff|Architect|Consultant|Advisor))\s*$/gim
+    ]
+    
+    for (const pattern of commonTitlePatterns) {
+      let match
+      while ((match = pattern.exec(resumeText)) !== null) {
+        const title = match[1].trim()
+        if (title && !titles.includes(title)) {
+          titles.push(title)
+        }
+      }
+    }
+  }
+  
+  return titles.slice(0, 5) // Limit to top 5 most relevant titles
+}
+
+/**
  * Format response for backward compatibility with existing frontend
  */
 function formatPDFResponse(
   analysisResult: MatchAnalysisResult,
   candidate: any,
   resumeText: string,
-  narrativeOutputs: any
+  narrativeOutputs: any,
+  seniorityMatchResult?: any
 ): any {
   // Count mandatory requirements for frontend compatibility
   // Updated 2025-08-27: Only "fit" (80%+) counts as "met" for expert requirements
@@ -299,7 +474,7 @@ function formatPDFResponse(
     match.category === 'fit'
   ).length
 
-  return {
+  const response: any = {
     success: true,
     candidate: {
       name: analysisResult.candidateInfo.name,
@@ -326,4 +501,18 @@ function formatPDFResponse(
       resume_length: resumeText.length
     }
   }
+
+  // Add seniority analysis if performed
+  if (seniorityMatchResult) {
+    response.seniority_analysis = {
+      required: seniorityMatchResult.required,
+      candidate: seniorityMatchResult.candidate,
+      candidateYears: seniorityMatchResult.candidateYears,
+      match: seniorityMatchResult.match,
+      score: seniorityMatchResult.score,
+      feedback: seniorityMatchResult.feedback
+    }
+  }
+
+  return response
 }

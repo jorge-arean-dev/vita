@@ -14,7 +14,9 @@
       "mcp__playwright__browser_snapshot",
       "mcp__playwright__browser_close",
       "mcp__playwright__browser_wait_for",
-      "mcp__playwright__browser_network_requests"
+      "mcp__playwright__browser_network_requests",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm dev:*)"
     ],
     "deny": []
   }

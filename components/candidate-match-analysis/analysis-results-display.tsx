@@ -3,6 +3,7 @@ import { Info, SearchX, CheckCircle2, type LucideIcon } from "lucide-react"
 import { CircularProgress } from "./circular-progress"
 import { RequirementAnalysisBadge } from "./requirement-analysis-badge"
 import { AnalysisStrategyBadge } from "./analysis-strategy-badge"
+import { SeniorityAnalysisSection } from "./seniority-analysis-section"
 import { getAnalysisData, getStatusBadge, getBannerColor, scrollToRequirement } from "./utils"
 import { MatchAnalysis, ExistingMatchAnalysis } from "./types"
 
@@ -203,6 +204,11 @@ export function AnalysisResultsDisplay({ analysis, candidateName, isNewCandidate
           </div>
         </div>
       </div>
+
+      {/* Seniority Analysis Section */}
+      {data.seniority_analysis && (
+        <SeniorityAnalysisSection seniorityAnalysis={data.seniority_analysis} />
+      )}
 
       {/* Requirement Evaluations Section */}
       <div className="space-y-8 mt-8 transition-all duration-1000 opacity-100 translate-y-0">

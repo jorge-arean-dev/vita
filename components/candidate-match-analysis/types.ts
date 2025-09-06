@@ -37,6 +37,14 @@ export interface AnalysisResults {
     algorithm_version: string
     total_processing_time_ms: number
   }
+  seniority_analysis?: {
+    required: "junior" | "mid" | "senior" | "lead" | "executive" | null
+    candidate: "junior" | "mid" | "senior" | "lead" | "executive" | null
+    candidateYears?: number
+    match: boolean
+    score: number
+    feedback: string
+  }
 }
 
 export interface MatchAnalysis {
@@ -108,6 +116,14 @@ export interface ExistingMatchAnalysis {
     linkedin: string
     country: string
   } | null
+  seniority_analysis?: {
+    required: "junior" | "mid" | "senior" | "lead" | "executive" | null
+    candidate: "junior" | "mid" | "senior" | "lead" | "executive" | null
+    candidateYears?: number
+    match: boolean
+    score: number
+    feedback: string
+  }
 }
 
 export interface CircularProgressProps {

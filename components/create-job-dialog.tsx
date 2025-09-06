@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Progress } from "@/components/ui/progress"
@@ -31,6 +32,13 @@ interface Company {
   website: string | null
   culture: string | null
   industry: string | null
+}
+
+interface SeniorityLevel {
+  id: string
+  name: string
+  display_name: string
+  description: string | null
 }
 
 interface AttributesData {
@@ -113,6 +121,10 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
   const [isNewCompanyCountryOpen, setIsNewCompanyCountryOpen] = useState(false)
   const [industrySearchValue, setIndustrySearchValue] = useState("")
   const [countrySearchValue, setCountrySearchValue] = useState("")
+  
+  // Seniority levels state
+  const [seniorityLevels, setSeniorityLevels] = useState<SeniorityLevel[]>([])
+  const [selectedSeniorityLevel, setSelectedSeniorityLevel] = useState<string>("")
 
   // Fetch companies from database
   const fetchCompanies = useCallback(async () => {
@@ -185,14 +197,44 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
     }
   }, [toast])
 
-  // Load companies, industries, and countries when dialog opens
+  // Load seniority levels
+  const loadSeniorityLevels = useCallback(async () => {
+    try {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from('seniority_levels')
+        .select('id, name, display_name, description')
+        .eq('is_active', true)
+        .order('name') // This will order: executive, junior, lead, mid, senior
+      
+      if (error) throw error
+      
+      // Reorder to ascending: Junior, Mid, Senior, Lead, Executive
+      const orderedLevels = data?.sort((a, b) => {
+        const order = ['junior', 'mid', 'senior', 'lead', 'executive']
+        return order.indexOf(a.name) - order.indexOf(b.name)
+      }) || []
+      
+      setSeniorityLevels(orderedLevels)
+    } catch (error) {
+      console.error('Error loading seniority levels:', error)
+      toast({
+        title: "Error",
+        description: "Failed to load seniority levels",
+        variant: "destructive"
+      })
+    }
+  }, [toast])
+
+  // Load companies, industries, countries, and seniority levels when dialog opens
   useEffect(() => {
     if (open) {
       fetchCompanies()
       loadIndustries()
       loadCountries()
+      loadSeniorityLevels()
     }
-  }, [open, fetchCompanies, loadIndustries, loadCountries])
+  }, [open, fetchCompanies, loadIndustries, loadCountries, loadSeniorityLevels])
 
   // Filter companies based on search
   const filteredCompanies = companies.filter((company) =>
@@ -212,6 +254,7 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
     setNewCompanyCountry("")
     setIndustrySearchValue("")
     setCountrySearchValue("")
+    setSelectedSeniorityLevel("")
     setAttributesData({
       rate: { value: null, freq: "hourly" },
       commitment: "",
@@ -499,6 +542,7 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
         company_id: selectedCompany.id,
         title: jobTitle,
         initial_notes: initialNotes,
+        seniority_level: selectedSeniorityLevel,
         // Map API response to database fields
         rate: attributesData.rate.value,
         pay_freq: attributesData.rate.freq,
@@ -575,8 +619,8 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
   const canProceedStep1 = selectedCompany && initialNotes.trim()
   const canSaveNewCompany = newCompanyName.trim() && newCompanyIndustry
   
-  // Step 2 validation: require title and at least 1 requirement
-  const canCreateJob = jobTitle.trim() && (requirementsData || []).length > 0
+  // Step 2 validation: require title, seniority level, and at least 1 requirement
+  const canCreateJob = jobTitle.trim() && selectedSeniorityLevel && (requirementsData || []).length > 0
 
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
@@ -872,6 +916,26 @@ export default function CreateJobDialog({ open, onOpenChange, onJobCreated }: Cr
                     value={jobTitle}
                     onChange={(e) => setJobTitle(e.target.value)}
                   />
+                </div>
+                <div className="space-y-2 mb-4">
+                  <Label htmlFor="seniority-level" className="text-sm font-medium">Seniority Level <span className="text-red-500">*</span></Label>
+                  <Select value={selectedSeniorityLevel} onValueChange={setSelectedSeniorityLevel}>
+                    <SelectTrigger id="seniority-level">
+                      <SelectValue placeholder="Select required seniority level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {seniorityLevels.map((level) => (
+                        <SelectItem key={level.id} value={level.name}>
+                          <div className="flex flex-col">
+                            <span>{level.display_name}</span>
+                            {level.description && (
+                              <span className="text-xs text-muted-foreground">{level.description}</span>
+                            )}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <AttributesSection
                   data={attributesData}

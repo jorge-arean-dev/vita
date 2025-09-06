@@ -18,6 +18,16 @@ import {
 } from '../_shared/core-matching-engine.ts'
 import { JobRequirement, CandidateSkill } from '../_shared/skill-matcher.ts'
 import { generateNarrativeOutputs } from '../_shared/narrative-generator.ts'
+import { 
+  detectCandidateSeniority, 
+  getCandidateYearsOfExperience 
+} from '../_shared/seniority-detector.ts'
+import { 
+  matchSeniority, 
+  applySeniorityPenalty,
+  adjustCategoryForSeniority,
+  generateSeniorityRecommendations
+} from '../_shared/seniority-matcher.ts'
 
 // CORS headers
 const corsHeaders = {
@@ -166,6 +176,39 @@ serve(async (req) => {
 
     console.log(`[LinkedIn API] Converted ${candidate.skills.length} total skills (including roles)`)
 
+    // Step 1.5: Detect candidate seniority from LinkedIn profile
+    const extractedTitles = linkedInProfile?.experiences?.map(exp => exp.title).filter(Boolean) || []
+    const extractedRoles = linkedInProfile?.experiences?.map(exp => ({
+      title: exp.title,
+      duration: exp.caption ? parseLinkedInDuration(exp.caption) : undefined
+    })).filter(role => role.title) || []
+
+    console.log('[LinkedIn API] Seniority Detection Input:', {
+      currentTitle: linkedInProfile?.jobTitle || 'Not available',
+      extractedTitles: extractedTitles,
+      candidateYearsOfExperience: candidate.yearsOfExperience,
+      linkedInExperienceCount: linkedInProfile?.experiences?.length || 0,
+      rolesWithDuration: extractedRoles.map(role => ({
+        title: role.title,
+        durationMonths: role.duration || 'Unknown'
+      }))
+    })
+
+    const candidateSeniority = detectCandidateSeniority({
+      currentTitle: linkedInProfile?.jobTitle,
+      titles: extractedTitles,
+      yearsOfExperience: candidate.yearsOfExperience,
+      roles: extractedRoles
+    })
+
+    console.log('[LinkedIn API] Seniority Detection Result:', {
+      detectedLevel: candidateSeniority.level,
+      confidence: candidateSeniority.confidence,
+      source: candidateSeniority.source,
+      candidateYears: candidateSeniority.yearsOfExperience,
+      detectionMethod: candidateSeniority.source
+    })
+
     // Step 2: Format job requirements for unified engine (with null safety)
     const formattedRequirements: JobRequirement[] = jobRequirements
       .filter(req => req && req.requirement) // Filter out null/undefined requirements
@@ -205,6 +248,78 @@ serve(async (req) => {
       }
     )
 
+    // Step 3.5: Perform seniority matching
+    const requiredSeniorityLevel = job?.attributes?.seniority_level || null
+    
+    console.log('[LinkedIn API] Seniority Matching Input:', {
+      jobTitle: job?.attributes?.title,
+      requiredSeniorityLevel: requiredSeniorityLevel,
+      candidateDetectedLevel: candidateSeniority.level,
+      candidateYears: candidateSeniority.yearsOfExperience,
+      matchingEnabled: requiredSeniorityLevel !== null
+    })
+
+    const seniorityMatchResult = matchSeniority(
+      candidateSeniority.level,
+      requiredSeniorityLevel,
+      candidateSeniority.yearsOfExperience
+    )
+
+    console.log('[LinkedIn API] Seniority Matching Result:', {
+      required: seniorityMatchResult.required,
+      candidate: seniorityMatchResult.candidate,
+      isMatch: seniorityMatchResult.match,
+      matchScore: seniorityMatchResult.score,
+      isOverqualified: seniorityMatchResult.isOverqualified,
+      isUnderqualified: seniorityMatchResult.isUnderqualified,
+      feedback: seniorityMatchResult.feedback
+    })
+
+    // Apply seniority penalty to overall score if there's a mismatch
+    let adjustedScore = analysisResult.overallScore.totalScore
+    let adjustedCategory = analysisResult.overallScore.category
+    
+    console.log('[LinkedIn API] Score Adjustment Input:', {
+      originalScore: analysisResult.overallScore.totalScore,
+      originalCategory: analysisResult.overallScore.category,
+      seniorityScore: seniorityMatchResult.score,
+      requiresPenalty: seniorityMatchResult.required && seniorityMatchResult.score < 0.8,
+      penaltyThreshold: 0.8,
+      penaltyWeight: 0.3
+    })
+    
+    if (seniorityMatchResult.required && seniorityMatchResult.score < 0.8) {
+      adjustedScore = applySeniorityPenalty(
+        analysisResult.overallScore.totalScore,
+        seniorityMatchResult.score,
+        0.3 // 30% weight for seniority
+      )
+      adjustedCategory = adjustCategoryForSeniority(
+        analysisResult.overallScore.category,
+        seniorityMatchResult.score
+      )
+      
+      console.log('[LinkedIn API] Score Adjustment Applied:', {
+        originalScore: analysisResult.overallScore.totalScore,
+        adjustedScore: adjustedScore,
+        scoreDifference: analysisResult.overallScore.totalScore - adjustedScore,
+        penaltyPercentage: ((analysisResult.overallScore.totalScore - adjustedScore) / analysisResult.overallScore.totalScore * 100).toFixed(1) + '%',
+        originalCategory: analysisResult.overallScore.category,
+        adjustedCategory: adjustedCategory,
+        categoryChanged: analysisResult.overallScore.category !== adjustedCategory
+      })
+    } else {
+      console.log('[LinkedIn API] No Score Adjustment:', {
+        reason: seniorityMatchResult.required ? 'Seniority score above penalty threshold' : 'No seniority requirement specified',
+        finalScore: adjustedScore,
+        finalCategory: adjustedCategory
+      })
+    }
+
+    // Update analysis result with adjusted values
+    analysisResult.overallScore.totalScore = adjustedScore
+    analysisResult.overallScore.category = adjustedCategory
+
     // Step 4: Generate narrative outputs using dedicated module
     console.log('[LinkedIn API] Generating narrative outputs...')
     const narrativeOutputs = await generateNarrativeOutputs(
@@ -219,8 +334,24 @@ serve(async (req) => {
       }
     )
 
+    // Add seniority-specific recommendations
+    const seniorityRecommendations = generateSeniorityRecommendations(seniorityMatchResult)
+    if (seniorityRecommendations.length > 0) {
+      // Merge with existing recommendations, prioritizing seniority insights
+      narrativeOutputs.recruiter_recommendations.interview_strategy = [
+        ...seniorityRecommendations,
+        ...narrativeOutputs.recruiter_recommendations.interview_strategy
+      ].slice(0, 6) // Keep max 6 recommendations
+    }
+
     // Step 5: Format response for backward compatibility  
-    const response = formatLinkedInResponse(analysisResult, candidate, linkedInProfile, narrativeOutputs)
+    const response = formatLinkedInResponse(
+      analysisResult, 
+      candidate, 
+      linkedInProfile, 
+      narrativeOutputs,
+      seniorityMatchResult
+    )
 
     console.log('[LinkedIn API] Analysis complete:', {
       score: analysisResult.overallScore.totalScore,
@@ -255,6 +386,23 @@ serve(async (req) => {
   }
 })
 
+/**
+ * Parse LinkedIn duration string (e.g., "2 yrs 3 mos") into months
+ */
+function parseLinkedInDuration(caption: string): number {
+  let totalMonths = 0
+  const yearMatch = caption.match(/(\d+)\s*yr/)
+  const monthMatch = caption.match(/(\d+)\s*mo/)
+  
+  if (yearMatch) {
+    totalMonths += parseInt(yearMatch[1]) * 12
+  }
+  if (monthMatch) {
+    totalMonths += parseInt(monthMatch[1])
+  }
+  
+  return totalMonths
+}
 
 /**
  * Format response for backward compatibility with existing frontend
@@ -263,7 +411,8 @@ function formatLinkedInResponse(
   analysisResult: MatchAnalysisResult,
   candidate: any,
   linkedInProfile: any,
-  narrativeOutputs: any
+  narrativeOutputs: any,
+  seniorityMatchResult?: any
 ): any {
   // Count mandatory requirements for frontend compatibility
   const mandatoryMatches = analysisResult.detailedMatches.mandatory
@@ -272,7 +421,7 @@ function formatLinkedInResponse(
     match.category === 'fit'
   ).length
 
-  return {
+  const response: any = {
     success: true,
     candidate: {
       name: analysisResult.candidateInfo.name,
@@ -299,4 +448,18 @@ function formatLinkedInResponse(
       total_processing_time_ms: analysisResult.metadata?.processingTime || 0
     }
   }
+
+  // Add seniority analysis if performed
+  if (seniorityMatchResult) {
+    response.seniority_analysis = {
+      required: seniorityMatchResult.required,
+      candidate: seniorityMatchResult.candidate,
+      candidateYears: seniorityMatchResult.candidateYears,
+      match: seniorityMatchResult.match,
+      score: seniorityMatchResult.score,
+      feedback: seniorityMatchResult.feedback
+    }
+  }
+
+  return response
 }

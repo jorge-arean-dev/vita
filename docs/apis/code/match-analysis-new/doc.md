@@ -80,8 +80,13 @@ For each job requirement, the system searches for matches using multiple strateg
 
 ### Step 5: Final Score Calculation
 
+The final score calculation now includes both skills-based analysis and seniority level matching:
+
+#### **Primary Skills-Based Score (0-100 points)**
+
 **Mandatory Requirements** form the base score (0-100 points)
 - These are must-have skills for the job
+- Includes all skill types: technical skills, soft skills, certifications, and role-based skills
 - Scored by averaging all mandatory requirement scores
 - This becomes your foundation score
 
@@ -90,7 +95,26 @@ For each job requirement, the system searches for matches using multiple strateg
 - Can only add to your score, never subtract
 - Based on how many optional requirements you meet well
 
-**Final Score** = Mandatory Score + Optional Bonus (capped at 100)
+**Skills-Based Score** = Mandatory Score + Optional Bonus (capped at 100)
+
+#### **Seniority Level Adjustment**
+
+**Seniority Analysis** (when job specifies seniority level):
+- Candidate's seniority level is detected from job titles, experience, and career progression
+- Compared against job's required seniority level (junior, mid, senior, lead, executive)
+- Generates a seniority match score (0.0 - 1.0)
+
+**Score Adjustment Formula** (applied when seniority score < 0.8):
+```
+finalScore = skillsScore × (1 - ((1 - seniorityScore) × 0.3))
+```
+
+**Seniority Match Scores:**
+- **Perfect match or overqualified**: 1.0 (no penalty)
+- **One level below**: 0.6 (e.g., Mid candidate for Senior role)
+- **Two+ levels below**: 0.3 (e.g., Junior candidate for Senior role)
+
+**Final Score** = Skills-Based Score (adjusted by seniority penalty if applicable)
 
 ### Step 6: Score Categorization
 Final scores are categorized into four clear tiers:

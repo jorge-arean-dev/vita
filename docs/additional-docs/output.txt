@@ -1,66 +1,514 @@
+
+C:\Users\jorge\coding\vita>pnpm dev
+
+> @ dev C:\Users\jorge\coding\vita
+> next dev --turbopack
+
+ ⚠ Port 3000 is in use, using available port 3001 instead.
+   ▲ Next.js 15.3.4 (Turbopack)
+   - Local:        http://localhost:3001
+   - Network:      http://10.5.0.2:3001
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Compiled middleware in 354ms
+ ✓ Ready in 2.7s
+ ○ Compiling /protected/jobs/[id]/candidate-match-analysis ...
+ ✓ Compiled /protected/jobs/[id]/candidate-match-analysis in 5.7s
+ GET /protected/jobs/a4470d59-7b1e-45f0-bbe8-549ac239a97b/candidate-match-analysis 200 in 8986ms
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 833ms
+ POST /protected/jobs/a4470d59-7b1e-45f0-bbe8-549ac239a97b/candidate-match-analysis 200 in 644ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 1260ms
+🚀 Starting Simplified Enhanced LinkedIn Analysis Flow (v3) - DIRECT
+🔗 LinkedIn URL: https://www.linkedin.com/in/franciscovicent/
+💼 Job ID: a4470d59-7b1e-45f0-bbe8-549ac239a97b
+💾 Save Results: false
+🔍 Fetching job data for analysis. Job ID: a4470d59-7b1e-45f0-bbe8-549ac239a97b
+✅ Job found: "undefined" with 1 requirements
+🔍 Step 1: Scraping LinkedIn profile...
+📊 Raw LinkedIn Profile Summary for Enhanced Analysis:
+   📏 Profile Size: 7683 characters
+   👤 Name: Francisco Vicent
+   💼 Experiences: 5 entries
+   🎯 Skills Listed: 4 entries
+🧠 Step 2: Parsing LinkedIn skills from raw profile...
+📤 Data Sent to parse-linkedin-skill API:
+📏 Payload Size: 7683 characters
+🔗 API Endpoint: https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/parse-linkedin-skill
+📋 Data Structure Being Sent:
+   - firstName: Francisco
+   - lastName: Vicent
+   - experiences: 5 items
+   - skills: 4 items
+   - Raw Profile Keys: linkedinUrl, firstName, lastName, fullName, headline, connections, followers, email, mobileNumber, jobTitle, companyName, companyIndustry, companyWebsite, companyLinkedin, companyFoundedIn, companySize, currentJobDuration, currentJobDurationInYrs, topSkillsByEndorsements, addressCountryOnly, addressWithCountry, addressWithoutCountry, profilePic, profilePicHighQuality, about, publicIdentifier, openConnection, urn, experiences, updates, skills, profilePicAllDimensions, educations, licenseAndCertificates, honorsAndAwards, languages, volunteerAndAwards, verifications, promos, highlights, projects, publications, patents, courses, testScores, organizations, volunteerCauses, interests, recommendations
+📥 Parsed Candidate Data Received from parse-linkedin-skill API:
+✅ API Response Status: 200
+👤 Candidate Details:
+   - Name: Francisco Vicent
+   - Country: AR
+   - Email: N/A
+   - LinkedIn: https://www.linkedin.com/in/franciscovicent/
+   - Years of Experience: 13
+🛠️ Skills Extracted:
+   - Total Skills: 0
+📊 Processing Summary:
+   - Response Size: 200 characters
+   - Data Structure Valid: true
+📋 Parsed Candidate Summary for Enhanced Analysis:
+   👤 Parsed Name: Francisco Vicent
+   📊 Skills Parsed: 0 total
+   💼 Years Experience: 13
+   🔗 Profile Complete: false
+⚡ Step 3: Running simplified enhanced match analysis v3...
+🔍 LINKEDIN Match Analysis API Input: {
+  "candidate": {
+    "main": {
+      "first_name": "Francisco",
+      "last_name": "Vicent",
+      "country": "AR",
+      "email": "",
+      "phone": "",
+      "linkedin": "https://www.linkedin.com/in/franciscovicent/",
+      "github": ""
+    },
+    "skills": [],
+    "years_of_experience": 13,
+    "raw_linkedin_profile": {
+      "linkedinUrl": "https://www.linkedin.com/in/franciscovicent/",
+      "firstName": "Francisco",
+      "lastName": "Vicent",
+      "fullName": "Francisco Vicent",
+      "headline": "Software Engineer",
+      "connections": 297,
+      "followers": 304,
+      "email": null,
+      "mobileNumber": null,
+      "jobTitle": "Image Processing Engineer",
+      "companyName": "Open Cosmos",
+      "companyIndustry": "Defense & Space",
+      "companyWebsite": "open-cosmos.com",
+      "companyLinkedin": "linkedin.com/company/open-cosmos",
+      "companyFoundedIn": 2015,
+      "companySize": "51-200",
+      "currentJobDuration": "1 yr 6 mos",
+      "currentJobDurationInYrs": 1.5,
+      "topSkillsByEndorsements": "Investigación, Programación, Docencia, Escritura",
+      "addressCountryOnly": null,
+      "addressWithCountry": "Argentina",
+      "addressWithoutCountry": "Argentina",
+      "profilePic": "https://media.licdn.com/dms/image/v2/D4D03AQEchcwKfkxXrA/profile-displayphoto-crop_800_800/B4DZkHpzdfHwAU-/0/1756770024685?e=1759968000&v=beta&t=GKoE9RNYIzononmOIVWovGB9ol1cdCYb9PODXGQeR0k",
+      "profilePicHighQuality": "https://media.licdn.com/dms/image/v2/D4D03AQEchcwKfkxXrA/profile-displayphoto-crop_800_800/B4DZkHpzdfHwAU-/0/1756770024685?e=1759968000&v=beta&t=GKoE9RNYIzononmOIVWovGB9ol1cdCYb9PODXGQeR0k",
+      "about": null,
+      "publicIdentifier": "franciscovicent",
+      "openConnection": null,
+      "urn": "ACoAABnrs9IBLju0NAIkrGWO8aeaqT9G42bPQ8w",
+      "experiences": [
+        {
+          "companyId": "10352999",
+          "companyUrn": "urn:li:fsd_company:10352999",
+          "companyLink1": "https://www.linkedin.com/company/10352999/",
+          "logo": "https://media.licdn.com/dms/image/v2/C560BAQEyGxkRca65Wg/company-logo_200_200/company-logo_200_200/0/1630649632519/opencosmos_logo?e=1759968000&v=beta&t=bE1HwK-B1owhjV08M3r0yXRkLdVtkM2a564YIMQdsRM",
+          "title": "Image Processing Engineer",
+          "subtitle": "Open Cosmos",
+          "caption": "Apr 2024 - Present · 1 yr 6 mos",
+          "breakdown": false,
+          "subComponents": [
+            {
+              "description": []
+            }
+          ]
+        },
+        {
+          "companyId": "503370",
+          "companyUrn": "urn:li:fsd_company:503370",
+          "companyLink1": "https://www.linkedin.com/company/503370/",
+          "logo": "https://media.licdn.com/dms/image/v2/C4E0BAQEQOjb-MHjTDQ/company-logo_200_200/company-logo_200_200/0/1630572981922/sur_emprendimientos_tecnol_gicos_logo?e=1759968000&v=beta&t=5mG8dVayiwGd6B6q-6IJH0mDr4swQDpdzliZaryT3yo",
+          "title": "Python Developer",
+          "subtitle": "SpaceSUR",
+          "caption": "Apr 2023 - Apr 2024 · 1 yr 1 mo",
+          "breakdown": false,
+          "subComponents": [
+            {
+              "description": []
+            }
+          ]
+        },
+        {
+          "companyId": "1134689",
+          "companyUrn": "urn:li:fsd_company:1134689",
+          "companyLink1": "https://www.linkedin.com/company/1134689/",
+          "logo": "https://media.licdn.com/dms/image/v2/C4D0BAQHWD6W0Nbd8sw/company-logo_200_200/company-logo_200_200/0/1647956252538/educacionit_logo?e=1759968000&v=beta&t=47_M8RVz4WCNIddR6ijVAv5b2a7O1dB-UObcRriygpg",
+          "title": "EducacionIT",
+          "subtitle": "5 yrs 9 mos",
+          "breakdown": true,
+          "subComponents": [
+            {
+              "title": "Coordinador",
+              "caption": "Jan 2020 - May 2023 · 3 yrs 5 mos",
+              "description": []
+            },
+            {
+              "title": "Profesor",
+              "caption": "Sep 2017 - May 2023 · 5 yrs 9 mos",
+              "metadata": "Argentina",
+              "description": []
+            }
+          ]
+        },
+        {
+          "companyLink1": "https://www.linkedin.com/search/results/all/?keywords=Profesional+independiente",
+          "title": "Full-stack Developer",
+          "subtitle": "Freelance",
+          "caption": "Aug 2012 - May 2023 · 10 yrs 10 mos",
+          "breakdown": false,
+          "subComponents": [
+            {
+              "description": []
+            }
+          ]
+        },
+        {
+          "companyId": "123724",
+          "companyUrn": "urn:li:fsd_company:123724",
+          "companyLink1": "https://www.linkedin.com/company/123724/",
+          "logo": "https://media.licdn.com/dms/image/v2/D4D0BAQF_tOCxRDakeQ/company-logo_200_200/company-logo_200_200/0/1695838830498/universidad_nacional_de_general_sarmiento_logo?e=1759968000&v=beta&t=bWfWaq39zW1dz4V3ArWM3f6TXdzFU2TpgdkUY6mqTh8",
+          "title": "Investigador",
+          "subtitle": "Universidad Nacional de General Sarmiento",
+          "caption": "Sep 2020 - Sep 2022 · 2 yrs 1 mo",
+          "breakdown": false,
+          "subComponents": [
+            {
+              "description": []
+            }
+          ]
+        }
+      ],
+      "updates": [],
+      "skills": [
+        {
+          "title": "Investigación",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "Universidad Nacional de General Sarmiento"
+                },
+                {
+                  "type": "insightComponent",
+                  "text": "1 endorsement"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Programación",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "1 endorsement"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Docencia",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "1 endorsement"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Escritura",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "1 endorsement"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "profilePicAllDimensions": [
+        {
+          "width": 800,
+          "height": 800,
+          "url": "https://media.licdn.com/dms/image/v2/D4D03AQEchcwKfkxXrA/profile-displayphoto-crop_800_800/B4DZkHpzdfHwAU-/0/1756770024685?e=1759968000&v=beta&t=GKoE9RNYIzononmOIVWovGB9ol1cdCYb9PODXGQeR0k"
+        },
+        {
+          "width": 400,
+          "height": 400,
+          "url": "https://media.licdn.com/dms/image/v2/D4D03AQEchcwKfkxXrA/profile-displayphoto-scale_400_400/B4DZkHpzdfHwAs-/0/1756770024782?e=1759968000&v=beta&t=HJSCePJ13L4EoyqW_vS2T2S3Mqo0Owv5IKMGPOLRPEU"
+        },
+        {
+          "width": 100,
+          "height": 100,
+          "url": "https://media.licdn.com/dms/image/v2/D4D03AQEchcwKfkxXrA/profile-displayphoto-scale_100_100/B4DZkHpzdfHwAo-/0/1756770024783?e=1759968000&v=beta&t=fv6DmMzLJFEXDNN0CgVZmxsp-YnOPAalUu_zqqPUYEk"
+        },
+        {
+          "width": 200,
+          "height": 200,
+          "url": "https://media.licdn.com/dms/image/v2/D4D03AQEchcwKfkxXrA/profile-displayphoto-scale_200_200/B4DZkHpzdfHwAk-/0/1756770024783?e=1759968000&v=beta&t=iqL836lVmfZmCidek-jMcMwthip7Ne0TTD_bejCoKVs"
+        }
+      ],
+      "educations": [
+        {
+          "companyId": "123724",
+          "companyUrn": "urn:li:fsd_company:123724",
+          "companyLink1": "https://www.linkedin.com/company/123724/",
+          "logo": "https://media.licdn.com/dms/image/v2/D4D0BAQF_tOCxRDakeQ/company-logo_200_200/company-logo_200_200/0/1695838830498/universidad_nacional_de_general_sarmiento_logo?e=1759968000&v=beta&t=bWfWaq39zW1dz4V3ArWM3f6TXdzFU2TpgdkUY6mqTh8",
+          "title": "Universidad Nacional de General Sarmiento",
+          "subtitle": "Profesorado Universitario de Educación Superior en Filosofía, Filosofía",
+          "caption": "2017 - 2023",
+          "breakdown": false,
+          "subComponents": [
+            {
+              "description": []
+            }
+          ]
+        }
+      ],
+      "licenseAndCertificates": [],
+      "honorsAndAwards": [],
+      "languages": [],
+      "volunteerAndAwards": [],
+      "verifications": [],
+      "promos": [],
+      "highlights": [],
+      "projects": [],
+      "publications": [],
+      "patents": [],
+      "courses": [],
+      "testScores": [],
+      "organizations": [],
+      "volunteerCauses": [],
+      "interests": [
+        {
+          "section_name": "Companies",
+          "section_components": [
+            {
+              "titleV2": "Baufest",
+              "caption": "255,890 followers",
+              "size": "LARGE",
+              "textActionTarget": "https://www.linkedin.com/company/20414/",
+              "subComponents": []
+            },
+            {
+              "titleV2": "Universidad Nacional de General Sarmiento",
+              "caption": "25,212 followers",
+              "size": "LARGE",
+              "textActionTarget": "https://www.linkedin.com/company/123724/",
+              "subComponents": []
+            }
+          ]
+        },
+        {
+          "section_name": "Groups",
+          "section_components": [
+            {
+              "titleV2": "FullStack Titans - JavaScript, Python, HTML, CSS, Nodejs, React, Django, Vue, Angular, mongoDB, etc",
+              "caption": "15,342 members",
+              "size": "LARGE",
+              "textActionTarget": "https://www.linkedin.com/groups/12956270",
+              "subComponents": []
+            },
+            {
+              "titleV2": "Empleos Híbridos y Remotos para IT, Ingenierías, QA, Developers en México y LATAM.",
+              "caption": "207 members",
+              "size": "LARGE",
+              "textActionTarget": "https://www.linkedin.com/groups/13263105",
+              "subComponents": []
+            }
+          ]
+        },
+        {
+          "section_name": "Newsletters",
+          "section_components": [
+            {
+              "titleV2": "Sin Blindaje",
+              "caption": "Published weekly",
+              "subtitle": "Perspectivas reales sobre fraude, ética y seguridad en entornos digitales.",
+              "size": "LARGE",
+              "textActionTarget": "https://www.linkedin.com/newsletters/7341620050845405184",
+              "subComponents": [
+                {
+                  "insightComponent": {
+                    "text": "Ezequiel Pablo Canton",
+                    "actionTarget": "https://www.linkedin.com/in/ecanton"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section_name": "Schools",
+          "section_components": [
+            {
+              "titleV2": "EducacionIT",
+              "caption": "183,625 followers",
+              "size": "LARGE",
+              "textActionTarget": "https://www.linkedin.com/school/1134689/",
+              "subComponents": []
+            },
+            {
+              "titleV2": "Universidad Nacional de General Sarmiento",
+              "caption": "25,212 followers",
+              "size": "LARGE",
+              "textActionTarget": "https://www.linkedin.com/school/123724/",
+              "subComponents": []
+            }
+          ]
+        }
+      ],
+      "recommendations": []
+    }
+  },
+  "job": {
+    "attributes": {
+      "title": "Fullstack developer",
+      "rate": {
+        "value": "34",
+        "freq": "hourly"
+      },
+      "commitment": "part_time",
+      "duration": "6_12_months",
+      "location": {
+        "category": "remote_global",
+        "regions": [],
+        "countries": []
+      },
+      "seniority_level": "junior"
+    },
+    "requirements": [
+      {
+        "requirement": "Python",
+        "type": "technical_skill",
+        "is_mandatory": true,
+        "proficiency_level": "expert",
+        "weight": 1
+      }
+    ]
+  }
+}
+✅ LINKEDIN Match Analysis API Output: {
+  "success": true,
+  "candidate": {
+    "name": "Francisco Vicent",
+    "email": "",
+    "skills": [
+      {
+        "name": "Image Processing Engineer",
+        "yearsOfExperience": 1.5,
+        "proficiencyLevel": "advanced",
+        "type": "role",
+        "source": "experience"
+      },
+      {
+        "name": "Python Developer",
+        "yearsOfExperience": 1.1,
+        "proficiencyLevel": "advanced",
+        "type": "role",
+        "source": "experience"
+      },
+      {
+        "name": "EducacionIT",
+        "yearsOfExperience": 0,
+        "proficiencyLevel": "beginner",
+        "type": "role",
+        "source": "experience"
+      },
+      {
+        "name": "Full-stack Developer",
+        "yearsOfExperience": 10.8,
+        "proficiencyLevel": "expert",
+        "type": "role",
+        "source": "experience"
+      },
+      {
+        "name": "Investigador",
+        "yearsOfExperience": 2.1,
+        "proficiencyLevel": "advanced",
+        "type": "role",
+        "source": "experience"
+      }
+    ],
+    "experience": 13
+  },
   "match_analysis": {
-    "overall_score": 68,
-    "status": "developing",
-    "overall_feedback": "This candidate shows good potential for the Product Manager role with a 68% match score. They meet 1 out of 2 mandatory requirements. Key strengths include required proficiency in laravel and demonstrable competency in tech lead. Areas needing attention include missing required expertise in guide software developers. Recommend interview with focus on identified gap areas.",
-    "matched_mandatory_requirements": 1,
-    "total_mandatory_requirements": 2
+    "overall_score": 0,
+    "status": "missing",
+    "overall_feedback": "This candidate has significant gaps for the Fullstack developer role, with only a 0% match score. They meet 0 out of 1 mandatory requirements. Areas needing attention include missing required expertise in python. Recommend exploring alternative candidates better aligned with role requirements.",
+    "matched_mandatory_requirements": 0,
+    "total_mandatory_requirements": 1
   },
   "requirement_evaluations": [
     {
-      "requirement_name": "Tech Lead",
-      "score": 95,
-      "status": "fit",
-      "feedback": "Excellent match with required proficiency in Tech Lead. Has specialized skill: Chief Technology & Development Officer (Exceeds requirement (expert > advanced))"
-    },
-    {
-      "requirement_name": "Guide Software Developers",
+      "requirement_name": "Python",
       "score": 0,
       "status": "missing",
-      "feedback": "No evidence of Guide Software Developers experience found - critical gap"
-    },
-    {
-      "requirement_name": "Laravel",
-      "score": 100,
-      "status": "fit",
-      "feedback": "Outstanding competency demonstrated in Laravel. Exact match with Laravel (Meets requirement (advanced))"
+      "feedback": "No clear evidence of Python experience found. Critical gap that needs addressing."
     }
   ],
   "summary": {
-    "strengths": [
-      "Required proficiency in Laravel",
-      "Demonstrable competency in Tech Lead"
-    ],
+    "strengths": [],
     "gaps": [
-      "Missing required expertise in Guide Software Developers"
+      "Missing required expertise in Python"
     ]
   },
   "recruiter_recommendations": {
     "interview_strategy": [
-      "Focus interview on assessing practical experience with: Guide Software Developers",
-      "Explore leadership potential and cultural fit given solid technical foundation",
-      "Discuss career growth trajectory and alignment with role responsibilities",
-      "Leverage proven Tech Lead background for technical deep-dive discussions"
+      "Discuss career motivations and long-term goals to understand interest in this level",
+      "Clarify growth opportunities and timeline for advancement",
+      "Verify compensation expectations align with the role level",
+      "Focus interview on assessing practical experience with: Python"
     ],
     "other_options": [
-      "Solid candidate worth pursuing with structured onboarding plan",
-      "Consider pairing with experienced team member for knowledge transfer",
-      "Evaluate for growth potential in upcoming projects"
+      "Significant skill gaps present - recommend against proceeding",
+      "Consider for different role better aligned with current skill set",
+      "May require extensive training period to reach required proficiency"
     ]
   },
   "metadata": {
-    "analysis_timestamp": "2025-09-04T22:28:42.144Z",
+    "analysis_timestamp": "2025-09-06T04:04:34.630Z",
     "job_id": "temp-job-id",
     "candidate_id": "temp-candidate-id",
     "algorithm_version": "linkedin-v2.0-unified",
     "total_processing_time_ms": 0
+  },
+  "seniority_analysis": {
+    "required": "junior",
+    "candidate": "mid",
+    "candidateYears": 13,
+    "match": true,
+    "score": 0.8,
+    "feedback": "Candidate is slightly overqualified (Mid-level for Junior role). Consider discussing growth opportunities and compensation expectations"
   }
 }
 
 🎯 LINKEDIN ANALYSIS SUMMARY:
 ==========================================
-📊 Overall Score: 68% (developing)
-✅ Mandatory Requirements Met: 1/2
+📊 Overall Score: 0% (missing)
+✅ Mandatory Requirements Met: 0/1
 🕒 Processing Time: 0ms
 🧠 Algorithm: linkedin-v2.0-unified
-📋 Requirements Analyzed: 3
+📋 Requirements Analyzed: 1
 ✅ Simplified enhanced LinkedIn analysis completed
+ POST /protected/jobs/a4470d59-7b1e-45f0-bbe8-549ac239a97b/candidate-match-analysis 200 in 13712ms
+ GET /protected/jobs/a4470d59-7b1e-45f0-bbe8-549ac239a97b/candidate-match-analysis 200 in 762ms
+ GET /protected/jobs/a4470d59-7b1e-45f0-bbe8-549ac239a97b/candidate-match-analysis 200 in 723ms
+

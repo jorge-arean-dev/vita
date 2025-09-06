@@ -8,7 +8,9 @@ import type { Database } from "@/types/database.types"
 
 type Candidate = Database["public"]["Tables"]["candidates"]["Row"]
 type CandidateSkill = Database["public"]["Tables"]["candidates_skills"]["Row"]
-type Job = Database["public"]["Tables"]["jobs"]["Row"]
+type Job = Database["public"]["Tables"]["jobs"]["Row"] & {
+  seniority_level?: string | null
+}
 type JobRequirement = {
   id: string
   job_id: string
@@ -157,7 +159,8 @@ function buildMatchAnalysisRequest(
     },
     job: {
       attributes: {
-        title: job.title
+        title: job.title,
+        seniorityLevel: job.seniority_level || null
       },
       requirements: jobRequirements.map(req => ({
         requirement: req.requirement,

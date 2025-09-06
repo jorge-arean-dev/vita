@@ -151,6 +151,7 @@ export async function getJobData(jobId: string) {
         created_at,
         updated_at,
         company_id,
+        seniority_level,
         rate,
         pay_freq,
         duration,
@@ -189,6 +190,7 @@ export async function getJobData(jobId: string) {
         ? jobData.companies[0]?.name || null 
         : (jobData.companies as { name: string } | null)?.name || null,
       initialNotes: jobData.initial_notes,
+      seniorityLevel: jobData.seniority_level,
       createdAt: jobData.created_at,
       updatedAt: jobData.updated_at,
       // Add attributes for Role Analysis
@@ -229,6 +231,7 @@ export async function getJobData(jobId: string) {
 export async function updateJobRoleAnalysis(
   jobId: string, 
   data: {
+    seniorityLevel?: string
     attributes: {
       rate: { value: number | null; freq: string }
       commitment: string
@@ -260,6 +263,7 @@ export async function updateJobRoleAnalysis(
     const { error: jobUpdateError } = await supabase
       .from("jobs")
       .update({
+        ...(data.seniorityLevel !== undefined && { seniority_level: data.seniorityLevel || null }),
         rate: data.attributes.rate.value,
         pay_freq: data.attributes.rate.freq || null,
         commitment: data.attributes.commitment || null,

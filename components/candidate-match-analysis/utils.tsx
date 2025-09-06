@@ -32,6 +32,53 @@ export function getBannerColor(status: string) {
   return "bg-gray-100 text-gray-800 border-gray-200"
 }
 
+// Helper functions for seniority analysis
+export function formatSeniorityLevel(level: string | null): string {
+  if (!level) return "Not specified"
+  
+  const levelMap: Record<string, string> = {
+    junior: "Junior",
+    mid: "Mid-level", 
+    senior: "Senior",
+    lead: "Lead",
+    executive: "Executive"
+  }
+  
+  return levelMap[level] || level
+}
+
+export function getSeniorityStatus(analysis: NonNullable<ReturnType<typeof getAnalysisData>['seniority_analysis']>) {
+  const requiredLevel = analysis.required
+  const candidateLevel = analysis.candidate
+  
+  // Define seniority hierarchy
+  const hierarchy = ["junior", "mid", "senior", "lead", "executive"]
+  
+  if (!requiredLevel || !candidateLevel) {
+    return { type: "unknown" as const, message: "Seniority levels not available" }
+  }
+  
+  const requiredIndex = hierarchy.indexOf(requiredLevel)
+  const candidateIndex = hierarchy.indexOf(candidateLevel)
+  
+  if (candidateIndex > requiredIndex) {
+    return { 
+      type: "overqualified" as const, 
+      message: "Candidate is overqualified for this role" 
+    }
+  } else if (candidateIndex < requiredIndex) {
+    return { 
+      type: "underqualified" as const, 
+      message: "Candidate is underqualified for this role" 
+    }
+  } else {
+    return { 
+      type: "fit" as const, 
+      message: "Candidate is a fit for this role" 
+    }
+  }
+}
+
 // Helper function to access data consistently for both new and existing analyses
 export function getAnalysisData(analysis: MatchAnalysis | ExistingMatchAnalysis) {
   if ('results' in analysis && analysis.results) {
@@ -40,7 +87,8 @@ export function getAnalysisData(analysis: MatchAnalysis | ExistingMatchAnalysis)
       match_analysis: analysis.results.match_analysis,
       requirement_evaluations: analysis.results.requirement_evaluations,
       summary: analysis.results.summary,
-      recruiter_recommendations: analysis.results.recruiter_recommendations
+      recruiter_recommendations: analysis.results.recruiter_recommendations,
+      seniority_analysis: analysis.results.seniority_analysis
     }
   } else {
     // Existing analysis structure
@@ -49,7 +97,8 @@ export function getAnalysisData(analysis: MatchAnalysis | ExistingMatchAnalysis)
       match_analysis: existingAnalysis.match_analysis,
       requirement_evaluations: existingAnalysis.requirement_evaluations,
       summary: existingAnalysis.summary,
-      recruiter_recommendations: existingAnalysis.recruiter_recommendations
+      recruiter_recommendations: existingAnalysis.recruiter_recommendations,
+      seniority_analysis: existingAnalysis.seniority_analysis
     }
   }
 }

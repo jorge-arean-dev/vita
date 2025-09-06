@@ -54,6 +54,7 @@ interface JobData {
       regions: string[]
       countries: string[]
     }
+    seniority_level?: string | null
   }
   requirements: Array<{
     requirement: string
@@ -208,7 +209,8 @@ export async function fetchJobDataForAnalysis(jobId: string): Promise<JobData | 
           category: job.location_reqs || "remote",
           regions: job.regions || [],
           countries: job.countries || []
-        }
+        },
+        seniority_level: job.seniority_level || null
       },
       requirements: job.job_requirements?.map((req: {
         requirement: string

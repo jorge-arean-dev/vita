@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Edit, Sparkles, Check, X, ChevronDown, Plus } from "lucide-react"
@@ -28,6 +29,7 @@ interface JobDetailsDialogProps {
     companyId?: string
     companyName?: string
     initialNotes?: string
+    seniorityLevel?: string
     attributes?: AttributesData
     requirements?: Requirement[]
   }
@@ -69,6 +71,13 @@ interface Company {
   website: string
   industry: string
   culture: string
+}
+
+interface SeniorityLevel {
+  id: string
+  name: string
+  display_name: string
+  description: string | null
 }
 
 export default function JobDetailsDialog({ open, onOpenChange, jobData }: JobDetailsDialogProps) {
@@ -122,6 +131,11 @@ export default function JobDetailsDialog({ open, onOpenChange, jobData }: JobDet
   const [isGenerating, setIsGenerating] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   
+  // Seniority levels state
+  const [seniorityLevels, setSeniorityLevels] = useState<SeniorityLevel[]>([])
+  const [selectedSeniorityLevel, setSelectedSeniorityLevel] = useState<string>('')
+  const [originalSeniorityLevel, setOriginalSeniorityLevel] = useState<string>('')
+  
   // Track if there are unsaved changes
   const hasUnsavedChanges = isInitialDataEditMode || isRoleAnalysisEditMode
 
@@ -167,9 +181,39 @@ export default function JobDetailsDialog({ open, onOpenChange, jobData }: JobDet
     }
   }
 
-  // Fetch companies when component mounts
+  // Load seniority levels
+  const loadSeniorityLevels = async () => {
+    try {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from('seniority_levels')
+        .select('id, name, display_name, description')
+        .eq('is_active', true)
+        .order('name')
+      
+      if (error) throw error
+      
+      // Reorder to ascending: Junior, Mid, Senior, Lead, Executive
+      const orderedLevels = data?.sort((a, b) => {
+        const order = ['junior', 'mid', 'senior', 'lead', 'executive']
+        return order.indexOf(a.name) - order.indexOf(b.name)
+      }) || []
+      
+      setSeniorityLevels(orderedLevels)
+    } catch (error) {
+      console.error('Error loading seniority levels:', error)
+      toast({
+        title: "Error",
+        description: "Failed to load seniority levels",
+        variant: "destructive"
+      })
+    }
+  }
+
+  // Fetch companies and seniority levels when component mounts
   useEffect(() => {
     fetchCompanies()
+    loadSeniorityLevels()
   }, [])
 
   // Initialize data from jobData prop
@@ -186,6 +230,12 @@ export default function JobDetailsDialog({ open, onOpenChange, jobData }: JobDet
       setOriginalFormData(initialData)
       
       // Company will be set in separate useEffect when companies are loaded
+      
+      // Initialize seniority level if available
+      if (jobData.seniorityLevel) {
+        setSelectedSeniorityLevel(jobData.seniorityLevel)
+        setOriginalSeniorityLevel(jobData.seniorityLevel)
+      }
       
       // Initialize attributes and requirements if available
       if (jobData.attributes) {
@@ -315,6 +365,7 @@ export default function JobDetailsDialog({ open, onOpenChange, jobData }: JobDet
   const handleEditRoleAnalysis = () => {
     setOriginalAttributesData({ ...attributesData })
     setOriginalRequirementsData([...requirementsData])
+    setOriginalSeniorityLevel(selectedSeniorityLevel)
     setIsRoleAnalysisEditMode(true)
   }
 
@@ -327,6 +378,7 @@ export default function JobDetailsDialog({ open, onOpenChange, jobData }: JobDet
     setIsSaving(true)
     try {
       const result = await updateJobRoleAnalysis(jobData.id, {
+        seniorityLevel: selectedSeniorityLevel,
         attributes: attributesData,
         requirements: requirementsData
       })
@@ -334,6 +386,7 @@ export default function JobDetailsDialog({ open, onOpenChange, jobData }: JobDet
       if (result.success) {
         setOriginalAttributesData({ ...attributesData })
         setOriginalRequirementsData([...requirementsData])
+        setOriginalSeniorityLevel(selectedSeniorityLevel)
         setIsRoleAnalysisEditMode(false)
         toast({
           title: "Success",
@@ -361,6 +414,7 @@ export default function JobDetailsDialog({ open, onOpenChange, jobData }: JobDet
   const handleCancelRoleAnalysis = () => {
     setAttributesData({ ...originalAttributesData })
     setRequirementsData([...originalRequirementsData])
+    setSelectedSeniorityLevel(originalSeniorityLevel)
     setIsRoleAnalysisEditMode(false)
   }
 
@@ -776,6 +830,33 @@ export default function JobDetailsDialog({ open, onOpenChange, jobData }: JobDet
                 {/* Attributes Section */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">Job Attributes</h3>
+                  
+                  {/* Seniority Level */}
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-seniority-level" className="text-sm font-medium">Seniority Level <span className="text-red-500">*</span></Label>
+                    <Select 
+                      value={selectedSeniorityLevel} 
+                      onValueChange={setSelectedSeniorityLevel}
+                      disabled={!isRoleAnalysisEditMode}
+                    >
+                      <SelectTrigger id="edit-seniority-level">
+                        <SelectValue placeholder="Select required seniority level" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {seniorityLevels.map((level) => (
+                          <SelectItem key={level.id} value={level.name}>
+                            <div className="flex flex-col">
+                              <span>{level.display_name}</span>
+                              {level.description && (
+                                <span className="text-xs text-muted-foreground">{level.description}</span>
+                              )}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
                   <AttributesSection
                     data={attributesData}
                     isEditMode={isRoleAnalysisEditMode}

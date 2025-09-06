@@ -1,0 +1,52 @@
+{
+  "candidate": {
+    "main": {
+      "first_name": "Alice",
+      "last_name": "Johnson"
+    },
+    "skills": [
+      {
+        "name": "JavaScript",
+        "type": "technical_skill",
+        "yoe": 1,
+        "proficiency_level": "beginner"
+      },
+      {
+        "name": "React",
+        "type": "technical_skill",
+        "yoe": 0.5,
+        "proficiency_level": "beginner"
+      }
+    ],
+    "years_of_experience": 1,
+    "raw_linkedin_profile": {
+      "jobTitle": "Junior Software Developer",
+      "experiences": [
+        {
+          "title": "Junior Software Developer",
+          "caption": "1 yr 2 mos"
+        }
+      ]
+    }
+  },
+  "job": {
+    "attributes": {
+      "title": "Senior Backend Engineer",
+      "seniorityLevel": "senior"
+    },
+    "requirements": [
+      {
+        "requirement": "JavaScript",
+        "type": "technical_skill",
+        "is_mandatory": true,
+        "proficiency_level": "expert"
+      },
+      {
+        "requirement": "React",
+        "type": "technical_skill", 
+        "is_mandatory": true,
+        "proficiency_level": "advanced"
+      }
+    ]
+  }
+}

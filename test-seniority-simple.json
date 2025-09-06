@@ -1,0 +1,56 @@
+{
+  "candidate": {
+    "main": {
+      "first_name": "John",
+      "last_name": "Smith"
+    },
+    "skills": [
+      {
+        "name": "JavaScript",
+        "type": "technical_skill",
+        "yoe": 6,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "React",
+        "type": "technical_skill",
+        "yoe": 4,
+        "proficiency_level": "expert"
+      }
+    ],
+    "years_of_experience": 6,
+    "raw_linkedin_profile": {
+      "jobTitle": "Senior Software Engineer",
+      "experiences": [
+        {
+          "title": "Senior Software Engineer",
+          "caption": "2 yrs 6 mos"
+        },
+        {
+          "title": "Software Engineer",
+          "caption": "3 yrs 2 mos"
+        }
+      ]
+    }
+  },
+  "job": {
+    "attributes": {
+      "title": "Senior Full Stack Developer",
+      "seniorityLevel": "senior"
+    },
+    "requirements": [
+      {
+        "requirement": "JavaScript",
+        "type": "technical_skill",
+        "is_mandatory": true,
+        "proficiency_level": "advanced"
+      },
+      {
+        "requirement": "React", 
+        "type": "technical_skill",
+        "is_mandatory": true,
+        "proficiency_level": "advanced"
+      }
+    ]
+  }
+}

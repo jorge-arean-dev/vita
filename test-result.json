@@ -1,0 +1,92 @@
+{
+  "success": true,
+  "candidate": {
+    "name": "John Smith",
+    "skills": [
+      {
+        "name": "JavaScript",
+        "yearsOfExperience": 6,
+        "proficiencyLevel": "advanced",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "React",
+        "yearsOfExperience": 4,
+        "proficiencyLevel": "expert",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Senior Software Engineer",
+        "yearsOfExperience": 2.5,
+        "proficiencyLevel": "advanced",
+        "type": "role",
+        "source": "experience"
+      },
+      {
+        "name": "Software Engineer",
+        "yearsOfExperience": 3.2,
+        "proficiencyLevel": "expert",
+        "type": "role",
+        "source": "experience"
+      }
+    ],
+    "experience": 6
+  },
+  "match_analysis": {
+    "overall_score": 98,
+    "status": "fit",
+    "overall_feedback": "This candidate demonstrates excellent alignment with the Senior Full Stack Developer position, achieving a 98% match score. They meet 2 out of 2 mandatory requirements. Key strengths include solid experience in javascript and demonstrable competency in react. Highly recommend proceeding with interview process.",
+    "matched_mandatory_requirements": 2,
+    "total_mandatory_requirements": 2
+  },
+  "requirement_evaluations": [
+    {
+      "requirement_name": "JavaScript",
+      "score": 100,
+      "status": "fit",
+      "feedback": "Highly qualified with proven expertise in JavaScript. Exact match with JavaScript (Meets requirement (advanced))"
+    },
+    {
+      "requirement_name": "React",
+      "score": 96,
+      "status": "fit",
+      "feedback": "Highly qualified with proven expertise in React. Exact match with React (Exceeds requirement (expert > advanced))"
+    }
+  ],
+  "summary": {
+    "strengths": [
+      "Solid experience in JavaScript",
+      "Demonstrable competency in React"
+    ],
+    "gaps": []
+  },
+  "recruiter_recommendations": {
+    "interview_strategy": [
+      "Explore leadership potential and cultural fit given solid technical foundation",
+      "Discuss career growth trajectory and alignment with role responsibilities",
+      "Leverage proven JavaScript background for technical deep-dive discussions"
+    ],
+    "other_options": [
+      "Excellent candidate - recommend fast-track interview process",
+      "Consider for senior-level responsibilities within the role",
+      "Great potential for mentoring junior team members"
+    ]
+  },
+  "metadata": {
+    "analysis_timestamp": "2025-09-06T00:38:55.371Z",
+    "job_id": "temp-job-id",
+    "candidate_id": "temp-candidate-id",
+    "algorithm_version": "linkedin-v2.0-unified",
+    "total_processing_time_ms": 0
+  },
+  "seniority_analysis": {
+    "required": "senior",
+    "candidate": "senior", 
+    "candidateYears": 6,
+    "match": true,
+    "score": 1,
+    "feedback": "Perfect match: Candidate's Senior level aligns with the Senior requirement"
+  }
+}
