@@ -1,18 +1,31 @@
 {
-  "name": "parse-resume-skill",
+  "name": "vita-resume-parser",
   "version": "1.0.0",
-  "description": "GCP Cloud Function to parse resume PDFs and extract structured skill data",
-  "main": "parse-resume-skill.js",
+  "description": "Google Cloud Function for parsing PDF resumes using OpenAI",
+  "main": "index.js",
   "scripts": {
-    "start": "functions-framework --target=parseResumeHandler"
-  },
-  "dependencies": {
-    "@google-cloud/functions-framework": "^3.0.0",
-    "openai": "^4.0.0",
-    "axios": "^1.0.0",
-    "pdf-parse": "^1.1.1"
+    "start": "functions-framework --target=parseResumeHandler",
+    "deploy": "gcloud functions deploy parseResumeHandler --runtime nodejs18 --trigger-http --allow-unauthenticated --memory 1GB --timeout 540s"
   },
   "engines": {
     "node": "18"
-  }
+  },
+  "dependencies": {
+    "@google-cloud/functions-framework": "^3.3.0",
+    "openai": "^4.24.0",
+    "axios": "^1.6.2",
+    "pdf-parse": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  },
+  "keywords": [
+    "google-cloud-functions",
+    "resume-parser",
+    "pdf-processing",
+    "openai",
+    "talent-acquisition"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
 }

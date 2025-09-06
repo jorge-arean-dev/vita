@@ -1,514 +1,249 @@
-
-C:\Users\jorge\coding\vita>pnpm dev
-
-> @ dev C:\Users\jorge\coding\vita
-> next dev --turbopack
-
- ⚠ Port 3000 is in use, using available port 3001 instead.
-   ▲ Next.js 15.3.4 (Turbopack)
-   - Local:        http://localhost:3001
-   - Network:      http://10.5.0.2:3001
-   - Environments: .env.local
-
- ✓ Starting...
- ✓ Compiled middleware in 354ms
- ✓ Ready in 2.7s
- ○ Compiling /protected/jobs/[id]/candidate-match-analysis ...
- ✓ Compiled /protected/jobs/[id]/candidate-match-analysis in 5.7s
- GET /protected/jobs/a4470d59-7b1e-45f0-bbe8-549ac239a97b/candidate-match-analysis 200 in 8986ms
- ○ Compiling /favicon.ico ...
- ✓ Compiled /favicon.ico in 833ms
- POST /protected/jobs/a4470d59-7b1e-45f0-bbe8-549ac239a97b/candidate-match-analysis 200 in 644ms
- GET /favicon.ico?favicon.45db1c09.ico 200 in 1260ms
-🚀 Starting Simplified Enhanced LinkedIn Analysis Flow (v3) - DIRECT
-🔗 LinkedIn URL: https://www.linkedin.com/in/franciscovicent/
-💼 Job ID: a4470d59-7b1e-45f0-bbe8-549ac239a97b
-💾 Save Results: false
-🔍 Fetching job data for analysis. Job ID: a4470d59-7b1e-45f0-bbe8-549ac239a97b
-✅ Job found: "undefined" with 1 requirements
-🔍 Step 1: Scraping LinkedIn profile...
-📊 Raw LinkedIn Profile Summary for Enhanced Analysis:
-   📏 Profile Size: 7683 characters
-   👤 Name: Francisco Vicent
-   💼 Experiences: 5 entries
-   🎯 Skills Listed: 4 entries
-🧠 Step 2: Parsing LinkedIn skills from raw profile...
-📤 Data Sent to parse-linkedin-skill API:
-📏 Payload Size: 7683 characters
-🔗 API Endpoint: https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/parse-linkedin-skill
-📋 Data Structure Being Sent:
-   - firstName: Francisco
-   - lastName: Vicent
-   - experiences: 5 items
-   - skills: 4 items
-   - Raw Profile Keys: linkedinUrl, firstName, lastName, fullName, headline, connections, followers, email, mobileNumber, jobTitle, companyName, companyIndustry, companyWebsite, companyLinkedin, companyFoundedIn, companySize, currentJobDuration, currentJobDurationInYrs, topSkillsByEndorsements, addressCountryOnly, addressWithCountry, addressWithoutCountry, profilePic, profilePicHighQuality, about, publicIdentifier, openConnection, urn, experiences, updates, skills, profilePicAllDimensions, educations, licenseAndCertificates, honorsAndAwards, languages, volunteerAndAwards, verifications, promos, highlights, projects, publications, patents, courses, testScores, organizations, volunteerCauses, interests, recommendations
-📥 Parsed Candidate Data Received from parse-linkedin-skill API:
-✅ API Response Status: 200
-👤 Candidate Details:
-   - Name: Francisco Vicent
-   - Country: AR
-   - Email: N/A
-   - LinkedIn: https://www.linkedin.com/in/franciscovicent/
-   - Years of Experience: 13
-🛠️ Skills Extracted:
-   - Total Skills: 0
-📊 Processing Summary:
-   - Response Size: 200 characters
-   - Data Structure Valid: true
-📋 Parsed Candidate Summary for Enhanced Analysis:
-   👤 Parsed Name: Francisco Vicent
-   📊 Skills Parsed: 0 total
-   💼 Years Experience: 13
-   🔗 Profile Complete: false
-⚡ Step 3: Running simplified enhanced match analysis v3...
-🔍 LINKEDIN Match Analysis API Input: {
-  "candidate": {
-    "main": {
-      "first_name": "Francisco",
-      "last_name": "Vicent",
-      "country": "AR",
-      "email": "",
-      "phone": "",
-      "linkedin": "https://www.linkedin.com/in/franciscovicent/",
-      "github": ""
-    },
-    "skills": [],
-    "years_of_experience": 13,
-    "raw_linkedin_profile": {
-      "linkedinUrl": "https://www.linkedin.com/in/franciscovicent/",
-      "firstName": "Francisco",
-      "lastName": "Vicent",
-      "fullName": "Francisco Vicent",
-      "headline": "Software Engineer",
-      "connections": 297,
-      "followers": 304,
-      "email": null,
-      "mobileNumber": null,
-      "jobTitle": "Image Processing Engineer",
-      "companyName": "Open Cosmos",
-      "companyIndustry": "Defense & Space",
-      "companyWebsite": "open-cosmos.com",
-      "companyLinkedin": "linkedin.com/company/open-cosmos",
-      "companyFoundedIn": 2015,
-      "companySize": "51-200",
-      "currentJobDuration": "1 yr 6 mos",
-      "currentJobDurationInYrs": 1.5,
-      "topSkillsByEndorsements": "Investigación, Programación, Docencia, Escritura",
-      "addressCountryOnly": null,
-      "addressWithCountry": "Argentina",
-      "addressWithoutCountry": "Argentina",
-      "profilePic": "https://media.licdn.com/dms/image/v2/D4D03AQEchcwKfkxXrA/profile-displayphoto-crop_800_800/B4DZkHpzdfHwAU-/0/1756770024685?e=1759968000&v=beta&t=GKoE9RNYIzononmOIVWovGB9ol1cdCYb9PODXGQeR0k",
-      "profilePicHighQuality": "https://media.licdn.com/dms/image/v2/D4D03AQEchcwKfkxXrA/profile-displayphoto-crop_800_800/B4DZkHpzdfHwAU-/0/1756770024685?e=1759968000&v=beta&t=GKoE9RNYIzononmOIVWovGB9ol1cdCYb9PODXGQeR0k",
-      "about": null,
-      "publicIdentifier": "franciscovicent",
-      "openConnection": null,
-      "urn": "ACoAABnrs9IBLju0NAIkrGWO8aeaqT9G42bPQ8w",
-      "experiences": [
-        {
-          "companyId": "10352999",
-          "companyUrn": "urn:li:fsd_company:10352999",
-          "companyLink1": "https://www.linkedin.com/company/10352999/",
-          "logo": "https://media.licdn.com/dms/image/v2/C560BAQEyGxkRca65Wg/company-logo_200_200/company-logo_200_200/0/1630649632519/opencosmos_logo?e=1759968000&v=beta&t=bE1HwK-B1owhjV08M3r0yXRkLdVtkM2a564YIMQdsRM",
-          "title": "Image Processing Engineer",
-          "subtitle": "Open Cosmos",
-          "caption": "Apr 2024 - Present · 1 yr 6 mos",
-          "breakdown": false,
-          "subComponents": [
-            {
-              "description": []
-            }
-          ]
-        },
-        {
-          "companyId": "503370",
-          "companyUrn": "urn:li:fsd_company:503370",
-          "companyLink1": "https://www.linkedin.com/company/503370/",
-          "logo": "https://media.licdn.com/dms/image/v2/C4E0BAQEQOjb-MHjTDQ/company-logo_200_200/company-logo_200_200/0/1630572981922/sur_emprendimientos_tecnol_gicos_logo?e=1759968000&v=beta&t=5mG8dVayiwGd6B6q-6IJH0mDr4swQDpdzliZaryT3yo",
-          "title": "Python Developer",
-          "subtitle": "SpaceSUR",
-          "caption": "Apr 2023 - Apr 2024 · 1 yr 1 mo",
-          "breakdown": false,
-          "subComponents": [
-            {
-              "description": []
-            }
-          ]
-        },
-        {
-          "companyId": "1134689",
-          "companyUrn": "urn:li:fsd_company:1134689",
-          "companyLink1": "https://www.linkedin.com/company/1134689/",
-          "logo": "https://media.licdn.com/dms/image/v2/C4D0BAQHWD6W0Nbd8sw/company-logo_200_200/company-logo_200_200/0/1647956252538/educacionit_logo?e=1759968000&v=beta&t=47_M8RVz4WCNIddR6ijVAv5b2a7O1dB-UObcRriygpg",
-          "title": "EducacionIT",
-          "subtitle": "5 yrs 9 mos",
-          "breakdown": true,
-          "subComponents": [
-            {
-              "title": "Coordinador",
-              "caption": "Jan 2020 - May 2023 · 3 yrs 5 mos",
-              "description": []
-            },
-            {
-              "title": "Profesor",
-              "caption": "Sep 2017 - May 2023 · 5 yrs 9 mos",
-              "metadata": "Argentina",
-              "description": []
-            }
-          ]
-        },
-        {
-          "companyLink1": "https://www.linkedin.com/search/results/all/?keywords=Profesional+independiente",
-          "title": "Full-stack Developer",
-          "subtitle": "Freelance",
-          "caption": "Aug 2012 - May 2023 · 10 yrs 10 mos",
-          "breakdown": false,
-          "subComponents": [
-            {
-              "description": []
-            }
-          ]
-        },
-        {
-          "companyId": "123724",
-          "companyUrn": "urn:li:fsd_company:123724",
-          "companyLink1": "https://www.linkedin.com/company/123724/",
-          "logo": "https://media.licdn.com/dms/image/v2/D4D0BAQF_tOCxRDakeQ/company-logo_200_200/company-logo_200_200/0/1695838830498/universidad_nacional_de_general_sarmiento_logo?e=1759968000&v=beta&t=bWfWaq39zW1dz4V3ArWM3f6TXdzFU2TpgdkUY6mqTh8",
-          "title": "Investigador",
-          "subtitle": "Universidad Nacional de General Sarmiento",
-          "caption": "Sep 2020 - Sep 2022 · 2 yrs 1 mo",
-          "breakdown": false,
-          "subComponents": [
-            {
-              "description": []
-            }
-          ]
-        }
-      ],
-      "updates": [],
-      "skills": [
-        {
-          "title": "Investigación",
-          "subComponents": [
-            {
-              "description": [
-                {
-                  "type": "insightComponent",
-                  "text": "Universidad Nacional de General Sarmiento"
-                },
-                {
-                  "type": "insightComponent",
-                  "text": "1 endorsement"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "title": "Programación",
-          "subComponents": [
-            {
-              "description": [
-                {
-                  "type": "insightComponent",
-                  "text": "1 endorsement"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "title": "Docencia",
-          "subComponents": [
-            {
-              "description": [
-                {
-                  "type": "insightComponent",
-                  "text": "1 endorsement"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "title": "Escritura",
-          "subComponents": [
-            {
-              "description": [
-                {
-                  "type": "insightComponent",
-                  "text": "1 endorsement"
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "profilePicAllDimensions": [
-        {
-          "width": 800,
-          "height": 800,
-          "url": "https://media.licdn.com/dms/image/v2/D4D03AQEchcwKfkxXrA/profile-displayphoto-crop_800_800/B4DZkHpzdfHwAU-/0/1756770024685?e=1759968000&v=beta&t=GKoE9RNYIzononmOIVWovGB9ol1cdCYb9PODXGQeR0k"
-        },
-        {
-          "width": 400,
-          "height": 400,
-          "url": "https://media.licdn.com/dms/image/v2/D4D03AQEchcwKfkxXrA/profile-displayphoto-scale_400_400/B4DZkHpzdfHwAs-/0/1756770024782?e=1759968000&v=beta&t=HJSCePJ13L4EoyqW_vS2T2S3Mqo0Owv5IKMGPOLRPEU"
-        },
-        {
-          "width": 100,
-          "height": 100,
-          "url": "https://media.licdn.com/dms/image/v2/D4D03AQEchcwKfkxXrA/profile-displayphoto-scale_100_100/B4DZkHpzdfHwAo-/0/1756770024783?e=1759968000&v=beta&t=fv6DmMzLJFEXDNN0CgVZmxsp-YnOPAalUu_zqqPUYEk"
-        },
-        {
-          "width": 200,
-          "height": 200,
-          "url": "https://media.licdn.com/dms/image/v2/D4D03AQEchcwKfkxXrA/profile-displayphoto-scale_200_200/B4DZkHpzdfHwAk-/0/1756770024783?e=1759968000&v=beta&t=iqL836lVmfZmCidek-jMcMwthip7Ne0TTD_bejCoKVs"
-        }
-      ],
-      "educations": [
-        {
-          "companyId": "123724",
-          "companyUrn": "urn:li:fsd_company:123724",
-          "companyLink1": "https://www.linkedin.com/company/123724/",
-          "logo": "https://media.licdn.com/dms/image/v2/D4D0BAQF_tOCxRDakeQ/company-logo_200_200/company-logo_200_200/0/1695838830498/universidad_nacional_de_general_sarmiento_logo?e=1759968000&v=beta&t=bWfWaq39zW1dz4V3ArWM3f6TXdzFU2TpgdkUY6mqTh8",
-          "title": "Universidad Nacional de General Sarmiento",
-          "subtitle": "Profesorado Universitario de Educación Superior en Filosofía, Filosofía",
-          "caption": "2017 - 2023",
-          "breakdown": false,
-          "subComponents": [
-            {
-              "description": []
-            }
-          ]
-        }
-      ],
-      "licenseAndCertificates": [],
-      "honorsAndAwards": [],
-      "languages": [],
-      "volunteerAndAwards": [],
-      "verifications": [],
-      "promos": [],
-      "highlights": [],
-      "projects": [],
-      "publications": [],
-      "patents": [],
-      "courses": [],
-      "testScores": [],
-      "organizations": [],
-      "volunteerCauses": [],
-      "interests": [
-        {
-          "section_name": "Companies",
-          "section_components": [
-            {
-              "titleV2": "Baufest",
-              "caption": "255,890 followers",
-              "size": "LARGE",
-              "textActionTarget": "https://www.linkedin.com/company/20414/",
-              "subComponents": []
-            },
-            {
-              "titleV2": "Universidad Nacional de General Sarmiento",
-              "caption": "25,212 followers",
-              "size": "LARGE",
-              "textActionTarget": "https://www.linkedin.com/company/123724/",
-              "subComponents": []
-            }
-          ]
-        },
-        {
-          "section_name": "Groups",
-          "section_components": [
-            {
-              "titleV2": "FullStack Titans - JavaScript, Python, HTML, CSS, Nodejs, React, Django, Vue, Angular, mongoDB, etc",
-              "caption": "15,342 members",
-              "size": "LARGE",
-              "textActionTarget": "https://www.linkedin.com/groups/12956270",
-              "subComponents": []
-            },
-            {
-              "titleV2": "Empleos Híbridos y Remotos para IT, Ingenierías, QA, Developers en México y LATAM.",
-              "caption": "207 members",
-              "size": "LARGE",
-              "textActionTarget": "https://www.linkedin.com/groups/13263105",
-              "subComponents": []
-            }
-          ]
-        },
-        {
-          "section_name": "Newsletters",
-          "section_components": [
-            {
-              "titleV2": "Sin Blindaje",
-              "caption": "Published weekly",
-              "subtitle": "Perspectivas reales sobre fraude, ética y seguridad en entornos digitales.",
-              "size": "LARGE",
-              "textActionTarget": "https://www.linkedin.com/newsletters/7341620050845405184",
-              "subComponents": [
-                {
-                  "insightComponent": {
-                    "text": "Ezequiel Pablo Canton",
-                    "actionTarget": "https://www.linkedin.com/in/ecanton"
-                  }
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "section_name": "Schools",
-          "section_components": [
-            {
-              "titleV2": "EducacionIT",
-              "caption": "183,625 followers",
-              "size": "LARGE",
-              "textActionTarget": "https://www.linkedin.com/school/1134689/",
-              "subComponents": []
-            },
-            {
-              "titleV2": "Universidad Nacional de General Sarmiento",
-              "caption": "25,212 followers",
-              "size": "LARGE",
-              "textActionTarget": "https://www.linkedin.com/school/123724/",
-              "subComponents": []
-            }
-          ]
-        }
-      ],
-      "recommendations": []
-    }
-  },
-  "job": {
-    "attributes": {
-      "title": "Fullstack developer",
-      "rate": {
-        "value": "34",
-        "freq": "hourly"
-      },
-      "commitment": "part_time",
-      "duration": "6_12_months",
-      "location": {
-        "category": "remote_global",
-        "regions": [],
-        "countries": []
-      },
-      "seniority_level": "junior"
-    },
-    "requirements": [
-      {
-        "requirement": "Python",
-        "type": "technical_skill",
-        "is_mandatory": true,
-        "proficiency_level": "expert",
-        "weight": 1
-      }
-    ]
-  }
-}
-✅ LINKEDIN Match Analysis API Output: {
-  "success": true,
-  "candidate": {
-    "name": "Francisco Vicent",
-    "email": "",
-    "skills": [
-      {
-        "name": "Image Processing Engineer",
-        "yearsOfExperience": 1.5,
-        "proficiencyLevel": "advanced",
-        "type": "role",
-        "source": "experience"
-      },
-      {
-        "name": "Python Developer",
-        "yearsOfExperience": 1.1,
-        "proficiencyLevel": "advanced",
-        "type": "role",
-        "source": "experience"
-      },
-      {
-        "name": "EducacionIT",
-        "yearsOfExperience": 0,
-        "proficiencyLevel": "beginner",
-        "type": "role",
-        "source": "experience"
-      },
-      {
-        "name": "Full-stack Developer",
-        "yearsOfExperience": 10.8,
-        "proficiencyLevel": "expert",
-        "type": "role",
-        "source": "experience"
-      },
-      {
-        "name": "Investigador",
-        "yearsOfExperience": 2.1,
-        "proficiencyLevel": "advanced",
-        "type": "role",
-        "source": "experience"
-      }
-    ],
-    "experience": 13
-  },
-  "match_analysis": {
-    "overall_score": 0,
-    "status": "missing",
-    "overall_feedback": "This candidate has significant gaps for the Fullstack developer role, with only a 0% match score. They meet 0 out of 1 mandatory requirements. Areas needing attention include missing required expertise in python. Recommend exploring alternative candidates better aligned with role requirements.",
-    "matched_mandatory_requirements": 0,
-    "total_mandatory_requirements": 1
-  },
-  "requirement_evaluations": [
-    {
-      "requirement_name": "Python",
-      "score": 0,
-      "status": "missing",
-      "feedback": "No clear evidence of Python experience found. Critical gap that needs addressing."
-    }
-  ],
-  "summary": {
-    "strengths": [],
-    "gaps": [
-      "Missing required expertise in Python"
-    ]
-  },
-  "recruiter_recommendations": {
-    "interview_strategy": [
-      "Discuss career motivations and long-term goals to understand interest in this level",
-      "Clarify growth opportunities and timeline for advancement",
-      "Verify compensation expectations align with the role level",
-      "Focus interview on assessing practical experience with: Python"
-    ],
-    "other_options": [
-      "Significant skill gaps present - recommend against proceeding",
-      "Consider for different role better aligned with current skill set",
-      "May require extensive training period to reach required proficiency"
-    ]
-  },
-  "metadata": {
-    "analysis_timestamp": "2025-09-06T04:04:34.630Z",
-    "job_id": "temp-job-id",
-    "candidate_id": "temp-candidate-id",
-    "algorithm_version": "linkedin-v2.0-unified",
-    "total_processing_time_ms": 0
-  },
-  "seniority_analysis": {
-    "required": "junior",
-    "candidate": "mid",
-    "candidateYears": 13,
-    "match": true,
-    "score": 0.8,
-    "feedback": "Candidate is slightly overqualified (Mid-level for Junior role). Consider discussing growth opportunities and compensation expectations"
-  }
-}
-
-🎯 LINKEDIN ANALYSIS SUMMARY:
-==========================================
-📊 Overall Score: 0% (missing)
-✅ Mandatory Requirements Met: 0/1
-🕒 Processing Time: 0ms
-🧠 Algorithm: linkedin-v2.0-unified
-📋 Requirements Analyzed: 1
-✅ Simplified enhanced LinkedIn analysis completed
- POST /protected/jobs/a4470d59-7b1e-45f0-bbe8-549ac239a97b/candidate-match-analysis 200 in 13712ms
- GET /protected/jobs/a4470d59-7b1e-45f0-bbe8-549ac239a97b/candidate-match-analysis 200 in 762ms
- GET /protected/jobs/a4470d59-7b1e-45f0-bbe8-549ac239a97b/candidate-match-analysis 200 in 723ms
-
+tarting build "96d72689-136c-4b6f-ad72-ba95f6068667"
+FETCHSOURCE
+BUILD
+Starting Step #0 - "fetch"
+Pulling image: europe-west1-docker.pkg.dev/serverless-runtimes/utilities/gcs-fetcher:base_20250803_18_04_RC00
+base_20250803_18_04_RC00: Pulling from serverless-runtimes/utilities/gcs-fetcher
+Digest: sha256:0f3315059bcbf395bcb0ccb4496e5fb62fec4aa9fe16018d6e184032cbcff08e
+Status: Downloaded newer image for europe-west1-docker.pkg.dev/serverless-runtimes/utilities/gcs-fetcher:base_20250803_18_04_RC00
+europe-west1-docker.pkg.dev/serverless-runtimes/utilities/gcs-fetcher:base_20250803_18_04_RC00
+Fetching archive gs://run-sources-fsr-talent-match-europe-west1/services/parse-resume-skill/1757196257.185000.zip.
+******************************************************
+Status:                      SUCCESS
+Started:                     2025-09-06T22:04:26Z
+Completed:                   2025-09-06T22:04:26Z
+Total files:            3
+MiB downloaded:         0.01 MiB
+MiB/s throughput:       0.10 MiB/s
+Time for zipfile:       0.08 s
+Time to unzip:          0.00 s
+Total time:             0.08 s
+******************************************************
+Finished Step #0 - "fetch"
+Starting Step #1 - "pre-buildpack"
+Pulling image: europe-west1-docker.pkg.dev/serverless-runtimes/google-22-full/builder/nodejs:nodejs_20250831_RC00
+nodejs_20250831_RC00: Pulling from serverless-runtimes/google-22-full/builder/nodejs
+e27d8d14a9d0: Already exists
+8dcbdb4aec00: Already exists
+3e8b0467c58f: Already exists
+6db5912215c0: Pulling fs layer
+2941a1ed4d8f: Pulling fs layer
+47e22eb429be: Pulling fs layer
+916d632e4526: Pulling fs layer
+33496cb0c5cc: Pulling fs layer
+d38825473d57: Pulling fs layer
+fe0a88c014e5: Pulling fs layer
+1a82443b3661: Pulling fs layer
+26d90eae4ad9: Pulling fs layer
+11e17219f200: Pulling fs layer
+66550c16e68d: Pulling fs layer
+2804baa4298c: Pulling fs layer
+69c1cb057243: Pulling fs layer
+f62ab57efdb3: Pulling fs layer
+9de356eb766a: Pulling fs layer
+ecc46401e424: Pulling fs layer
+30fdc0aa89b5: Pulling fs layer
+f96ce9f1b333: Pulling fs layer
+1564c3a4b788: Pulling fs layer
+af9f2db3eaf0: Pulling fs layer
+2e1a6e98684b: Pulling fs layer
+b0930748fc83: Pulling fs layer
+636c3c02fc9f: Pulling fs layer
+5fa102219e55: Pulling fs layer
+26be9f471823: Pulling fs layer
+34ce8ba30961: Pulling fs layer
+e6178d2c0976: Pulling fs layer
+4f4fb700ef54: Pulling fs layer
+916d632e4526: Waiting
+33496cb0c5cc: Waiting
+d38825473d57: Waiting
+fe0a88c014e5: Waiting
+1a82443b3661: Waiting
+26d90eae4ad9: Waiting
+11e17219f200: Waiting
+66550c16e68d: Waiting
+2804baa4298c: Waiting
+69c1cb057243: Waiting
+f62ab57efdb3: Waiting
+9de356eb766a: Waiting
+ecc46401e424: Waiting
+30fdc0aa89b5: Waiting
+f96ce9f1b333: Waiting
+1564c3a4b788: Waiting
+af9f2db3eaf0: Waiting
+2e1a6e98684b: Waiting
+b0930748fc83: Waiting
+636c3c02fc9f: Waiting
+5fa102219e55: Waiting
+26be9f471823: Waiting
+34ce8ba30961: Waiting
+e6178d2c0976: Waiting
+4f4fb700ef54: Waiting
+6db5912215c0: Download complete
+47e22eb429be: Verifying Checksum
+47e22eb429be: Download complete
+2941a1ed4d8f: Verifying Checksum
+2941a1ed4d8f: Download complete
+916d632e4526: Verifying Checksum
+916d632e4526: Download complete
+33496cb0c5cc: Verifying Checksum
+33496cb0c5cc: Download complete
+fe0a88c014e5: Download complete
+6db5912215c0: Pull complete
+d38825473d57: Verifying Checksum
+d38825473d57: Download complete
+26d90eae4ad9: Download complete
+11e17219f200: Verifying Checksum
+11e17219f200: Download complete
+2941a1ed4d8f: Pull complete
+1a82443b3661: Verifying Checksum
+1a82443b3661: Download complete
+66550c16e68d: Verifying Checksum
+66550c16e68d: Download complete
+2804baa4298c: Verifying Checksum
+2804baa4298c: Download complete
+47e22eb429be: Pull complete
+69c1cb057243: Verifying Checksum
+69c1cb057243: Download complete
+9de356eb766a: Verifying Checksum
+9de356eb766a: Download complete
+f62ab57efdb3: Verifying Checksum
+f62ab57efdb3: Download complete
+916d632e4526: Pull complete
+30fdc0aa89b5: Verifying Checksum
+30fdc0aa89b5: Download complete
+f96ce9f1b333: Verifying Checksum
+f96ce9f1b333: Download complete
+ecc46401e424: Verifying Checksum
+ecc46401e424: Download complete
+1564c3a4b788: Verifying Checksum
+1564c3a4b788: Download complete
+2e1a6e98684b: Verifying Checksum
+2e1a6e98684b: Download complete
+af9f2db3eaf0: Verifying Checksum
+af9f2db3eaf0: Download complete
+5fa102219e55: Verifying Checksum
+5fa102219e55: Download complete
+636c3c02fc9f: Verifying Checksum
+636c3c02fc9f: Download complete
+b0930748fc83: Verifying Checksum
+b0930748fc83: Download complete
+33496cb0c5cc: Pull complete
+26be9f471823: Verifying Checksum
+26be9f471823: Download complete
+34ce8ba30961: Verifying Checksum
+34ce8ba30961: Download complete
+e6178d2c0976: Verifying Checksum
+e6178d2c0976: Download complete
+4f4fb700ef54: Verifying Checksum
+4f4fb700ef54: Download complete
+d38825473d57: Pull complete
+fe0a88c014e5: Pull complete
+1a82443b3661: Pull complete
+26d90eae4ad9: Pull complete
+11e17219f200: Pull complete
+66550c16e68d: Pull complete
+2804baa4298c: Pull complete
+69c1cb057243: Pull complete
+f62ab57efdb3: Pull complete
+9de356eb766a: Pull complete
+ecc46401e424: Pull complete
+30fdc0aa89b5: Pull complete
+f96ce9f1b333: Pull complete
+1564c3a4b788: Pull complete
+af9f2db3eaf0: Pull complete
+2e1a6e98684b: Pull complete
+b0930748fc83: Pull complete
+636c3c02fc9f: Pull complete
+5fa102219e55: Pull complete
+26be9f471823: Pull complete
+34ce8ba30961: Pull complete
+e6178d2c0976: Pull complete
+4f4fb700ef54: Pull complete
+Digest: sha256:03b3de8cd01a372e77a9a01c51893c822f22e21d183b01bf3c08db00642777b4
+Status: Downloaded newer image for europe-west1-docker.pkg.dev/serverless-runtimes/google-22-full/builder/nodejs:nodejs_20250831_RC00
+europe-west1-docker.pkg.dev/serverless-runtimes/google-22-full/builder/nodejs:nodejs_20250831_RC00
+Preparing directory /layers
+Preparing directory /workspace
+Preparing directory /builder/home
+Preparing directory /builder/outputs
+Preparing directory /platform/env
+Passing build environment variable BUILDER_OUTPUT to buildpacks
+Passing build environment variable GOOGLE_RUNTIME to buildpacks
+Passing build environment variable GOOGLE_LABEL_BUILDER_VERSION to buildpacks
+Passing build environment variable GOOGLE_LABEL_BUILDER_IMAGE to buildpacks
+Passing build environment variable GOOGLE_LABEL_RUN_IMAGE to buildpacks
+Passing build environment variable GOOGLE_LABEL_SOURCE to buildpacks
+Passing build environment variable GOOGLE_RUNTIME_IMAGE_REGION to buildpacks
+Passing build environment variable GOOGLE_RUNTIME_VERSION to buildpacks
+Passing build environment variable X_GOOGLE_SKIP_RUNTIME_LAUNCH to buildpacks
+Passing build environment variable GOOGLE_BUILD_ENV to buildpacks
+Passing build environment variable GOOGLE_LABEL_BUILD_ID to buildpacks
+Passing build environment variable GOOGLE_LABEL_BASE_IMAGE to buildpacks
+Passing build environment variable GOOGLE_LABEL_FUNCTION_TARGET to buildpacks
+Passing build environment variable GOOGLE_FUNCTION_TARGET to buildpacks
+Passing build environment variable X_GOOGLE_FASTAPI_SMART_DEFAULTS to buildpacks
+Passing build environment variable X_GOOGLE_PYTHON_SMART_DEFAULTS to buildpacks
+Finished Step #1 - "pre-buildpack"
+Starting Step #2 - "build"
+Already have image (with digest): europe-west1-docker.pkg.dev/serverless-runtimes/google-22-full/builder/nodejs:nodejs_20250831_RC00
+Warning: No cached data will be used, no cache specified.
+===> ANALYZING
+===> DETECTING
+target distro name/version labels not found, reading /etc/os-release file
+4 of 6 buildpacks participating
+google.nodejs.runtime             1.0.0
+google.nodejs.npm                 1.1.0
+google.nodejs.functions-framework 0.9.4
+google.utils.label-image          0.0.2
+===> RESTORING
+Skipping buildpack layer analysis
+===> BUILDING
+target distro name/version labels not found, reading /etc/os-release file
+=== Node.js - Runtime (google.nodejs.runtime@1.0.0) ===
+Using runtime version from GOOGLE_RUNTIME_VERSION: 22.18.0
+***** CACHE MISS: "nodejs"
+Installing Node.js v22.18.0.
+Runtime successfully downloaded from europe-west1-docker.pkg.dev/gae-runtimes/runtimes-ubuntu2204/nodejs:22.18.0
+=== Node.js - Npm (google.nodejs.npm@1.1.0) ===
+Generating package-lock.json.
+WARNING: *** Improve build performance by generating and committing package-lock.json.
+--------------------------------------------------------------------------------
+Running "npm install --package-lock-only --quiet"
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: 'parse-resume-skill@1.0.0',
+npm warn EBADENGINE   required: { node: '18' },
+npm warn EBADENGINE   current: { node: 'v22.18.0', npm: '10.9.3' }
+npm warn EBADENGINE }
+up to date, audited 172 packages in 10s
+38 packages are looking for funding
+  run `npm fund` for details
+found 0 vulnerabilities
+Done "npm install --package-lock-only --quiet" (9.782417787s)
+***** CACHE MISS: "npm_modules"
+Installing application dependencies.
+--------------------------------------------------------------------------------
+Running "npm ci --quiet --no-fund --no-audit (NODE_ENV=production)"
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: 'parse-resume-skill@1.0.0',
+npm warn EBADENGINE   required: { node: '18' },
+npm warn EBADENGINE   current: { node: 'v22.18.0', npm: '10.9.3' }
+npm warn EBADENGINE }
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+added 171 packages in 5s
+Done "npm ci --quiet --no-fund --no-audit (NODE_ENV=production)" (5.197763814s)
+=== Node.js - Functions Framework (google.nodejs.functions-framework@0.9.4) ===
+--------------------------------------------------------------------------------
+failed to build: (error ID: caa7bd78):
+parse-resume-skill.js does not exist
+--------------------------------------------------------------------------------
+Sorry your project couldn't be built.
+Our documentation explains ways to configure Buildpacks to better recognise your project:
+ -> https://cloud.google.com/docs/buildpacks/overview
+If you think you've found an issue, please report it:
+ -> https://github.com/GoogleCloudPlatform/buildpacks/issues/new
+--------------------------------------------------------------------------------
+ERROR: failed to build: exit status 1
+Finished Step #2 - "build"
+ERROR
+ERROR: build step 2 "europe-west1-docker.pkg.dev/serverless-runtimes/google-22-full/builder/nodejs:nodejs_20250831_RC00" failed: step exited with non-zero status: 51
