@@ -1,0 +1,16 @@
+endpoints, app_component
+match-analysis-pdf-v2, app\actions\enhanced-match-analysis.ts
+match-analysis-linkedin-v2, app\actions\enhanced-match-analysis.ts
+match-analysis-fallback-v2, app\actions\enhanced-match-analysis.ts
+parse-linkedin-skill, app\actions\match-analysis.ts
+parse-linkedin-skill, components\create-talent-dialog\hooks\useLinkedInProcessor.ts
+match-analysis-linkedin-v2, app\actions\match-analysis.ts
+match-analysis-pdf-v2, app\actions\match-analysis.ts
+match-analysis-fallback-v2, app\actions\match-analysis.ts
+generate-interview-questions, components\interview-questions-generator.tsx
+generate-linkedin-queries, lib\api\linkedin-queries.ts
+job-details-extractor, components\create-job-dialog.tsx
+job-details-extractor, components\job-details-dialog.tsx
+generate-job-description, app\actions\job-management.ts
+simulate-interview, app\actions\interviews.ts
+email-builder, app\actions\email-builder.ts

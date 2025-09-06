@@ -16,7 +16,9 @@
       "mcp__playwright__browser_wait_for",
       "mcp__playwright__browser_network_requests",
       "Bash(pnpm build:*)",
-      "Bash(pnpm dev:*)"
+      "Bash(pnpm dev:*)",
+      "mcp__supabase__list_edge_functions",
+      "Bash(npx supabase functions:*)"
     ],
     "deny": []
   }

@@ -2,6 +2,13 @@ const functions = require('@google-cloud/functions-framework');
 const { OpenAI } = require('openai');
 const axios = require('axios');
 
+// Import shared definitions
+const { 
+  SOFT_SKILLS_KEYWORDS,
+  PROFICIENCY_LEVEL_CRITERIA,
+  SKILL_TYPE_CATEGORIES
+} = require('./_shared/skill-definitions.js');
+
 // Configure OpenAI
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -42,53 +49,7 @@ async function extractTextFromPdf(pdfData) {
 
 // Parse resume text with OpenAI
 async function parseResumeText(resumeText) {
-// Soft skills keywords for detection
-    const softSkillKeywords = [
-        'Communication',
-        'Public Speaking',
-        'Presentation Skills',
-        'Active Listening',
-        'Negotiation',
-        'Conflict Resolution',
-        'Customer Service',
-        'Relationship Building',
-        'Leadership',
-        'Team Leadership',
-        'People Management',
-        'Mentoring',
-        'Coaching',
-        'Decision Making',
-        'Strategic Thinking',
-        'Teamwork',
-        'Collaboration',
-        'Cross-functional Collaboration',
-        'Stakeholder Management',
-        'Team Building',
-        'Consensus Building',
-        'Problem Solving',
-        'Critical Thinking',
-        'Analytical Thinking',
-        'Creative Thinking',
-        'Innovation',
-        'Research Skills',
-        'Troubleshooting',
-        'Adaptability',
-        'Flexibility',
-        'Change Management',
-        'Continuous Learning',
-        'Resilience',
-        'Stress Management',
-        'Multi-tasking',
-        'Time Management',
-        'Organization',
-        'Attention to Detail',
-        'Self-Motivation',
-        'Initiative',
-        'Reliability',
-        'Accountability',
-        'Work-Life Balance'
-  ];
-
+  // Using shared skill extraction criteria from shared definitions
   const skillExtractionCriteria = `Analyze the full resume and identify every skill mentioned in the work experience section, education section, summary/objective section, and certifications section. Each skill must be captured with the following parameters:
 
 	1) Years of Experience – The exact number of years the individual has used that specific skill, rounded to 1 decimal place.
@@ -96,49 +57,10 @@ async function parseResumeText(resumeText) {
 	2) Proficiency Level  
 	Based on the number of years of experience you provided, please assign a Proficiency Level using the criteria below:
 
-	"beginner":
-	- Less than or equal to 2 years (0 < yoe <= 2.0) of hands-on experience with the skill
-	- Just starting to learn and apply the skill in real-world situations
-
-	"advanced":
-	- More than 2 years to less than or equal to 5 years (2.0 < yoe <= 5.0) of consistent, practical experience
-	- Has contributed to multiple projects and is able to work independently
-
-	"expert":
-	- More than 5 years (yoe > 5.0) of in-depth, specialized experience
-	- May include responsibilities such as mentoring, providing architectural guidance, or leading initiatives
-
-	Additional Considerations: Use these to further refine the appropriate level:
-	- How often the skill is used (e.g., daily vs. occasionally)
-	- Complexity of the projects (e.g., hobby vs. production-level work)
-	- Experience mentoring or teaching others
-	- Certifications or public recognition in the field
-
-	CRITICAL: For soft_skill and certification types, ALWAYS set yoe: null and proficiency_level: null regardless of experience mentioned.
+	${PROFICIENCY_LEVEL_CRITERIA}
 
 	3) Category – Assign one of the following categories based on the nature of the skill:
-	- "technical_skill": Skills related to software development, IT tools, programming languages, platforms, cloud services, data tools, technical methodologies, etc (e.g., React, AWS, JavaScript, Snowflake, Automation).
-	
-	- "technology_domain": Broad areas of technological expertise or disciplines that represent overarching fields of focus rather than concrete tools or implementations. Encompasses high-level technology fields, research areas or methodological domains.
-		Distinction:
-		  - technology_domain vs technical_skill:
-				"Machine Learning" → technology_domain
-				"scikit-learn"     → technical_skill
-		  - technology_domain vs industry:
-				"Data Engineering" → technology_domain
-				"Banking"         → industry
-		Examples: Artificial Intelligence, Machine Learning, Data Engineering, Cybersecurity, DevOps, ERP, CRM, Web Development, Mobile Development, Project Management.
-		
-	- "soft_skill": Interpersonal and non-technical skills such as Communication, Leadership, Teamwork, and Problem-Solving. To identify these skills, scan the input and match the content against the following soft skill keywords: ${softSkillKeywords.join(', ')}.
-        - IMPORTANT NOTE 1: While exact keyword matches are required, you must also capture the underlying idea. For example, if a work experience states, "I led 10 people," then 'Team Leadership' should be selected. Consider both the frequency of exact keyword occurrences and the relevance of content to the keywords.
-        - IMPORTANT NOTE 2: For all soft skills, always set 'yoe' (years of experience) to null and 'proficiency_level' to null.
-
-	
-	- "role": Specific job titles or functions that describe the individual's position or responsibility within an organization or project (e.g., Fullstack Developer, Software Architect, Cloud Engineer).
-	
-	- "certification": Official credentials or certifications awarded by recognized institutions or providers, typically related to technology or project management (e.g., AWS Solutions Architect, GCP Cloud Solutions Architect). IMPORTANT: For certifications, ALWAYS set yoe: null and proficiency_level: null.
-	
-	- "industry": Skills corresponding to industry experience. For example, if experience in the banking sector is identified, the skill should be labeled as "Banking." Other examples include Insurance, Healthcare, etc.
+	${SKILL_TYPE_CATEGORIES}
 
 	Formatting Requirement:
 	Each skill must be written in Title Case, with the first letter of each word capitalized (e.g., React, Amazon Web Services, Cloud Engineer). Avoid using all caps or all lowercase letters, except for established acronyms or brand-specific stylizations (e.g., AWS, GCP, iOS).
@@ -307,6 +229,9 @@ functions.http('parseResumeHandler', async (req, res) => {
   }
   
   try {
+    console.log("Function parse-resume-skill started");
+    console.log("*** UPDATED VERSION WITH SHARED DEFINITIONS IS RUNNING ***");
+    
     // Process the resume
     const result = await parseResume(requestData.pdf_url);
     
