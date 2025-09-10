@@ -48,21 +48,22 @@
      };
    }
    // Match requirement against candidate skills
-   // Route to appropriate matcher based on skill category
+   // Route to appropriate matcher based on skill category (simplified to 3 types)
+   // 
+   // UPDATED: 2025-09-10 - Simplified from 6 types to 3 types
+   // CHANGE: Eliminated 'role', 'industry', 'technology_domain' skill types
+   // REASON: Reduces complexity, improves maintainability, better semantic matching
+   // IMPACT: All eliminated types now route to technical skill matching
    const skillCategory = requirement.category?.toLowerCase() || 'technical_skill';
    let result;
    if (skillCategory === 'certification') {
      result = await findCertificationMatch(requirement, candidateSkills);
    } else if (skillCategory === 'soft_skill') {
      result = await findSoftSkillMatch(requirement, candidateSkills, rawTextContext);
-   } else if (skillCategory === 'role') {
-     result = await findRoleMatch(requirement, candidateSkills);
-   } else if (skillCategory === 'industry') {
-     result = await findIndustryMatch(requirement, candidateSkills);
-   } else if (skillCategory === 'technology_domain') {
-     result = await findTechnologyDomainMatch(requirement, candidateSkills, useSemanticFallback);
    } else {
-     // Default to technical skill matching
+     // ROUTING CHANGE: Default to technical skill matching for all other types
+     // This now handles: technical_skill, role, industry, technology_domain
+     // Previous specialized functions (findRoleMatch, findIndustryMatch, findTechnologyDomainMatch) are deprecated
      result = await findTechnicalSkillMatch(requirement, candidateSkills, useSemanticFallback);
    }
    // Return final match result
@@ -77,7 +78,12 @@
    for (const skill of candidateSkills){
      // Skip empty skills or wrong type
      if (!skill.name || skill.name.trim() === '') continue;
-     if (skill.type && skill.type !== 'technical_skill') continue;
+     // FILTERING CHANGE: Include skills that are technical_skill or any of the eliminated types that now map to technical
+     // UPDATED: 2025-09-10 - Expanded technical skill matching to include eliminated types
+     // BEFORE: Only 'technical_skill' type was processed by this function
+     // AFTER: 'technical_skill', 'technology_domain', 'role', 'industry' all processed here
+     // REASON: Unified matching logic instead of separate type-specific functions
+     if (skill.type && !['technical_skill', 'technology_domain', 'role', 'industry'].includes(skill.type)) continue;
      // Check each technical skill for match
      // 1. Check for exact match
      const areAliases = skillRegistry.areAliases(requirement.name, skill.name);
@@ -552,6 +558,20 @@
    // 4. Return as CandidateSkill array
    return supplementarySkills;
  }
+ /**
+  * [DEPRECATED - Skill types simplified to 3 core types]
+  * DEPRECATED: 2025-09-10 - These functions are no longer used in routing
+  * CHANGE: Eliminated specialized matching functions for role, industry, technology_domain
+  * ROUTING: All these skill types now route to findTechnicalSkillMatch() instead
+  * REASON: Reduces code complexity, eliminates duplicate logic, improves maintainability
+  * STATUS: Functions kept for reference but bypassed in findSkillMatches() routing
+  * 
+  * Deprecated functions:
+  * - findRoleMatch() - Job titles now treated as technical skills
+  * - findIndustryMatch() - Industry experience now treated as technical skills  
+  * - findTechnologyDomainMatch() - Tech domains now treated as technical skills
+  */
+
  /**
   * Find matches for roles (job titles & experience with proficiency)
   * MUST HAVE proficiency level for meaningful comparison

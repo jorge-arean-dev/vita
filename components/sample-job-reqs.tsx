@@ -99,7 +99,7 @@ export default function RequirementsSection({ requirements, isEditMode, onChange
                       <SkillBadge
                         skill={req.requirement}
                         level={req.proficiency_level as "beginner" | "advanced" | "expert" | null}
-                        type={req.type as "technical_skill" | "soft_skill" | "role" | "certification" | "technology_domain" | "industry"}
+                        type={req.type as "technical_skill" | "soft_skill" | "certification"}
                         className="cursor-pointer pr-8"
                       />
                       <Select
@@ -130,7 +130,7 @@ export default function RequirementsSection({ requirements, isEditMode, onChange
                     <SkillBadge
                       skill={req.requirement}
                       level={req.proficiency_level as "beginner" | "advanced" | "expert" | null}
-                      type={req.type as "technical_skill" | "soft_skill" | "role" | "certification" | "technology_domain" | "industry"}
+                      type={req.type as "technical_skill" | "soft_skill" | "certification"}
                     />
                   )}
                 </div>

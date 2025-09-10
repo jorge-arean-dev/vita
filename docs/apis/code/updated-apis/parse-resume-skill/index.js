@@ -89,30 +89,33 @@ Additional Considerations: Use these to further refine the appropriate level:
 IMPORTANT: For soft_skill and certification types, ALWAYS set proficiency_level to null regardless of experience.
 `;
 
+// UPDATED: 2025-09-10 - Simplified from 6 skill types to 3 core types
+// CHANGE: Eliminated 'role', 'industry', 'technology_domain' as separate categories  
+// CONSOLIDATION: All technical competencies now under 'technical_skill' umbrella
+// SYNC: Mirrors supabase/functions/_shared/skill-definitions.ts for consistency
+//
+// ELIMINATED TYPES (now part of technical_skill):
+// - role: Job titles like "Senior Developer", "Data Scientist"
+// - industry: Domain knowledge like "Banking", "Healthcare"
+// - technology_domain: Broad tech areas like "Machine Learning", "DevOps"
 const SKILL_TYPE_CATEGORIES = `
-Each skill type category is explained below:
-- "technical_skill": Skills related to software development, IT tools, programming languages, platforms, cloud services, data tools, technical methodologies, etc (e.g., React, AWS, JavaScript, Snowflake, Automation, ABAP, SAP ERP).
+Each skill type category is explained below (simplified to 3 core types):
 
-- "technology_domain": Broad areas of technological expertise or disciplines that represent overarching fields of focus rather than concrete tools or implementations. Encompasses high-level technology fields, research areas or methodological domains.
-  Distinction:
-	 - technology_domain vs technical_skill:
-		   "Machine Learning" → technology_domain
-		   "scikit-learn"     → technical_skill
-	 - technology_domain vs industry:
-		   "Data Engineering" → technology_domain
-		   "Banking"         → industry
-  Examples: Artificial Intelligence, Machine Learning, Data Engineering, Cybersecurity, DevOps, ERP, CRM, Web Development, Mobile Development, Project Management.
-  
+- "technical_skill": All technical competencies including:
+  • Programming languages, frameworks, and libraries (React, Python, JavaScript, etc.)
+  • Cloud platforms and services (AWS, GCP, Azure, etc.)
+  • Development tools and methodologies (Git, Docker, Agile, etc.)
+  • Technology domains (Machine Learning, Data Engineering, DevOps, etc.)
+  • Professional roles and titles (Software Engineer, Data Scientist, etc.)
+  • Industry-specific technical knowledge (FinTech, Healthcare IT, etc.)
+  Examples: React, AWS, JavaScript, Python, Machine Learning, Senior Developer, Banking Systems, Kubernetes, PostgreSQL, REST APIs
+
 - "soft_skill": Interpersonal and non-technical skills such as Communication, Leadership, Teamwork, and Problem-Solving. To identify these skills, scan the input and match the content against the following soft skill keywords: ${SOFT_SKILLS_KEYWORDS.join(', ')}.
         - IMPORTANT NOTE 1: While exact keyword matches are required, you must also capture the underlying idea. For example, if a input states, "communicate with stakeholders" then 'Communication' should be selected. Or if a input states, "the candidate will lead a team of 10" then 'Leadership' should be selected. Consider both the frequency of exact keyword occurrences and the relevance of content to the keywords.
         - IMPORTANT NOTE 2: For all soft skills, always set 'yoe' (years of experience) to null and 'proficiency_level' to null.
         - IMPORTANT NOTE 3: MANDATORY - If company culture information is provided, you MUST analyze it carefully and extract relevant soft skills. For example: if culture mentions "team work" → include "Teamwork"; if culture mentions "fast paced" → include "Adaptability" and "Time Management"; if culture mentions "resilience" → include "Resilience"; if culture mentions "low ego" → include "Collaboration" and "Teamwork". Always include soft skills that match or closely relate to the cultural values described. This is critical for accurate role assessment.
 
-- "role": Specific job titles or functions that describe the individual's position or responsibility within an organization or project (e.g., Fullstack Developer, Software Architect, Cloud Engineer, Technical Consultant).
-
-- "certification": Official credentials or certifications awarded by recognized institutions or providers, typically related to technology or project management (e.g., AWS Solutions Architect, GCP Cloud Solutions Architect, SAP Certification). For certifications, ALWAYS set yoe: null and proficiency_level: null.
-
-- "industry": Skills corresponding to industry experience. For example, if experience in the banking sector is identified, the skill should be labeled as "Banking." Other examples include Insurance, Healthcare, Energy, etc.
+- "certification": Official credentials or certifications awarded by recognized institutions or providers (e.g., AWS Solutions Architect, PMP, CISSP, CPA). For certifications, ALWAYS set yoe: null and proficiency_level: null.
 `;
 
 // Configure OpenAI

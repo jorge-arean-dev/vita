@@ -51,15 +51,12 @@ interface EditableSkill extends CandidateSkill {
   isEdited?: boolean
 }
 
-type SkillType = "technical_skill" | "soft_skill" | "role" | "certification" | "technology_domain" | "industry"
+type SkillType = "technical_skill" | "soft_skill" | "certification"
 
 const SKILL_TYPES = [
   { name: "technical_skill", display_name: "Technical Skills" },
   { name: "soft_skill", display_name: "Soft Skills" },
-  { name: "role", display_name: "Role" },
-  { name: "certification", display_name: "Certification" },
-  { name: "industry", display_name: "Industry" },
-  { name: "technology_domain", display_name: "Technology Domain" }
+  { name: "certification", display_name: "Certification" }
 ] as const
 
 // Helper function to check if skill type supports proficiency levels

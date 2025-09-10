@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import { Star, X } from "lucide-react"
 
 type ProficiencyLevel = "beginner" | "advanced" | "expert"
-type SkillType = "technical_skill" | "soft_skill" | "role" | "certification" | "technology_domain" | "industry"
+type SkillType = "technical_skill" | "soft_skill" | "certification"
 
 interface SkillBadgeProps {
   skill: string
@@ -28,8 +28,8 @@ export function SkillBadge({
   isEditMode = false,
   onRemove
 }: SkillBadgeProps) {
-  // Determine if this skill type should show progress fill
-  const showProgressFill = type && ["technical_skill", "role", "technology_domain", "industry"].includes(type)
+  // Determine if this skill type should show progress fill (only technical skills)
+  const showProgressFill = type === "technical_skill"
   
   // If no progress fill needed, return a simple badge
   if (!showProgressFill || !level) {

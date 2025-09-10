@@ -12,7 +12,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import type { ParsedSkill } from "../types"
 import { SKILL_TYPES } from "../types"
 
-type SkillType = "technical_skill" | "soft_skill" | "role" | "certification" | "technology_domain" | "industry"
+type SkillType = "technical_skill" | "soft_skill" | "certification"
 type ProficiencyLevel = "beginner" | "advanced" | "expert"
 
 // Helper function to validate proficiency level

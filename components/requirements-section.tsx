@@ -25,14 +25,11 @@ interface RequirementsSectionProps {
   onChange: (requirements: Requirement[]) => void
 }
 
-// Requirement types mapping
+// Requirement types mapping (simplified to 3 core types)
 const REQUIREMENT_TYPES = [
   { name: "technical_skill", display_name: "Technical Skills" },
   { name: "soft_skill", display_name: "Soft Skills" },
-  { name: "role", display_name: "Role" },
-  { name: "certification", display_name: "Certification" },
-  { name: "industry", display_name: "Industry" },
-  { name: "technology_domain", display_name: "Technology Domain" }
+  { name: "certification", display_name: "Certification" }
 ]
 
 
@@ -121,7 +118,7 @@ export default function RequirementsSection({ requirements, isEditMode, onChange
                             <SkillBadge
                               skill={req.requirement}
                               level={req.proficiency_level as "beginner" | "advanced" | "expert" | null}
-                              type={req.type as "technical_skill" | "soft_skill" | "role" | "certification" | "technology_domain" | "industry"}
+                              type={req.type as "technical_skill" | "soft_skill" | "certification"}
                               isMandatory={req.is_mandatory}
                               isEditMode={false}  // Don't show the built-in X button
                               className="cursor-pointer pr-8"  // Add padding for external X button
@@ -169,7 +166,7 @@ export default function RequirementsSection({ requirements, isEditMode, onChange
                     <SkillBadge
                       skill={req.requirement}
                       level={req.proficiency_level as "beginner" | "advanced" | "expert" | null}
-                      type={req.type as "technical_skill" | "soft_skill" | "role" | "certification" | "technology_domain" | "industry"}
+                      type={req.type as "technical_skill" | "soft_skill" | "certification"}
                       isMandatory={req.is_mandatory}
                     />
                   )}

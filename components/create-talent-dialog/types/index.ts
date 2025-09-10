@@ -33,14 +33,11 @@ export type InputMethod = "auto" | "manual"
 export type DataSource = "linkedin" | "pdf"
 export type Step = "data-source" | "personal-info" | "skills"
 
-// Skill types mapping (same as job requirements)
+// Skill types mapping (simplified to 3 core types)
 export const SKILL_TYPES = [
   { name: "technical_skill", display_name: "Technical Skills" },
   { name: "soft_skill", display_name: "Soft Skills" },
-  { name: "role", display_name: "Role" },
-  { name: "certification", display_name: "Certification" },
-  { name: "industry", display_name: "Industry" },
-  { name: "technology_domain", display_name: "Technology Domain" }
+  { name: "certification", display_name: "Certification" }
 ] as const
 
 export interface APIProcessingState {

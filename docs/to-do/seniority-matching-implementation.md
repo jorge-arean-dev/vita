@@ -386,12 +386,24 @@ Based on AI Recruiting Engineer analysis, eliminate redundant skill types to sim
 - [ ] Update validation logic for simplified skill types
 - [ ] Test form behavior with reduced skill type options
 
-#### **Task 8.4: Backend Updates (No Database Migration)**
-- [ ] Update `SKILL_TYPE_CATEGORIES` in shared definitions to remove eliminated types
-- [ ] Remove skill type classification logic for eliminated types in APIs
-- [ ] Update skill parsing to map to 3 core types only
-- [ ] Modify skill-matcher.ts filtering logic to handle only 3 core types  
-- [ ] Update match-analysis functions to work with simplified type structure
+#### **Task 8.4: Backend Updates & Deployment**
+- [ ] **Database**: Set `is_active = false` for eliminated types in `skill_types` table
+  ```sql
+  UPDATE skill_types 
+  SET is_active = false 
+  WHERE name IN ('industry', 'role', 'technology_domain');
+  ```
+- [ ] **Match Analysis Functions**: Modify to skip eliminated skill types
+  - Remove or bypass `findRoleMatch()` function
+  - Remove or bypass `findIndustryMatch()` function  
+  - Remove or bypass `findTechnologyDomainMatch()` function
+  - Update `findSkillMatches()` to route only to remaining 3 types
+- [ ] **Skill Definitions**: Update `SKILL_TYPE_CATEGORIES` to remove eliminated types
+- [ ] **Parsing APIs**: Update skill parsing to map to 3 core types only
+- [ ] **Deployment**: Deploy updated Supabase Edge Functions
+  ```bash
+  pnpm supabase functions deploy
+  ```
 - [ ] **Note**: Database migration not required - existing data is test data
 
 #### **Task 8.5: Testing & Validation**
