@@ -1,249 +1,1302 @@
-tarting build "96d72689-136c-4b6f-ad72-ba95f6068667"
-FETCHSOURCE
-BUILD
-Starting Step #0 - "fetch"
-Pulling image: europe-west1-docker.pkg.dev/serverless-runtimes/utilities/gcs-fetcher:base_20250803_18_04_RC00
-base_20250803_18_04_RC00: Pulling from serverless-runtimes/utilities/gcs-fetcher
-Digest: sha256:0f3315059bcbf395bcb0ccb4496e5fb62fec4aa9fe16018d6e184032cbcff08e
-Status: Downloaded newer image for europe-west1-docker.pkg.dev/serverless-runtimes/utilities/gcs-fetcher:base_20250803_18_04_RC00
-europe-west1-docker.pkg.dev/serverless-runtimes/utilities/gcs-fetcher:base_20250803_18_04_RC00
-Fetching archive gs://run-sources-fsr-talent-match-europe-west1/services/parse-resume-skill/1757196257.185000.zip.
-******************************************************
-Status:                      SUCCESS
-Started:                     2025-09-06T22:04:26Z
-Completed:                   2025-09-06T22:04:26Z
-Total files:            3
-MiB downloaded:         0.01 MiB
-MiB/s throughput:       0.10 MiB/s
-Time for zipfile:       0.08 s
-Time to unzip:          0.00 s
-Total time:             0.08 s
-******************************************************
-Finished Step #0 - "fetch"
-Starting Step #1 - "pre-buildpack"
-Pulling image: europe-west1-docker.pkg.dev/serverless-runtimes/google-22-full/builder/nodejs:nodejs_20250831_RC00
-nodejs_20250831_RC00: Pulling from serverless-runtimes/google-22-full/builder/nodejs
-e27d8d14a9d0: Already exists
-8dcbdb4aec00: Already exists
-3e8b0467c58f: Already exists
-6db5912215c0: Pulling fs layer
-2941a1ed4d8f: Pulling fs layer
-47e22eb429be: Pulling fs layer
-916d632e4526: Pulling fs layer
-33496cb0c5cc: Pulling fs layer
-d38825473d57: Pulling fs layer
-fe0a88c014e5: Pulling fs layer
-1a82443b3661: Pulling fs layer
-26d90eae4ad9: Pulling fs layer
-11e17219f200: Pulling fs layer
-66550c16e68d: Pulling fs layer
-2804baa4298c: Pulling fs layer
-69c1cb057243: Pulling fs layer
-f62ab57efdb3: Pulling fs layer
-9de356eb766a: Pulling fs layer
-ecc46401e424: Pulling fs layer
-30fdc0aa89b5: Pulling fs layer
-f96ce9f1b333: Pulling fs layer
-1564c3a4b788: Pulling fs layer
-af9f2db3eaf0: Pulling fs layer
-2e1a6e98684b: Pulling fs layer
-b0930748fc83: Pulling fs layer
-636c3c02fc9f: Pulling fs layer
-5fa102219e55: Pulling fs layer
-26be9f471823: Pulling fs layer
-34ce8ba30961: Pulling fs layer
-e6178d2c0976: Pulling fs layer
-4f4fb700ef54: Pulling fs layer
-916d632e4526: Waiting
-33496cb0c5cc: Waiting
-d38825473d57: Waiting
-fe0a88c014e5: Waiting
-1a82443b3661: Waiting
-26d90eae4ad9: Waiting
-11e17219f200: Waiting
-66550c16e68d: Waiting
-2804baa4298c: Waiting
-69c1cb057243: Waiting
-f62ab57efdb3: Waiting
-9de356eb766a: Waiting
-ecc46401e424: Waiting
-30fdc0aa89b5: Waiting
-f96ce9f1b333: Waiting
-1564c3a4b788: Waiting
-af9f2db3eaf0: Waiting
-2e1a6e98684b: Waiting
-b0930748fc83: Waiting
-636c3c02fc9f: Waiting
-5fa102219e55: Waiting
-26be9f471823: Waiting
-34ce8ba30961: Waiting
-e6178d2c0976: Waiting
-4f4fb700ef54: Waiting
-6db5912215c0: Download complete
-47e22eb429be: Verifying Checksum
-47e22eb429be: Download complete
-2941a1ed4d8f: Verifying Checksum
-2941a1ed4d8f: Download complete
-916d632e4526: Verifying Checksum
-916d632e4526: Download complete
-33496cb0c5cc: Verifying Checksum
-33496cb0c5cc: Download complete
-fe0a88c014e5: Download complete
-6db5912215c0: Pull complete
-d38825473d57: Verifying Checksum
-d38825473d57: Download complete
-26d90eae4ad9: Download complete
-11e17219f200: Verifying Checksum
-11e17219f200: Download complete
-2941a1ed4d8f: Pull complete
-1a82443b3661: Verifying Checksum
-1a82443b3661: Download complete
-66550c16e68d: Verifying Checksum
-66550c16e68d: Download complete
-2804baa4298c: Verifying Checksum
-2804baa4298c: Download complete
-47e22eb429be: Pull complete
-69c1cb057243: Verifying Checksum
-69c1cb057243: Download complete
-9de356eb766a: Verifying Checksum
-9de356eb766a: Download complete
-f62ab57efdb3: Verifying Checksum
-f62ab57efdb3: Download complete
-916d632e4526: Pull complete
-30fdc0aa89b5: Verifying Checksum
-30fdc0aa89b5: Download complete
-f96ce9f1b333: Verifying Checksum
-f96ce9f1b333: Download complete
-ecc46401e424: Verifying Checksum
-ecc46401e424: Download complete
-1564c3a4b788: Verifying Checksum
-1564c3a4b788: Download complete
-2e1a6e98684b: Verifying Checksum
-2e1a6e98684b: Download complete
-af9f2db3eaf0: Verifying Checksum
-af9f2db3eaf0: Download complete
-5fa102219e55: Verifying Checksum
-5fa102219e55: Download complete
-636c3c02fc9f: Verifying Checksum
-636c3c02fc9f: Download complete
-b0930748fc83: Verifying Checksum
-b0930748fc83: Download complete
-33496cb0c5cc: Pull complete
-26be9f471823: Verifying Checksum
-26be9f471823: Download complete
-34ce8ba30961: Verifying Checksum
-34ce8ba30961: Download complete
-e6178d2c0976: Verifying Checksum
-e6178d2c0976: Download complete
-4f4fb700ef54: Verifying Checksum
-4f4fb700ef54: Download complete
-d38825473d57: Pull complete
-fe0a88c014e5: Pull complete
-1a82443b3661: Pull complete
-26d90eae4ad9: Pull complete
-11e17219f200: Pull complete
-66550c16e68d: Pull complete
-2804baa4298c: Pull complete
-69c1cb057243: Pull complete
-f62ab57efdb3: Pull complete
-9de356eb766a: Pull complete
-ecc46401e424: Pull complete
-30fdc0aa89b5: Pull complete
-f96ce9f1b333: Pull complete
-1564c3a4b788: Pull complete
-af9f2db3eaf0: Pull complete
-2e1a6e98684b: Pull complete
-b0930748fc83: Pull complete
-636c3c02fc9f: Pull complete
-5fa102219e55: Pull complete
-26be9f471823: Pull complete
-34ce8ba30961: Pull complete
-e6178d2c0976: Pull complete
-4f4fb700ef54: Pull complete
-Digest: sha256:03b3de8cd01a372e77a9a01c51893c822f22e21d183b01bf3c08db00642777b4
-Status: Downloaded newer image for europe-west1-docker.pkg.dev/serverless-runtimes/google-22-full/builder/nodejs:nodejs_20250831_RC00
-europe-west1-docker.pkg.dev/serverless-runtimes/google-22-full/builder/nodejs:nodejs_20250831_RC00
-Preparing directory /layers
-Preparing directory /workspace
-Preparing directory /builder/home
-Preparing directory /builder/outputs
-Preparing directory /platform/env
-Passing build environment variable BUILDER_OUTPUT to buildpacks
-Passing build environment variable GOOGLE_RUNTIME to buildpacks
-Passing build environment variable GOOGLE_LABEL_BUILDER_VERSION to buildpacks
-Passing build environment variable GOOGLE_LABEL_BUILDER_IMAGE to buildpacks
-Passing build environment variable GOOGLE_LABEL_RUN_IMAGE to buildpacks
-Passing build environment variable GOOGLE_LABEL_SOURCE to buildpacks
-Passing build environment variable GOOGLE_RUNTIME_IMAGE_REGION to buildpacks
-Passing build environment variable GOOGLE_RUNTIME_VERSION to buildpacks
-Passing build environment variable X_GOOGLE_SKIP_RUNTIME_LAUNCH to buildpacks
-Passing build environment variable GOOGLE_BUILD_ENV to buildpacks
-Passing build environment variable GOOGLE_LABEL_BUILD_ID to buildpacks
-Passing build environment variable GOOGLE_LABEL_BASE_IMAGE to buildpacks
-Passing build environment variable GOOGLE_LABEL_FUNCTION_TARGET to buildpacks
-Passing build environment variable GOOGLE_FUNCTION_TARGET to buildpacks
-Passing build environment variable X_GOOGLE_FASTAPI_SMART_DEFAULTS to buildpacks
-Passing build environment variable X_GOOGLE_PYTHON_SMART_DEFAULTS to buildpacks
-Finished Step #1 - "pre-buildpack"
-Starting Step #2 - "build"
-Already have image (with digest): europe-west1-docker.pkg.dev/serverless-runtimes/google-22-full/builder/nodejs:nodejs_20250831_RC00
-Warning: No cached data will be used, no cache specified.
-===> ANALYZING
-===> DETECTING
-target distro name/version labels not found, reading /etc/os-release file
-4 of 6 buildpacks participating
-google.nodejs.runtime             1.0.0
-google.nodejs.npm                 1.1.0
-google.nodejs.functions-framework 0.9.4
-google.utils.label-image          0.0.2
-===> RESTORING
-Skipping buildpack layer analysis
-===> BUILDING
-target distro name/version labels not found, reading /etc/os-release file
-=== Node.js - Runtime (google.nodejs.runtime@1.0.0) ===
-Using runtime version from GOOGLE_RUNTIME_VERSION: 22.18.0
-***** CACHE MISS: "nodejs"
-Installing Node.js v22.18.0.
-Runtime successfully downloaded from europe-west1-docker.pkg.dev/gae-runtimes/runtimes-ubuntu2204/nodejs:22.18.0
-=== Node.js - Npm (google.nodejs.npm@1.1.0) ===
-Generating package-lock.json.
-WARNING: *** Improve build performance by generating and committing package-lock.json.
---------------------------------------------------------------------------------
-Running "npm install --package-lock-only --quiet"
-npm warn EBADENGINE Unsupported engine {
-npm warn EBADENGINE   package: 'parse-resume-skill@1.0.0',
-npm warn EBADENGINE   required: { node: '18' },
-npm warn EBADENGINE   current: { node: 'v22.18.0', npm: '10.9.3' }
-npm warn EBADENGINE }
-up to date, audited 172 packages in 10s
-38 packages are looking for funding
-  run `npm fund` for details
-found 0 vulnerabilities
-Done "npm install --package-lock-only --quiet" (9.782417787s)
-***** CACHE MISS: "npm_modules"
-Installing application dependencies.
---------------------------------------------------------------------------------
-Running "npm ci --quiet --no-fund --no-audit (NODE_ENV=production)"
-npm warn EBADENGINE Unsupported engine {
-npm warn EBADENGINE   package: 'parse-resume-skill@1.0.0',
-npm warn EBADENGINE   required: { node: '18' },
-npm warn EBADENGINE   current: { node: 'v22.18.0', npm: '10.9.3' }
-npm warn EBADENGINE }
-npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
-added 171 packages in 5s
-Done "npm ci --quiet --no-fund --no-audit (NODE_ENV=production)" (5.197763814s)
-=== Node.js - Functions Framework (google.nodejs.functions-framework@0.9.4) ===
---------------------------------------------------------------------------------
-failed to build: (error ID: caa7bd78):
-parse-resume-skill.js does not exist
---------------------------------------------------------------------------------
-Sorry your project couldn't be built.
-Our documentation explains ways to configure Buildpacks to better recognise your project:
- -> https://cloud.google.com/docs/buildpacks/overview
-If you think you've found an issue, please report it:
- -> https://github.com/GoogleCloudPlatform/buildpacks/issues/new
---------------------------------------------------------------------------------
-ERROR: failed to build: exit status 1
-Finished Step #2 - "build"
-ERROR
-ERROR: build step 2 "europe-west1-docker.pkg.dev/serverless-runtimes/google-22-full/builder/nodejs:nodejs_20250831_RC00" failed: step exited with non-zero status: 51
+
+ ✓ Starting...
+ ✓ Compiled middleware in 355ms
+ ✓ Ready in 2.6s
+ ○ Compiling /protected/jobs/[id]/candidate-match-analysis ...
+ ✓ Compiled /protected/jobs/[id]/candidate-match-analysis in 6s
+ GET /protected/jobs/6972fe07-96a5-4bce-9961-3d7cdb204b24/candidate-match-analysis 200 in 8824ms
+ GET /protected/jobs/6972fe07-96a5-4bce-9961-3d7cdb204b24/candidate-match-analysis 200 in 1059ms
+ GET /protected/jobs/6972fe07-96a5-4bce-9961-3d7cdb204b24/candidate-match-analysis 200 in 1122ms
+ GET /protected/jobs/6972fe07-96a5-4bce-9961-3d7cdb204b24/candidate-match-analysis 200 in 1229ms
+ GET /protected/jobs/6972fe07-96a5-4bce-9961-3d7cdb204b24/candidate-match-analysis 200 in 983ms
+🚀 Starting Simplified Enhanced LinkedIn Analysis Flow (v3) - DIRECT
+🔗 LinkedIn URL: https://www.linkedin.com/in/daniel-lanao/
+💼 Job ID: 6972fe07-96a5-4bce-9961-3d7cdb204b24
+💾 Save Results: false
+🔍 Fetching job data for analysis. Job ID: 6972fe07-96a5-4bce-9961-3d7cdb204b24
+✅ Job found: "undefined" with 4 requirements
+🔍 Step 1: Scraping LinkedIn profile...
+📊 Raw LinkedIn Profile Summary for Enhanced Analysis:
+   📏 Profile Size: 16273 characters
+   👤 Name: Daniel Lanao
+   💼 Experiences: 5 entries
+   🎯 Skills Listed: 20 entries
+🧠 Step 2: Parsing LinkedIn skills from raw profile...
+📤 Data Sent to parse-linkedin-skill API:
+📏 Payload Size: 16273 characters
+🔗 API Endpoint: https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/parse-linkedin-skill
+📋 Data Structure Being Sent:
+   - firstName: Daniel
+   - lastName: Lanao
+   - experiences: 5 items
+   - skills: 20 items
+   - Raw Profile Keys: linkedinUrl, firstName, lastName, fullName, headline, connections, followers, email, mobileNumber, jobTitle, companyName, companyIndustry, companyWebsite, companyLinkedin, companyFoundedIn, companySize, currentJobDuration, currentJobDurationInYrs, topSkillsByEndorsements, addressCountryOnly, addressWithCountry, addressWithoutCountry, profilePic, profilePicHighQuality, about, publicIdentifier, openConnection, urn, creatorWebsite, experiences, updates, skills, profilePicAllDimensions, educations, licenseAndCertificates, honorsAndAwards, languages, volunteerAndAwards, verifications, promos, highlights, projects, publications, patents, courses, testScores, organizations, volunteerCauses, interests, recommendations
+📥 Parsed Candidate Data Received from parse-linkedin-skill API:
+✅ API Response Status: 200
+👤 Candidate Details:
+   - Name: Daniel Lanao
+   - Country: AR
+   - Email: N/A
+   - LinkedIn: https://www.linkedin.com/in/daniel-lanao/
+   - Years of Experience: 11.7
+🛠️ Skills Extracted:
+   - Total Skills: 28
+   - Skills by Type: { technical_skill: 20, soft_skill: 6, certification: 2 }
+   - Top 5 Skills: Tech Leader (11.7y), Product Manager (11.7y), Software Developer (11.7y), Chief Technology & Development Officer (4.8y), Founder (0.5y)
+📊 Processing Summary:
+   - Response Size: 20293 characters
+   - Data Structure Valid: true
+📋 Parsed Candidate Summary for Enhanced Analysis:
+   👤 Parsed Name: Daniel Lanao
+   📊 Skills Parsed: 28 total
+   💼 Years Experience: 11.7
+   🔗 Profile Complete: true
+⚡ Step 3: Running simplified enhanced match analysis v3...
+🔍 LINKEDIN Match Analysis API Input: {
+  "candidate": {
+    "main": {
+      "first_name": "Daniel",
+      "last_name": "Lanao",
+      "country": "AR",
+      "email": "",
+      "phone": "",
+      "linkedin": "https://www.linkedin.com/in/daniel-lanao/",
+      "github": ""
+    },
+    "skills": [
+      {
+        "name": "Tech Leader",
+        "type": "technical_skill",
+        "yoe": 11.7,
+        "proficiency_level": "expert"
+      },
+      {
+        "name": "Product Manager",
+        "type": "technical_skill",
+        "yoe": 11.7,
+        "proficiency_level": "expert"
+      },
+      {
+        "name": "Software Developer",
+        "type": "technical_skill",
+        "yoe": 11.7,
+        "proficiency_level": "expert"
+      },
+      {
+        "name": "Chief Technology & Development Officer",
+        "type": "technical_skill",
+        "yoe": 4.8,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "Founder",
+        "type": "technical_skill",
+        "yoe": 0.5,
+        "proficiency_level": "beginner"
+      },
+      {
+        "name": "Software Engineer",
+        "type": "technical_skill",
+        "yoe": 1.5,
+        "proficiency_level": "beginner"
+      },
+      {
+        "name": "Head Software Development",
+        "type": "technical_skill",
+        "yoe": 2.3,
+        "proficiency_level": "beginner"
+      },
+      {
+        "name": "PHP",
+        "type": "technical_skill",
+        "yoe": 11.7,
+        "proficiency_level": "expert"
+      },
+      {
+        "name": "MySQL",
+        "type": "technical_skill",
+        "yoe": 11.7,
+        "proficiency_level": "expert"
+      },
+      {
+        "name": "Amazon Web Services (AWS)",
+        "type": "technical_skill",
+        "yoe": 11.7,
+        "proficiency_level": "expert"
+      },
+      {
+        "name": "Laravel",
+        "type": "technical_skill",
+        "yoe": 3.8,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "HTML",
+        "type": "technical_skill",
+        "yoe": 11.7,
+        "proficiency_level": "expert"
+      },
+      {
+        "name": "CSS",
+        "type": "technical_skill",
+        "yoe": 11.7,
+        "proficiency_level": "expert"
+      },
+      {
+        "name": "Web Development",
+        "type": "technical_skill",
+        "yoe": 11.7,
+        "proficiency_level": "expert"
+      },
+      {
+        "name": "Software Development",
+        "type": "technical_skill",
+        "yoe": 11.7,
+        "proficiency_level": "expert"
+      },
+      {
+        "name": "Agile Methodologies",
+        "type": "technical_skill",
+        "yoe": 11.7,
+        "proficiency_level": "expert"
+      },
+      {
+        "name": "Product Management",
+        "type": "technical_skill",
+        "yoe": 11.7,
+        "proficiency_level": "expert"
+      },
+      {
+        "name": "Project Management",
+        "type": "technical_skill",
+        "yoe": 11.7,
+        "proficiency_level": "expert"
+      },
+      {
+        "name": "Python",
+        "type": "technical_skill",
+        "yoe": 4.8,
+        "proficiency_level": "advanced"
+      },
+      {
+        "name": "User Experience (UX)",
+        "type": "technical_skill",
+        "yoe": 1.5,
+        "proficiency_level": "beginner"
+      },
+      {
+        "name": "Communication",
+        "type": "soft_skill",
+        "yoe": null,
+        "proficiency_level": null
+      },
+      {
+        "name": "Leadership",
+        "type": "soft_skill",
+        "yoe": null,
+        "proficiency_level": null
+      },
+      {
+        "name": "Team Leadership",
+        "type": "soft_skill",
+        "yoe": null,
+        "proficiency_level": null
+      },
+      {
+        "name": "Stakeholder Management",
+        "type": "soft_skill",
+        "yoe": null,
+        "proficiency_level": null
+      },
+      {
+        "name": "Cross-functional Collaboration",
+        "type": "soft_skill",
+        "yoe": null,
+        "proficiency_level": null
+      },
+      {
+        "name": "Strategic Thinking",
+        "type": "soft_skill",
+        "yoe": null,
+        "proficiency_level": null
+      },
+      {
+        "name": "Foundations of Project Management",
+        "type": "certification",
+        "yoe": null,
+        "proficiency_level": null
+      },
+      {
+        "name": "Solidity Smart Contract Development",
+        "type": "certification",
+        "yoe": null,
+        "proficiency_level": null
+      }
+    ],
+    "years_of_experience": 11.7,
+    "raw_linkedin_profile_text": "{\"linkedinUrl\":\"https://www.linkedin.com/in/daniel-lanao/\",\"firstName\":\"Daniel\",\"lastName\":\"Lanao\",\"fullName\":\"Daniel Lanao\",\"headline\":\"Tech Leader | Product Manager | Software Developer |  CTO at Kendo Corporation | Founder at Sportchain\",\"connections\":785,\"followers\":790,\"email\":null,\"mobileNumber\":null,\"jobTitle\":\"Founder\",\"companyName\":null,\"companyIndustry\":null,\"companyWebsite\":null,\"companyLinkedin\":null,\"companyFoundedIn\":null,\"companySize\":null,\"currentJobDuration\":\"6 mos\",\"currentJobDurationInYrs\":0.5,\"topSkillsByEndorsements\":\"PHP\",\"addressCountryOnly\":\"Argentina\",\"addressWithCountry\":\"Buenos Aires, Buenos Aires Province, Argentina\",\"addressWithoutCountry\":\"Buenos Aires, Buenos Aires Province\",\"profilePic\":\"https://media.licdn.com/dms/image/v2/D4D03AQEuhuwwZSl5pQ/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1709051776633?e=1760572800&v=beta&t=UkRc44UCT77KYE82kY7uTmmVAAEk08vWmkRgk1rcz_0\",\"profilePicHighQuality\":\"https://media.licdn.com/dms/image/v2/D4D03AQEuhuwwZSl5pQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1709051776633?e=1760572800&v=beta&t=c6ItC1Esp9xltmT0dkbOxeGg99FJqO_xNmuCeHd-eVQ\",\"about\":\"Entrepreneur, Tech Leader & Product Manager with a strong foundation in software development, experienced in leading cross-functional teams delivering amazing digital products and projects, on time, on budget, and aligned with strategic business goals.\\n\\nWith a background as both founder and product lead, I bring a unique perspective that connects user needs, technical execution, and agile delivery. My work shows how to evolve early-stage startups to growth-stage platforms, with hands-on experience in fintech systems, educational technology, and emerging Web3 solutions.\\n\\n🏆Core competencies:\\n\\n✅Both strategic business clarity and technical leadership.\\n✅Product lifecycle ownership (MVP to scale)\\n✅Agile & Scrum methodologies\\n✅Technical knowledge of software development\\n✅Stakeholder communication & cross-team alignment\\n✅Customer-centric product discovery\\n\\nLet’s connect\",\"publicIdentifier\":\"daniel-lanao\",\"openConnection\":null,\"urn\":\"ACoAAAXXTC4BcxfzP4PjCb_uXNCuiFOk_jCbALM\",\"creatorWebsite\":{\"name\":\"https://daniellanao.com\",\"link\":\"https://daniellanao.com\"},\"experiences\":[{\"companyId\":\"108035026\",\"companyUrn\":\"urn:li:fsd_company:108035026\",\"companyLink1\":\"https://www.linkedin.com/company/108035026/\",\"logo\":\"https://media.licdn.com/dms/image/v2/D560BAQG2bhcoo0lokg/company-logo_200_200/B56ZkVTcobHMAM-/0/1756999044181/sportchain_io_logo?e=1760572800&v=beta&t=C3CfDnEL4ixmUiC2fwp6ifk3MR6izeWLl0lLnPPPOps\",\"title\":\"Founder\",\"subtitle\":\"SportChain · Part-time\",\"caption\":\"Apr 2025 - Present · 6 mos\",\"metadata\":\"Buenos Aires Province, Argentina · Remote\",\"breakdown\":false,\"subComponents\":[{\"description\":[{\"type\":\"textComponent\",\"text\":\"Web 3 Platform that enables people to invest and co-own high-end sport venues using tokenization.\\nhttps://www.sportchain.io/\"}]}]},{\"companyId\":\"36983472\",\"companyUrn\":\"urn:li:fsd_company:36983472\",\"companyLink1\":\"https://www.linkedin.com/company/36983472/\",\"logo\":\"https://media.licdn.com/dms/image/v2/C560BAQGGV4JErwxZ2A/company-logo_200_200/company-logo_200_200/0/1630646614265/kendocorp_logo?e=1760572800&v=beta&t=5_S4nbOGlz5WS4iXJSEoAHGCkg1e1cejYkeGFCbn7dw\",\"title\":\"Chief Technology & Development Officer\",\"subtitle\":\"Kendo Corporation · Part-time\",\"caption\":\"Dec 2020 - Present · 4 yrs 10 mos\",\"metadata\":\"Lima, Peru\",\"breakdown\":false,\"subComponents\":[{\"description\":[{\"type\":\"textComponent\",\"text\":\"Financial Advisor Platform  & Simulation Platform from Scratch\\nAmazon AWS(Serverless) : Cognito , Dynamo DB , Lambda\"}]}]},{\"companyId\":\"1576807\",\"companyUrn\":\"urn:li:fsd_company:1576807\",\"companyLink1\":\"https://www.linkedin.com/company/1576807/\",\"logo\":\"https://media.licdn.com/dms/image/v2/C4E0BAQH22whjmghmfg/company-logo_200_200/company-logo_200_200/0/1631308130315?e=1760572800&v=beta&t=H3GnyxFFXVNaqpYWu2q4njemldoFp6X4O0iNLtM3RHA\",\"title\":\"Freelance Software Developer\",\"subtitle\":\"Independiente / Freelance · Self-employed\",\"caption\":\"Feb 2014 - Present · 11 yrs 8 mos\",\"metadata\":\"Lima, Peru\",\"breakdown\":false,\"subComponents\":[{\"description\":[{\"type\":\"textComponent\",\"text\":\"Web Application Development (HTML, CSS, PHP, MySQL.)\\nAmazon AWS\"}]}]},{\"companyId\":\"2636211\",\"companyUrn\":\"urn:li:fsd_company:2636211\",\"companyLink1\":\"https://www.linkedin.com/company/2636211/\",\"logo\":\"https://media.licdn.com/dms/image/v2/C4D0BAQH5yzXIpQS-jg/company-logo_200_200/company-logo_200_200/0/1656691541673?e=1760572800&v=beta&t=KoF0ojsYvfzUAV1waz-kNmOIIQr8R8L-eBuUOy2Q1_k\",\"title\":\"Software Engineer\",\"subtitle\":\"TRANZACT Peru · Full-time\",\"caption\":\"Aug 2022 - Jan 2024 · 1 yr 6 mos\",\"metadata\":\"Lima, Peru · Hybrid\",\"breakdown\":false,\"subComponents\":[{\"description\":[{\"type\":\"textComponent\",\"text\":\"Business Platform Reporting & Management (Connexco)\\nPHP, Laravel, MySQL\\nAmazon AWS\"}]}]},{\"companyId\":\"6578179\",\"companyUrn\":\"urn:li:fsd_company:6578179\",\"companyLink1\":\"https://www.linkedin.com/company/6578179/\",\"logo\":\"https://media.licdn.com/dms/image/v2/C560BAQH0hcPbv5B22Q/company-logo_200_200/company-logo_200_200/0/1630611945417/fit_big_data_logo?e=1760572800&v=beta&t=yirxjYgUO5tP4RoZTSHeCjZ1UwBjYvn5ZYjRYjOJJw4\",\"title\":\"Head Software Development\",\"subtitle\":\"FIT Big Data · Full-time\",\"caption\":\"Oct 2017 - Dec 2019 · 2 yrs 3 mos\",\"metadata\":\"Lima, Perú\",\"breakdown\":false,\"subComponents\":[{\"description\":[{\"type\":\"textComponent\",\"text\":\"Core Banking development from scratch\\nPHP, Laravel, MySQL\\nAmazon AWS\"}]}]}],\"updates\":[],\"skills\":[{\"title\":\"Jira\",\"subComponents\":[{\"description\":[{\"type\":\"insightComponent\",\"text\":\"3 experiences across TRANZACT Peru and 1 other company\"}]}]},{\"title\":\"Notion Productivity Software\",\"subComponents\":[{\"description\":[{\"type\":\"insightComponent\",\"text\":\"Founder at SportChain\"}]}]},{\"title\":\"Business Analysis\",\"subComponents\":[{\"description\":[{\"type\":\"insightComponent\",\"text\":\"8 experiences across SportChain and 6 other companies\"}]}]},{\"title\":\"Business Strategy\",\"subComponents\":[{\"description\":[{\"type\":\"insightComponent\",\"text\":\"9 experiences across SportChain and 7 other companies\"}]}]},{\"title\":\"Objectives and Key Results (OKRs)\",\"subComponents\":[{\"description\":[{\"type\":\"insightComponent\",\"text\":\"4 experiences across SportChain and 3 other companies\"}]}]},{\"title\":\"MVP Development\",\"subComponents\":[{\"description\":[{\"type\":\"insightComponent\",\"text\":\"9 experiences across SportChain and 7 other companies\"}]}]},{\"title\":\"Roadmap Planning\",\"subComponents\":[{\"description\":[{\"type\":\"insightComponent\",\"text\":\"3 experiences across Kendo Corporation and 1 other company\"}]}]},{\"title\":\"Lean Startup\",\"subComponents\":[{\"description\":[{\"type\":\"insightComponent\",\"text\":\"7 experiences across SportChain and 5 other companies\"},{\"type\":\"insightComponent\",\"text\":\"Foundations of Project Management\"}]}]},{\"title\":\"Cross-functional Team Leadership\",\"subComponents\":[{\"description\":[{\"type\":\"insightComponent\",\"text\":\"9 experiences across SportChain and 7 other companies\"},{\"type\":\"insightComponent\",\"text\":\"Foundations of Project Management\"}]}]},{\"title\":\"Web Development\",\"subComponents\":[{\"description\":[{\"type\":\"insightComponent\",\"text\":\"12 experiences across SportChain and 10 other companies\"},{\"type\":\"insightComponent\",\"text\":\"Pontificia Universidad Católica del Perú\"}]}]},{\"title\":\"Software Development\",\"subComponents\":[{\"description\":[{\"type\":\"insightComponent\",\"text\":\"12 experiences across SportChain and 10 other companies\"}]}]},{\"title\":\"Agile Methodologies\",\"subComponents\":[{\"description\":[{\"type\":\"insightComponent\",\"text\":\"8 experiences across SportChain and 6 other companies\"},{\"type\":\"insightComponent\",\"text\":\"Foundations of Project Management\"}]}]},{\"title\":\"Product Management\",\"subComponents\":[{\"description\":[{\"type\":\"insightComponent\",\"text\":\"7 experiences across SportChain and 5 other companies\"},{\"type\":\"insightComponent\",\"text\":\"Foundations of Project Management\"}]}]},{\"title\":\"Project Management\",\"subComponents\":[{\"description\":[{\"type\":\"insightComponent\",\"text\":\"11 experiences across SportChain and 9 other companies\"},{\"type\":\"insightComponent\",\"text\":\"Foundations of Project Management\"}]}]},{\"title\":\"PHP\",\"subComponents\":[{\"description\":[{\"type\":\"insightComponent\",\"text\":\"8 experiences across Kendo Corporation and 6 other companies\"},{\"type\":\"insightComponent\",\"text\":\"Passed LinkedIn Skill Assessment\"},{\"type\":\"insightComponent\",\"text\":\"6 endorsements\"}]}]},{\"title\":\"MySQL\",\"subComponents\":[{\"description\":[{\"type\":\"insightComponent\",\"text\":\"3 experiences across Kendo Corporation and 2 other companies\"}]}]},{\"title\":\"Amazon Web Services (AWS)\",\"subComponents\":[{\"description\":[{\"type\":\"insightComponent\",\"text\":\"Chief Technology & Development Officer at Kendo Corporation\"}]}]},{\"title\":\"phyton\",\"subComponents\":[{\"description\":[{\"type\":\"insightComponent\",\"text\":\"Chief Technology & Development Officer at Kendo Corporation\"}]}]},{\"title\":\"User Experience (UX)\",\"subComponents\":[{\"description\":[{\"type\":\"insightComponent\",\"text\":\"Software Engineer at TRANZACT Peru\"}]}]},{\"title\":\"GitHub\",\"subComponents\":[{\"description\":[{\"type\":\"insightComponent\",\"text\":\"9 experiences across SportChain and 7 other companies\"}]}]}],\"profilePicAllDimensions\":[{\"width\":100,\"height\":100,\"url\":\"https://media.licdn.com/dms/image/v2/D4D03AQEuhuwwZSl5pQ/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1709051776633?e=1760572800&v=beta&t=UkRc44UCT77KYE82kY7uTmmVAAEk08vWmkRgk1rcz_0\"},{\"width\":200,\"height\":200,\"url\":\"https://media.licdn.com/dms/image/v2/D4D03AQEuhuwwZSl5pQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1709051776633?e=1760572800&v=beta&t=tlp8JCYXiSxr_-Xal22LEnu-fjeJ9V6rKGxrCnUCWoc\"},{\"width\":400,\"height\":400,\"url\":\"https://media.licdn.com/dms/image/v2/D4D03AQEuhuwwZSl5pQ/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1709051776633?e=1760572800&v=beta&t=biK3MetTO2Yr9OKuQCLW1u9ffqbWT4gYs0BDwkiTV_w\"},{\"width\":800,\"height\":800,\"url\":\"https://media.licdn.com/dms/image/v2/D4D03AQEuhuwwZSl5pQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1709051776633?e=1760572800&v=beta&t=c6ItC1Esp9xltmT0dkbOxeGg99FJqO_xNmuCeHd-eVQ\"}],\"educations\":[{\"companyId\":\"37835\",\"companyUrn\":\"urn:li:fsd_company:37835\",\"companyLink1\":\"https://www.linkedin.com/company/37835/\",\"logo\":\"https://media.licdn.com/dms/image/v2/D4E0BAQG_1FFdAwnF6A/company-logo_200_200/B4EZZtn_XJHEAQ-/0/1745595923432?e=1760572800&v=beta&t=C15a6lRzJ8DEktKTjjJb5lA-tVNshGdbd9UTu3vi51k\",\"title\":\"Pontificia Universidad Católica del Perú\",\"subtitle\":\"Engineer's degree, Electrical and Electronics Engineering\",\"caption\":\"2007 - 2012\",\"breakdown\":false,\"subComponents\":[{\"description\":[]}]}],\"licenseAndCertificates\":[{\"companyLink1\":null,\"title\":\"Foundations of Project Management\",\"subtitle\":\"Google\",\"caption\":\"Issued Aug 2025\",\"metadata\":\"Credential ID 4VRDVKM7Q4N3\",\"breakdown\":false,\"subComponents\":[{\"description\":[]}]},{\"companyLink1\":null,\"title\":\"Solidity Smart Contract Development\",\"subtitle\":\"Cyfrin\",\"caption\":\"Issued Jun 2025\",\"breakdown\":false,\"subComponents\":[{\"description\":[]}]}],\"honorsAndAwards\":[],\"languages\":[{\"title\":\"Español\",\"breakdown\":false,\"subComponents\":[{\"description\":[]}]},{\"title\":\"Frances\",\"breakdown\":false,\"subComponents\":[{\"description\":[]}]}],\"volunteerAndAwards\":[],\"verifications\":[],\"promos\":[],\"highlights\":[],\"projects\":[],\"publications\":[{\"title\":\"Diseño y Desarrollo de un sistema de iluminación automatizado para el hogar, utilizando tecnología Zigbee y controlado inalámbricamente mediante un servidor Web.\",\"subtitle\":\"Aug 18, 2015\",\"breakdown\":false,\"subComponents\":[{\"description\":[{\"type\":\"textComponent\",\"text\":\"Diseñe una aplicación web en PHP que permite desde cualquier dispositivo móvil como un Smartphone controlar la iluminación del hogar el cual está conectado a un servidor local que maneja lenguaje JAVA.\"}]}]}],\"patents\":[],\"courses\":[],\"testScores\":[],\"organizations\":[],\"volunteerCauses\":[],\"interests\":[{\"section_name\":\"Top Voices\",\"section_components\":[{\"titleV2\":\"Adam Grant\",\"caption\":\"5,547,888 followers\",\"subtitle\":\"Organizational psychologist at Wharton, #1 NYT bestselling author of THINK AGAIN, host of the TED podcast Re:Thinking\",\"size\":\"LARGE\",\"textActionTarget\":\"https://www.linkedin.com/in/adammgrant\",\"subComponents\":[]},{\"titleV2\":\"Joanna Lord\",\"caption\":\"37,968 followers\",\"subtitle\":\"Global Brand Leader, CMO, Advisor, Builder of Beautiful Things (Previously Spring Health, Skyscanner, ClassPass, Reforge)\",\"size\":\"LARGE\",\"textActionTarget\":\"https://www.linkedin.com/in/joannalord\",\"subComponents\":[]}]},{\"section_name\":\"Companies\",\"section_components\":[{\"titleV2\":\"IBM\",\"caption\":\"18,663,782 followers\",\"size\":\"LARGE\",\"textActionTarget\":\"https://www.linkedin.com/company/1009/\",\"subComponents\":[]},{\"titleV2\":\"Oracle\",\"caption\":\"10,667,758 followers\",\"size\":\"LARGE\",\"textActionTarget\":\"https://www.linkedin.com/company/1028/\",\"subComponents\":[]}]},{\"section_name\":\"Groups\",\"section_components\":[{\"titleV2\":\"DOMOS - TRIBU Tech Latam\",\"caption\":\"197 members\",\"size\":\"LARGE\",\"textActionTarget\":\"https://www.linkedin.com/groups/14324443\",\"subComponents\":[]},{\"titleV2\":\"Red de Finanzas Sostenibles e Inversión de Impacto en América Latina y el Caribe \",\"caption\":\"362 members\",\"size\":\"LARGE\",\"textActionTarget\":\"https://www.linkedin.com/groups/13888000\",\"subComponents\":[]}]},{\"section_name\":\"Newsletters\",\"section_components\":[{\"titleV2\":\"Motiverse\",\"caption\":\"Published weekly\",\"subtitle\":\"Discover how technology and innovation are reshaping the way businesses build and deliver value.\",\"size\":\"LARGE\",\"textActionTarget\":\"https://www.linkedin.com/newsletters/7270089596720279553\",\"subComponents\":[{\"insightComponent\":{\"text\":\"Motivus\",\"actionTarget\":\"https://www.linkedin.com/company/104800574/\"}}]},{\"titleV2\":\"Software MindSET\",\"caption\":\"Published monthly\",\"subtitle\":\"Keep up to date on the latest trends and learn how to get high-quality software.\",\"size\":\"LARGE\",\"textActionTarget\":\"https://www.linkedin.com/newsletters/7023281050147536896\",\"subComponents\":[{\"insightComponent\":{\"text\":\"Software Mind\",\"actionTarget\":\"https://www.linkedin.com/company/13480/\"}}]}]},{\"section_name\":\"Schools\",\"section_components\":[{\"titleV2\":\"Télécom SudParis\",\"caption\":\"28,928 followers\",\"size\":\"LARGE\",\"textActionTarget\":\"https://www.linkedin.com/school/15141575/\",\"subComponents\":[]},{\"titleV2\":\"freeCodeCamp\",\"caption\":\"2,111,822 followers\",\"size\":\"LARGE\",\"textActionTarget\":\"https://www.linkedin.com/school/4831032/\",\"subComponents\":[]}]}],\"recommendations\":[{\"section_name\":\"Received\",\"section_components\":[]},{\"section_name\":\"Given\",\"section_components\":[{\"titleV2\":\"Rodrigo Sauñe Reyes\",\"caption\":\"June 25, 2017, Daniel and Rodrigo studied together\",\"subtitle\":\"Major Event Professional | Look & Signage Management\",\"size\":\"LARGE\",\"textActionTarget\":\"https://www.linkedin.com/in/rodrigo-saune-reyes-534b8940\",\"image\":\"https://media.licdn.com/dms/image/v2/D4D03AQF01U6Zz8miDQ/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1707570357746?e=1760572800&v=beta&t=2Wdad_MKNc4t1fh4MxG_x6Htm4cSktsX805nc8QmhzM\",\"subComponents\":[{\"fixedListComponent\":[{\"type\":\"textComponent\",\"text\":\"Rodrigo es mi amigo y ha sido mi compañero de estudios del colegio y del Bachillerato Internacional, y he podido observar su evolución como profesional a lo largo de estos años.\\n\\nHe podido observar que Rodrigo tiene una gran capacidad de superación profesional debido a sus continuos estudios en diplomados, cursos de especialización y últimamente su maestría.\\nTambién puedo destacar que Rodrigo es una persona muy proactiva y tiene una gran capacidad de adaptarse a los cambios que el mundo de hoy necesita.\\n\\nEntre sus intereses siempre he notado que Rodrigo tiene una gran afinidad a los deportes como el Futbol y el Tenis, los cuales aparte de practicarlos regularmente también tiene conocimientos sobre la actualidad mundial de estos deportes.\\n\\nRecomiendo a Rodrigo para cualquier trabajo puesto es un profesional de grandísimo nivel y con buenas habilidades de comunicación, con muchas ganas de crecer y poder cambiar al mundo a través del deporte.\\n\"}]}]}]}]}",
+    "raw_linkedin_profile": {
+      "linkedinUrl": "https://www.linkedin.com/in/daniel-lanao/",
+      "firstName": "Daniel",
+      "lastName": "Lanao",
+      "fullName": "Daniel Lanao",
+      "headline": "Tech Leader | Product Manager | Software Developer |  CTO at Kendo Corporation | Founder at Sportchain",
+      "connections": 785,
+      "followers": 790,
+      "email": null,
+      "mobileNumber": null,
+      "jobTitle": "Founder",
+      "companyName": null,
+      "companyIndustry": null,
+      "companyWebsite": null,
+      "companyLinkedin": null,
+      "companyFoundedIn": null,
+      "companySize": null,
+      "currentJobDuration": "6 mos",
+      "currentJobDurationInYrs": 0.5,
+      "topSkillsByEndorsements": "PHP",
+      "addressCountryOnly": "Argentina",
+      "addressWithCountry": "Buenos Aires, Buenos Aires Province, Argentina",
+      "addressWithoutCountry": "Buenos Aires, Buenos Aires Province",
+      "profilePic": "https://media.licdn.com/dms/image/v2/D4D03AQEuhuwwZSl5pQ/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1709051776633?e=1760572800&v=beta&t=UkRc44UCT77KYE82kY7uTmmVAAEk08vWmkRgk1rcz_0",
+      "profilePicHighQuality": "https://media.licdn.com/dms/image/v2/D4D03AQEuhuwwZSl5pQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1709051776633?e=1760572800&v=beta&t=c6ItC1Esp9xltmT0dkbOxeGg99FJqO_xNmuCeHd-eVQ",
+      "about": "Entrepreneur, Tech Leader & Product Manager with a strong foundation in software development, experienced in leading cross-functional teams delivering amazing digital products and projects, on time, on budget, and aligned with strategic business goals.\n\nWith a background as both founder and product lead, I bring a unique perspective that connects user needs, technical execution, and agile delivery. My work shows how to evolve early-stage startups to growth-stage platforms, with hands-on experience in fintech systems, educational technology, and emerging Web3 solutions.\n\n🏆Core competencies:\n\n✅Both strategic business clarity and technical leadership.\n✅Product lifecycle ownership (MVP to scale)\n✅Agile & Scrum methodologies\n✅Technical knowledge of software development\n✅Stakeholder communication & cross-team alignment\n✅Customer-centric product discovery\n\nLet’s connect",
+      "publicIdentifier": "daniel-lanao",
+      "openConnection": null,
+      "urn": "ACoAAAXXTC4BcxfzP4PjCb_uXNCuiFOk_jCbALM",
+      "creatorWebsite": {
+        "name": "https://daniellanao.com",
+        "link": "https://daniellanao.com"
+      },
+      "experiences": [
+        {
+          "companyId": "108035026",
+          "companyUrn": "urn:li:fsd_company:108035026",
+          "companyLink1": "https://www.linkedin.com/company/108035026/",
+          "logo": "https://media.licdn.com/dms/image/v2/D560BAQG2bhcoo0lokg/company-logo_200_200/B56ZkVTcobHMAM-/0/1756999044181/sportchain_io_logo?e=1760572800&v=beta&t=C3CfDnEL4ixmUiC2fwp6ifk3MR6izeWLl0lLnPPPOps",
+          "title": "Founder",
+          "subtitle": "SportChain · Part-time",
+          "caption": "Apr 2025 - Present · 6 mos",
+          "metadata": "Buenos Aires Province, Argentina · Remote",
+          "breakdown": false,
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "textComponent",
+                  "text": "Web 3 Platform that enables people to invest and co-own high-end sport venues using tokenization.\nhttps://www.sportchain.io/"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "companyId": "36983472",
+          "companyUrn": "urn:li:fsd_company:36983472",
+          "companyLink1": "https://www.linkedin.com/company/36983472/",
+          "logo": "https://media.licdn.com/dms/image/v2/C560BAQGGV4JErwxZ2A/company-logo_200_200/company-logo_200_200/0/1630646614265/kendocorp_logo?e=1760572800&v=beta&t=5_S4nbOGlz5WS4iXJSEoAHGCkg1e1cejYkeGFCbn7dw",
+          "title": "Chief Technology & Development Officer",
+          "subtitle": "Kendo Corporation · Part-time",
+          "caption": "Dec 2020 - Present · 4 yrs 10 mos",
+          "metadata": "Lima, Peru",
+          "breakdown": false,
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "textComponent",
+                  "text": "Financial Advisor Platform  & Simulation Platform from Scratch\nAmazon AWS(Serverless) : Cognito , Dynamo DB , Lambda"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "companyId": "1576807",
+          "companyUrn": "urn:li:fsd_company:1576807",
+          "companyLink1": "https://www.linkedin.com/company/1576807/",
+          "logo": "https://media.licdn.com/dms/image/v2/C4E0BAQH22whjmghmfg/company-logo_200_200/company-logo_200_200/0/1631308130315?e=1760572800&v=beta&t=H3GnyxFFXVNaqpYWu2q4njemldoFp6X4O0iNLtM3RHA",
+          "title": "Freelance Software Developer",
+          "subtitle": "Independiente / Freelance · Self-employed",
+          "caption": "Feb 2014 - Present · 11 yrs 8 mos",
+          "metadata": "Lima, Peru",
+          "breakdown": false,
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "textComponent",
+                  "text": "Web Application Development (HTML, CSS, PHP, MySQL.)\nAmazon AWS"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "companyId": "2636211",
+          "companyUrn": "urn:li:fsd_company:2636211",
+          "companyLink1": "https://www.linkedin.com/company/2636211/",
+          "logo": "https://media.licdn.com/dms/image/v2/C4D0BAQH5yzXIpQS-jg/company-logo_200_200/company-logo_200_200/0/1656691541673?e=1760572800&v=beta&t=KoF0ojsYvfzUAV1waz-kNmOIIQr8R8L-eBuUOy2Q1_k",
+          "title": "Software Engineer",
+          "subtitle": "TRANZACT Peru · Full-time",
+          "caption": "Aug 2022 - Jan 2024 · 1 yr 6 mos",
+          "metadata": "Lima, Peru · Hybrid",
+          "breakdown": false,
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "textComponent",
+                  "text": "Business Platform Reporting & Management (Connexco)\nPHP, Laravel, MySQL\nAmazon AWS"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "companyId": "6578179",
+          "companyUrn": "urn:li:fsd_company:6578179",
+          "companyLink1": "https://www.linkedin.com/company/6578179/",
+          "logo": "https://media.licdn.com/dms/image/v2/C560BAQH0hcPbv5B22Q/company-logo_200_200/company-logo_200_200/0/1630611945417/fit_big_data_logo?e=1760572800&v=beta&t=yirxjYgUO5tP4RoZTSHeCjZ1UwBjYvn5ZYjRYjOJJw4",
+          "title": "Head Software Development",
+          "subtitle": "FIT Big Data · Full-time",
+          "caption": "Oct 2017 - Dec 2019 · 2 yrs 3 mos",
+          "metadata": "Lima, Perú",
+          "breakdown": false,
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "textComponent",
+                  "text": "Core Banking development from scratch\nPHP, Laravel, MySQL\nAmazon AWS"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "updates": [],
+      "skills": [
+        {
+          "title": "Jira",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "3 experiences across TRANZACT Peru and 1 other company"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Notion Productivity Software",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "Founder at SportChain"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Business Analysis",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "8 experiences across SportChain and 6 other companies"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Business Strategy",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "9 experiences across SportChain and 7 other companies"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Objectives and Key Results (OKRs)",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "4 experiences across SportChain and 3 other companies"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "MVP Development",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "9 experiences across SportChain and 7 other companies"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Roadmap Planning",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "3 experiences across Kendo Corporation and 1 other company"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Lean Startup",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "7 experiences across SportChain and 5 other companies"
+                },
+                {
+                  "type": "insightComponent",
+                  "text": "Foundations of Project Management"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Cross-functional Team Leadership",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "9 experiences across SportChain and 7 other companies"
+                },
+                {
+                  "type": "insightComponent",
+                  "text": "Foundations of Project Management"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Web Development",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "12 experiences across SportChain and 10 other companies"
+                },
+                {
+                  "type": "insightComponent",
+                  "text": "Pontificia Universidad Católica del Perú"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Software Development",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "12 experiences across SportChain and 10 other companies"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Agile Methodologies",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "8 experiences across SportChain and 6 other companies"
+                },
+                {
+                  "type": "insightComponent",
+                  "text": "Foundations of Project Management"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Product Management",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "7 experiences across SportChain and 5 other companies"
+                },
+                {
+                  "type": "insightComponent",
+                  "text": "Foundations of Project Management"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Project Management",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "11 experiences across SportChain and 9 other companies"
+                },
+                {
+                  "type": "insightComponent",
+                  "text": "Foundations of Project Management"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "PHP",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "8 experiences across Kendo Corporation and 6 other companies"
+                },
+                {
+                  "type": "insightComponent",
+                  "text": "Passed LinkedIn Skill Assessment"
+                },
+                {
+                  "type": "insightComponent",
+                  "text": "6 endorsements"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "MySQL",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "3 experiences across Kendo Corporation and 2 other companies"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Amazon Web Services (AWS)",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "Chief Technology & Development Officer at Kendo Corporation"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "phyton",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "Chief Technology & Development Officer at Kendo Corporation"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "User Experience (UX)",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "Software Engineer at TRANZACT Peru"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "GitHub",
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "insightComponent",
+                  "text": "9 experiences across SportChain and 7 other companies"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "profilePicAllDimensions": [
+        {
+          "width": 100,
+          "height": 100,
+          "url": "https://media.licdn.com/dms/image/v2/D4D03AQEuhuwwZSl5pQ/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1709051776633?e=1760572800&v=beta&t=UkRc44UCT77KYE82kY7uTmmVAAEk08vWmkRgk1rcz_0"
+        },
+        {
+          "width": 200,
+          "height": 200,
+          "url": "https://media.licdn.com/dms/image/v2/D4D03AQEuhuwwZSl5pQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1709051776633?e=1760572800&v=beta&t=tlp8JCYXiSxr_-Xal22LEnu-fjeJ9V6rKGxrCnUCWoc"
+        },
+        {
+          "width": 400,
+          "height": 400,
+          "url": "https://media.licdn.com/dms/image/v2/D4D03AQEuhuwwZSl5pQ/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1709051776633?e=1760572800&v=beta&t=biK3MetTO2Yr9OKuQCLW1u9ffqbWT4gYs0BDwkiTV_w"
+        },
+        {
+          "width": 800,
+          "height": 800,
+          "url": "https://media.licdn.com/dms/image/v2/D4D03AQEuhuwwZSl5pQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1709051776633?e=1760572800&v=beta&t=c6ItC1Esp9xltmT0dkbOxeGg99FJqO_xNmuCeHd-eVQ"
+        }
+      ],
+      "educations": [
+        {
+          "companyId": "37835",
+          "companyUrn": "urn:li:fsd_company:37835",
+          "companyLink1": "https://www.linkedin.com/company/37835/",
+          "logo": "https://media.licdn.com/dms/image/v2/D4E0BAQG_1FFdAwnF6A/company-logo_200_200/B4EZZtn_XJHEAQ-/0/1745595923432?e=1760572800&v=beta&t=C15a6lRzJ8DEktKTjjJb5lA-tVNshGdbd9UTu3vi51k",
+          "title": "Pontificia Universidad Católica del Perú",
+          "subtitle": "Engineer's degree, Electrical and Electronics Engineering",
+          "caption": "2007 - 2012",
+          "breakdown": false,
+          "subComponents": [
+            {
+              "description": []
+            }
+          ]
+        }
+      ],
+      "licenseAndCertificates": [
+        {
+          "companyLink1": null,
+          "title": "Foundations of Project Management",
+          "subtitle": "Google",
+          "caption": "Issued Aug 2025",
+          "metadata": "Credential ID 4VRDVKM7Q4N3",
+          "breakdown": false,
+          "subComponents": [
+            {
+              "description": []
+            }
+          ]
+        },
+        {
+          "companyLink1": null,
+          "title": "Solidity Smart Contract Development",
+          "subtitle": "Cyfrin",
+          "caption": "Issued Jun 2025",
+          "breakdown": false,
+          "subComponents": [
+            {
+              "description": []
+            }
+          ]
+        }
+      ],
+      "honorsAndAwards": [],
+      "languages": [
+        {
+          "title": "Español",
+          "breakdown": false,
+          "subComponents": [
+            {
+              "description": []
+            }
+          ]
+        },
+        {
+          "title": "Frances",
+          "breakdown": false,
+          "subComponents": [
+            {
+              "description": []
+            }
+          ]
+        }
+      ],
+      "volunteerAndAwards": [],
+      "verifications": [],
+      "promos": [],
+      "highlights": [],
+      "projects": [],
+      "publications": [
+        {
+          "title": "Diseño y Desarrollo de un sistema de iluminación automatizado para el hogar, utilizando tecnología Zigbee y controlado inalámbricamente mediante un servidor Web.",
+          "subtitle": "Aug 18, 2015",
+          "breakdown": false,
+          "subComponents": [
+            {
+              "description": [
+                {
+                  "type": "textComponent",
+                  "text": "Diseñe una aplicación web en PHP que permite desde cualquier dispositivo móvil como un Smartphone controlar la iluminación del hogar el cual está conectado a un servidor local que maneja lenguaje JAVA."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "patents": [],
+      "courses": [],
+      "testScores": [],
+      "organizations": [],
+      "volunteerCauses": [],
+      "interests": [
+        {
+          "section_name": "Top Voices",
+          "section_components": [
+            {
+              "titleV2": "Adam Grant",
+              "caption": "5,547,888 followers",
+              "subtitle": "Organizational psychologist at Wharton, #1 NYT bestselling author of THINK AGAIN, host of the TED podcast Re:Thinking",
+              "size": "LARGE",
+              "textActionTarget": "https://www.linkedin.com/in/adammgrant",
+              "subComponents": []
+            },
+            {
+              "titleV2": "Joanna Lord",
+              "caption": "37,968 followers",
+              "subtitle": "Global Brand Leader, CMO, Advisor, Builder of Beautiful Things (Previously Spring Health, Skyscanner, ClassPass, Reforge)",
+              "size": "LARGE",
+              "textActionTarget": "https://www.linkedin.com/in/joannalord",
+              "subComponents": []
+            }
+          ]
+        },
+        {
+          "section_name": "Companies",
+          "section_components": [
+            {
+              "titleV2": "IBM",
+              "caption": "18,663,782 followers",
+              "size": "LARGE",
+              "textActionTarget": "https://www.linkedin.com/company/1009/",
+              "subComponents": []
+            },
+            {
+              "titleV2": "Oracle",
+              "caption": "10,667,758 followers",
+              "size": "LARGE",
+              "textActionTarget": "https://www.linkedin.com/company/1028/",
+              "subComponents": []
+            }
+          ]
+        },
+        {
+          "section_name": "Groups",
+          "section_components": [
+            {
+              "titleV2": "DOMOS - TRIBU Tech Latam",
+              "caption": "197 members",
+              "size": "LARGE",
+              "textActionTarget": "https://www.linkedin.com/groups/14324443",
+              "subComponents": []
+            },
+            {
+              "titleV2": "Red de Finanzas Sostenibles e Inversión de Impacto en América Latina y el Caribe ",
+              "caption": "362 members",
+              "size": "LARGE",
+              "textActionTarget": "https://www.linkedin.com/groups/13888000",
+              "subComponents": []
+            }
+          ]
+        },
+        {
+          "section_name": "Newsletters",
+          "section_components": [
+            {
+              "titleV2": "Motiverse",
+              "caption": "Published weekly",
+              "subtitle": "Discover how technology and innovation are reshaping the way businesses build and deliver value.",
+              "size": "LARGE",
+              "textActionTarget": "https://www.linkedin.com/newsletters/7270089596720279553",
+              "subComponents": [
+                {
+                  "insightComponent": {
+                    "text": "Motivus",
+                    "actionTarget": "https://www.linkedin.com/company/104800574/"
+                  }
+                }
+              ]
+            },
+            {
+              "titleV2": "Software MindSET",
+              "caption": "Published monthly",
+              "subtitle": "Keep up to date on the latest trends and learn how to get high-quality software.",
+              "size": "LARGE",
+              "textActionTarget": "https://www.linkedin.com/newsletters/7023281050147536896",
+              "subComponents": [
+                {
+                  "insightComponent": {
+                    "text": "Software Mind",
+                    "actionTarget": "https://www.linkedin.com/company/13480/"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "section_name": "Schools",
+          "section_components": [
+            {
+              "titleV2": "Télécom SudParis",
+              "caption": "28,928 followers",
+              "size": "LARGE",
+              "textActionTarget": "https://www.linkedin.com/school/15141575/",
+              "subComponents": []
+            },
+            {
+              "titleV2": "freeCodeCamp",
+              "caption": "2,111,822 followers",
+              "size": "LARGE",
+              "textActionTarget": "https://www.linkedin.com/school/4831032/",
+              "subComponents": []
+            }
+          ]
+        }
+      ],
+      "recommendations": [
+        {
+          "section_name": "Received",
+          "section_components": []
+        },
+        {
+          "section_name": "Given",
+          "section_components": [
+            {
+              "titleV2": "Rodrigo Sauñe Reyes",
+              "caption": "June 25, 2017, Daniel and Rodrigo studied together",
+              "subtitle": "Major Event Professional | Look & Signage Management",
+              "size": "LARGE",
+              "textActionTarget": "https://www.linkedin.com/in/rodrigo-saune-reyes-534b8940",
+              "image": "https://media.licdn.com/dms/image/v2/D4D03AQF01U6Zz8miDQ/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1707570357746?e=1760572800&v=beta&t=2Wdad_MKNc4t1fh4MxG_x6Htm4cSktsX805nc8QmhzM",
+              "subComponents": [
+                {
+                  "fixedListComponent": [
+                    {
+                      "type": "textComponent",
+                      "text": "Rodrigo es mi amigo y ha sido mi compañero de estudios del colegio y del Bachillerato Internacional, y he podido observar su evolución como profesional a lo largo de estos años.\n\nHe podido observar que Rodrigo tiene una gran capacidad de superación profesional debido a sus continuos estudios en diplomados, cursos de especialización y últimamente su maestría.\nTambién puedo destacar que Rodrigo es una persona muy proactiva y tiene una gran capacidad de adaptarse a los cambios que el mundo de hoy necesita.\n\nEntre sus intereses siempre he notado que Rodrigo tiene una gran afinidad a los deportes como el Futbol y el Tenis, los cuales aparte de practicarlos regularmente también tiene conocimientos sobre la actualidad mundial de estos deportes.\n\nRecomiendo a Rodrigo para cualquier trabajo puesto es un profesional de grandísimo nivel y con buenas habilidades de comunicación, con muchas ganas de crecer y poder cambiar al mundo a través del deporte.\n"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "job": {
+    "attributes": {
+      "title": "Product Manager",
+      "rate": {
+        "value": "",
+        "freq": "hourly"
+      },
+      "commitment": "full_time",
+      "duration": "permanent",
+      "location": {
+        "category": "remote_global",
+        "regions": [],
+        "countries": []
+      },
+      "seniority_level": "lead"
+    },
+    "requirements": [
+      {
+        "requirement": "Tech Lead",
+        "type": "role",
+        "is_mandatory": true,
+        "proficiency_level": "advanced",
+        "weight": 0.75
+      },
+      {
+        "requirement": "Guide Software Developers",
+        "type": "soft_skill",
+        "is_mandatory": true,
+        "proficiency_level": null,
+        "weight": 0.75
+      },
+      {
+        "requirement": "Laravel",
+        "type": "technical_skill",
+        "is_mandatory": false,
+        "proficiency_level": "advanced",
+        "weight": 0.1
+      },
+      {
+        "requirement": "Product Management",
+        "type": "technical_skill",
+        "is_mandatory": true,
+        "proficiency_level": "expert",
+        "weight": 0.5
+      }
+    ]
+  }
+}
+✅ LINKEDIN Match Analysis API Output: {
+  "success": true,
+  "candidate": {
+    "name": "Daniel Lanao",
+    "email": "",
+    "skills": [
+      {
+        "name": "Tech Leader",
+        "yearsOfExperience": 11.7,
+        "proficiencyLevel": "expert",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Product Manager",
+        "yearsOfExperience": 11.7,
+        "proficiencyLevel": "expert",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Software Developer",
+        "yearsOfExperience": 11.7,
+        "proficiencyLevel": "expert",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Chief Technology & Development Officer",
+        "yearsOfExperience": 4.8,
+        "proficiencyLevel": "advanced",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Founder",
+        "yearsOfExperience": 0.5,
+        "proficiencyLevel": "beginner",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Software Engineer",
+        "yearsOfExperience": 1.5,
+        "proficiencyLevel": "beginner",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Head Software Development",
+        "yearsOfExperience": 2.3,
+        "proficiencyLevel": "beginner",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "PHP",
+        "yearsOfExperience": 11.7,
+        "proficiencyLevel": "expert",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "MySQL",
+        "yearsOfExperience": 11.7,
+        "proficiencyLevel": "expert",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Amazon Web Services (AWS)",
+        "yearsOfExperience": 11.7,
+        "proficiencyLevel": "expert",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Laravel",
+        "yearsOfExperience": 3.8,
+        "proficiencyLevel": "advanced",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "HTML",
+        "yearsOfExperience": 11.7,
+        "proficiencyLevel": "expert",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "CSS",
+        "yearsOfExperience": 11.7,
+        "proficiencyLevel": "expert",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Web Development",
+        "yearsOfExperience": 11.7,
+        "proficiencyLevel": "expert",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Software Development",
+        "yearsOfExperience": 11.7,
+        "proficiencyLevel": "expert",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Agile Methodologies",
+        "yearsOfExperience": 11.7,
+        "proficiencyLevel": "expert",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Product Management",
+        "yearsOfExperience": 11.7,
+        "proficiencyLevel": "expert",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Project Management",
+        "yearsOfExperience": 11.7,
+        "proficiencyLevel": "expert",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Python",
+        "yearsOfExperience": 4.8,
+        "proficiencyLevel": "advanced",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "User Experience (UX)",
+        "yearsOfExperience": 1.5,
+        "proficiencyLevel": "beginner",
+        "type": "technical_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Communication",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "soft_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Leadership",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "soft_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Team Leadership",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "soft_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Stakeholder Management",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "soft_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Cross-functional Collaboration",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "soft_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Strategic Thinking",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "soft_skill",
+        "source": "parsed"
+      },
+      {
+        "name": "Foundations of Project Management",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "certification",
+        "source": "parsed"
+      },
+      {
+        "name": "Solidity Smart Contract Development",
+        "yearsOfExperience": null,
+        "proficiencyLevel": null,
+        "type": "certification",
+        "source": "parsed"
+      },
+      {
+        "name": "Founder",
+        "yearsOfExperience": 0.5,
+        "proficiencyLevel": "beginner",
+        "type": "role",
+        "source": "experience"
+      },
+      {
+        "name": "Chief Technology & Development Officer",
+        "yearsOfExperience": 4.8,
+        "proficiencyLevel": "expert",
+        "type": "role",
+        "source": "experience"
+      },
+      {
+        "name": "Freelance Software Developer",
+        "yearsOfExperience": 11.7,
+        "proficiencyLevel": "expert",
+        "type": "role",
+        "source": "experience"
+      },
+      {
+        "name": "Software Engineer",
+        "yearsOfExperience": 1.5,
+        "proficiencyLevel": "advanced",
+        "type": "role",
+        "source": "experience"
+      },
+      {
+        "name": "Head Software Development",
+        "yearsOfExperience": 2.3,
+        "proficiencyLevel": "advanced",
+        "type": "role",
+        "source": "experience"
+      }
+    ],
+    "experience": 11.7
+  },
+  "match_analysis": {
+    "overall_score": 52,
+    "status": "weak",
+    "overall_feedback": "This candidate shows limited alignment with the Product Manager position, scoring 52%. They meet 1 out of 3 mandatory requirements. Key strengths include demonstrable competency in laravel and proven expertise with tech lead. Areas needing attention include missing required expertise in guide software developers and missing required expertise in product management. Consider only if candidate demonstrates exceptional learning agility and growth potential.",
+    "matched_mandatory_requirements": 1,
+    "total_mandatory_requirements": 3
+  },
+  "requirement_evaluations": [
+    {
+      "requirement_name": "Tech Lead",
+      "score": 96,
+      "status": "fit",
+      "feedback": "Outstanding competency demonstrated in Tech Lead. Exact match with Tech Leader (Exceeds requirement (expert > advanced))"
+    },
+    {
+      "requirement_name": "Guide Software Developers",
+      "score": 0,
+      "status": "missing",
+      "feedback": "No evidence of Guide Software Developers experience found - critical gap"
+    },
+    {
+      "requirement_name": "Product Management",
+      "score": 0,
+      "status": "missing",
+      "feedback": "No clear evidence of Product Management experience found. Critical gap that needs addressing."
+    },
+    {
+      "requirement_name": "Laravel",
+      "score": 100,
+      "status": "fit",
+      "feedback": "Excellent match with required proficiency in Laravel. Exact match with Laravel (Meets requirement (advanced))"
+    }
+  ],
+  "summary": {
+    "strengths": [
+      "Demonstrable competency in Laravel",
+      "Proven expertise with Tech Lead"
+    ],
+    "gaps": [
+      "Missing required expertise in Guide Software Developers",
+      "Missing required expertise in Product Management"
+    ]
+  },
+  "recruiter_recommendations": {
+    "interview_strategy": [
+      "Discuss career motivations and long-term goals to understand interest in this level",
+      "Clarify growth opportunities and timeline for advancement",
+      "Verify compensation expectations align with the role level",
+      "Focus interview on assessing practical experience with: Guide Software Developers, Product Management",
+      "Leverage proven Tech Lead background for technical deep-dive discussions"
+    ],
+    "other_options": [
+      "Consider for junior role or with extended training period",
+      "May be suitable if willing to invest in skill development",
+      "Assess cultural fit and learning agility during interview"
+    ]
+  },
+  "metadata": {
+    "analysis_timestamp": "2025-09-10T19:28:16.659Z",
+    "job_id": "temp-job-id",
+    "candidate_id": "temp-candidate-id",
+    "algorithm_version": "linkedin-v2.0-unified",
+    "total_processing_time_ms": 0
+  },
+  "seniority_analysis": {
+    "required": "lead",
+    "candidate": "executive",
+    "candidateYears": 11.7,
+    "match": true,
+    "score": 0.8,
+    "feedback": "Candidate is slightly overqualified (Executive for Lead/Principal role). Consider discussing growth opportunities and compensation expectations"
+  }
+}
+
+🎯 LINKEDIN ANALYSIS SUMMARY:
+==========================================
+📊 Overall Score: 52% (weak)
+✅ Mandatory Requirements Met: 1/3
+🕒 Processing Time: 0ms
+🧠 Algorithm: linkedin-v2.0-unified
+📋 Requirements Analyzed: 4
+✅ Simplified enhanced LinkedIn analysis completed

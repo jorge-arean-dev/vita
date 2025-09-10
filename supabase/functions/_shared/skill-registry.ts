@@ -804,7 +804,8 @@
     aliases: [
       'PM',
       'Product Owner',
-      'PO'
+      'PO',
+      'Product Management'
     ],
     qualifiesFor: [
       'Product Management',

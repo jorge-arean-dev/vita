@@ -1,11 +1,12 @@
 /**
  * parse-resume-skill (GCP Cloud Function)
  * 
- * Updated: 2025-01-06
- * Version: 2.0.0
+ * Updated: 2025-01-10
+ * Version: 2.1.0
  * 
  * Changes:
- * - Migrated to use shared skill definitions module
+ * - v2.0.0: Migrated to use shared skill definitions module
+ * - v2.1.0: Enhanced role/title extraction from summary and job titles (Product Manager fix)
  * - Removed inline constants (softSkillKeywords, skillExtractionCriteria sections)
  * - Now imports from _shared/skill-definitions.js
  * - Maintains all original PDF parsing and skill extraction logic
@@ -89,7 +90,7 @@ Additional Considerations: Use these to further refine the appropriate level:
 IMPORTANT: For soft_skill and certification types, ALWAYS set proficiency_level to null regardless of experience.
 `;
 
-// UPDATED: 2025-09-10 - Simplified from 6 skill types to 3 core types
+// UPDATED: 2025-09-10 - Fixed Product Management categorization + maintained 3 core types simplification
 // CHANGE: Eliminated 'role', 'industry', 'technology_domain' as separate categories  
 // CONSOLIDATION: All technical competencies now under 'technical_skill' umbrella
 // SYNC: Mirrors supabase/functions/_shared/skill-definitions.ts for consistency
@@ -106,14 +107,20 @@ Each skill type category is explained below (simplified to 3 core types):
   • Cloud platforms and services (AWS, GCP, Azure, etc.)
   • Development tools and methodologies (Git, Docker, Agile, etc.)
   • Technology domains (Machine Learning, Data Engineering, DevOps, etc.)
-  • Professional roles and titles (Software Engineer, Data Scientist, etc.)
+  • Professional roles and titles (Software Engineer, Data Scientist, Product Manager, etc.)
   • Industry-specific technical knowledge (FinTech, Healthcare IT, etc.)
-  Examples: React, AWS, JavaScript, Python, Machine Learning, Senior Developer, Banking Systems, Kubernetes, PostgreSQL, REST APIs
+  Examples: React, AWS, JavaScript, Python, Machine Learning, Senior Developer, Product Manager, Banking Systems, Kubernetes, PostgreSQL, REST APIs
+
+  // CRITICAL: 2025-09-10 - "Product Manager" and "Product Management" are TECHNICAL skills
+  // ISSUE: Product Management was being incorrectly categorized as soft_skill with null yoe/proficiency 
+  // FIX: Explicitly categorize ANY Product Management related skills as technical_skill with proper YoE calculation
+  // IMPACT: Product Management skills will now show proper technical matching instead of 0% matching
 
 - "soft_skill": Interpersonal and non-technical skills such as Communication, Leadership, Teamwork, and Problem-Solving. To identify these skills, scan the input and match the content against the following soft skill keywords: ${SOFT_SKILLS_KEYWORDS.join(', ')}.
         - IMPORTANT NOTE 1: While exact keyword matches are required, you must also capture the underlying idea. For example, if a input states, "communicate with stakeholders" then 'Communication' should be selected. Or if a input states, "the candidate will lead a team of 10" then 'Leadership' should be selected. Consider both the frequency of exact keyword occurrences and the relevance of content to the keywords.
         - IMPORTANT NOTE 2: For all soft skills, always set 'yoe' (years of experience) to null and 'proficiency_level' to null.
         - IMPORTANT NOTE 3: MANDATORY - If company culture information is provided, you MUST analyze it carefully and extract relevant soft skills. For example: if culture mentions "team work" → include "Teamwork"; if culture mentions "fast paced" → include "Adaptability" and "Time Management"; if culture mentions "resilience" → include "Resilience"; if culture mentions "low ego" → include "Collaboration" and "Teamwork". Always include soft skills that match or closely relate to the cultural values described. This is critical for accurate role assessment.
+        - CRITICAL EXCLUSION: "Product Management", "Product Manager", "Project Management", "Project Manager" are NOT soft skills - they are technical_skill types.
 
 - "certification": Official credentials or certifications awarded by recognized institutions or providers (e.g., AWS Solutions Architect, PMP, CISSP, CPA). For certifications, ALWAYS set yoe: null and proficiency_level: null.
 `;
@@ -161,7 +168,28 @@ async function parseResumeText(resumeText) {
   // Using shared skill extraction criteria from shared definitions
   const skillExtractionCriteria = `Analyze the full resume and identify every skill mentioned in the work experience section, education section, summary/objective section, and certifications section. Each skill must be captured with the following parameters:
 
-	1) Years of Experience – The exact number of years the individual has used that specific skill, rounded to 1 decimal place.
+	// ADDED: 2025-01-10 - Enhanced role and title extraction from resume sections
+	// ISSUE: Product Management roles in summary/titles were not being extracted as skills
+	// SOLUTION: Explicitly extract job titles and roles as technical_skill type
+	
+	IMPORTANT - Role & Title Extraction:
+	- Extract job titles and roles from the summary/objective section as technical_skill type
+	- Common patterns to detect: "Product Manager", "Project Manager", "Tech Lead", "Software Engineer", "Data Scientist"
+	- Also extract from current/past job titles in experience section headers
+	- These role-based skills should use the duration of the associated position for yoe calculation
+	- Example: If summary says "Experienced Product Manager with 8 years..." → Extract "Product Manager" as technical_skill with 8.0 yoe
+	- Example: If job title is "Senior Product Manager (2020-2024)" → Extract "Product Manager" as technical_skill with 4.0 yoe
+
+	1) Years of Experience – Calculate skill experience with overlap detection:
+	   - Create timeline for each skill mention with start/end dates from work experience
+	   - For overlapping periods, use the MAXIMUM duration, not sum
+	   - For non-overlapping periods, add durations  
+	   - Example: AWS in Job1 (2020-2024, 4y) + Job2 (2022-2025, 3y) = 5 years total (not 7)
+	   - Round to 1 decimal place
+	   
+	   // ADDED: 2025-09-10 - Smart overlap detection to prevent inflated skill durations
+	   // ISSUE: Previous logic would sum all job durations causing unrealistic skill years
+	   // SOLUTION: Use timeline-based overlap detection like LinkedIn function
 
 	2) Proficiency Level  
 	Based on the number of years of experience you provided, please assign a Proficiency Level using the criteria below:
@@ -198,7 +226,8 @@ async function parseResumeText(resumeText) {
     "skills" contains a list, where each item represents a skill with detailed information. Follow this process to extract skill information: ${skillExtractionCriteria}
 	Each skill item includes the following fields:
 	1. name – The name of the skill.
-	2. type – The skill category, which must be one of: "technical_skill", "technology_domain", "soft_skill", "role", "certification", or "industry".
+	2. type – The skill category, which must be one of: "technical_skill", "soft_skill", or "certification".
+	   // FIXED: 2025-09-10 - Updated from old 6 skill types to new 3-type system for consistency
 	3. yoe – The number of years of experience with the skill (rounded to 1 decimal place), or null for soft_skill and certification types.
 	4. proficiency_level – The proficiency level with valid values: "beginner", "advanced", "expert", or null for soft_skill and certification types.
  
@@ -220,7 +249,7 @@ async function parseResumeText(resumeText) {
     const response = await openai.chat.completions.create({
       model: "gpt-4o", // Keep consistent with original
       messages: [
-        { role: "system", content: "You are a resume parser that extracts structured resume data. Always return valid JSON without markdown formatting. CRITICAL: For soft_skill and certification types, always set yoe and proficiency_level to null. MANDATORY: All numeric yoe values MUST be formatted with exactly 1 decimal place (e.g., 5.0, 3.0, 1.0, NOT 5, 3, 1). The years_of_experience field MUST also use 1 decimal place (e.g., 18.0, NOT 18)." },
+        { role: "system", content: "You are a resume parser that extracts structured resume data. Always return valid JSON without markdown formatting. CRITICAL: For soft_skill and certification types, always set yoe and proficiency_level to null. MANDATORY: All numeric yoe values MUST be formatted with exactly 1 decimal place (e.g., 5.0, 3.0, 1.0, NOT 5, 3, 1). The years_of_experience field MUST also use 1 decimal place (e.g., 18.0, NOT 18). IMPORTANT: Product Management, Product Manager, Project Management, and Project Manager are TECHNICAL skills, NOT soft skills - they must be categorized as technical_skill with proper YoE calculation." },
         { role: "user", content: prompt }
       ],
       temperature: 0.1, // Lower temperature for more consistent outputs

@@ -1,12 +1,13 @@
 /**
  * parse-linkedin-skill
  * 
- * Updated: 2025-01-06
- * Version: 2.0.1
+ * Updated: 2025-01-10
+ * Version: 2.1.0
  * 
  * Changes:
  * - v2.0.0: Migrated to use shared skill definitions module
  * - v2.0.1: Fixed import path to use root _shared folder (proper Supabase pattern)
+ * - v2.1.0: Enhanced extraction to scan headline and about sections for role-based skills (Product Manager fix)
  * - Removed inline constants (softSkillKeywords, skillTypeCategories, proficiencyLevelCriteria)
  * - Maintains all original LinkedIn profile parsing logic
  * 
@@ -126,7 +127,25 @@ async function processLinkedInProfile(profileData) {
     - linkedin: Use linkedinUrl or construct from publicIdentifier
     - github: Detect GitHub URLs from about section and interests (use empty string if not found)
 
-    ### 2. Extract Skills from Experience Descriptions
+    ### 2. Extract Skills from Headline and About Section
+    // ADDED: 2025-01-10 - Enhanced extraction to scan headline and about sections
+    // ISSUE: Product Management roles often appear in headline/about but not experiences
+    // SOLUTION: Extract role-based skills from these critical sections
+    
+    From headline field:
+    - Extract job titles and roles (e.g., "Product Manager", "Tech Lead", "Software Engineer")
+    - Common patterns: titles separated by "|", ",", or "-"
+    - These become technical_skill type with experience based on currentJobDurationInYrs or overall experience
+    - Example: "Tech Leader | Product Manager | Software Developer" → Extract all three as technical skills
+    
+    From about section:
+    - Scan for role-related keywords and competencies
+    - Look for patterns like "product lead", "Product lifecycle ownership", "engineering manager"
+    - Extract management and leadership roles as technical_skill type
+    - Use overall years_of_experience for yoe calculation if specific duration not mentioned
+    - Also extract technical competencies mentioned (frameworks, languages, methodologies)
+
+    ### 3. Extract Skills from Experience Descriptions
     For each experience in experiences[]:
     - Parse duration from caption (e.g., "1 yr 7 mos" → 1.6 years)
     - Extract ALL technologies, frameworks, and tools mentioned in description text
@@ -136,7 +155,7 @@ async function processLinkedInProfile(profileData) {
       * Extract skills from each subComponent's description
       * Assign the subComponent's duration to each skill found
 
-    ### 3. Extract Skills from Skills Section (Reference-Based Only)
+    ### 4. Extract Skills from Skills Section (Reference-Based Only)
     For each skill in skills[]:
     - Only include skills that reference specific experiences:
       * Company names: "2 experiences across Jusmet and 1 other company"
@@ -145,45 +164,63 @@ async function processLinkedInProfile(profileData) {
     - Map referenced experiences to actual experience durations
     - Assign full experience duration to each qualifying skill
 
-    ### 4. Extract Skills from Projects
+    ### 5. Extract Skills from Projects
     For each project in projects[]:
     - Parse project duration from subtitle (e.g., "Jan 2014 - Present" → calculate years)
     - If "Present", use current date (August 19, 2025)
     - Extract ALL technologies mentioned in project descriptions
     - Assign the full project duration to EVERY skill found in that project
 
-    ### 5. Sum Skill Durations
+    ### 6. Calculate Skill Experience with Overlap Detection
     For each unique skill found across all sources:
-    - Add up ALL durations where the skill was mentioned
-    - No overlap handling - simple addition
+    - Create timeline for each skill mention with start/end dates
+    - For overlapping periods, use the MAXIMUM duration, not sum
+    - For non-overlapping periods, add durations
+    - Example: AWS in Job1 (2020-2024, 4y) + Job2 (2022-2025, 3y) = 5 years total (not 7)
     - Round to one decimal place
+    
+    // UPDATED: 2025-09-10 - Fixed duration overlap calculation issue
+    // ISSUE: Previous "simple addition" logic caused inflated skill durations
+    // SOLUTION: Implement smart overlap detection to prevent double-counting concurrent roles
+    // IMPACT: AWS skills will show realistic ~4.8 years instead of inflated 19.9 years
 
-    ### 6. Extract Soft Skills and Certifications
-    6.1. Soft Skills:
+    ### 7. Extract Soft Skills and Certifications
+    7.1. Soft Skills:
       - Scan about section and recommendations for keywords: ${SOFT_SKILLS_KEYWORDS.join(', ')}
       - Look for contextual mentions (e.g., "led 10 people" → "Team Leadership")
       - IMPORTANT: Set yoe: null and proficiency_level: null
 
-    6.2. Certifications:
+    7.2. Certifications:
       - Extract from courses[] and licenseAndCertificates[] arrays
       - IMPORTANT: Set yoe: null and proficiency_level: null
 
-    ### 7. Assign Proficiency Levels
+    ### 8. Assign Proficiency Levels
     For technical skills, technology domains, roles, and industry skills:
     - ${PROFICIENCY_LEVEL_CRITERIA}
     - CRITICAL: soft_skill and certification types must have yoe: null and proficiency_level: null
 
-    ### 8. Calculate Total Career Experience
+    ### 9. Calculate Total Career Experience
     Calculate overall career span using the following specific logic:
-    8.1. Find the start date of the EARLIEST experience across all experiences
-    8.2. Find the end date of the LATEST experience across all experiences
-    8.3. If the latest experience is "Present" or ongoing, use today's date (August 19, 2025) as the end date
-    8.4. Calculate the difference: (Latest experience end date) - (Earliest experience start date)
-    8.5. Express the result in years with one decimal place
+    9.1. Find the start date of the EARLIEST experience across all experiences
+    9.2. Find the end date of the LATEST experience across all experiences
+    9.3. If the latest experience is "Present" or ongoing, use today's date (August 19, 2025) as the end date
+    9.4. Calculate the difference: (Latest experience end date) - (Earliest experience start date)
+    9.5. Express the result in years with one decimal place
     
     IMPORTANT: This calculation represents the career span from first job start to current job end, regardless of gaps or overlaps.
 
     ## PROCESSING EXAMPLES:
+
+    ### Headline Skills Example:
+    - Headline: "Tech Leader | Product Manager | Software Developer"
+    - Extract: "Tech Leader", "Product Manager", "Software Developer" as technical_skill
+    - Use currentJobDurationInYrs or overall experience for yoe
+    - Result: Product Manager: 13.5 years (using overall experience)
+
+    ### About Section Example:
+    - About mentions: "product lead", "Product lifecycle ownership"
+    - Extract: "Product Management" as technical_skill
+    - Result: Product Management: 13.5 years
 
     ### Experience Skills Example:
     - DEPT® experience (3.5 years) mentions "React, Node.js, Firebase"
@@ -219,7 +256,7 @@ async function processLinkedInProfile(profileData) {
       "skills": [
         {
           "name": "string",
-          "type": "technical_skill" | "technology_domain" | "soft_skill" | "role" | "certification" | "industry",
+          "type": "technical_skill" | "soft_skill" | "certification",
           "yoe": number | null,
           "proficiency_level": "beginner" | "advanced" | "expert" | null
         }
@@ -229,14 +266,15 @@ async function processLinkedInProfile(profileData) {
 
     ## CRITICAL REQUIREMENTS:
 
-    1. **Evidence-Based Skills**: Extract skills ONLY from experience descriptions, reference-based skills entries, and projects
-    2. **Full Duration Assignment**: Assign complete experience/project duration to every skill found in that source
-    3. **Simple Addition**: Sum all durations for each skill across all sources (no overlap handling)
-    4. **Reference Filtering**: Include skills section entries ONLY if they reference specific companies/roles
-    5. **Exclude Endorsements**: NEVER include skills with only endorsement counts
-    6. **Nested Processing**: Handle subComponents in breakdown experiences separately
-    7. **Formatting**: Title Case for skill names, one decimal place for numbers
-    8. **Null Handling**: ALWAYS null for yoe/proficiency_level on soft_skill and certification types
+    1. **Evidence-Based Skills**: Extract skills from headline, about section, experience descriptions, reference-based skills entries, and projects
+    2. **Headline & About Priority**: ALWAYS extract job titles and roles from headline and about sections as technical_skill type
+    3. **Full Duration Assignment**: Assign complete experience/project duration to every skill found in that source
+    4. **Smart Overlap Detection**: Use timeline-based overlap detection to prevent inflated skill durations
+    5. **Reference Filtering**: Include skills section entries ONLY if they reference specific companies/roles
+    6. **Exclude Endorsements**: NEVER include skills with only endorsement counts
+    7. **Nested Processing**: Handle subComponents in breakdown experiences separately
+    8. **Formatting**: Title Case for skill names, one decimal place for numbers
+    9. **Null Handling**: ALWAYS null for yoe/proficiency_level on soft_skill and certification types
 
     Return only valid JSON, no additional text.
 
@@ -257,7 +295,7 @@ async function processLinkedInProfile(profileData) {
         messages: [
           {
             role: "system",
-            content: "You are an expert at processing LinkedIn profiles and extracting structured professional information. Extract skills ONLY from experience descriptions, reference-based skills section entries, and projects. Assign full duration to every skill found in each source. Sum all durations for each skill. CRITICAL: For soft_skill and certification types, always set yoe and proficiency_level to null."
+            content: "You are an expert at processing LinkedIn profiles and extracting structured professional information. ALWAYS extract job titles and roles from headline and about sections first (e.g., Product Manager, Tech Lead). Then extract skills from experience descriptions, reference-based skills section entries, and projects. Assign full duration to every skill found in each source. Use overall experience for headline/about skills. CRITICAL: For soft_skill and certification types, always set yoe and proficiency_level to null."
           },
           {
             role: "user",

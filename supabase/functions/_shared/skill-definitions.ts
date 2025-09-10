@@ -11,7 +11,7 @@
  * 
  * Mirrors: docs/apis/code/_shared/skill-definitions.js (GCP version)
  * 
- * Last updated: 2025-01-06
+ * Last updated: 2025-09-10 - Fixed Product Management categorization
  */
 
 /**
@@ -113,9 +113,14 @@ Each skill type category is explained below (simplified to 3 core types):
   • Cloud platforms and services (AWS, GCP, Azure, etc.)
   • Development tools and methodologies (Git, Docker, Agile, etc.)
   • Technology domains (Machine Learning, Data Engineering, DevOps, etc.)
-  • Professional roles and titles (Software Engineer, Data Scientist, etc.)
+  • Professional roles and titles (Software Engineer, Data Scientist, Product Manager, etc.)
   • Industry-specific technical knowledge (FinTech, Healthcare IT, etc.)
-  Examples: React, AWS, JavaScript, Python, Machine Learning, Senior Developer, Banking Systems, Kubernetes, PostgreSQL, REST APIs
+  Examples: React, AWS, JavaScript, Python, Machine Learning, Senior Developer, Product Manager, Banking Systems, Kubernetes, PostgreSQL, REST APIs
+
+  // UPDATED: 2025-09-10 - Added "Product Manager" to technical_skill examples
+  // ISSUE: Product Management was incorrectly categorized as soft_skill with null yoe/proficiency
+  // SOLUTION: Explicitly include Product Manager in technical roles and examples
+  // IMPACT: Product Management skills will now show proper technical matching with YoE calculation
 
 - "soft_skill": Interpersonal and non-technical skills such as Communication, Leadership, Teamwork, and Problem-Solving. To identify these skills, scan the input and match the content against the following soft skill keywords: ${SOFT_SKILLS_KEYWORDS.join(', ')}.
         - IMPORTANT NOTE 1: While exact keyword matches are required, you must also capture the underlying idea. For example, if a input states, "communicate with stakeholders" then 'Communication' should be selected. Or if a input states, "the candidate will lead a team of 10" then 'Leadership' should be selected. Consider both the frequency of exact keyword occurrences and the relevance of content to the keywords.

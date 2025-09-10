@@ -113,6 +113,18 @@ This document tracks potential improvements and enhancements for the Vita platfo
 **Benefits**: Cleaner data, better matches  
 **Effort**: 3-4 hours
 
+### 15. Enhanced LinkedIn Profile Skill Extraction
+**Description**: Expand parse-linkedin-skill to scan headline and about sections for skill detection  
+**Current State**: Only scans experience descriptions, skills section (with references), and projects  
+**Issue**: Missing skills like "Product Manager" that appear in headline/about but not in experiences  
+**Benefits**: More complete skill extraction, better match accuracy for management roles  
+**Effort**: 2-3 hours  
+**Implementation Notes**:
+- Add headline parsing to extraction prompt
+- Add about section parsing for role-related keywords
+- Ensure Product Management, Project Management detected from these sections
+- Example case: Daniel Lanao profile has "Product Manager" in headline but wasn't detected
+
 ---
 
 ## Priority Levels
@@ -133,5 +145,5 @@ This document tracks potential improvements and enhancements for the Vita platfo
 
 ---
 
-**Last Updated**: January 2025  
+**Last Updated**: January 2025 (Item #15 added on 2025-01-10)  
 **Note**: This is a living document. Add new items as they're identified during development.

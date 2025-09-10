@@ -297,7 +297,7 @@ export async function parseLinkedInSkills(rawProfileData: Record<string, unknown
           "Content-Type": "application/json",
           "Authorization": `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`
         },
-        body: JSON.stringify(rawProfileData)
+        body: JSON.stringify({ profile_data: rawProfileData })
       }
     )
 
