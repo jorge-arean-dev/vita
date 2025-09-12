@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
@@ -7,7 +8,9 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { 
   BarChart, 
   MessageSquare,
-  Target
+  Target,
+  Plus,
+  Minus
 } from "lucide-react"
 import { InterviewWithDetails } from "@/types/interview.types"
 
@@ -18,6 +21,7 @@ interface QAPair {
   answer: string
   category: 'technical' | 'behavioral' | 'cultural'
   score: 0 | 1 | 2 | 3 | 4
+  scoreRationale: string
   skills: string[]
   timestamp: string
 }
@@ -37,6 +41,7 @@ const mockQAAnalysis: QAAnalysis = {
       answer: 'I have been working with React for over 3 years. In my last project, I built a dashboard application using React 18 with hooks and context API. I implemented code splitting and lazy loading to optimize performance. I also used React Query for data fetching and state management.',
       category: 'technical',
       score: 4,
+      scoreRationale: 'Demonstrates comprehensive React knowledge with specific examples of modern patterns (hooks, context API). Shows understanding of performance optimization techniques and state management solutions. Response is thorough and well-structured.',
       skills: ['React', 'Performance Optimization', 'State Management'],
       timestamp: '00:02:15'
     },
@@ -46,6 +51,7 @@ const mockQAAnalysis: QAAnalysis = {
       answer: 'In my previous role, I worked with a colleague who was resistant to code reviews. I approached them privately to understand their concerns and found they felt their work was being criticized. I explained that code reviews help everyone learn and improve code quality. We established guidelines together, and the situation improved significantly.',
       category: 'behavioral',
       score: 3,
+      scoreRationale: 'Shows good conflict resolution skills and emotional intelligence. Demonstrates proactive communication and empathy. Could have provided more detail on long-term outcomes and specific guidelines established.',
       skills: ['Team Leadership', 'Communication', 'Conflict Resolution'],
       timestamp: '00:08:30'
     },
@@ -55,6 +61,7 @@ const mockQAAnalysis: QAAnalysis = {
       answer: 'I usually start by analyzing query performance using explain plans. Then I look at indexing strategies, considering both single and composite indexes. I also implement pagination for large result sets.',
       category: 'technical',
       score: 2,
+      scoreRationale: 'Addresses the question at a basic level with correct fundamentals (explain plans, indexing, pagination). Lacks depth on advanced techniques like partitioning, caching strategies, or query optimization patterns.',
       skills: ['Database Management', 'Performance Optimization'],
       timestamp: '00:15:45'
     },
@@ -64,6 +71,7 @@ const mockQAAnalysis: QAAnalysis = {
       answer: 'I\'m motivated by solving complex problems and seeing the impact of my work on users. I believe in continuous learning and collaboration, which aligns with your values of innovation and teamwork.',
       category: 'cultural',
       score: 3,
+      scoreRationale: 'Correctly identifies key motivators and makes connection to company values. Response is genuine but could benefit from specific examples or stories that demonstrate these values in action.',
       skills: ['Problem Solving', 'Continuous Learning'],
       timestamp: '00:22:10'
     },
@@ -73,6 +81,7 @@ const mockQAAnalysis: QAAnalysis = {
       answer: 'Well, REST uses HTTP methods and GraphQL is newer. GraphQL is better I think.',
       category: 'technical',
       score: 1,
+      scoreRationale: 'Shows minimal understanding with one partially correct element (REST uses HTTP methods). Lacks technical depth, specific differences, use cases, or trade-offs. Response is incomplete and contains subjective opinion without justification.',
       skills: ['API Design'],
       timestamp: '00:28:20'
     }
@@ -88,6 +97,20 @@ export default function InterviewAnalysis({ interview }: InterviewAnalysisProps)
   
   // Use mock data for now - in production this would come from the analysis
   const analysis = mockQAAnalysis
+  
+  // State for collapsible score sections
+  const [expandedScores, setExpandedScores] = useState<Set<string>>(new Set())
+  
+  // Toggle score expansion
+  const toggleScoreExpansion = (qaId: string) => {
+    const newExpanded = new Set(expandedScores)
+    if (newExpanded.has(qaId)) {
+      newExpanded.delete(qaId)
+    } else {
+      newExpanded.add(qaId)
+    }
+    setExpandedScores(newExpanded)
+  }
   
   if (!score && interview.status !== 'completed') {
     return (
@@ -129,16 +152,8 @@ export default function InterviewAnalysis({ interview }: InterviewAnalysisProps)
   }
 
   const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'technical':
-        return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
-      case 'behavioral':
-        return "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200"
-      case 'cultural':
-        return "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200"
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-    }
+    // No colors for category badges to avoid confusion with score colors
+    return "bg-transparent border-muted-foreground/30"
   }
 
   return (
@@ -193,32 +208,44 @@ export default function InterviewAnalysis({ interview }: InterviewAnalysisProps)
             <div className="space-y-4 p-6">
               {analysis.qa_pairs.map((qa, index) => (
                 <div key={qa.id} className="border rounded-lg p-4 space-y-3">
-                  {/* Question */}
-                  <div className="space-y-2">
-                    <div className="flex items-start gap-2">
-                      <Badge 
-                        variant="outline" 
-                        className={`${getCategoryColor(qa.category)} border-0 text-xs font-medium`}
-                      >
-                        {qa.category.charAt(0).toUpperCase() + qa.category.slice(1)}
-                      </Badge>
-                      <Badge variant="outline" className="font-mono text-xs">
-                        {qa.timestamp}
-                      </Badge>
-                    </div>
-                    <div className="bg-muted/50 rounded-md p-3">
-                      <p className="text-sm font-medium text-muted-foreground mb-1">
-                        Question {index + 1}:
-                      </p>
-                      <p className="text-sm">{qa.question}</p>
-                    </div>
+                  {/* Top badges - horizontal layout */}
+                  <div className="flex justify-end gap-2">
+                    <Badge 
+                      variant="outline" 
+                      className={`${getCategoryColor(qa.category)} text-xs`}
+                    >
+                      {qa.category.charAt(0).toUpperCase() + qa.category.slice(1)}
+                    </Badge>
+                    <Badge variant="outline" className="font-mono text-xs bg-transparent">
+                      {qa.timestamp}
+                    </Badge>
                   </div>
 
-                  {/* Answer */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium">Candidate Response:</p>
+                  {/* Question - prominent title styling */}
+                  <div className="space-y-2">
+                    <p className="text-base font-semibold leading-relaxed">
+                      <span className="text-muted-foreground">Q:</span>{' '}
+                      {qa.question}
+                    </p>
+                  </div>
+
+                  {/* Answer - regular styling */}
+                  <div className="space-y-2">
+                    <p className="text-sm leading-relaxed">
+                      <span className="font-semibold text-muted-foreground">A:</span>{' '}
+                      {qa.answer}
+                    </p>
+                  </div>
+                  
+                  {/* Collapsible Score Section */}
+                  <div className="bg-muted/30 rounded-lg border border-muted">
+                    {/* Clickable header */}
+                    <div 
+                      className="flex items-center justify-between p-3 cursor-pointer hover:bg-muted/50 transition-colors"
+                      onClick={() => toggleScoreExpansion(qa.id)}
+                    >
                       <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold">📊 Score:</span>
                         <Badge 
                           variant="outline" 
                           className={`${getScoreBgColor(qa.score)} border-0 font-semibold`}
@@ -226,31 +253,43 @@ export default function InterviewAnalysis({ interview }: InterviewAnalysisProps)
                           {qa.score}/4 - {getScoreLabel(qa.score)}
                         </Badge>
                       </div>
-                    </div>
-                    <div className="bg-background border rounded-md p-3">
-                      <p className="text-sm leading-relaxed">{qa.answer}</p>
+                      {expandedScores.has(qa.id) ? (
+                        <Minus className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <Plus className="h-4 w-4 text-muted-foreground" />
+                      )}
                     </div>
                     
-                    {/* Skills */}
-                    {qa.skills.length > 0 && (
-                      <div className="space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">
-                          Skills Evaluated:
+                    {/* Expandable rationale */}
+                    {expandedScores.has(qa.id) && (
+                      <div className="px-3 pb-3 space-y-1 border-t border-muted pt-2">
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                          Rationale:
                         </p>
-                        <div className="flex flex-wrap gap-1">
-                          {qa.skills.map((skill, skillIndex) => (
-                            <Badge 
-                              key={skillIndex} 
-                              variant="secondary" 
-                              className="text-xs"
-                            >
-                              {skill}
-                            </Badge>
-                          ))}
-                        </div>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {qa.scoreRationale}
+                        </p>
                       </div>
                     )}
                   </div>
+                  
+                  {/* Skills - compact layout */}
+                  {qa.skills.length > 0 && (
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-xs font-medium text-muted-foreground">
+                        Skills Evaluated:
+                      </p>
+                      {qa.skills.map((skill, skillIndex) => (
+                        <Badge 
+                          key={skillIndex} 
+                          variant="secondary" 
+                          className="text-xs"
+                        >
+                          {skill}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
