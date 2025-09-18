@@ -4037,3 +4037,711 @@ Before proceeding with any step or implementation, provide your interpretation o
 
 In the same card, I would like to edit how the creation date is displayed.  Please add "Created .." before the day, so it says something like "created today" or "created two weeks ago." 
 Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood.
+
+============================
+
+
+
+Lets revamp the candidates view displayed in the route /candidates (component @components\candidates-view.tsx) by taking this component as a reference: @components\sample-candidates-view.tsx.
+
+Considerations:
+1. Don't reference the sample component  (@components\sample-candidates-view.tsx) as this will be deleted after the work is done. This means don't make any import referencing to this sample component. 
+2. The new layout should replicate the sample component, replicating the card-based table layout. 
+3. On each candidate card, in the footer, there must also be a button that says "Open". By clicking Open, the user will be taken to the respective candidate page (route candidates/[candidateid])
+3. Each card footer:
+	- must have a row container layout
+	- that row container will contain 2 containers: 
+		- container 1: [linkedin icon] [resume icon]   (aligned to the left)
+		- container 2: [open] (aligned to the right)
+
+4. each card itself must not be clickable
+5. For the LinkedIn icon and the resume icon, please keep the logic that is currently implemented in the existing component, where the icons are colored if the LinkedIn URL or the resume URL is available for the given candidate. 
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Ask for confirmation before proceeding
+
+========================
+
+Question about the interview questions generator feature (@components\interview-questions-generator.tsx) : Based on how the App API works, the interview questions generator requires a job description to function. What happens if a job has multiple job descriptions? Which one will the API use?
+
+======================
+Understood.  Let's fix how this works by doing this:
+- lets eliminate from consderation the attribute jobs.job_description from the interview questions generator feature
+- instead, the feature must work with the associated job descriptions from the job_descriptions table.
+
+
+How to make this work? im thinking we could eliminate the need to update the api, so we could directly add a jobdescription picker when cliokcing generate button.
+===============
+
+Let's use a column container for the job layout component. I'm detailing below how each element from the container should be structured.
+
+- [breadcrumbs]
+- [job title]				             [back button]
+- [company name]		[job details button] [3 dot button]
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Ask for confirmation before proceeding
+
+
+============
+
+
+Review the email builder component (@components\email-builder)and compare it against this documentation. Check whether the component adheres to the described patterns on this document @docs\edit-view-mode-pattern.md. Identify and explain any discrepancies, but do not build or modify anything yet.
+
+======
+
+My answers:
+
+1. The Save button should purely depend on has changes, as the pattern suggests. Please consider that both the content of the subject and the content of the body must be considered when analyzing if there has been a change.
+2.  I think we can maintain as an additional validation beyond hasChanges(). Rememebr there is a default title generated when creating a new email
+3. lets have Custom prompt be considered part of change detection
+4. i dont know. can you please be more explicit with this question by probably ctating an example?
+5. For new items Collapse acts exactly like cancel (only if we colapse in edit mode)
+6. lets allow generating multiple emails. is this okay?
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Ask for confirmation before proceeding
+=====
+
+
+The changes seem to have taken effect, but I am noticing an issue:  When I pick the option "Custom prompt" and I write a prompt, the email generated follows the workflow of generating a message based on that prompt.
+But when I pick another option after having created the message based on a prompt( let's suppose I use the option to create a polite rejection) The workflow gets stuck with the custom prompt option and gets stuck with the prompt that I initially shared. Seems like the option gets blocked.
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Ask for confirmation before proceeding
+
+=====
+
+Id like each card to consists of a row container that contains:
+	1. [collapse/expand icon] [Email title] 			[delete icon]
+	2. Email title font size must be reduced. pleaes point me the element from the code related to this element
+	3. I would like to reduce the card size by reducing the spacing between the card boundaries and the row container. I thnk the padding is the right paratemr to adjust. is my interpretation correct?
+
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Ask for confirmation before proceeding
+
+
+=======
+
+Please compare the following two components: `@components/candidates-view.tsx` and `@components/jobs-table.tsx`. Each represents a distinct view:
+
+1. `@components/candidates-view.tsx` – Candidate View  
+2. `@components/jobs-table.tsx` – Jobs View
+
+I would like to unify the spacing and sizing aspects between them. Use the Jobs View as the reference and adjust the Candidate View accordingly, specifically focusing on the following elements:
+
+1. Title font size (for Talent name and Company name)  
+2. Company logo (candidate logo)  
+3. Card size
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Ask for confirmation before proceeding
+
+
+
+In each candidate card, there appears to be excessive vertical spacing between the candidate's location and their years of experience. It seems that both elements are currently aligned to the top and bottom, respectively, within their container. They should likely be vertically centered instead, using a column-based layout.
+
+This adjustment will likely reduce the overall card height as well.
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Ask for confirmation before proceeding
+
+
+======
+
+Let's apply the following adjustments to the Companies View component: `@components/companies-view.tsx`.
+
+1. Modify the company grid layout, currently implemented as a card-based table. Each card should retain its current layout style but include a primary row container with the following elements in order:
+   [Company Initials Logo] [Company Name]			 [Company Country] [Company Industry] [Added Date] 		[Open Button] [Icon Links][3 dot button]
+
+2. Format the "Added Date" using relative time, e.g., "created two days ago." Follow the same wording rules used in the Jobs Table (`@components/jobs-table.tsx`).
+
+3. Reduce the overall font sizes, giving prominence to the Company Name. Use the font styling from the Jobs Table (`@components/jobs-table.tsx`) as a reference.
+
+4. For the "Open" button, apply the same styling as used in the Jobs Table (`@components/jobs-table.tsx`).
+
+5. Icon Links:
+   - **Link Icon**: Keep as-is, preserving the color logic that indicates whether a website is available.
+   - **LinkedIn Icon**: Replace the existing icon with the following:
+     a. Use `@public/linkedin-logo/linkedin-active.svg` if the company's LinkedIn URL is not empty.
+     b. Use `@public/linkedin-logo/linkedin-inactive.svg` if the company's LinkedIn URL is empty.
+
+
+
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Ask for confirmation before proceeding
+
+
+I want to adjust spacing between each row container element (Company attributes)
+the schema the row must follow is the detailed above:
+[logo] [company name]		[country] [industry] [creation date]		[open button]		[iconlinks] [3 dot button]
+
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Ask for confirmation before proceeding
+
+
+=========
+Let's make the following changes to `job-layout.tsx` located at `@components/job-layout.tsx`:
+
+- Add a new button at the bottom labeled "Back to jobs."
+	- This button should only be visible when the current route is `/jobs/[jobid]`.
+	- Position the button exactly where the existing "Back to Tools" button is placed.
+	- The styling of the new button must match that of the "Back to Tools" button.
+	- On click, the "Back to jobs" button should navigate the user to the `/jobs` route.
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Ask for confirmation before proceeding
+
+
+========
+
+Let's adjust the styling for the component job-layout.tsx @components\job-layout.tsx. Adjustments are related to spacing and component layout.  Please take into consideration these items.:
+1. Use as a reference jobs-table.tsx @components\jobs-table.tsx
+2. Main changes on jobs-layout.tsx is that the left, right, top, and bottom spacing must be reduced, so it aligns to how jobs-table.tsx is structured. 
+3. In Job-layout.tsx The elements that are fixed and are above the grey line that act as a header must have its spacing reduced and must look similarly to the header from job-table.tsx. 
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Ask for confirmation before proceeding
+
+Actually, i changed my mind, lets use a 2 row header approach follwoing the below schema:
+
+[breadcrumbs]			     [back to jobs/jobtools]
+[job name] at [company name]	[job details] [3 dot button]
+
+
+Lets also match the font styling to make everying unfied
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Ask for confirmation before proceeding
+
+======
+
+Lets make some updates to @components\ui\site-header-logged-in-user.tsx
+Lets use these 2 logos for the app:
+1. @public\logo\vita-logo-light.svg for the light mode
+2. @public\logo\vita-logo-dark.svg for the dark mode
+
+
+
+
+
+Let's do some ui changes to the interview companion feature      
+    
+- The card itself must not be clickable. 
+
+- The Collapse/Expand icon must be the one in charge of expanding or collapsing the card. 
+
+	
+
+
+
+The delete option that pops up after clicking the three-dot icon should allow the user to delete the interview entry. This deletion must also affect the database. 
+
+
+
+===
+
+From left to right. :
+1. [company logo] [company name]
+2. [country] [industry] [creation date]
+3. [action icons] [open] [3 dot icon]
+
+responsiveness wise - The company name must always appear
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Ask for confirmation before proceeding
+
+======
+
+While we have cards, when seeing all cards one aftetr the other we should follow a table format, meaning that eg a country attribute start must match exactly the countr attribte start of the card in the next card. same with creation date, indsutry etc.
+
+Also when the viewport of the central part of the page (where teh cards are displayed) width is reduced, the content should not overflow the card, we must hide the element accordingly following the reqs i shared.
+
+is the design-review agent able to run these type of tests to check this?
+
+=====
+
+There are still some issues:
+
+- When the card width is sufficient to display all elements, the three elements—country, industry, and date—are placed too closely together, with very little spacing between them.
+- As the card width starts to decrease, these three elements (which should be hidden) are not hiding, causing the content to overflow beyond the card's boundaries.
+- Please note that there is a sidebar that collapses and expands, affecting the width of the central viewport where the cards are displayed, as it does not overlay.
+
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Ask for confirmation before proceeding
+
+=======
+
+I notice the following issues:
+
+1. When page width > 1300, no content is displayed in the central part of the page.
+2. When page width < 1300, the sidebar is collapsed, but no button to expand it is displayed.
+3. When page width < 1300 and the sidebar is collapsed, it overlays the content. This must not happen.
+
+Please fix this following these guidelines:
+
+1. When page width > 1300: normal behavior. When expanded, the sidebar does not overlay; when collapsed, it reduces to 64 px showing only icons. The expand icon is visible.
+2. When page width < 1300: only the expand behavior changes. When expanding, the sidebar must overlay the content, which remains visible but is overlaid by the sidebar. Expand/collapse icon is visible
+3. In collapsed mode, the sidebar must not overlay the content. The content must adjust appropriately.
+
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Ask for confirmation before proceeding. Dont make assumptions. Prioritize asking rather than proceeding by using your own assumptions
+
+
+Lets make these edits:
+1. the container that contains the status badge is excessively wide. We should reduce it
+2. there is a widht breakpoint which i cant identify (around 1400 px) that, when passed, the creation date is hidden.
+
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Ask for confirmation before proceeding. Dont make assumptions. Prioritize asking rather than proceeding by using your own assumptions
+
+
+========
+
+Improved Instruction:
+
+Perfect. For testing purposes, I want to build a `simulate_interview` function that simulates a 30-minute interview by generating a transcript.
+
+Considerations:
+1. The transcript must display speaker names as "candidate" and "interviewer".
+2. The transcript must be generated based on the job details.
+3. The generation must be handled by an API (Supabase function) that calls the OpenAI API to create the transcript.
+4. This API will trigger the transcript generation workflow.
+
+How it should work:
+1. A user creates an interview, which starts in the "Created" status.
+2. If the interview actually occurs (the bot joins), the interview status changes to "In Progress" and follows the existing workflow.
+3. While in the "Created" status, a "Simulate Interview" button should appear in the "Overview" tab. 
+   - If clicked, the API for generating the transcript is called.
+   - Once the API returns a response, the interview status should change from "Created" to "Ready to Analyze".
+   - Note: Interviews with any status beyond "Created" must not allow simulation (the button must be disabled in such cases).
+
+UI Considerations:
+- The "Simulate Interview" button should be placed appropriately and styled consistently with the app.
+- Since this is for testing purposes only and will be removed later, minimal effort is needed for UI/UX polish.
+
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Ask for confirmation before proceeding. Dont make assumptions. Prioritize asking rather than proceeding by using your own assumptions
+
+
+=====
+
+Before moving forward with the plan, i'd like to emphasize that these are the skill types: 
+
+Technical
+Soft skill
+Role
+Certification
+Industry
+Technology domain
+
+
+All skills have a years of experience attribute except for types Soft skill and Certification. In those cases the match analysis is done through the count of ocurrences. You can find more information in @docs\apis\code\match-analysis-new\doc.md
+
+Please review this message and check if you find anything useful that deserves updating the plan you shared
+
+
+====
+
+Let me do some clarifications related to how the skill matching should be done for each skill type:
+
+- technical_skill -> skill matching with proficiency
+-technology_domain → Technical skill matching with proficiency
+- role → You can do Role-based matching (check job titles & experience) . BUT MUST HAVE A PROFICIENCY
+- soft_skill -> Soft skill matching (evidence-based)  - MUST NOT HAVE PROFICIENCY
+- certification → Binary matching  - MUST NOT HAVE PROFICIENCY
+- industry → Domain knowledge matching (binary) - BUT MUST HAVE A PROFICIENCY
+
+
+Share your thoughts on this before proceeding
+
+======
+
+
+a job entity has requirements (data structure details can be found in job_requirements table).
+a candidate has skills (data structure details can be found in candidate_skills table)
+
+while they are called differently requirements and skills are equivalent, meaning that each entry of the tables i mentioned above are equivalent and are the ones that must be taken into consideration for running the match analysis
+
+Does this add a bit of clarity? Just share your thoughts, dont do anything yet
+
+========
+
+1. we should be comparing job requiremetns vs candidate skills, not sure if this answers your question
+2. thats correct. since we are parsing a linkedin profile of a new candidate (that doesn't exist in the db), we are first parsing it, getting the structure it should have (ready to be added to the db in case the user decides to save them in teh next step) and running the comparison. If it was a new candidate we would use the data from the db
+3. Depends on the workflow we are using in the app (refer to the match-analysis component @components\candidate-match-analysis)
+
+does this add clarity?
+
+---- 
+
+i just re run the match analysis.
+
+see console output in @docs\additional-docs\output.txt
+see api logs in: @docs\additional-docs\supabase-logs.json
+
+=====
+
+1. new candidate -> input method: pdf resume upload
+2. existing candidate
+
+please review how the candidate is accessed on each flow, review respective apis involved and share feedback 
+
+=====
+
+Question about the options you raised for step (2):
+
+The fallback option applies to existing candidates, where we have three possible cases:
+
+1. Existing candidate created manually:  
+   In this case, the candidate was previously created through manual user input. No LinkedIn raw data or PDF resume raw data is available.
+
+2. Existing candidate created based on a LinkedIn parse:  
+   In this case, the candidate was previously created via a LinkedIn parse (using the same parsing function invoked for Match Analysis → New Candidates → LinkedIn Upload). The raw LinkedIn profile will be available.
+
+3. Existing candidate created based on a PDF resume parse:  
+   In this case, the candidate was previously created via a PDF parse (using the same parsing function invoked for Match Analysis → New Candidates → PDF). The raw PDF profile will be available.
+
+(You can review the candidate creation process by checking: `@components/create-talent-dialog.tsx`)
+
+Based on this, what do you think is a possible option for implementation?
+
+claude mcp add supabase -s local -e SUPABASE_ACCESS_TOKEN=sbp_39ea51c6f43ba52fd0c4e6aec89564f45b3d6a26 -- npx -y @supabase/mcp-server-supabase@latest
+
+
+==============
+
+Please review the match analysis function from the app. 
+For this, Please review :
+-the main app component: @components\candidate-match-analysis
+- the apis that participate in this feature depending on the workflow the user picks
+	- @supabase\functions\match-analysis-fallback-v2
+	- @supabase\functions\match-analysis-linkedin-v2
+	- supabase\functions\match-analysis-pdf-v2
+
+
+- some imporvements that were made based on recent evidence along with next steps: @docs\to-do\match-analysis-revamp\skill-type-extraction-enhancements.md
+- context conversations about  the improvements: @docs\to-do\match-analysis-revamp\context
+
+
+
+Please review all the infor shared, and provide:
+1. high level feedback on the work done so far
+2. high level explanation of how this feature works
+3. provide your opinion about the next steps suggested in skill-type-extraction-enhancements.md - ask ai-engineer subagent to provide feedback considering this is just an mvp and we wouldnt like to overcomplicate this
+
+
+====
+
+let me explain this first:
+
+a job is associated with "requierments", each requirement can have one of these types (skill_types): industry, certification, role, technical_skill, soft_skill, technology_domain and can have one of these proficiency levels 
+(proficiency_levels): beginner, advanced, expert.
+
+
+proposal that came to mind after reviewing your suggestion:
+im thinking we could add an attribute to a job where the user must indicate if its overall seniority level required (it could be a numerical value -years of exp- or could be a category, im on the fence here), then based on this we could use this attribute to use the experience level matching and connect it with you suggestion. what do you think?
+also, by doing this, aer we overcomplicating? by doing this, the per skill complexity (having prof levels for each skill) is redundant? should we make this even simpler? do you suggest categories or a numerical values for this new job attribute
+
+
+====
+
+in creation form:
+- lets put it below job title (step 2)
+
+in the edit form:
+- lets put it in role analysis (second tab). in the first place, above the 3 element container (rate, commitment, duration)
+
+
+additional considerations:
+- the options must be displayed in a ascending order Junior, Mid, Senior, Lead, Executive 
+- use display_names for displaying the names in the dropdown
+- also display the description in a less prominent text styling (follow current stylining)
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Ask for confirmation before proceeding. Dont make assumptions. Prioritize asking rather than proceeding by using your own assumptions
+
+
+answers:
+1) use a simpler select component
+2) lets make it required from the ui - dont allow the creation if seniority level is not marked. In other words, the dropdown is "Required"
+
+
+additional comment regarding your interpretation:
+for the job creation form you said: "Position: Below the job title field, before moving to company selection". The part "before moving to comapny selection" is incorrect.Company selection is a step the user does in step 1. Please cofnirm you agree with this
+
+====
+
+I would say, this is an MVP, and we want to keep it as simple as possible.  So, Let's keep the seniority analysis just for the match analysis feature.. This means we shouldn't save any data related to seniority analysis into the database except for the data we are laready storing in job_candidate_match_analysis_table (which is saved when we save a match analysis)
+
+1. For existing candidates, we should have either the LinkedIn raw data or the PDF raw data.  In this case, whenever we run the match analysis, we should re-run the seniority analysis. 
+2. For new candidates, depending on the method we pick. (LinkedIn profile analysis or PDF upload.) We would run the respective seniority analysis, which was already configured. 
+
+what do you think? 
+
+a4470d59-7b1e-45f0-bbe8-549ac239a97b
+
+=======
+
+Based on this response, I will only display the following items:
+1. **required**: The job's required seniority level  
+2. **candidate**: The candidate's detected seniority level  
+3. A graphic indicator showing whether the candidate is overqualified, underqualified, or a match, based on the `match`, `isOverqualified`, and `isUnderqualified` values  (probably a linear indicator)
+4. **feedback**
+
+The seniority analysis should be placed : below the Candidate Summary section and above the Per Requirement Analysis section.
+
+Please ask the UI/UX subagent to design a clean, aesthetically pleasing layout that follows the existing styling. Ensure accessibility and visual quality.
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Ask for confirmation before proceeding. Dont make assumptions. Prioritize asking rather than proceeding by using your own assumptions
+
+=====
+
+I have a question regarding the issue where Python developers are not being detected as a fit for the job requirements. Given how the match analysis is currently structured and the skill types defined in the database, do you think eliminating the 'role' skill type would simplify the match analysis?
+
+Please ask the AI Recruiting Engineer subagent to provide an opinion, taking into account that this is an MPP. The version should be as simple as possible to enable fast shipping and begin testing demand.
+
+Additionally, I’m considering removing the option to create candidates manually. Instead, candidate creation would only be allowed through LinkedIn profiles or PDF uploads. Please include feedback on this idea as well.
+
+JUST SHARE YOUR HONEST OPINION, DONT DO ANYTHING
+
+======
+
+
+
+This change will affect not only app components but also existing Supabase functions. Let's start with item 8.1 from the plan.
+
+Before proceeding with the steps outlined in 8.1, please complete the following:
+
+1. Run a comprehensive analysis of the app to identify all Supabase functions currently used by any component or part of the app. Focus your analysis on server actions and the `@components` folder. For easier reference, take note of any endpoint that begins with the pattern:  
+   `https://klhhdgizxytfmolwabfl.supabase.co/functions/v1/`  
+   Save the output of this analysis (likely a list of endpoints) in @docs\apis\temp.csv (add an entry)
+
+2. Use the Supabase MCP server to capture a complete list of existing Supabase functions.
+
+3. Based on the results of step 2, add entries to the file `@docs/apis/api-list-update.csv`. Ensure you add or update any missing function, and make sure the method, link, endpoint URL, and description fields are accurate. Set the "hosted on" field to "Supabase" for all entries.
+
+4. Compare the list of functions identified in step 1 (@docs\apis\temp.csv) against the entries in `@docs/apis/api-list-update.csv`. Update the "status" column based on this comparison:
+   - If a function from step 1 (@docs\apis\temp.csv) matches an entry in @docs/apis/api-list-update.csv, set its status to **active** (indicating it is currently in use).
+   - If no match is found, set its status to **inactive** (indicating it is not in use).
+
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Ask for confirmation before proceeding. Dont make assumptions. Prioritize asking rather than proceeding by using your own assumptions
+
+
+======
+
+
+wait, i have questions:
+1. i think you should also check parse-resume-skill api which is deployed in gcp. Code is detailed here: @docs\apis\code\parse-resume-skill.js (especially the prompts)
+2. whihc part of parse-linkedin-skill would you affect? the promtp, correct?
+3. job-details-extractor has a mention to the to be removed skill types, correct?
+
+
+======
+
+Edit the hero section to use a two-sided row container (box layout).
+
+Left box:
+- Current content: title + summarized version of the description + CTA buttons.
+
+Right box:
+- An animation hosted at: https://res.cloudinary.com/dnhjrpwmc/video/upload/v1757341726/gears_upscaled_4x_oljszx.mp4
+
+Use the provided image as a visual reference.
+
+=======
+
+
+Edit the root route (/) and edit the hero section taking this file as a erference @components\sample-hero.tsx
+Replace the image of the tsx file by adding this video, whose url i am sharing here: https://res.cloudinary.com/dnhjrpwmc/video/upload/v1757341726/gears_upscaled_4x_oljszx.mp4
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Ask for confirmation before proceeding. Dont make assumptions. Prioritize asking rather than proceeding by using your own assumptions
+
+====
+
+
+Let's adjust the hero section (the container that includes the title and button) from @app\page.tsx
+
+Update the layout as follows:
+
+The title consists of three lines of text:
+- Text 1: "Automatizá tu negocio."
+- Text 2: "Ahorrá tiempo."
+- Text 3: "Enfocate en crecer."
+
+Layout requirements:
+- Use a column layout for the container.
+- All elements (three text lines and the button) must be left-aligned.
+- Position the container in the top-right corner of the hero section viewport.
+- Align the container vertically with the header’s (logo + Nexa) container.
+- Apply a top padding that we can later adjust to fine-tune the exact position.
+
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Ask for confirmation before proceeding. Dont make assumptions. Prioritize asking rather than proceeding by using your own assumptions
+
+
+
+Please edit the header options: the container holding the options must be styled as a rectangle with rounded borders. The background color should be a semi-transparent white.
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Ask for confirmation before proceeding. Dont make assumptions. Prioritize asking rather than proceeding by using your own assumptions
+
+
+bg-primary/100 font-regular border-background/10 text-foreground text-xl hover:bg-primary/85 hover:text-foreground
+
+
+Please adjust the left and right padding from the header so the (logo + nexa) container is not so close to the left side
+
+I would like to add an animation to the text portion of the hero section. The text currently says: "Automatizá tu negocio, Enfocate en crecer
+
+Add a typewriter animation to the text in the hero section.
+
+Current text: "Automatizá tu negocio, Enfocate en crecer"
+
+Requirements:
+- Animate only the final word.
+- On page load, type "crecer" character by character with natural delays.
+- After it completes, delete "crecer" (simulate backspacing), then type the next word.
+- Word sequence:
+  1) "crecer" (on load)
+  2) "vender"
+  3) "atraer"
+  4) "facturar"
+  5) restart with "Crecer" and loop
+- Display a blinking "_" cursor next to the animated word at all times.
+- Keep the rest of the sentence static and unchanged.
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Ask for confirmation before proceeding. Dont make assumptions. Prioritize asking rather than proceeding by using your own assumptions
+
+
+Changes required for the typewriter animation:
+- When deleting the animated word, keep the layout width fixed so the surrounding text does not shift; the position of all other words must remain unchanged.
+- Insert a space between "... en" and the animated word. The sentence must render as "Enfocate en {animatedWord}" (it is currently showing "Enfocate envender").
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Ask for confirmation before proceeding. Dont make assumptions. Prioritize asking rather than proceeding by using your own assumptions
+
+
+
+======
+
+
+i want to make some edits to the interview companion feature
+please review this component @components\interview-companion along with this file @docs\apis\api-list-update.csv
+
+Once you get a full understanding on how the interview companion works, let me know. You dont need to return any output. Just review and make sure you understand
+
+
+
+=====
+
+
+Feature Request:
+
+Once an interview reaches the "ready_for_analysis" status (i.e., the transcript is ready), the "Analyze Now" button must be available in the "Transcript" tab. THIS IS ALREADY IMPLEMENTED.
+
+What I'd like to do now:
+
+1. Modify the analysis view by updating the UI and displayed elements. Here's how I want it to look and what information it should include:
+	
+	a. Display each interviewer question followed immediately by the corresponding candidate answer.
+	
+	b. For each answer, include:
+		- Topics/skills evaluated (shown as badges)
+		- A score reflecting how well the candidate answered the question
+	
+	c. Show an overall score calculated as the average of all individual question scores.
+
+About scoring:
+Please refer to this file for the scoring logic: @docs/interview-scoring-system.md
+
+
+Please provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Dont do anything related to code yet
+
+=====
+
+answer: no, consider this is an mvp, so lets be concise and specific. Lets only include scores (per question and overall score)
+once your understanding is clear, let me know so i can tell you what to do
+
+=====
+
+your understanding is correct. please ask the ai-engineer agent to validate this feature request. Please inform them this is an MVP and we want to be concise on the tool capabilities.
+Share concrete feedback and if this is good enough for an mvp feature. Dont do anythign yet related to coding, just share his validation/rejection opinion
+
+======
+
+Let's update the plan you shared based on the following:
+
+1. First, design the UI/UX for the Analysis tab. Ask the design-review agent to run an analysis and return the best possible UI, following the current styling guidelines. Before building anything, share the output as plain-text schemas that detail the placement of visual elements and the planned color scheme for accessibility and ease of use. Post these output schemas in @.claude\design-mockups.
+
+2. Once I confirm the output is satisfactory, proceed to build the necessary component code and populate it with mock data. The goal is to test usability.
+
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood. Ask for confirmation before proceeding. Dont make assumptions. Prioritize asking rather than proceeding by using your own assumptions
+
+====
+
+
+Comments about the output teh design review agent generated:
+
+1. i would like the schemas to look like this (sharing a sample)
+
++----------------------------------------------------------------------------------+
+|                                HEADER (Logo + Nav)                               |
+|----------------------------------------------------------------------------------|
+|                                                                                  |
+|   +---------------------------+          [ Illustration / Background Image ]     |
+|   |                           |                                                  |
+|   |   HERO TITLE (H1)         |                                                  |
+|   |   Subtitle / Tagline (H2) |                                                  |
+|   |                           |                                                  |
+|   |   [ Call to Action Btn ]  |                                                  |
+|   |   [ Secondary Btn   ]     |                                                  |
+|   |                           |                                                  |
+|   +---------------------------+                                                  |
+|                                                                                  |
++----------------------------------------------------------------------------------+
+
+
+2. for colors to represent scoring, can you pleae check @components\candidate-match-analysis and identify the color system adopted for the categories for score?
+
+confirm undersatndig before proceeding please
+
+=========
+
+Before proceeding with the rest of the plan, I’d like to add a space for each question–answer pair to include a score rationale, where we can explain why the candidate received a certain score.
+
+Please:
+1) Have the design-review agent propose where to place this element. The agent should return a simple layout of the subsection indicating the placement of the new element.  
+2) Once I confirm, implement this in reality and include mock data.
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood.
+
+==========
+
+
+I'd like to redesign the layout for each Q&A pair.
+
+- The Q&A pair element must be more compact.
+- The question and answer should be prominent; do not use child boxes for them.
+- Use the following layout:
+
+-------------------------------------------------------------------------------
+
+                				[<question type> <timestamp>]
+(Q) <question content>
+(A) <answer content>
+<score>
+<skills evaluated>
+
+-------------------------------------------------------------------------------
+
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood.
+
+========
+
+- lets replace (Q) by Q: and (A) by A:
+- Lets make the score subsection collapsible:
+	- collapsed view: Score <score>
+	- expanded view: same as collapsed but including rationale
+
+Before proceeding with any step or implementation, provide your interpretation of this instruction and ask one clarifying question at a time until all requirements are fully understood.
+
+=========
+
+
+please edit the last json you generated based on this items:
+- there must be 8 cards
+- use placeholders for now for the icon, heading text and description
+- the color scheme used must be between these colors:
+	--background: #f7f7f5;
+  	--foreground: #111111;
+ 	 --primary: #ffd900;
+  	--secondary: #1e3d52;
+
+ONLY MODIFY THESE ATTRIBUTES, THE REST MUST REMAIN AS IS
