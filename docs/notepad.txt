@@ -4393,8 +4393,6 @@ The fallback option applies to existing candidates, where we have three possible
 
 Based on this, what do you think is a possible option for implementation?
 
-claude mcp add supabase -s local -e SUPABASE_ACCESS_TOKEN=sbp_39ea51c6f43ba52fd0c4e6aec89564f45b3d6a26 -- npx -y @supabase/mcp-server-supabase@latest
-
 
 ==============
 
